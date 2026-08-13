@@ -1,0 +1,1285 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{booktabs,tabularx,array}
+\IfFileExists{lmodern.sty}
+  {\usepackage{lmodern}\usepackage{microtype}}
+  {\usepackage[expansion=false]{microtype}}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlist[itemize]{leftmargin=*,itemsep=0.15em,topsep=0.25em}
+\setlist[enumerate]{leftmargin=*,itemsep=0.25em,topsep=0.25em}
+\renewcommand{\arraystretch}{1.12}
+
+\newcommand{\AP}{\operatorname{AP}}
+\newcommand{\CNAP}{\operatorname{CNAP}}
+\newcommand{\Regime}{\mathcal{R}}
+\newcommand{\Assess}{\mathcal{A}}
+\newcommand{\PSet}{\Pi_\star}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prb}{\mathbb{P}}
+\newcommand{\iid}{\mathrel{\overset{\mathrm{iid}}{\sim}}}
+\newcommand{\RobCNAP}{\underline{\CNAP}_{\PSet}}
+\newcommand{\SRob}{S_{K,\PSet}^{\mathrm{AP}}(\Regime)}
+\newcommand{\SRobHat}{\widehat S_{K,\PSet}^{\,\mathrm{AP}}}
+\newcommand{\APta}{\widetilde{\AP}}
+\newcommand{\CNAPta}{\widetilde{\CNAP}}
+\newcommand{\Dta}{\widetilde{\Delta}}
+\newcommand{\RobDta}{\underline{\widetilde{\Delta}}_{\PSet}}
+
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Supported Model Comparison Across Target Prevalences\\
+\large A Replication-Based Method for Average Precision}
+\author{Marcus A. Thomas}
+\date{Methodological proposal}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Average precision depends on the prevalence of the population being evaluated, while a performance claim may also fail when an evaluation is repeated under new units, environments, or development runs. These are not two unrelated qualifications. Together they specify the conditions a claim must survive. Let $\PSet$ be a declared set of target prevalences, let $\Regime$ be a law for one complete replication, and let $K$ be the number of independent replications required to retain the claim. After prior-standardizing average precision to prevalence $\pi$ and normalizing population random ranking to zero, define
+\[
+S_{K,\PSet}^{\mathrm{AP}}(\Regime)
+=
+\E_{\Regime}\left[
+\min_{1\leq j\leq K}
+\inf_{\pi\in\PSet}\CNAP_\pi(D_j)
+\right].
+\]
+The prevalence infimum sits within each replication, so different replications may be defeated by different populations. The outer minimum implements corroboration in Popper's negative sense: a stronger replication cannot compensate for a level another replication has defeated.
+
+The construction has its clearest use in model replacement. Two marginal reports cannot be subtracted, because their prevalence and replication minima need not occur together. Direct paired comparison has a further difficulty: finite-sample average precision rewards finer score vectors under no association, so pairing does not remove the design anchor when models have different tie structures. Averaging average precision over the orderings within each tie block removes expected credit for arbitrary refinement. Under an exchangeable-label reference law, the resulting paired supported advantage has no positive design anchor in either orientation. A replacement claim requires an outer lower bound for that advantage to exceed a prespecified practical margin. Stratified paired resampling estimates the criterion from one evaluation, and independently collected evaluations estimate it without projection.
+\end{abstract}
+
+\section{The problem: what did the performance claim survive?}
+\label{sec:introduction}
+
+Many prediction systems produce a ranking so that a selected set can receive further attention: radiological images are sent for review, candidate molecules are advanced to an assay, and customers are prioritized for contact. In these applications the composition of the selected set matters, not only the separation between outcome classes, because the selected set is what the decision maker receives.
+
+Separation and selected-set purity part company when prevalence changes. Suppose a threshold selects $80\%$ of positive cases and $5\%$ of negative cases. In a balanced population of 10,000 cases, it returns 4,000 positives and 250 negatives, for precision $0.94$. In a population with $1\%$ positives, the same threshold returns 80 positives and 495 negatives, for precision $0.14$. Its true-positive and false-positive rates have not moved. The supply of negative cases has, and that is enough to change the meaning of the selected set.
+
+Average precision aggregates precision as a ranking is traversed, so it inherits the prevalence of the population in which it is evaluated. An AP value therefore does not identify a portable property of a ranking on its own. A study serving one known population can name one target prevalence. A study intended to cover several populations, sites, or planning scenarios faces a harder choice. Selecting one convenient prevalence hides the populations in which performance weakens. Averaging over prevalences requires a defensible distribution over target populations and allows a strong result in one population to compensate for a weak result in another. Where the intended claim is that a level holds throughout a set of relevant populations, neither response says what the claim requires.
+
+Repetition presents the same problem in another direction. A fixed model may be tested on new evaluation units. A transport claim may have to survive new environments or measurement conditions. A claim about a development procedure may have to survive new training, tuning, and model-selection runs. Reporting expected performance allows a favorable replication to compensate for an unfavorable one, even when the claimed level failed in the latter. A corroborated claim needs a statement of the conditions under which it was exposed to possible defeat.
+
+The conditions are collected in one assessment specification,
+\[
+\Assess=(\PSet,\Regime,K).
+\]
+The set $\PSet$ names the population conditions the claim must survive. The regime $\Regime$ names what may vary between complete replications. The integer $K$ gives the number of independent opportunities for defeat. These components belong to one assessment, although they enter the calculation differently. Under an invariance developed below, every prevalence in $\PSet$ can be evaluated from one realized replication and is therefore challenged by an infimum. The other varying conditions must be generated through $\Regime$.
+
+This distinction also states what happens when the invariance fails. If changing prevalence is accompanied by a change in class-conditional ranking behavior, one evaluation cannot compute performance in the other population. Prevalence must then be represented through environments generated by $\Regime$, using data from those environments. Prevalence remains part of the assessment specification; only the mechanism used to challenge the claim changes.
+
+An assessment must therefore solve two problems without confusing them. It must place performance in the populations to which the claim refers, and it must expose that performance to the kinds of repetition under which the claim is meant to persist. Solving either problem by averaging would reintroduce compensation; solving them separately would permit their adverse cases to occur in different worlds. The required order is consequently cumulative: construct a population-indexed effect, retain the level that holds throughout the declared population set, and then ask what such levels survive complete replications of the declared regime.
+
+Model replacement is the demanding case because the order must also preserve pairing. A single-model report can be made interpretable relative to its realized design, but it cannot be subtracted from another marginal report. The two models must be compared at the same prevalence on the same units, and the comparison must not reward whichever score vector happens to make finer arbitrary distinctions. The resulting construction is not a universal score or a general leaderboard. It is a performance claim whose meaning remains attached to the conditions under which it was challenged.
+
+\section{Problem I: average precision changes with the target population}
+\label{sec:prevalence}
+
+\subsection{Prior standardization}
+
+The first difficulty is not merely that two studies may contain different positive fractions. Replacing the observed fraction by a target fraction can change both the population represented and the evidence used to describe the ranking. A defensible transformation must separate those operations: it may alter the class prior, but it must leave the observed class-conditional ranking behavior intact. That criterion leads to the following representation.
+
+At score threshold $c$, let
+\[
+r(c)=\Prb(S\geq c\mid Y=1),
+\qquad
+f(c)=\Prb(S\geq c\mid Y=0).
+\]
+In a target population with prevalence $\pi\in(0,1)$, precision is
+\begin{equation}
+p_\pi(c)
+=
+\frac{\pi r(c)}
+{\pi r(c)+(1-\pi)f(c)}.
+\label{eq:reference-precision}
+\end{equation}
+The corresponding odds separate the population prior from ranking behavior:
+\begin{equation}
+\frac{p_\pi(c)}{1-p_\pi(c)}
+=
+\frac{\pi}{1-\pi}\frac{r(c)}{f(c)}.
+\label{eq:precision-odds}
+\end{equation}
+The first factor changes with the target population. The second is fixed by the class-conditional score distributions. Prior standardization changes the first while retaining the second, as in prior-probability adjustment and reference-ratio evaluation \cite{elkan2001foundations,siblini2020calibration}.
+
+Applying Equation~\eqref{eq:reference-precision} across the distinct score thresholds gives $\AP_\pi(D)$, prior-standardized AP for evaluation $D$ at prevalence $\pi$. Appendix~\ref{app:ap} gives the empirical definition. This is still average precision: only the class weights have been changed so that the observed class-conditional ranking represents a population with a declared prior.
+
+\subsection{What licenses the transformation}
+\label{sec:transport}
+
+The transformation solves one problem only under a substantive restriction. Holding $r(c)$ and $f(c)$ fixed while moving $\pi$ describes target populations that differ in class prevalence and not in the score distributions within class. With $S$ denoting the fixed model score, the required invariance is
+\begin{equation}
+P_{\mathrm{obs}}(S\geq c\mid Y=y)
+=
+P_{\mathrm{target}}(S\geq c\mid Y=y),
+\qquad y\in\{0,1\},
+\label{eq:score-invariance}
+\end{equation}
+for the thresholds used by the evaluation. This is the score-level form of prior-probability shift. The more familiar invariance of $P(X\mid Y)$ implies it for any fixed scoring rule but is stronger than the analysis needs \cite{saerens2002adjusting,storkey2009training,lipton2018detecting}.
+
+The condition cannot be established by manipulating the observed prevalence. A referral population may contain more severe cases within each outcome class than a primary-care population; a new measurement system may alter the score even when the cases have not changed. Either departure moves $P(S\mid Y)$ and leaves Equation~\eqref{eq:reference-precision} reweighting rates that do not describe the target. The assessment must then draw the relevant environments through $\Regime$, as a transport problem rather than a prior adjustment \cite{bareinboim2013transportability}. By contrast, a benchmark created by subsampling one common positive and negative pool satisfies Equation~\eqref{eq:score-invariance} by construction.
+
+The invariance is therefore a prespecified transport claim, not a diagnostic inferred from the observed profile. Its role is precise: it permits prevalence to be challenged analytically within each replication. It does not protect against population changes that alter class-conditional ranking behavior.
+
+\subsection{A common effect scale}
+
+Prior standardization names the population, but AP values at two target prevalences still have different random-ranking baselines. Population random ranking selects the same fraction of each class, so $r(c)=f(c)$ and $\AP_\pi=\pi$. Define
+\begin{equation}
+\CNAP_\pi(D)
+=
+\frac{\AP_\pi(D)-\pi}{1-\pi}.
+\label{eq:cnap}
+\end{equation}
+CNAP is zero for population random ranking, one for perfect ranking, and negative below chance. The normalization has the familiar chance-corrected form $(\text{observed}-\text{chance})/(\text{ceiling}-\text{chance})$ \cite{cohen1960coefficient}. It first evaluates the ranking in the target population and then uses that population's random-ranking value as its lower anchor. Every target prevalence consequently shares the endpoints zero and one.
+
+Normalization does not make the profile prevalence-invariant. At an empirical threshold with true-positive and false-positive rates $r_h$ and $f_h$, the normalized contribution is
+\begin{equation}
+\frac{p_{\pi,h}-\pi}{1-\pi}
+=
+\frac{\pi(r_h-f_h)}
+{\pi r_h+(1-\pi)f_h}.
+\label{eq:threshold-cnap}
+\end{equation}
+Rare-positive populations charge false positives heavily; higher-prevalence populations reward separation across a broader band of recall. Two models can therefore exchange order as $\pi$ moves even after chance normalization.
+
+\subsection{From a profile to a claim}
+
+A complete profile shows where a model strengthens or weakens, but the profile does not itself state a level attained throughout the target populations. Let $\PSet\subset(0,1)$ be a nonempty compact set chosen from scientific knowledge, deployment plans, or a study protocol. A closed interval suits a continuum of plausible populations; a finite set suits named operating populations.
+
+\begin{definition}[Prevalence-robust CNAP]
+\begin{equation}
+\RobCNAP(D)
+=
+\inf_{\pi\in\PSet}\CNAP_\pi(D).
+\label{eq:robust-cnap}
+\end{equation}
+\end{definition}
+
+Under the empirical definition below, $\CNAP_\pi(D)$ is continuous in $\pi$; because $\PSet$ is compact, the infimum is attained and may equivalently be written as a minimum.
+
+The infimum answers the noncompensatory question: what is the largest level attained at every declared prevalence? A distribution over target populations would support an average instead, and should be used where such a distribution is scientifically warranted. Equation~\eqref{eq:robust-cnap} is for the different claim that no population in the declared set may be compensated away.
+
+The set controls the breadth of the population challenge. If $\Pi_1\subseteq\Pi_2$, then
+\[
+\underline{\CNAP}_{\Pi_2}(D)
+\leq
+\underline{\CNAP}_{\Pi_1}(D).
+\]
+The observed minimizer
+\[
+\pi^\dagger(D)\in
+\arg\min_{\pi\in\PSet}\CNAP_\pi(D)
+\]
+identifies a population limiting the realized result and belongs with the diagnostic profile.
+
+For many useful single-model rankings the CNAP profile is nondecreasing, in which case the infimum over $[\pi_L,\pi_U]$ occurs at $\pi_L$. Appendix~\ref{app:ap} gives a sufficient condition. This limits what a prevalence set adds to a single-model report: it may reduce to a defensible lower endpoint. A paired difference need not be monotone even when both marginal profiles are, so the limiting prevalence may be interior and may change between replications. That is where the set-valued challenge becomes consequential rather than ceremonial.
+
+\section{Problem II: the claim may fail when the evaluation is repeated}
+\label{sec:regime}
+
+\subsection{The evaluation-generating regime}
+
+Calling a resampled dataset a replication leaves the central question unanswered: a replication of what? Resampling evaluation units can represent another test of one fixed model in one environment, but it cannot by itself represent a new measurement system, a new site, or another run of training and model selection. Treating these as interchangeable would make a computational choice silently determine the scientific claim. The claim must instead specify which mechanisms are allowed to vary.
+
+Consider the sequence
+\[
+E
+\longrightarrow D_{\mathrm{train}}
+\longrightarrow \widehat f,
+\qquad
+E\longrightarrow U\longrightarrow(X,Y),
+\qquad
+(\widehat f,X)\longrightarrow S,
+\]
+where $E$ is an environment, $D_{\mathrm{train}}$ is training data, $\widehat f$ is the fitted model, and $U$ denotes evaluation units. One complete evaluation is $D=\{(S_i,Y_i):i\in U\}$.
+
+\begin{definition}[Evaluation-generating regime]
+An evaluation-generating regime $\Regime$ is a probability law for one complete replication of the claim under study. It states which mechanisms are redrawn and which are held at their observed values.
+\end{definition}
+
+This definition makes the resampling method answer to the target rather than define it. The same observed evaluation may motivate several targets, but one bootstrap cannot be relabeled to identify all of them. Table~\ref{tab:regimes} makes the resulting distinctions explicit.
+
+\begin{table}[ht]
+\centering
+\caption{Illustrative evaluation-generating regimes. ``Declared'' means that the study must specify whether and how the mechanism varies.}
+\label{tab:regimes}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth}XXX@{}}
+\toprule
+Mechanism & Fixed model & New environment & Repeated development \\
+\midrule
+Evaluation units & redrawn & redrawn & redrawn \\
+Environment & held & redrawn & redrawn \\
+Measurement process & held & declared & declared \\
+Fitted model & held & held & redrawn \\
+Training and selection & held & held & rerun \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+A new-environment regime releases environmental variation and needs data from multiple environments or a model for generating them. A repeated-development regime asks about the procedure that produced the model and must repeat fitting, tuning, and model selection. Resampling one fixed score vector identifies only the first target.
+
+Observed and replication class counts have different roles. The observed counts $n_+^{\mathrm{obs}}$ and $n_-^{\mathrm{obs}}$ determine how much information is available. The replication counts $n_+^{\mathrm{rep}}$ and $n_-^{\mathrm{rep}}$ describe the evaluations the claim is required to survive. A same-design analysis equates them; a prospective analysis uses the counts planned for future evaluations.
+
+Independence is required between complete replications. Observations within one replication may be dependent. Clustered, matched, longitudinal, and multisite studies must generate or resample the coarsest unit treated as independent by the design. The paired reference result developed later imposes an additional condition on the arrangement of labels within an evaluation; choosing the correct resampling unit does not supply that condition.
+
+\subsection{One assessment, two modes of challenge}
+
+If prevalence belongs to the assessment, why is it not simply sampled along with environments and development runs? Doing so would answer a different question. It would average over whichever distribution of prevalences happened to be assigned to $\Regime$, allowing a favorable population to compensate for an unfavorable one. Yet drawing new data at every prevalence would be unnecessary when the score-level invariance in Equation~\eqref{eq:score-invariance} holds: one realized evaluation already supplies the class-conditional rates needed to evaluate every $\pi\in\PSet$.
+
+The assessment specification $\Assess=(\PSet,\Regime,K)$ therefore combines two modes of challenge. The prevalence set is held fixed and interrogated in full within every replication. Environments, measurement conditions, and development runs cannot be recovered by reweighting that replication and must instead be represented through draws from $\Regime$.
+
+This division is analytical rather than conceptual. Both parts state conditions the performance claim must survive. They use different operators because the evidence reaches them differently:
+\[
+\underbrace{\PSet}_{\text{evaluated within each replication}}
+\qquad
+\underbrace{\Regime}_{\text{explored by generating replications}}.
+\]
+If Equation~\eqref{eq:score-invariance} fails, the first mode is unavailable. Prevalence then becomes a feature of environments generated by $\Regime$, and the assessment requires observations from the corresponding populations.
+
+\section{Problem III: expected performance is not corroborated performance}
+\label{sec:support}
+
+\subsection{From a failed average to joint survival}
+
+Suppose two independent replications return performance effects $0.70$ and $0.05$. Their mean is $0.375$, but a claim at that level failed in the second replication. If the claim is required to survive both, the stronger result cannot compensate for a level the weaker result defeated. The greatest level retained by both is $0.05$, their minimum.
+
+This is the point at which the paper uses Popper's account of corroboration. A claim is supported not because the observations assign it a probability of truth, but because it has survived specified opportunities for defeat \cite{popper1959logic,popper1963conjectures}. Fix a scalar effect $T$, oriented so that larger values are better, and a level claim $T>s$. One replication retains the claim when $T>s$; $K$ independent replications retain it only when their minimum exceeds $s$.
+
+\begin{definition}[Replication-survival support]
+For $T_1,\ldots,T_K\iid P_{\Regime}^{T}$, define
+\begin{equation}
+S_K(T;\Regime)
+=
+\E_{\Regime}\left[
+\min_{1\leq j\leq K}T_j
+\right].
+\label{eq:support}
+\end{equation}
+\end{definition}
+
+The realized minimum is the greatest level retained by one set of $K$ challenges. Equation~\eqref{eq:support} averages that surviving level over executions of the declared regime. It remains on the scale of the effect. It is neither a probability that the claim is true nor a confidence bound.
+
+The regime and $K$ control different aspects of severity. The regime determines what kind of failure is possible; $K$ determines how many independent opportunities for such failure are presented. Ten replications of a narrow fixed-model regime can be less probing than two replications that redraw environments and development runs. The default $K=2$ has a modest interpretation: it is the first value at which joint survival asks more than expected performance. Other values should be prespecified and examined through sensitivity analysis.
+
+At $K=2$, the minimum identity gives
+\begin{equation}
+S_2(T;\Regime)
+=
+\E_{\Regime}[T]
+-
+\frac12\E_{\Regime}|T_1-T_2|.
+\label{eq:k2}
+\end{equation}
+Support is expected performance minus half the expected disagreement between two independent replications. This decomposition makes the cost of corroboration visible without converting it into a standard-error penalty.
+
+\subsection{Projected support and empirical corroboration}
+
+The use of a declared $K$ creates a problem that the terminology must not conceal. One observed evaluation has not literally survived $K$ independent external replications. Drawing 1,000 bootstrap samples does not turn it into a study with 1,000 empirical replications, because those samples reuse the information in the same evaluation. If corroboration were taken to mean a historical count of completed studies, Equation~\eqref{eq:support} would be misnamed.
+
+The construction instead separates the target criterion from the evidence used to estimate it. The population functional asks what level would survive $K$ independent executions of $\Regime$. One observed evaluation supplies a data-conditional estimate of that functional only to the extent that its resampling scheme represents the declared regime. The resulting number is projected support under $\Assess$, not a claim that the corresponding external challenges have already occurred.
+
+The separation is sharper than a matter of degree, because a bootstrap draws from the empirical distribution of one evaluation and can generate only recombinations of units already observed. Although that scheme may approximate the sampling distribution of a regular statistic well, it proceeds as though the observed sample exhausted the population capable of defeating the claim, which is the assumption an open test must avoid.
+
+Table~\ref{tab:regimes} settles which mechanisms a replication may vary, but not how those replications were obtained. Recombination from one evaluation and separate observation are different sources of evidence for the same regime, so the two questions cut across each other: a multisite study resampled by site releases environmental variation and remains projected, while two independently collected test sets for one fixed model release very little and do not.
+
+This distinction preserves the Popperian content while limiting it. Popperian corroboration concerns exposure to potential defeat, and the assessment makes the potential tests explicit: their population conditions are in $\PSet$, their generating mechanisms are in $\Regime$, and their number is $K$. The estimate projects the result of those tests from the evidence available. Actual independent replications remain epistemically stronger because they can reveal failures in the regime specification itself---failures of measurement invariance, environmental transport, or development stability that a bootstrap holding those mechanisms fixed cannot discover.
+
+The distinction also prevents computational effort from being mistaken for severity. Increasing $B$, the number of bootstrap replications, reduces Monte Carlo error in estimating the same $S_K$. Increasing $K$ changes the claim by requiring joint retention across more independent executions of $\Regime$. Adding genuinely new environments or development runs changes the evidence and may change the regime that can be represented. These three operations should never share the word ``replication'' without qualification.
+
+Error-statistical severity asks another question. It evaluates, through a sampling distribution, how readily a procedure would have exposed a specified error if that error were present \cite{mayo1996error}. Equation~\eqref{eq:support} returns no such probability. Its severity is structural: widening $\PSet$ and increasing $K$ add declared opportunities for defeat, while $\Regime$ states their kind.
+
+\subsection{Prevalence-robust supported performance}
+
+One replication first faces every population in $\PSet$. Its retained effect is
+\[
+Z_{\PSet}
+=
+\inf_{\pi\in\PSet}\CNAP_\pi(D).
+\]
+Replication support is then applied to $Z_{\PSet}$.
+
+\begin{definition}[Prevalence-robust supported CNAP]
+\begin{equation}
+\SRob
+=
+\E_{\Regime}
+\left[
+\min_{1\leq j\leq K}
+\inf_{\pi\in\PSet}\CNAP_\pi(D_j)
+\right].
+\label{eq:robust-support}
+\end{equation}
+\end{definition}
+
+At a proposed level $s$, the event inside the construction has a direct reading:
+\[
+\CNAP_\pi(D_j)>s
+\quad
+\text{for every }\pi\in\PSet
+\text{ and every }j\leq K.
+\]
+The value therefore measures magnitude after challenge, rather than the frequency of a testing decision. Appendix~\ref{app:support-proofs} gives the equivalent survival-function representation and the characterization of the operator among distortion summaries.
+
+For $K=2$,
+\begin{equation}
+S_{2,\PSet}^{\mathrm{AP}}(\Regime)
+=
+\E_{\Regime}[Z_{\PSet}]
+-
+\frac12\E_{\Regime}|Z_{\PSet,1}-Z_{\PSet,2}|.
+\label{eq:robust-k2}
+\end{equation}
+The first term is expected worst-prevalence performance. The second charges for disagreement between the levels retained by two replications, whose limiting prevalences may differ.
+
+\subsection{Why the prevalence search occurs inside each replication}
+\label{sec:order}
+
+The obvious order of operations is weaker than the intended claim. One might calculate supported performance separately at each prevalence and then report
+\[
+\inf_{\pi\in\PSet}
+S_K(\CNAP_\pi;\Regime).
+\]
+That construction challenges every replication at the same prevalence before taking the population minimum. If one replication fails at $\pi=0.01$ and another fails at $\pi=0.40$, neither is necessarily charged for its own worst population.
+
+A claim required to survive every target population in every replication must instead let each replication reveal the population that defeats it. This places the prevalence search inside:
+\begin{equation}
+S_K\left(
+\inf_{\pi\in\PSet}\CNAP_\pi;\Regime
+\right)
+\leq
+\inf_{\pi\in\PSet}
+S_K(\CNAP_\pi;\Regime).
+\label{eq:order}
+\end{equation}
+The two sides agree when the same prevalence minimizes the profile almost surely. They separate when the limiting prevalence moves between replications. The short proof in Appendix~\ref{app:support-proofs} shows that the entire gap arises from taking expectation after, rather than before, the prevalence search.
+
+The gap can be described without adding another headline estimand. Define
+\[
+C_{\mathrm{prev}}
+=
+\inf_{\pi\in\PSet}\E_{\Regime}[\CNAP_\pi]
+-
+\E_{\Regime}[Z_{\PSet}]
+\]
+and
+\[
+C_{\mathrm{rep}}
+=
+\E_{\Regime}[Z_{\PSet}]
+-\SRob.
+\]
+Then
+\begin{equation}
+\SRob
+=
+\inf_{\pi\in\PSet}\E_{\Regime}[\CNAP_\pi]
+-C_{\mathrm{prev}}-C_{\mathrm{rep}}.
+\label{eq:costs}
+\end{equation}
+The first cost records movement of the limiting prevalence across replications. The second records disagreement in the retained level and equals $\tfrac12\E|Z_1-Z_2|$ when $K=2$. These are diagnostics for a low supported value, not additional performance claims.
+
+\subsection{Severity and its limits}
+
+The challenge interpretation has one immediate mathematical consequence. Widening the prevalence set or increasing the replication count gives a level more opportunities for defeat.
+
+\begin{proposition}[Challenge monotonicity]
+\label{prop:monotonicity}
+If $\Pi_1\subseteq\Pi_2$ and $K_1\leq K_2$, then
+\[
+S_{K_2,\Pi_2}^{\mathrm{AP}}(\Regime)
+\leq
+S_{K_1,\Pi_1}^{\mathrm{AP}}(\Regime).
+\]
+\end{proposition}
+
+The result follows by coupling the two assessments and observing that the larger index set contains every challenge in the smaller one. It gives severity a precise but limited meaning: the raw supported value cannot improve when these declared opportunities for defeat are added.
+
+No parallel inclusion ordering exists for arbitrary regimes. Releasing environments or development runs changes the law of the replication effect rather than adding indices to the same array. If one regime is a mean-preserving spread of another, the supported value cannot increase; otherwise the regimes express different scientific claims and need not be ordered. This prevents ``richer regime'' from becoming an unexamined synonym for ``more severe regime.''
+
+Lower quantiles and expected shortfall remain defensible summaries of a replication distribution. They answer frequency or lower-tail questions. Equation~\eqref{eq:support} answers the narrower question posed here: what level is jointly retained by $K$ independent replications? Popper grounds the meaning of survival and corroboration; he does not select among the summaries that could express it.
+
+\begin{remark}
+The expected minimum can be posed directly, so nothing above depends on a representation theorem; the narrower objection is that it might be one arbitrary lower-tail choice among many. Suppose a summary $\rho$ of the law of $T\in[L,U]$ is law invariant, respects first-order stochastic dominance, returns $c$ for a constant effect, and is additive for comonotone effects. The Schmeidler representation then gives
+\[
+\rho(T)
+=
+L+\int_L^U g\{\Prb(T>s)\}\,ds
+\]
+for nondecreasing $g$ with $g(0)=0$ and $g(1)=1$, so that $g(u)$ is the weight carried by a level one replication retains with probability $u$ \cite{schmeidler1986integral,yaari1987dual}. Two independent challenges retain a level with probability $u_1u_2$, and requiring the weight of that conjunction to satisfy $g(u_1u_2)=g(u_1)g(u_2)$ admits only $g(u)=u^c$ for $c>0$; survival of exactly $K$ replications then fixes $c=K$ and returns Equation~\eqref{eq:survival-representation}. The argument identifies the family rather than the exponent, which stays a design commitment. Lower quantiles and expected shortfall fail the multiplicative condition, which is why they answer the frequency and tail-average questions instead of this one.
+\end{remark}
+
+\section{Estimating support from one observed evaluation}
+\label{sec:estimation}
+
+\subsection{The fixed-model bootstrap}
+
+The population quantity in Equation~\eqref{eq:robust-support} is indexed by a regime, while one held-out evaluation supplies only one realized score vector. A bootstrap can represent the fixed-model regime when evaluation units are the only mechanism to be redrawn. It cannot create environments or development runs that the observed evaluation never contained.
+
+Let $D_{\mathrm{obs},+}$ and $D_{\mathrm{obs},-}$ be the positive and negative units in an independent evaluation of a fixed model. For each computational replication $b=1,\ldots,B$:
+\begin{enumerate}
+\item sample $n_+^{\mathrm{rep}}$ units with replacement from $D_{\mathrm{obs},+}$;
+\item sample $n_-^{\mathrm{rep}}$ units with replacement from $D_{\mathrm{obs},-}$;
+\item combine the sampled units into $D^{(b)}$;
+\item evaluate the CNAP profile over the same declared $\PSet$; and
+\item record
+\[
+z_b
+=
+\inf_{\pi\in\PSet}\CNAP_\pi(D^{(b)}).
+\]
+\end{enumerate}
+The same resampled units are used throughout the prevalence profile. Resampling separately at each prevalence would destroy the joint profile and prevent a replication from revealing its own limiting population.
+
+For $K=2$, all unordered pairs of computational replications estimate Equation~\eqref{eq:robust-k2}:
+\begin{equation}
+\widehat S_{2,\PSet,B}^{\,\mathrm{AP}}
+=
+\frac{2}{B(B-1)}
+\sum_{1\leq i<j\leq B}\min(z_i,z_j).
+\label{eq:all-pairs}
+\end{equation}
+This is an order-two U-statistic \cite{hoeffding1948ustat}. Sorting the array evaluates it in $O(B\log B)$ time; Appendix~\ref{app:computation} gives the formula, its general-$K$ version, and a Monte Carlo standard error.
+
+Whether the scheme represents the declared regime and how well it estimates the target are separate questions, and the second is harder here than it would be for a mean. By Equation~\eqref{eq:quantile-weight} the replication distribution enters $S_K$ under the weight $K(1-v)^{K-1}$, which is uniform at $K=1$ and concentrates near the lower tail as $K$ grows. A bootstrap reproduces a lower tail less reliably than a centre, and least reliably when $n_+$ is small, since the worst replications available to it are bounded by recombinations of observed units. Raising $K$ therefore sharpens the claim while moving the estimate into the region where the resampling approximation is weakest. The prevalence infimum adds a second difficulty, because $\inf_\pi$ is directionally but not fully differentiable where the minimizer is not unique, which is a known route to bootstrap inconsistency rather than only to poor interval coverage. Increasing $B$ addresses neither, and simulation under designs resembling the intended application is the only check offered here.
+
+The observed minimizer $\pi^\dagger(D_{\mathrm{obs}})$ explains the point evaluation but does not replace the within-replication search. The bootstrap distribution of the minimizer is often more informative: concentration at one endpoint suggests that the declared set behaves like a point challenge, while movement across the set explains a positive $C_{\mathrm{prev}}$.
+
+\subsection{Intervals and grids}
+
+A finite set $\PSet=\{\pi_1,\ldots,\pi_G\}$ defines an exact finite challenge. A grid intended to approximate a continuous interval does not; it can miss an interior minimum and raise the reported value. The grid and its purpose must therefore be reported. A one-dimensional optimizer can instead evaluate a compact interval, with its tolerance checked against a dense grid.
+
+An outer resampling layer represents uncertainty in estimating the supported target from the observed evaluation. Each outer sample must repeat the complete inner calculation, including the prevalence search. The infimum is nonsmooth when the limiting prevalence changes or is nonunique, so ordinary bootstrap coverage is not automatic. Outer bounds are used below as proposed evidence for a threshold decision, with their coverage left as an empirical and theoretical requirement rather than assumed.
+
+A prospective fixed-model regime can change $n_+^{\mathrm{rep}}$ and $n_-^{\mathrm{rep}}$ to the planned evaluation counts while drawing from the observed class-conditional score pools.
+
+\subsection{Observed replications}
+
+The bootstrap is what one evaluation affords rather than what the criterion requires. Suppose instead that $R$ evaluations are collected independently under the declared regime: separate test sets for a fixed model, separate sites, or separate development runs each assessed on outcomes withheld from it. Each supplies one realized
+\[
+z_r
+=
+\inf_{\pi\in\PSet}\CNAP_\pi(D_r),
+\]
+and Equation~\eqref{eq:sorted-k} applies with $R$ in place of $B$. The estimand does not change, but the projection described in Section~\ref{sec:support} does, because the minima are then taken over replications that occurred. What limits the calculation is that $R$ is normally small, so $K$ must be well below $R$ and the U-statistic carries substantial variance. Where an evaluation supports both calculations, they answer one question with different warrants and belong in the same report.
+
+\section{Problem IV: model replacement requires a paired, tie-neutral claim}
+\label{sec:paired}
+
+\subsection{Why marginal reports do not compose}
+
+A replacement decision concerns an advantage realized under the same conditions. Two single-model reports do not contain that quantity, even if they use the same prevalence set and regime. Write
+\[
+A_{\PSet}(D)
+=
+\inf_{\pi\in\PSet}\CNAP_{A,\pi}(D),
+\qquad
+B_{\PSet}(D)
+=
+\inf_{\pi\in\PSet}\CNAP_{B,\pi}(D).
+\]
+Subtracting supported marginal values lets $A$ meet its worst prevalence and replication while $B$ meets another. The difference compares two adverse cases that need never have occurred together.
+
+The direction of the error is fixed. For either AP tie convention,
+\begin{equation}
+S_K(A_{\PSet};\Regime)
+-
+S_K(B_{\PSet};\Regime)
+\geq
+S_K(A_{\PSet}-B_{\PSet};\Regime)
+\geq
+S_K\left(
+\inf_{\pi\in\PSet}
+\{\CNAP_{A,\pi}-\CNAP_{B,\pi}\};
+\Regime
+\right).
+\label{eq:noncomposition}
+\end{equation}
+The proof in Appendix~\ref{app:paired-proofs} uses only the infimum and minimum. Marginal subtraction therefore overstates the paired supported advantage, by an amount the separate reports do not record. Joint predictions on the same evaluation units are required.
+
+\subsection{The finite-design displacement}
+\label{sec:displacement}
+
+CNAP assigns zero to population random ranking, but finite-sample stepwise AP is upward displaced under random ordering \cite{bestgen2015random}. The smallest design exhibits the problem without approximation. Take one positive and one negative observation at $\pi=1/2$. Under random ordering the positive ranks first or second with equal probability. Stepwise AP is $1$ or $1/2$, so CNAP is $1$ or $0$. One replication has mean CNAP $1/2$, and two independent replications have
+\[
+S_2
+=
+\E[\min(Z_1,Z_2)]
+=
+\frac14.
+\]
+A procedure applied to pure noise has returned $0.25$ on a population scale whose zero denotes random ranking.
+
+The displacement is not determined by the class counts alone. Stepwise AP evaluates precision where positive cases enter the ranking, which favors a vector with many distinct thresholds. A fully tied score vector has one threshold with $r=f=1$ and returns CNAP zero without variation. A vector of distinct scores offers the maximum number of favorable entry points. Two models evaluated on the same units can therefore have different finite-design chance levels solely because one produces a finer score.
+
+Three forces determine the supported null level. Finite-sample stepwise AP moves it upward; disagreement between replications moves it downward; and a prevalence search can move it downward again. Their balance depends on the score vector, $\PSet$, $K$, and the regime. A correction applied after the calculation cannot reconstruct that balance.
+
+\subsection{Why ordinary pairing is still not neutral}
+
+Pairing removes variation shared by the two models, but the displacement of Section~\ref{sec:displacement} belongs partly to each score vector. Let model $A$ assign four distinct scores to four units and let model $B$ assign one common score. With two positive labels, two negative labels, and $\pi=1/2$, suppose the labels are uniformly assigned over the six possibilities. Neither score vector carries association with the outcomes.
+
+Under the usual threshold-block convention, model $A$ has expected AP $49/72$, while model $B$ has AP $1/2$ in every assignment. Chance normalization gives
+\[
+\E[\CNAP_A-\CNAP_B]
+=
+\frac{13}{36}
+\approx0.361.
+\]
+For two independent label assignments the supported difference remains positive:
+\[
+S_2(\CNAP_A-\CNAP_B)
+=
+\frac{29}{216}
+\approx0.134.
+\]
+The procedure favors the model that broke ties, although its ordering was arbitrary.
+
+Joint permutation does not supply a general additive repair \cite{ojala2010permutation}. The differential displacement is largest near no association and must vanish at perfect separation, where both models reach the ceiling. Subtracting an anchor estimated under the former condition from an informative comparison removes a term that is no longer present. Exact four-unit examples in Appendix~\ref{app:paired-proofs} produce positive corrected values in both orientations. The defect belongs to the convention, so the comparison changes the convention rather than estimating a centered correction.
+
+\subsection{Tie-averaged average precision}
+\label{sec:tie-average}
+
+Let $\mathcal O(D)$ be the strict rankings consistent with a score vector, obtained by ordering tied units in every possible way while preserving the order of the score blocks.
+
+\begin{definition}[Tie-averaged average precision]
+\begin{equation}
+\APta_\pi(D)
+=
+\frac{1}{|\mathcal O(D)|}
+\sum_{o\in\mathcal O(D)}
+\AP_\pi(D_o),
+\label{eq:tie-average}
+\end{equation}
+where $D_o$ is evaluation $D$ resolved into ranking $o$. Define $\CNAPta_\pi$ through Equation~\eqref{eq:cnap}.
+\end{definition}
+
+The convention has an operational reading. Add an independent continuous jitter small enough to reorder units only within their original tie blocks. Tie-averaged AP is the expected ordinary AP after that outcome-blind tie resolution. A model supplied no basis for ordering cases within a block, so the comparison averages over those arbitrary orderings rather than committing to whichever one happened to align with the labels. Appendix~\ref{app:tie-computation} evaluates the average in closed form; no enumeration or random jitter is required.
+
+Tie averaging does not erase useful refinement. If a finer score orders cases correctly within a coarse block, the realized AP improves; if it orders them incorrectly, it is charged. What receives zero expected credit is refinement unrelated to the outcomes.
+
+\begin{proposition}[Neutrality to arbitrary refinement]
+\label{prop:refinement}
+Suppose model $A$ preserves the order of model $B$'s score blocks and, conditionally on $S_B$ and $Y$, its strict ranking is uniform over the rankings consistent with $S_B$. Then, for every $\pi$,
+\[
+\E\!\left[
+\APta_{A,\pi}\mid S_B,Y
+\right]
+=
+\APta_{B,\pi}.
+\]
+\end{proposition}
+
+The proposition conditions on the realized outcomes, so it applies to an informative coarse model and does not require exchangeable evaluation units. It is an expectation result: one arbitrary refinement may align with the outcomes by chance, but score granularity alone earns no systematic advantage.
+
+\subsection{The paired supported advantage}
+
+The failed alternatives leave a particular order of operations. Marginal effects cannot be combined after their adverse cases have separated, ordinary pairing retains a tie-structure advantage, and a null subtraction does not remove that advantage uniformly. The comparison must therefore be formed on the same units under a tie-neutral convention before either the population or replication challenge is applied.
+
+With that order fixed, define the paired profile
+\[
+\Dta_\pi(D)
+=
+\CNAPta_{A,\pi}(D)
+-
+\CNAPta_{B,\pi}(D)
+\]
+and its within-replication retained advantage
+\[
+\RobDta(D)
+=
+\inf_{\pi\in\PSet}\Dta_\pi(D).
+\]
+The model-replacement estimand is
+\begin{equation}
+\theta_{A:B}
+=
+S_K(\RobDta;\Regime)
+=
+\E_{\Regime}
+\left[
+\min_{1\leq j\leq K}
+\inf_{\pi\in\PSet}
+\{\CNAPta_{A,\pi}(D_j)-\CNAPta_{B,\pi}(D_j)\}
+\right].
+\label{eq:paired-estimand}
+\end{equation}
+The difference is formed before the population and replication challenges. A positive value is an advantage for $A$ that survives every declared prevalence and the replication criterion.
+
+Estimation preserves the pairing at every layer. Within bootstrap replication $b$, the same sampled units and outcomes are used for both models; the prevalence minimum of their difference gives $\delta_b$; and the support estimator is applied to $\delta_1,\ldots,\delta_B$. The marginal score of either model is not an intermediate input.
+
+\subsection{Reference behavior and design scope}
+\label{sec:paired-scope}
+
+Refinement neutrality addresses models related by a coarse ranking, but a replacement procedure must also avoid a positive design anchor for two arbitrary uninformative rankings. The required reference law is stronger.
+
+\begin{definition}[Exchangeable-label reference law]
+\label{def:exchangeable}
+Conditionally on both score vectors and the positive count $n_+$, every label vector containing $n_+$ positives has probability $\binom{n}{n_+}^{-1}$.
+\end{definition}
+
+Under this law, the label sequence read along any fixed strict ranking is uniform over the same set of arrangements. Expected tie-averaged AP therefore depends on $n_+$, $n_-$, and $\pi$, but not on the score vector or its tie structure.
+
+\begin{proposition}[Reference behavior of paired support]
+\label{prop:paired-reference}
+Under the exchangeable-label reference law,
+\[
+\E_0[\Dta_\pi]=0
+\qquad\text{for every }\pi\in\PSet,
+\]
+and consequently
+\[
+S_K(\RobDta;\Regime_0)\leq0
+\]
+in both orientations.
+\end{proposition}
+
+The bound, rather than equality, is the cost of the challenge structure. Taking the prevalence infimum and the replication minimum can move an uninformative paired effect below zero. This makes the comparison conservative under the reference law, but prevents differing tie structures from manufacturing a positive population anchor.
+
+The result is available for i.i.d.\ held-out units when exchangeability is a defensible description of the signal-free label law. It does not follow from independence alone, and it generally fails for matched, clustered, or heterogeneous-risk designs whose permitted label arrangements form a smaller symmetry group. In a four-unit matched design with exactly one positive per pair, tie blocks aligned with the pairs produce a positive supported advantage under every permitted assignment even though no within-pair association exists. Tie averaging cannot remove information carried by the strata themselves.
+
+Where Definition~\ref{def:exchangeable} is not defensible, Equation~\eqref{eq:paired-estimand} remains a descriptive paired estimand. What is lost is the assurance that the design contributes no positive anchor. A design-specific comparison may instead condition within strata, restrict admissible model pairs, or standardize to a population with a different baseline-risk structure. Those are changes of the claim and must be declared as such.
+
+Both models, their orientation, $\PSet$, $\Regime$, $K$, the tie convention, and the replacement margin must be fixed without using the evaluation outcomes. A reference law cannot repair outcome leakage. Repeated development is admissible only when every development run is assessed on outcomes unavailable to both procedures.
+
+\subsection{No verdict and replacement}
+
+Removing the positive reference anchor is not enough to make the replacement rule coherent. If both orientations could return a positive supported advantage, the procedure could recommend replacing each model by the other. Because the support operator contains infima and minima, antisymmetry cannot simply be assumed; the reversed orientation must be examined directly. It is
+\[
+\theta_{B:A}
+=
+S_K\left(
+\inf_{\pi\in\PSet}\{-\Dta_\pi\};
+\Regime
+\right),
+\]
+and the two orientations satisfy
+\begin{equation}
+\theta_{A:B}+\theta_{B:A}\leq0.
+\label{eq:orientation}
+\end{equation}
+Thus both models cannot receive a positive supported advantage over the other. Coherence does not force a verdict, however. Both orientations may be nonpositive, and the interval
+\[
+\left[\theta_{A:B},-\theta_{B:A}\right]
+\]
+is then a no-verdict region: the declared challenges defeated superiority in either direction. At $K=2$, its width is the expected absolute disagreement between the paired robust effects of two replications.
+
+Let $d\geq0$ be the smallest retained CNAP advantage that would justify replacing model $B$ by model $A$. The performance criterion is
+\begin{equation}
+\theta_{A:B}>d.
+\label{eq:replacement}
+\end{equation}
+A positive point estimate does not establish this population inequality. The proposed decision rule requires an outer lower resampling bound for $\theta_{A:B}$ to exceed $d$, with pairing preserved through the outer and inner layers. Coverage of that bound must be established for the intended design, especially when the minimizing prevalence is nonunique or moves under perturbation.
+
+The margin translates performance evidence into one component of a decision. Costs, feasibility, calibration, fairness, and consequences at operating thresholds remain separate inputs. A positive supported ranking advantage is not by itself a command to deploy.
+
+\section{Interpretation, reporting, and limitations}
+\label{sec:discussion}
+
+\subsection{What the number says, and what it does not license}
+
+Once the construction returns a scalar, it is tempting to treat that number as a portable property of the model. Doing so would undo the argument that produced it. The value was obtained by asking what survived particular population and replication challenges; detached from those challenges, it no longer identifies what was supported.
+
+Prevalence-robust supported CNAP is therefore an assessment-relative magnitude on a performance scale. It reports the expected level retained throughout $\PSet$ by all $K$ replications generated under $\Regime$, and its interpretation travels with the complete assessment specification $\Assess=(\PSet,\Regime,K)$. Quoting the value without those declarations removes the conditions that gave support its meaning.
+
+The three components control different questions. The prevalence set states where the claim must hold. The regime states what mechanisms may expose it to failure. The replication count states how many independent opportunities for that failure must be survived jointly. A low value can arise because the mean profile is weak, because the limiting prevalence varies, or because the retained level is unstable across replications. Equation~\eqref{eq:costs} separates those explanations without changing the claim.
+
+The value has no fixed confidence level and is not the probability that a future replication exceeds it. A frequency-qualified level would be a quantile of the minimum distribution, while an inferential lower bound would address uncertainty in estimating the target. Those are useful quantities when their questions arise, but neither is Equation~\eqref{eq:robust-support}.
+
+The Popperian terminology is correspondingly negative. Corroboration records what a claim has survived; it does not turn survival into confirmation. The assessment can be criticized by challenging its prevalence set, its regime, its value of $K$, or the evidence used to represent them. Making those points of disagreement explicit is part of the method rather than a threat to it.
+
+Survival under a passive evaluation may also look like evidence that a ranking is ready for deployment. That inference crosses from prediction to intervention. Selecting a case for contact, review, or treatment may change the outcome that would otherwise have occurred \cite{perdomo2020performative}, and no resampling regime built only from passive evaluations identifies that effect. Supported ranking performance becomes one component of a deployment claim only when the intervention and its consequences are separately addressed.
+
+Finally, a common normalized scale may appear to make results from separate studies directly comparable. It does not. A paired advantage requires joint predictions on shared units, which separate studies do not have. A leaderboard would need every entrant to face one common declared assessment and an estimator preserving a common finite-design anchor. Those requirements form a separate problem rather than a corollary of the present scale.
+
+\subsection{What should be reported}
+
+Retaining the assessment conditions creates an opposite temptation: place every diagnostic in the headline until the main claim disappears. The reporting criterion is separation rather than accumulation. A concise report states the supported quantity, identifies the declarations that define it, and then gives the diagnostics needed to explain and qualify it. Table~\ref{tab:reporting} lists the minimum content.
+
+\begin{table}[ht]
+\centering
+\caption{Minimum reporting content. Items in the first two rows define the claim; the remaining items explain and qualify it.}
+\label{tab:reporting}
+\begin{tabularx}{\textwidth}{@{}p{0.23\textwidth}X@{}}
+\toprule
+Component & Report \\
+\midrule
+Supported quantity &
+Paired $\widehat\theta_{A:B}$ and the reversed orientation for replacement; raw $\SRobHat$ where one model is reported alone \\
+Assessment specification &
+$\PSet$ and its scientific basis; $\Regime$, including what is fixed and redrawn; replication counts; resampling unit; and $K$ \\
+Population transport &
+The score-level invariance used to evaluate target prevalences and the populations to which it is asserted to apply \\
+Decision specification &
+For replacement, model orientation, tie-averaged convention, exchangeable-label justification, and margin $d$ \\
+Diagnostics &
+CNAP or paired-difference profile, distribution of minimizing prevalences, $C_{\mathrm{prev}}$, and $C_{\mathrm{rep}}$ \\
+Estimation &
+Observed class counts, whether replications were resampled or independently observed, bootstrap count, prevalence grid or optimizer, and Monte Carlo errors \\
+Uncertainty &
+Outer bound only when a threshold claim is made, with the interval method and its validation for the design \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+For a paired decision the raw tie-averaged supported advantage is the headline quantity, and no anchor is subtracted from it. A possible report is:
+
+\begin{quote}
+Across the declared prevalence set $\PSet$ and two independent replications of the fixed-model regime, model $A$ retained a tie-averaged CNAP advantage of [value] over model $B$; the reversed orientation was [value]. The outer lower bound [did or did not] exceed the prespecified replacement margin $d=[value]$.
+\end{quote}
+
+The sentence is incomplete unless the methods identify the regime and the basis for $\PSet$. It is also deliberately silent about deployment consequences the performance criterion did not evaluate.
+
+\subsection{Sparse outcomes and uncertainty}
+
+Average precision is especially unstable when positive outcomes are sparse. Each positive case contributes a recall increment of $1/n_+$, so moving one positive in the ranking can alter the complete profile. The replication distribution becomes coarse, its lower tail grows, and its minimizing prevalence may move sharply. The same discreteness also raises the finite-design displacement of Section~\ref{sec:displacement}.
+
+Increasing the number of computational bootstrap replications reduces Monte Carlo error but does not add positive cases to the evaluation. Sparsity also degrades the tail fidelity discussed in Section~\ref{sec:estimation}, and does so in the region that Equation~\eqref{eq:quantile-weight} weights most heavily. Narrowing $\PSet$ can raise the reported value but changes the claim rather than recovering information. Sparse designs should therefore display the replication distribution and minimizing prevalences rather than treating the scalar's decimal precision as evidential precision.
+
+Outer uncertainty is a separate layer. The inner bootstrap represents replications under the declared regime conditional on the observed evaluation; the outer layer asks how well that evaluation identifies the supported target. The nested procedure is computationally expensive and retains the nonsmooth prevalence minimum at every layer. Simulation under designs resembling the intended application is required before attaching nominal coverage to the resulting bounds.
+
+\section{Conclusion}
+
+Average precision cannot support a portable performance claim until the target population is named, and one successful evaluation cannot support a claim intended to survive conditions it never faced. The assessment specification $\Assess=(\PSet,\Regime,K)$ joins those two problems. It declares the populations in which the claim must hold, the mechanisms that may vary between replications, and the number of independent opportunities for defeat.
+
+Prior standardization evaluates AP throughout $\PSet$ when class-conditional score behavior is invariant across the target populations. Chance normalization places those population effects on a common random-to-perfect scale. Within each replication, the prevalence infimum records the greatest level retained throughout the target set. Across replications, the expected minimum records the level retained jointly under the corroboration criterion:
+\[
+\SRob
+=
+\E_{\Regime}
+\left[
+\min_{j\leq K}
+\inf_{\pi\in\PSet}\CNAP_\pi(D_j)
+\right].
+\]
+The order matters because different replications may fail in different populations.
+
+Model replacement gives the construction its sharpest use. Marginal reports cannot be subtracted, and ordinary pairing can reward a model for producing a finer but uninformative score. Forming the paired difference first and averaging over arbitrary orderings within tie blocks yields a comparison with no positive design anchor under the exchangeable-label reference law. The result may favor one model or return no verdict; a replacement claim additionally requires its outer lower bound to exceed a declared practical margin.
+
+Support is therefore not a new name for high performance. It is the surviving magnitude of a claim after its population and replication challenges have been stated. The method earns its conclusion only to the extent that those challenges represent the conditions the scientific claim was meant to withstand.
+
+\appendix
+
+\section{Empirical prior-standardized average precision}
+\label{app:ap}
+
+\subsection{Definition and weighted implementation}
+
+Let
+\[
+D=\{(s_i,y_i)\}_{i=1}^{n},
+\qquad
+y_i\in\{0,1\},
+\]
+with $n_+=\sum_i y_i>0$ and $n_-=n-n_+>0$. Let $c_1>\cdots>c_H$ be the distinct observed score values. Threshold $h$ selects the units with $s_i\geq c_h$. Define
+\[
+\operatorname{TP}_h
+=
+\sum_i\mathbf 1\{y_i=1,s_i\geq c_h\},
+\qquad
+\operatorname{FP}_h
+=
+\sum_i\mathbf 1\{y_i=0,s_i\geq c_h\},
+\]
+and
+\[
+r_h=\frac{\operatorname{TP}_h}{n_+},
+\qquad
+f_h=\frac{\operatorname{FP}_h}{n_-}.
+\]
+With $r_0=0$, noninterpolated prior-standardized AP under the threshold-block convention is
+\begin{equation}
+\AP_\pi(D)
+=
+\sum_{h=1}^{H}
+(r_h-r_{h-1})
+\frac{\pi r_h}
+{\pi r_h+(1-\pi)f_h}.
+\label{eq:empirical-ap}
+\end{equation}
+All units sharing a score enter one threshold block. A block containing only negative cases has zero recall increment, although its false positives reduce the precision of later blocks.
+
+The same quantity can be computed by class weighting. Give each positive unit weight $w_+=\pi/n_+$ and each negative unit weight $w_-=(1-\pi)/n_-$. Weighted precision at threshold $h$ becomes
+\[
+\frac{w_+\operatorname{TP}_h}
+{w_+\operatorname{TP}_h+w_-\operatorname{FP}_h}
+=
+\frac{\pi r_h}
+{\pi r_h+(1-\pi)f_h},
+\]
+while weighted recall remains $r_h$. Stepwise weighted AP therefore equals Equation~\eqref{eq:empirical-ap}.
+
+\subsection{Behavior across prevalence}
+
+Combining Equations~\eqref{eq:cnap} and \eqref{eq:empirical-ap} gives
+\begin{equation}
+\CNAP_\pi(D)
+=
+\sum_{h=1}^{H}
+(r_h-r_{h-1})
+\frac{\pi(r_h-f_h)}
+{\pi r_h+(1-\pi)f_h}.
+\label{eq:cnap-profile}
+\end{equation}
+The derivative of a threshold contribution is
+\begin{equation}
+\frac{\partial}{\partial\pi}
+\left\{
+\frac{\pi(r_h-f_h)}
+{\pi r_h+(1-\pi)f_h}
+\right\}
+=
+\frac{f_h(r_h-f_h)}
+{\{\pi r_h+(1-\pi)f_h\}^2}.
+\label{eq:cnap-derivative}
+\end{equation}
+If $r_h\geq f_h$ at every threshold with positive recall increment, every term is nondecreasing and the profile minimum over $[\pi_L,\pi_U]$ occurs at $\pi_L$. Thresholds on different sides of the ROC diagonal can produce interior extrema. A difference between two nondecreasing profiles can also be nonmonotone, which is why the paired prevalence search can remain active when both marginal searches reduce to the lower endpoint.
+
+\section{Properties of replication-survival support}
+\label{app:support-proofs}
+
+\subsection{Survival-function representation}
+
+For a random variable $T\in[L,U]$,
+\[
+T
+=
+L+\int_L^U\mathbf 1\{T>s\}\,ds.
+\]
+For independent copies $T_1,\ldots,T_K$,
+\[
+\min_jT_j
+=
+L+\int_L^U
+\prod_{j=1}^{K}\mathbf 1\{T_j>s\}\,ds.
+\]
+Taking expectations gives
+\begin{equation}
+S_K(T;\Regime)
+=
+L+\int_L^U
+\Prb_{\Regime}(T>s)^K\,ds.
+\label{eq:survival-representation}
+\end{equation}
+At each level $s$, the powered survival probability is the probability that all $K$ independent replications retain the claim.
+
+For $T=Z_{\PSet}=\inf_{\pi\in\PSet}\CNAP_\pi(D)$, the event $T>s$ is equivalent to
+\[
+\CNAP_\pi(D)>s
+\quad\text{for every }\pi\in\PSet.
+\]
+Substitution yields
+\begin{equation}
+\SRob
+=
+L_{\PSet}
++
+\int_{L_{\PSet}}^1
+\Prb_{\Regime}
+\left\{
+\CNAP_\pi(D)>s
+\text{ for every }\pi\in\PSet
+\right\}^{K}
+ds.
+\label{eq:joint-survival}
+\end{equation}
+This representation is the formal link between the magnitude in Equation~\eqref{eq:robust-support} and the Popperian reading of levels surviving declared opportunities for defeat.
+
+\subsection{Proof of the operator-order inequality}
+
+Let $X_\pi^{(j)}=\CNAP_\pi(D_j)$ and set
+\[
+Y_\pi=\min_{1\leq j\leq K}X_\pi^{(j)}.
+\]
+For every realized replication array,
+\[
+\min_j\inf_{\pi\in\PSet}X_\pi^{(j)}
+=
+\inf_{\pi\in\PSet}\min_jX_\pi^{(j)}
+=
+\inf_{\pi\in\PSet}Y_\pi.
+\]
+The minimum over replications and infimum over prevalence commute pathwise. The gap appears only when expectation is taken. Since $\inf_\pi Y_\pi\leq Y_{\pi'}$ for every $\pi'\in\PSet$,
+\[
+\E\left[\inf_{\pi\in\PSet}Y_\pi\right]
+\leq
+\inf_{\pi\in\PSet}\E[Y_\pi],
+\]
+which proves Equation~\eqref{eq:order}. Equality holds when one prevalence minimizes $Y_\pi$ almost surely; more generally, equality can hold under weaker degeneracies, but a moving minimizer is the principal source of strict separation.
+
+Before replication support, the same argument gives
+\[
+\E_{\Regime}
+\left[
+\inf_{\pi\in\PSet}\CNAP_\pi
+\right]
+\leq
+\inf_{\pi\in\PSet}
+\E_{\Regime}[\CNAP_\pi].
+\]
+Adding and subtracting $\E[Z_{\PSet}]$ then proves the decomposition in Equation~\eqref{eq:costs}. Both costs are nonnegative. At $K=2$,
+\[
+\min(a,b)
+=
+\frac{a+b-|a-b|}{2}
+\]
+gives $C_{\mathrm{rep}}=\tfrac12\E|Z_1-Z_2|$.
+
+\subsection{Proof of challenge monotonicity}
+
+Take $\Pi_1\subseteq\Pi_2$ and $K_1\leq K_2$. Couple the assessments by drawing $K_2$ replications once and using the first $K_1$ for the smaller assessment. For every realized array,
+\[
+\min_{j\leq K_2}\inf_{\pi\in\Pi_2}\CNAP_\pi(D_j)
+\leq
+\min_{j\leq K_1}\inf_{\pi\in\Pi_1}\CNAP_\pi(D_j).
+\]
+Expectation preserves the inequality and proves Proposition~\ref{prop:monotonicity}. The proof is pathwise: it does not rely on a distributional approximation or on any property specific to AP.
+
+\subsection{Quantile representation and dispersion}
+
+Let $Q$ be the quantile function of $T$. The minimum of $K$ independent copies is $Q(U_{(1)})$, where the smallest of $K$ independent uniform variables has density $K(1-v)^{K-1}$. Hence
+\begin{equation}
+S_K(T;\Regime)
+=
+\int_0^1Q(v)K(1-v)^{K-1}\,dv.
+\label{eq:quantile-weight}
+\end{equation}
+The weight moves toward the lower tail as $K$ increases. At $K=2$, the result is the first L-moment minus the second L-moment, $\lambda_1-\lambda_2$, with $\lambda_2$ equal to half the Gini mean difference \cite{hosking1990lmoments}.
+
+Because the quantile weight is nonincreasing, a mean-preserving spread cannot raise $S_K$. This gives the limited dispersion ordering between regimes used in Section~\ref{sec:support}. It does not order regimes whose means and distributions change without a concave-order relation.
+
+\section{Paired comparison proofs and counterexamples}
+\label{app:paired-proofs}
+
+\subsection{Why marginal subtraction overstates the paired advantage}
+
+Let $U_\pi$ and $V_\pi$ be any two profiles. Write
+\[
+U_{\PSet}=\inf_{\pi\in\PSet}U_\pi,
+\qquad
+V_{\PSet}=\inf_{\pi\in\PSet}V_\pi,
+\qquad
+T_{\PSet}=\inf_{\pi\in\PSet}(U_\pi-V_\pi).
+\]
+Choosing a prevalence minimizing $U_\pi$ gives
+\[
+T_{\PSet}
+\leq
+U_{\PSet}-V_\pi
+\leq
+U_{\PSet}-V_{\PSet}.
+\]
+Monotonicity of $S_K$ therefore yields
+\[
+S_K(U_{\PSet}-V_{\PSet})
+\geq
+S_K(T_{\PSet}).
+\]
+
+For effects evaluated on the same replications, the minimum is superadditive:
+\[
+\min_j(X_j+Y_j)
+\geq
+\min_jX_j+\min_jY_j.
+\]
+Taking $X=U_{\PSet}-V_{\PSet}$ and $Y=V_{\PSet}$ gives
+\[
+S_K(U_{\PSet})
+\geq
+S_K(U_{\PSet}-V_{\PSet})+S_K(V_{\PSet}),
+\]
+which rearranges to the first inequality in Equation~\eqref{eq:noncomposition}. The result uses no property of average precision and no reference law.
+
+\subsection{Proof of refinement neutrality}
+
+Condition on $S_B$ and $Y$. The hypothesis of Proposition~\ref{prop:refinement} makes model $A$'s strict ranking $O_A$ uniform on $\mathcal O(D_B)$. Tie-averaged AP for $A$ is the conditional expectation of ordinary AP over whatever ties $A$ itself retains. By the tower property,
+\[
+\E[\APta_{A,\pi}\mid S_B,Y]
+=
+\E[\AP_\pi(D_{O_A})\mid S_B,Y].
+\]
+Uniformity of $O_A$ turns the right side into the average of $\AP_\pi$ over $\mathcal O(D_B)$, which is exactly $\APta_{B,\pi}$ by Equation~\eqref{eq:tie-average}. The outcomes remain fixed throughout, so the result does not require the score to be uninformative or the units to be exchangeable.
+
+\subsection{Rank invariance under exchangeable labels}
+
+Fix $n_+$, $n_-$, and a strict ranking $o$. Read the labels along $o$ to obtain $y_{(1)},\ldots,y_{(n)}$. Under Definition~\ref{def:exchangeable}, this sequence is uniform over the $\binom n{n_+}$ binary arrangements containing $n_+$ positives. Reading along another strict ranking is a bijection of the same set of arrangements, so the law of the sequence does not change.
+
+For a strict ranking, the complete profile $\pi\mapsto\CNAP_\pi(D_o)$ is a deterministic function of that label sequence. Its law is therefore the same for every strict ranking. In particular,
+\[
+\E_0[\AP_\pi(D_o)]
+=
+\alpha(n_+,n_-,\pi)
+\]
+for a constant $\alpha$ independent of $o$.
+
+Tie-averaged AP is a convex combination of strict-ranking values over $\mathcal O(D)$. A convex combination of expectations all equal to $\alpha$ also has expectation $\alpha$, whatever the score vector's tie structure. Two models on the same units consequently satisfy
+\[
+\E_0[\CNAPta_{A,\pi}]
+=
+\E_0[\CNAPta_{B,\pi}],
+\]
+and hence $\E_0[\Dta_\pi]=0$.
+
+Finally,
+\[
+\E_0[\RobDta]
+=
+\E_0\left[\inf_{\pi\in\PSet}\Dta_\pi\right]
+\leq
+\inf_{\pi\in\PSet}\E_0[\Dta_\pi]
+=0,
+\]
+and $S_K(T)\leq\E[T]$ because the minimum of $K$ copies is no larger than the first. Their composition proves Proposition~\ref{prop:paired-reference}. Replacing $\Dta$ by $-\Dta$ proves the same bound in the reversed orientation.
+
+\subsection{Why restricted label symmetry is insufficient}
+
+Take four units in two matched pairs, each containing exactly one positive. The design permits the two labels to swap within each pair but not between pairs. Let model $A$ give all units the same score. Let model $B$ put the first pair above the second while tying the two units within each pair. At $\pi=1/2$, exact tie averaging over the four permitted assignments gives
+\[
+\CNAPta_A-\CNAPta_B
+=
+\frac1{36}
+\]
+in every assignment, up to the choice of orientation. The paired effect has no replication variation, so its supported value remains $1/36$ for every $K$. A score vector aligned with the design strata carries information about where labels may occur even though it has no within-stratum association.
+
+The obstruction is the symmetry group of the design. Under full exchangeability, every strict ranking lies in one orbit of the label-permutation group and shares one reference law. Restricted designs divide rankings into several orbits, which can have different anchors. Averaging within score ties cannot move a ranking from one design orbit to another.
+
+One recoverable case occurs when the design randomizes within strata and the two models agree on the order of those strata, differing only within them. Their rankings are then related by permitted label permutations and share a reference law. More generally, an analyst must choose among restricting admissible model pairs, evaluating performance within strata, or standardizing to a target population with a different baseline-risk structure. None is an automatic extension of the global paired estimand.
+
+\subsection{Why paired null centering fails}
+
+The four-unit anchor in Section~\ref{sec:paired} suggests estimating the differential displacement by joint label permutation and subtracting it. The correction fails because the support operator is nonlinear and the displacement depends on model performance.
+
+Take two positive and two negative units at $\pi=1/2$. Let
+\[
+s_A=(4,3,2,1),
+\qquad
+s_B=(2,2,1,1),
+\]
+with the two highest-scored units positive. Both models separate the classes perfectly, so every stratified bootstrap replication has CNAP one for each model and paired difference zero. The correct paired verdict is zero in both orientations.
+
+Under joint label permutation, the two score vectors have different design anchors. Exact enumeration of the nested $K=2$ procedure gives $35/384$ for $A-B$ and $-295/1152$ for $B-A$. Subtracting these anchors would report a negative value in the first orientation and a positive value of about $0.256$ in the second, favoring the coarser model although both predictions are perfect on every replication.
+
+The displacement cannot be an additive constant because perfect separation leaves no room for it: CNAP is already at its ceiling. A correction measured where the models carry no association is largest precisely where it is least relevant to the informative comparison. Tie averaging removes dependence on arbitrary refinement before the nonlinear prevalence and replication operators are applied.
+
+\subsection{Proof of the orientation bound}
+
+For any integrable $T$,
+\[
+S_K(-T;\Regime)
+=
+-\E_{\Regime}\left[\max_{j\leq K}T_j\right].
+\]
+Therefore
+\[
+S_K(T;\Regime)+S_K(-T;\Regime)
+=
+\E_{\Regime}
+\left[
+\min_{j\leq K}T_j-\max_{j\leq K}T_j
+\right]
+\leq0.
+\]
+Apply this identity to the paired robust effect in the appropriate orientation to obtain Equation~\eqref{eq:orientation}. At $K=2$, the negative of the sum is
+\[
+\E|T_1-T_2|,
+\]
+which is the width of the no-verdict region and twice the replication-disagreement cost.
+
+\section{Closed-form computation of tie-averaged AP}
+\label{app:tie-computation}
+
+Equation~\eqref{eq:tie-average} is defined through all strict rankings consistent with the scores but need not be evaluated by enumeration. Index score blocks $j=1,\ldots,J$ from highest to lowest. Let block $j$ contain $a_j$ positive and $b_j$ negative units, with $m_j=a_j+b_j$, and define the numbers of preceding positives and negatives by
+\[
+A_j=\sum_{\ell<j}a_\ell,
+\qquad
+B_j=\sum_{\ell<j}b_\ell.
+\]
+Then
+\begin{equation}
+\APta_\pi(D)
+=
+\sum_{j=1}^{J}
+\frac{a_j}{n_+}\frac1{m_j}
+\sum_{k=1}^{m_j}
+\sum_{t=\max(0,k-1-b_j)}^{\min(k-1,a_j-1)}
+\frac{\binom{a_j-1}{t}\binom{b_j}{k-1-t}}
+{\binom{m_j-1}{k-1}}
+\frac{\pi r_{jkt}}
+{\pi r_{jkt}+(1-\pi)f_{jkt}},
+\label{eq:tie-closed}
+\end{equation}
+where
+\[
+r_{jkt}=\frac{A_j+t+1}{n_+},
+\qquad
+f_{jkt}=\frac{B_j+k-1-t}{n_-}.
+\]
+
+To obtain the formula, fix one positive unit in block $j$. Under a uniformly random ordering of that block, its position $k$ is uniform on $\{1,\ldots,m_j\}$. Given $k$, the number $t$ of other positive units in the $k-1$ preceding positions is hypergeometric with $a_j-1$ available positives and $b_j$ negatives. At that position the full ranking contains $A_j+t+1$ positives and $B_j+k-1-t$ negatives at or above the unit. The final fraction in Equation~\eqref{eq:tie-closed} is its prior-standardized precision. Averaging over $t$ and $k$, multiplying by the block's $a_j$ interchangeable positive units, and summing over blocks gives the result.
+
+The calculation costs $O(\sum_jm_j^2)$ operations. It is linear when blocks are uniformly short and $O(n^2)$ for one fully tied vector. The combinatorial weights and block counts do not depend on $\pi$ and can be reused throughout the prevalence search. If all scores are distinct, $m_j=1$ and Equation~\eqref{eq:tie-closed} reduces to ordinary stepwise AP.
+
+\section{Computation and outer uncertainty}
+\label{app:computation}
+
+\subsection{General support order}
+
+Sort the replication effects:
+\[
+z_{(1)}\leq\cdots\leq z_{(B)}.
+\]
+For $K=2$, $z_{(i)}$ is the minimum in each pair containing it and one of the $B-i$ larger values. Equation~\eqref{eq:all-pairs} therefore equals
+\begin{equation}
+\widehat S_{2,\PSet,B}^{\,\mathrm{AP}}
+=
+\frac{2}{B(B-1)}
+\sum_{i=1}^{B-1}(B-i)z_{(i)}.
+\label{eq:sorted-k2}
+\end{equation}
+
+For general $K\leq B$, $z_{(i)}$ is the minimum in every subset containing it and $K-1$ of the $B-i$ larger values:
+\begin{equation}
+\widehat S_{K,\PSet,B}^{\,\mathrm{AP}}
+=
+\binom BK^{-1}
+\sum_{i=1}^{B-K+1}
+\binom{B-i}{K-1}z_{(i)}.
+\label{eq:sorted-k}
+\end{equation}
+The expression is the complete order-$K$ U-statistic and avoids enumerating all $\binom BK$ subsets.
+
+\subsection{Monte Carlo error}
+
+For $K=2$, define the leave-one replication projection
+\[
+\widehat h_{1,-i}(z_i)
+=
+\frac1{B-1}\sum_{j\ne i}\min(z_i,z_j).
+\]
+A first-order Monte Carlo standard error is
+\begin{equation}
+\widehat{\operatorname{se}}_{\mathrm{MC}}
+=
+\frac2{\sqrt B}
+\operatorname{sd}_{i}
+\left\{
+\widehat h_{1,-i}(z_i)
+\right\}.
+\label{eq:mcse}
+\end{equation}
+Prefix sums over the sorted array compute all projections in linear time after sorting.
+
+\subsection{Prevalence evaluation}
+
+For a finite set with $G$ values, threshold counts are computed once in each bootstrap replication and reused across prevalences. Ordinary block AP then costs $O(BGH)$ for $H$ distinct score thresholds. Tie-averaged paired comparison replaces the threshold calculation with Equation~\eqref{eq:tie-closed} for each model.
+
+For a continuous interval, Equation~\eqref{eq:cnap-profile} is a smooth one-dimensional objective away from thresholds with no recall contribution. Endpoint values and stationary points may be checked directly. A numerical optimizer should be validated against a dense grid, and its tolerance should be small relative to the reported precision.
+
+\subsection{Outer bounds}
+
+An outer class-stratified sample yields a new empirical distribution of scores and outcomes. The full inner procedure produces one estimate of the target for that sample. Repeating the outer layer yields a bootstrap distribution from which a one-sided lower bound may be formed.
+
+For paired replacement, both score vectors remain attached to the same sampled units in the outer and inner layers.
+
+Percentile, basic, studentized, and bias-corrected bounds can behave differently because the target contains a prevalence infimum and a lower-tail replication functional. A unique, well-separated minimizing prevalence may permit regular approximations that fail at a flat or multiple minimum. The proposed replacement rule therefore treats the outer lower bound as a procedure requiring design-specific validation, not as an interval whose nominal coverage follows from the present propositions.
+
+\begin{thebibliography}{99}
+
+\bibitem{bareinboim2013transportability}
+Bareinboim, E., \& Pearl, J. (2013).
+A general algorithm for deciding transportability of experimental results.
+\emph{Journal of Causal Inference}, 1(1), 107--134.
+
+\bibitem{bestgen2015random}
+Bestgen, Y. (2015).
+Exact expected average precision of the random baseline for system evaluation.
+\emph{The Prague Bulletin of Mathematical Linguistics}, 103, 131--138.
+
+\bibitem{cohen1960coefficient}
+Cohen, J. (1960).
+A coefficient of agreement for nominal scales.
+\emph{Educational and Psychological Measurement}, 20, 37--46.
+
+\bibitem{elkan2001foundations}
+Elkan, C. (2001).
+The foundations of cost-sensitive learning.
+In \emph{Proceedings of the Seventeenth International Joint Conference on Artificial Intelligence}, 973--978.
+
+\bibitem{hoeffding1948ustat}
+Hoeffding, W. (1948).
+A class of statistics with asymptotically normal distribution.
+\emph{Annals of Mathematical Statistics}, 19, 293--325.
+
+\bibitem{hosking1990lmoments}
+Hosking, J. R. M. (1990).
+L-moments: analysis and estimation of distributions using linear combinations of order statistics.
+\emph{Journal of the Royal Statistical Society, Series B}, 52, 105--124.
+
+\bibitem{lipton2018detecting}
+Lipton, Z. C., Wang, Y.-X., \& Smola, A. (2018).
+Detecting and correcting for label shift with black box predictors.
+In \emph{Proceedings of the 35th International Conference on Machine Learning}, PMLR 80, 3122--3130.
+
+\bibitem{mayo1996error}
+Mayo, D. G. (1996).
+\emph{Error and the Growth of Experimental Knowledge}.
+University of Chicago Press.
+
+\bibitem{ojala2010permutation}
+Ojala, M., \& Garriga, G. C. (2010).
+Permutation tests for studying classifier performance.
+\emph{Journal of Machine Learning Research}, 11, 1833--1863.
+
+\bibitem{perdomo2020performative}
+Perdomo, J. C., Zrnic, T., Mendler-D\"unner, C., \& Hardt, M. (2020).
+Performative prediction.
+In \emph{Proceedings of the 37th International Conference on Machine Learning}, PMLR 119, 7599--7609.
+
+\bibitem{popper1959logic}
+Popper, K. R. (1959).
+\emph{The Logic of Scientific Discovery}.
+Hutchinson.
+
+\bibitem{popper1963conjectures}
+Popper, K. R. (1963).
+\emph{Conjectures and Refutations: The Growth of Scientific Knowledge}.
+Routledge.
+
+\bibitem{saerens2002adjusting}
+Saerens, M., Latinne, M., \& Decaestecker, C. (2002).
+Adjusting the outputs of a classifier to new a priori probabilities.
+\emph{Neural Computation}, 14(1), 21--41.
+
+\bibitem{schmeidler1986integral}
+Schmeidler, D. (1986).
+Integral representation without additivity.
+\emph{Proceedings of the American Mathematical Society}, 97(2), 255--261.
+
+\bibitem{siblini2020calibration}
+Siblini, W., Fr\'ery, J., He-Guelton, L., Obl\'e, F., \& Wang, Y. (2020).
+Master your metrics with calibration.
+In \emph{Advances in Intelligent Data Analysis XVIII}, 457--469.
+
+\bibitem{storkey2009training}
+Storkey, A. (2009).
+When training and test sets are different: characterizing learning transfer.
+In \emph{Dataset Shift in Machine Learning}, 3--28. MIT Press.
+
+\bibitem{yaari1987dual}
+Yaari, M. E. (1987).
+The dual theory of choice under risk.
+\emph{Econometrica}, 55(1), 95--115.
+
+\end{thebibliography}
+
+\end{document}

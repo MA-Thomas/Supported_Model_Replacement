@@ -1,0 +1,45 @@
+{
+  "study": "proteingym_conditional_full_nesting_illustration",
+  "manuscript_version": "v17",
+  "conditional_illustration": true,
+  "profile": "publication",
+  "parameters": {
+    "computational_replications": 200,
+    "grid_points": 257,
+    "search_tolerance": 1e-08,
+    "search_iterations": 128
+  },
+  "comparison": {
+    "candidate": "score_esm1v_ensemble",
+    "incumbent": "score_esm1v_single"
+  },
+  "target_prevalence_interval": [
+    0.4,
+    0.5
+  ],
+  "empirical_order": 2,
+  "computational_order": 2,
+  "magnitude_threshold": 0.0,
+  "survival_floor": 0.0,
+  "survival_requirement": 0.6,
+  "master_seed": 20260809,
+  "resampling_unit": {
+    "unit": "residue_position_within_assay",
+    "draws_per_replication": "observed_number_of_distinct_positions",
+    "cluster_contents": "all_retained_substitutions_at_the_selected_position",
+    "class_requirement": "redraw_the_complete_position_bootstrap_until_both_outcome_classes_are_present",
+    "pairing": "the_same_cluster_multiplicities_are_used_for_both_models_and_every_target_prevalence",
+    "maximum_redraws": 10000
+  },
+  "source_artifacts": {
+    "scores": "domain_study/proteingym/outputs/predictions/proteingym_observed_scores.csv",
+    "assay_audit": "domain_study/proteingym/outputs/tables/assay_audit.csv",
+    "parent_manifest": "domain_study/proteingym/outputs/manifest.json"
+  },
+  "software": {
+    "python": "3.9.6 (default, Jan  9 2026, 11:03:41) \n[Clang 17.0.0 (clang-1700.6.4.2)]",
+    "platform": "macOS-15.7.7-arm64-arm-64bit",
+    "numpy": "2.0.2",
+    "pandas": "2.3.3"
+  }
+}

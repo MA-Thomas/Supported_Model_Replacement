@@ -1,0 +1,56 @@
+COMMUNICATION JOB
+By the end, technically trained lab members who know AUROC should be able to
+explain why AP needs a declared prevalence, why a robust claim must survive a
+prevalence set and an evaluation-generating regime, and how paired tie-neutral
+support can justify—or decline to justify—model replacement.
+
+VISUAL SYSTEM
+16:9, warm off-white field, navy text, blue for population/prevalence,
+orange for tension/failure, teal for resolutions/supported claims, and plum
+for replication regimes. Titles are complete pedagogical claims or questions.
+Small examples recur and accumulate. Visible text remains sparse; technical
+qualification and source blocks live in speaker notes.
+
+MAIN DECK
+01  What did the performance claim survive?
+02  AUROC describes separation—but our decisions receive a selected set
+03  Precision and recall ask complementary questions about that selected set
+04  A PR curve records what happens as the selected set grows
+05  Average precision rewards positive cases that appear early in the ranking
+06  The ranking can stay unchanged while precision collapses
+07  The criterion is to change the prior without changing within-class ranking
+08  Prior-standardized precision makes the target prevalence explicit
+09  Reweighting is licensed only when class-conditional scores transport
+10  AP needs a common baseline before prevalences can be compared
+11  Chance normalization aligns the endpoints—not the whole profile
+12  If the claim must hold everywhere, an average answers the wrong question
+13  A performance claim needs three declarations: populations, regime, attempts
+14  “Replication” is incomplete until we say what is allowed to change
+15  Prevalence and regime belong to one assessment—but enter in different ways
+16  Expected performance can conceal a replication that defeated the claim
+17  Support is the expected level retained by every declared challenge
+18  At K = 2, corroboration charges exactly half the replication disagreement
+19  In Popper’s sense, survival is support—not probability of truth
+20  A bootstrap estimates projected support; it does not manufacture replications
+21  Population challenge must occur inside each complete replication
+22  The full construction separates mean performance from two costs of challenge
+23  A fixed-model bootstrap preserves the order of the scientific claim
+24  Finite-sample AP has a design anchor that need not equal prevalence
+25  Conditional calibration makes one model interpretable—but not comparable
+26  Subtracting two marginal reports combines adverse cases that never co-occurred
+27  Ordinary pairing can still reward a model for arbitrary tie-breaking
+28  Tie averaging removes expected credit for distinctions the model did not make
+29  The paired advantage must be formed before either challenge is applied
+30  Tie neutrality needs an exchangeable-label reference law
+31  Coherent replacement permits a no-verdict region
+32  Replacement requires evidence above a practical margin—not merely a positive estimate
+33  The number is meaningful only together with the assessment it survived
+34  The framework turns “performance” into a criticizable scientific claim
+
+BACKUP
+35  Empirical prior-standardized AP is a weighted threshold sum
+36  Increasing K strengthens the challenge but does not broaden the regime
+37  The K = 2 estimator can be computed without enumerating replication pairs
+38  Tie-averaged AP has a closed-form within each score block
+39  Outer uncertainty asks how well one evaluation identifies the target
+40  Key references

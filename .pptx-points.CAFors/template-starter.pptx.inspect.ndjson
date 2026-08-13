@@ -1,0 +1,853 @@
+{"kind":"deck","id":"pr/jjf2ic","name":"Deck"}
+{"kind":"layout","layoutId":"/ppt/slideMasters/slideMaster1.xml","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout1.xml","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/bzjxsm","slide":1,"title":"LAB WALKTHROUGH","textShapes":9}
+{"kind":"textbox","id":"sh/xcf6lczq","slide":1,"name":"Rectangle 12","text":"LAB WALKTHROUGH","textPreview":"LAB WALKTHROUGH","textChars":15,"textLines":1,"bbox":[76,54,360,22]}
+{"kind":"textbox","id":"sh/fqt47m50","slide":1,"name":"Rectangle 1","text":"What did the performance\nclaim survive?","textPreview":"What did the performance | claim survive?","textChars":39,"textLines":2,"bbox":[76,126,850,182]}
+{"kind":"textbox","id":"sh/epkneh4f","slide":1,"name":"Rectangle 2","text":"A pedagogical route from average precision to prevalence-robust,\nreplication-supported model replacement","textPreview":"A pedagogical route from average precision to prevalence-robust, | replication-supported model replacement","textChars":104,"textLines":2,"bbox":[80,352,840,82]}
+{"kind":"shape","id":"sh/pgv6dwn2","slide":1,"name":"Rounded Rectangle 3","bbox":[952,126,170,170]}
+{"kind":"textbox","id":"sh/ofm54rmh","slide":1,"name":"Rectangle 4","text":"AP","textPreview":"AP","textChars":2,"textLines":1,"bbox":[968,160,138,60]}
+{"kind":"textbox","id":"sh/3ed4bm5c","slide":1,"name":"Rectangle 5","text":"↓","textPreview":"↓","textChars":1,"textLines":1,"bbox":[1010,226,56,40]}
+{"kind":"shape","id":"sh/2dkn2h4r","slide":1,"name":"Rounded Rectangle 6","bbox":[1018,292,170,170]}
+{"kind":"textbox","id":"sh/dkv6hgne","slide":1,"name":"Rectangle 7","text":"claim","textPreview":"claim","textChars":5,"textLines":1,"bbox":[1034,336,138,50]}
+{"kind":"textbox","id":"sh/cjm58bmt","slide":1,"name":"Rectangle 8","text":"survived","textPreview":"survived","textChars":8,"textLines":1,"bbox":[1034,390,138,34]}
+{"kind":"shape","id":"sh/a947ax0f","slide":1,"name":"Rectangle 9","bbox":[76,604,1112,2]}
+{"kind":"textbox","id":"sh/vadoj2h0","slide":1,"name":"Rectangle 10","text":"Stats_Paper_Extending_PRAUC_v12","textPreview":"Stats_Paper_Extending_PRAUC_v12","textChars":31,"textLines":1,"bbox":[76,628,700,24]}
+{"kind":"textbox","id":"sh/wb6pc7i5","slide":1,"name":"Rectangle 11","text":"Computational lab presentation","textPreview":"Computational lab presentation","textChars":30,"textLines":1,"bbox":[890,628,298,24]}
+{"kind":"notes","id":"nt/bzjxsm","slide":1,"text":"Open with the paper’s governing question. The talk is not about proposing another context-free score; it is about making the conditions of a performance claim explicit.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex, abstract and Section 1."}
+{"kind":"slide","id":"sl/nhq5kr","slide":2,"title":"WHY AP?","textShapes":21}
+{"kind":"textbox","id":"sh/9sfid03q","slide":2,"name":"Rectangle 28","text":"WHY AP?","textPreview":"WHY AP?","textChars":7,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/25wjyt4v","slide":2,"name":"Rectangle 1","text":"AUROC vs Average Precision (AP)","textPreview":"AUROC vs Average Precision (AP)","textChars":31,"textLines":1,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/n6507y50","slide":2,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/14ni5ona","slide":2,"name":"Rectangle 4","text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/mh0zilc7","slide":2,"name":"Rectangle 16","text":"Eg, at a particular threshold","textPreview":"Eg, at a particular threshold","textChars":29,"textLines":1,"bbox":[692.68,317.5,300,22]}
+{"kind":"shape","id":"sh/lgripgv2","slide":2,"name":"Rounded Rectangle 17","bbox":[690,360,470,150]}
+{"kind":"textbox","id":"sh/2tkz61kv","slide":2,"name":"Rectangle 25","text":"AP asks: \nOn average, how pure are the model's predictions while progressively retrieving more of the true positives?","textPreview":"AP asks:  | On average, how pure are the model's predictions while progressively retrieving more of the true positives?","textChars":117,"textLines":2,"bbox":[690,544,470,156]}
+{"kind":"shape","id":"sh/y9cvy90n","slide":2,"name":"Oval 39","bbox":[836.5,410.5,38,38]}
+{"kind":"shape","id":"sh/zalc7ehs","slide":2,"name":"Oval 40","bbox":[891.5,416.5,38,38]}
+{"kind":"shape","id":"sh/0bud0jid","slide":2,"name":"Oval 41","bbox":[946.5,410.5,38,38]}
+{"kind":"shape","id":"sh/lc3u9ozy","slide":2,"name":"Oval 42","bbox":[1001.5,416.5,38,38]}
+{"kind":"textbox","id":"sh/mdcv2tgj","slide":2,"name":"Rectangle 43","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[998.32,399.5,50,42]}
+{"kind":"textbox","id":"sh/nylcbyh4","slide":2,"name":"Rectangle 44","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[942.68,395.5,50,42]}
+{"kind":"textbox","id":"sh/8zud43yp","slide":2,"name":"Rectangle 45","text":"-","textPreview":"-","textChars":1,"textLines":1,"bbox":[885.5,397.5,50,42]}
+{"kind":"textbox","id":"sh/903ud8za","slide":2,"name":"Rectangle 46","text":"-","textPreview":"-","textChars":1,"textLines":1,"bbox":[831.18,393.5,50,42]}
+{"kind":"textbox","id":"sh/lkjqpkvy","slide":2,"name":"Rectangle 60","text":"AUPRC: vary classification threshold in order to compute:\n\n\n\n\nprobability that a randomly chosen positive example receives a higher score than a randomly chosen negative example.","textPreview":"AUPRC: vary classification threshold in order to compute: |  |  |  |  | probability that a randomly chosen positive example receives a hi...","textChars":178,"textLines":6,"bbox":[40.76,386.24,517.93,331.76]}
+{"kind":"textbox","id":"sh/03e1w3mp","slide":2,"name":"Rectangle 3","text":"AP: Vary classification threshold but only look at positives.\n","textPreview":"AP: Vary classification threshold but only look at positives. |","textChars":62,"textLines":2,"bbox":[677.54,204.64,517.93,76.72]}
+{"kind":"textbox","id":"sh/3ut0z6lg","slide":2,"name":"Rectangle 26","text":"Model provides a score, s. (The darker the higher)","textPreview":"Model provides a score, s. (The darker the higher)","textChars":50,"textLines":1,"bbox":[92,220,352.24,25.03]}
+{"kind":"shape","id":"sh/8r61kf25","slide":2,"name":"Oval 27","bbox":[92,270,38,38]}
+{"kind":"shape","id":"sh/3y1czy94","slide":2,"name":"Oval 29","bbox":[147,276,38,38]}
+{"kind":"shape","id":"sh/ixsbqt8z","slide":2,"name":"Oval 30","bbox":[202,270,38,38]}
+{"kind":"shape","id":"sh/5kju18ra","slide":2,"name":"Oval 31","bbox":[257,276,38,38]}
+{"kind":"shape","id":"sh/4jads3qp","slide":2,"name":"Oval 32","bbox":[314.91,274.5,38,38]}
+{"kind":"shape","id":"sh/rm1c3i9g","slide":2,"name":"Oval 33","bbox":[369.91,280.5,38,38]}
+{"kind":"shape","id":"sh/qlsvud8v","slide":2,"name":"Oval 34","bbox":[424.91,274.5,38,38]}
+{"kind":"shape","id":"sh/do3u58rm","slide":2,"name":"Oval 35","bbox":[479.91,280.5,38,38]}
+{"kind":"textbox","id":"sh/i1wbqtwr","slide":2,"name":"Rectangle 74","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[473.91,264.44,50,42]}
+{"kind":"textbox","id":"sh/43ets3eh","slide":2,"name":"Rectangle 76","text":"-","textPreview":"-","textChars":1,"textLines":1,"bbox":[419.56,257.09,50,42]}
+{"kind":"textbox","id":"sh/velsvex0","slide":2,"name":"Rectangle 77","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[363.91,264.44,50,42]}
+{"kind":"textbox","id":"sh/mhgb2t4b","slide":2,"name":"Rectangle 79","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[310.65,259.5,50,42]}
+{"kind":"textbox","id":"sh/nipcby5w","slide":2,"name":"Rectangle 80","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[253.21,258.62,50,42]}
+{"kind":"textbox","id":"sh/ojyt43mh","slide":2,"name":"Rectangle 81","text":"-","textPreview":"-","textChars":1,"textLines":1,"bbox":[198.5,254,50,42]}
+{"kind":"textbox","id":"sh/etwby94f","slide":2,"name":"Rectangle 83","text":"-","textPreview":"-","textChars":1,"textLines":1,"bbox":[141.24,259.15,50,42]}
+{"kind":"textbox","id":"sh/zupc7e50","slide":2,"name":"Rectangle 84","text":"-","textPreview":"-","textChars":1,"textLines":1,"bbox":[85.65,252.63,50,42]}
+{"kind":"textbox","id":"sh/0fyt0jm5","slide":2,"name":"TextBox 85","text":"𝑃 ( 𝑠𝑥_(𝑝𝑜𝑠) > 𝑠𝑥_(𝑛𝑒𝑔) )","textPreview":"𝑃 ( 𝑠𝑥_(𝑝𝑜𝑠) > 𝑠𝑥_(𝑛𝑒𝑔) )","textChars":36,"textLines":1,"bbox":[116.82,511.24,247.1,33.52]}
+{"kind":"notes","id":"nt/nhq5kr","slide":2,"text":"Contrast a ranking statistic with the object that downstream decisions actually consume: a selected set.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/xqn0ct","slide":3,"title":"WHY AP?","textShapes":9}
+{"kind":"textbox","id":"sh/cnelcnyd","slide":3,"name":"Rectangle 15","text":"WHY AP?","textPreview":"WHY AP?","textChars":7,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/3ah0bi90","slide":3,"name":"Rectangle 1","text":"Average Precision depends on precision (averaged over recall)","textPreview":"Average Precision depends on precision (averaged over recall)","textChars":61,"textLines":1,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/i98zixsf","slide":3,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/h8zi9sru","slide":3,"name":"Rectangle 3","text":"WHY AP?","textPreview":"WHY AP?","textChars":7,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/w76hgna9","slide":3,"name":"Rectangle 4","text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/v6xg7i9o","slide":3,"name":"Rounded Rectangle 5","bbox":[92,222,488,252]}
+{"kind":"textbox","id":"sh/u5ozeds3","slide":3,"name":"Rectangle 6","text":"PRECISION","textPreview":"PRECISION","textChars":9,"textLines":1,"bbox":[122,250,200,22]}
+{"kind":"textbox","id":"sh/14jilcry","slide":3,"name":"Rectangle 7","text":"Of the cases we selected,\nhow many are positive?","textPreview":"Of the cases we selected, | how many are positive?","textChars":48,"textLines":2,"bbox":[122,300,410,78]}
+{"kind":"shape","id":"sh/ypg3exg3","slide":3,"name":"Rounded Rectangle 9","bbox":[700,222,488,252]}
+{"kind":"textbox","id":"sh/zqp4n2ho","slide":3,"name":"Rectangle 10","text":"RECALL","textPreview":"RECALL","textChars":6,"textLines":1,"bbox":[730,250,200,22]}
+{"kind":"textbox","id":"sh/krylgny9","slide":3,"name":"Rectangle 11","text":"Of all positive cases,\nhow many did we select?","textPreview":"Of all positive cases, | how many did we select?","textChars":46,"textLines":2,"bbox":[730,300,410,78]}
+{"kind":"shape","id":"sh/alw3adg7","slide":3,"name":"Rounded Rectangle 13","bbox":[304,530,672,68]}
+{"kind":"textbox","id":"sh/bm5kjihs","slide":3,"name":"Rectangle 14","text":"Move the score threshold → both quantities change together.","textPreview":"Move the score threshold → both quantities change together.","textChars":59,"textLines":1,"bbox":[324,548,632,38]}
+{"kind":"image","id":"im/y5or2583","slide":3,"name":"Picture 23","bbox":[217.76,398,218.47,54]}
+{"kind":"image","id":"im/9wzahk7q","slide":3,"name":"Picture 27","bbox":[839.37,398,191.27,54]}
+{"kind":"notes","id":"nt/xqn0ct","slide":3,"text":"Define the two axes before showing a PR curve. Emphasize that neither is a threshold-free property.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/ayepno","slide":4,"title":"WHY AP?","textShapes":24}
+{"kind":"textbox","id":"sh/bm18vapw","slide":4,"name":"Rectangle 34","text":"WHY AP?","textPreview":"WHY AP?","textChars":7,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/1cru5svq","slide":4,"name":"Rectangle 1","text":"How to compute AP","textPreview":"How to compute AP","textChars":17,"textLines":1,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/0bydwnu5","slide":4,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/2d0vydcb","slide":4,"name":"Rectangle 4","text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1160,809.76,48,22]}
+{"kind":"textbox","id":"sh/pgru9sv2","slide":4,"name":"Rectangle 5","text":"ONE RANKED LIST","textPreview":"ONE RANKED LIST","textChars":15,"textLines":1,"bbox":[80,351.76,260,22]}
+{"kind":"shape","id":"sh/ofid0nuh","slide":4,"name":"Rounded Rectangle 6","bbox":[80,401.76,54,72]}
+{"kind":"textbox","id":"sh/3i5cvydc","slide":4,"name":"Rectangle 7","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[80,413.76,54,20]}
+{"kind":"textbox","id":"sh/ihwbmtw7","slide":4,"name":"Rectangle 8","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[80,437.76,54,28]}
+{"kind":"shape","id":"sh/o7q5wbm5","slide":4,"name":"Rounded Rectangle 9","bbox":[145,401.76,54,72]}
+{"kind":"textbox","id":"sh/98zmpg3q","slide":4,"name":"Rectangle 10","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[145,413.76,54,20]}
+{"kind":"textbox","id":"sh/m58nu14f","slide":4,"name":"Rectangle 11","text":"−","textPreview":"−","textChars":1,"textLines":1,"bbox":[145,437.76,54,28]}
+{"kind":"shape","id":"sh/n6h4n6l0","slide":4,"name":"Rounded Rectangle 12","bbox":[210,401.76,54,72]}
+{"kind":"textbox","id":"sh/wva5kbmh","slide":4,"name":"Rectangle 13","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[210,413.76,54,20]}
+{"kind":"textbox","id":"sh/xwjmtg32","slide":4,"name":"Rectangle 14","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[210,437.76,54,28]}
+{"kind":"shape","id":"sh/a98ny14b","slide":4,"name":"Rounded Rectangle 15","bbox":[275,401.76,54,72]}
+{"kind":"textbox","id":"sh/buh4r6lw","slide":4,"name":"Rectangle 16","text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[275,413.76,54,20]}
+{"kind":"textbox","id":"sh/sz65ormd","slide":4,"name":"Rectangle 17","text":"−","textPreview":"−","textChars":1,"textLines":1,"bbox":[275,437.76,54,28]}
+{"kind":"shape","id":"sh/d0fmhw3i","slide":4,"name":"Rounded Rectangle 18","bbox":[340,401.76,54,72]}
+{"kind":"textbox","id":"sh/tknu5ora","slide":4,"name":"Rectangle 19","text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[340,413.76,54,20]}
+{"kind":"textbox","id":"sh/8jetwjap","slide":4,"name":"Rectangle 20","text":"−","textPreview":"−","textChars":1,"textLines":1,"bbox":[340,437.76,54,28]}
+{"kind":"shape","id":"sh/7i5c3e94","slide":4,"name":"Rounded Rectangle 21","bbox":[405,401.76,54,72]}
+{"kind":"textbox","id":"sh/6hwbu9sj","slide":4,"name":"Rectangle 22","text":"6","textPreview":"6","textChars":1,"textLines":1,"bbox":[405,413.76,54,20]}
+{"kind":"textbox","id":"sh/ho7u9or6","slide":4,"name":"Rectangle 23","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[405,437.76,54,28]}
+{"kind":"shape","id":"sh/gnyt0ja1","slide":4,"name":"Rounded Rectangle 24","bbox":[470,401.76,54,72]}
+{"kind":"textbox","id":"sh/vmpc7y9g","slide":4,"name":"Rectangle 25","text":"7","textPreview":"7","textChars":1,"textLines":1,"bbox":[470,413.76,54,20]}
+{"kind":"textbox","id":"sh/ulwbytsv","slide":4,"name":"Rectangle 26","text":"−","textPreview":"−","textChars":1,"textLines":1,"bbox":[470,437.76,54,28]}
+{"kind":"shape","id":"sh/5c7ud8ri","slide":4,"name":"Rounded Rectangle 27","bbox":[535,401.76,54,72]}
+{"kind":"textbox","id":"sh/4ryt43ax","slide":4,"name":"Rectangle 28","text":"8","textPreview":"8","textChars":1,"textLines":1,"bbox":[535,413.76,54,20]}
+{"kind":"textbox","id":"sh/mxsry58f","slide":4,"name":"Rectangle 29","text":"−","textPreview":"−","textChars":1,"textLines":1,"bbox":[535,437.76,54,28]}
+{"kind":"textbox","id":"sh/ny18ra90","slide":4,"name":"Rectangle 30","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[610,411.76,50,42]}
+{"kind":"textbox","id":"sh/90jqt076","slide":4,"name":"Rectangle 32","text":"recall →","textPreview":"recall →","textChars":8,"textLines":1,"bbox":[884,687.76,110,24]}
+{"kind":"textbox","id":"sh/a1sr258b","slide":4,"name":"Rectangle 33","text":"Every positive expands recall; every false positive can dilute precision.","textPreview":"Every positive expands recall; every false positive can dilute precision.","textChars":73,"textLines":1,"bbox":[91.12,561,448,58]}
+{"kind":"textbox","id":"sh/wnu94fqh","slide":4,"name":"TextBox 35","text":"To compute AP, move down the ranked list of examples from highest score to lowest score and ask how precise is the model at every point where I recover more positive examples?","textPreview":"To compute AP, move down the ranked list of examples from highest score to lowest score and ask how precise is the model at every point w...","textChars":175,"textLines":1,"bbox":[107,213.3,640,96.94]}
+{"kind":"chart","id":"ch/t4bihkr2","slide":4,"name":"Chart","chartType":"scatter","bbox":[700,347.76,470,340]}
+{"kind":"notes","id":"nt/ayepno","slide":4,"text":"Walk the threshold down the list. The curve is generated by a sequence of selected sets.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/sb0skx","slide":5,"title":"WHY AP?","textShapes":12}
+{"kind":"textbox","id":"sh/6547qt4r","slide":5,"name":"Rectangle 23","text":"WHY AP?","textPreview":"WHY AP?","textChars":7,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/kjmlwrq1","slide":5,"name":"Rectangle 1","text":"AP rises when positives\nappear early","textPreview":"AP rises when positives | appear early","textChars":36,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/5kv25w7m","slide":5,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/adkjqh8z","slide":5,"name":"Rectangle 3","text":"WHY AP?","textPreview":"WHY AP?","textChars":7,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/vetkzmp4","slide":5,"name":"Rectangle 4","text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/wf21srqp","slide":5,"name":"Rectangle 5","text":"POSITIVE RANKS","textPreview":"POSITIVE RANKS","textChars":14,"textLines":1,"bbox":[92,224,240,22]}
+{"kind":"shape","id":"sh/xgv21w7a","slide":5,"name":"Oval 6","bbox":[100,278,38,38]}
+{"kind":"textbox","id":"sh/u9o321o3","slide":5,"name":"Rectangle 7","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[100,283,38,24]}
+{"kind":"textbox","id":"sh/faxkb6po","slide":5,"name":"Rectangle 8","text":"rank 1","textPreview":"rank 1","textChars":6,"textLines":1,"bbox":[164,281,130,30]}
+{"kind":"shape","id":"sh/m50nupk7","slide":5,"name":"Oval 10","bbox":[100,364,38,38]}
+{"kind":"textbox","id":"sh/98rmpk3y","slide":5,"name":"Rectangle 11","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[100,369,38,24]}
+{"kind":"textbox","id":"sh/87i5wf2d","slide":5,"name":"Rectangle 12","text":"rank 3","textPreview":"rank 3","textChars":6,"textLines":1,"bbox":[164,367,130,30]}
+{"kind":"shape","id":"sh/a90nypkj","slide":5,"name":"Oval 14","bbox":[100,450,38,38]}
+{"kind":"textbox","id":"sh/xcbmt43u","slide":5,"name":"Rectangle 15","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[100,455,38,24]}
+{"kind":"textbox","id":"sh/wb250z29","slide":5,"name":"Rectangle 16","text":"rank 6","textPreview":"rank 6","textChars":6,"textLines":1,"bbox":[164,453,130,30]}
+{"kind":"shape","id":"sh/ixkn29kf","slide":5,"name":"Rounded Rectangle 18","bbox":[650,250,500,238]}
+{"kind":"shape","id":"sh/gv6pw3mt","slide":5,"name":"Rounded Rectangle 21","bbox":[180,548,920,91]}
+{"kind":"textbox","id":"sh/1wfqp8ne","slide":5,"name":"Rectangle 22","text":"AP is a weighted summary of precision over recall—not the area of a smooth geometric shape.","textPreview":"AP is a weighted summary of precision over recall—not the area of a smooth geometric shape.","textChars":91,"textLines":1,"bbox":[200,566,880,42]}
+{"kind":"image","id":"im/436xkjqp","slide":5,"name":"Picture 32","bbox":[377.67,274,82.66,46]}
+{"kind":"image","id":"im/32xgrep4","slide":5,"name":"Picture 36","bbox":[377.99,360,82.02,46]}
+{"kind":"image","id":"im/i1ofit8z","slide":5,"name":"Picture 40","bbox":[377.99,446,82.02,46]}
+{"kind":"image","id":"im/p0jy5s7u","slide":5,"name":"Picture 42","bbox":[705.81,286,388.39,82]}
+{"kind":"image","id":"im/ozaxwnq9","slide":5,"name":"Picture 43","bbox":[748.87,380,302.25,62]}
+{"kind":"notes","id":"nt/sb0skx","slide":5,"text":"Calculate AP directly from the three positive ranks. This makes the later weighted formula less mysterious.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/u58i4w","slide":6,"title":"POPULATION","textShapes":12}
+{"kind":"textbox","id":"sh/5o3ylg76","slide":6,"name":"Rectangle 19","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/xsf6dsji","slide":6,"name":"Rectangle 1","text":"The ranking can stay unchanged\nwhile precision collapses","textPreview":"The ranking can stay unchanged | while precision collapses","textChars":56,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/wrmpknid","slide":6,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/juxof21o","slide":6,"name":"Rectangle 3","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/ito7mx03","slide":6,"name":"Rectangle 4","text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/5wf6hsju","slide":6,"name":"Rectangle 5","text":"SAME OPERATING BEHAVIOR","textPreview":"SAME OPERATING BEHAVIOR","textChars":23,"textLines":1,"bbox":[78,218,320,22]}
+{"kind":"shape","id":"sh/7yxoj210","slide":6,"name":"Rounded Rectangle 7","bbox":[98,366,430,44]}
+{"kind":"shape","id":"sh/6xo7qx0f","slide":6,"name":"Rounded Rectangle 8","bbox":[98,366,404.2,44]}
+{"kind":"textbox","id":"sh/0zex0rep","slide":6,"name":"Rectangle 9","text":"50% prevalence","textPreview":"50% prevalence","textChars":14,"textLines":1,"bbox":[98,334,430,24]}
+{"kind":"textbox","id":"sh/10nytwfu","slide":6,"name":"Rectangle 10","text":"0.94","textPreview":"0.94","textChars":4,"textLines":1,"bbox":[544,370,90,28]}
+{"kind":"shape","id":"sh/excfyhwj","slide":6,"name":"Rounded Rectangle 11","bbox":[98,488,430,44]}
+{"kind":"shape","id":"sh/zy5grmx4","slide":6,"name":"Rounded Rectangle 12","bbox":[98,488,60.2,44]}
+{"kind":"textbox","id":"sh/o3ex4bel","slide":6,"name":"Rectangle 13","text":"1% prevalence","textPreview":"1% prevalence","textChars":13,"textLines":1,"bbox":[98,456,430,24]}
+{"kind":"textbox","id":"sh/94nyxwf6","slide":6,"name":"Rectangle 14","text":"0.14","textPreview":"0.14","textChars":4,"textLines":1,"bbox":[544,492,90,28]}
+{"kind":"shape","id":"sh/m1wf21wf","slide":6,"name":"Rounded Rectangle 15","bbox":[710,240,430,296]}
+{"kind":"textbox","id":"sh/n25gv6x0","slide":6,"name":"Rectangle 16","text":"The classifier did not change.","textPreview":"The classifier did not change.","textChars":30,"textLines":1,"bbox":[752,292,346,42]}
+{"kind":"textbox","id":"sh/wryh8beh","slide":6,"name":"Rectangle 17","text":"The supply of negatives did.","textPreview":"The supply of negatives did.","textChars":28,"textLines":1,"bbox":[752,372,346,42]}
+{"kind":"textbox","id":"sh/xs7y1gf2","slide":6,"name":"Rectangle 18","text":"Precision therefore describes\na ranking in a population.","textPreview":"Precision therefore describes | a ranking in a population.","textChars":56,"textLines":2,"bbox":[752,448,346,62]}
+{"kind":"image","id":"im/72dgri1c","slide":6,"name":"Picture 25","bbox":[72,249.08,470,49.85]}
+{"kind":"notes","id":"nt/u58i4w","slide":6,"text":"Use the numerical contrast to create the central population tension. TPR and FPR are unchanged.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/w9kk88","slide":7,"title":"POPULATION","textShapes":9}
+{"kind":"textbox","id":"sh/wf29ova5","slide":7,"name":"Rectangle 15","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/bep8va9s","slide":7,"name":"Rectangle 1","text":"Change the class prior—but preserve\nwithin-class ranking behavior","textPreview":"Change the class prior—but preserve | within-class ranking behavior","textChars":65,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/qdgrm5s7","slide":7,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/pc7qt0rm","slide":7,"name":"Rectangle 3","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/4by9kfah","slide":7,"name":"Rectangle 4","text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/3ap8ra9w","slide":7,"name":"Rectangle 5","text":"KEEP","textPreview":"KEEP","textChars":4,"textLines":1,"bbox":[102,224,150,22]}
+{"kind":"shape","id":"sh/29gri5sb","slide":7,"name":"Rounded Rectangle 6","bbox":[90,264,420,248]}
+{"kind":"textbox","id":"sh/ihkrq5sb","slide":7,"name":"Rectangle 9","text":"Observed class-conditional\nranking behavior","textPreview":"Observed class-conditional | ranking behavior","textChars":43,"textLines":2,"bbox":[122,454,356,52]}
+{"kind":"textbox","id":"sh/jit8zatw","slide":7,"name":"Rectangle 10","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[594,352,50,42]}
+{"kind":"textbox","id":"sh/4j29sfa1","slide":7,"name":"Rectangle 11","text":"CHANGE","textPreview":"CHANGE","textChars":6,"textLines":1,"bbox":[758,224,180,22]}
+{"kind":"shape","id":"sh/5kbq1kbm","slide":7,"name":"Rounded Rectangle 12","bbox":[744,264,420,248]}
+{"kind":"textbox","id":"sh/vet8vqtk","slide":7,"name":"Rectangle 14","text":"The target population’s\nclass prior","textPreview":"The target population’s | class prior","textChars":35,"textLines":2,"bbox":[786,414,336,58]}
+{"kind":"image","id":"im/qxgvm5c3","slide":7,"name":"Picture 22","bbox":[112,304.07,376,49.86]}
+{"kind":"image","id":"im/xwbe94vi","slide":7,"name":"Picture 23","bbox":[112,384.42,376,49.17]}
+{"kind":"image","id":"im/wv2x0zud","slide":7,"name":"Picture 28","bbox":[788,325.98,332,62.03]}
+{"kind":"notes","id":"nt/w9kk88","slide":7,"text":"State the transformation criterion before presenting the formula: preserve class-conditional behavior; alter only the prior.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/wi84e2","slide":8,"title":"POPULATION","textShapes":15}
+{"kind":"textbox","id":"sh/e9obqp8z","slide":8,"name":"Rectangle 23","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/k3ylknm9","slide":8,"name":"Rectangle 1","text":"Prior-standardized precision makes\nthe target prevalence explicit","textPreview":"Prior-standardized precision makes | the target prevalence explicit","textChars":65,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/lo72ds3u","slide":8,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/mpg3mx4f","slide":8,"name":"Rectangle 3","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/7qpkf2l0","slide":8,"name":"Rectangle 4","text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/8rylo7ml","slide":8,"name":"Rounded Rectangle 5","bbox":[92,230,1096,116]}
+{"kind":"textbox","id":"sh/ut03qhkb","slide":8,"name":"Rectangle 7","text":"1% target","textPreview":"1% target","textChars":9,"textLines":1,"bbox":[118,404,150,28]}
+{"kind":"shape","id":"sh/vu9kj2lw","slide":8,"name":"Rounded Rectangle 8","bbox":[118,450,150,74]}
+{"kind":"textbox","id":"sh/ji98vm5s","slide":8,"name":"Rectangle 9","text":"0.14","textPreview":"0.14","textChars":4,"textLines":1,"bbox":[118,466,150,38]}
+{"kind":"textbox","id":"sh/ih0rmho7","slide":8,"name":"Rectangle 10","text":"5% target","textPreview":"5% target","textChars":9,"textLines":1,"bbox":[328,404,150,28]}
+{"kind":"shape","id":"sh/5krqxwny","slide":8,"name":"Rounded Rectangle 11","bbox":[328,450,150,74]}
+{"kind":"textbox","id":"sh/kji9or6d","slide":8,"name":"Rectangle 12","text":"0.46","textPreview":"0.46","textChars":4,"textLines":1,"bbox":[328,466,150,38]}
+{"kind":"textbox","id":"sh/vep8rmpw","slide":8,"name":"Rectangle 13","text":"10% target","textPreview":"10% target","textChars":10,"textLines":1,"bbox":[538,404,150,28]}
+{"kind":"shape","id":"sh/adg7ihob","slide":8,"name":"Rounded Rectangle 14","bbox":[538,450,150,74]}
+{"kind":"textbox","id":"sh/xg7qtwn2","slide":8,"name":"Rectangle 15","text":"0.64","textPreview":"0.64","textChars":4,"textLines":1,"bbox":[538,466,150,38]}
+{"kind":"textbox","id":"sh/wfy9kr6h","slide":8,"name":"Rectangle 16","text":"20% target","textPreview":"20% target","textChars":10,"textLines":1,"bbox":[748,404,150,28]}
+{"kind":"shape","id":"sh/fat83650","slide":8,"name":"Rounded Rectangle 17","bbox":[748,450,150,74]}
+{"kind":"textbox","id":"sh/u9kru1of","slide":8,"name":"Rectangle 18","text":"0.80","textPreview":"0.80","textChars":4,"textLines":1,"bbox":[748,466,150,38]}
+{"kind":"textbox","id":"sh/q54bm58n","slide":8,"name":"Rectangle 19","text":"50% target","textPreview":"50% target","textChars":10,"textLines":1,"bbox":[958,404,150,28]}
+{"kind":"shape","id":"sh/r6dcvap8","slide":8,"name":"Rounded Rectangle 20","bbox":[958,450,150,74]}
+{"kind":"textbox","id":"sh/c7mtofqt","slide":8,"name":"Rectangle 21","text":"0.94","textPreview":"0.94","textChars":4,"textLines":1,"bbox":[958,466,150,38]}
+{"kind":"textbox","id":"sh/d8fuxk7e","slide":8,"name":"Rectangle 22","text":"The example fixes recall at 0.80 and the false-positive rate at 0.05.","textPreview":"The example fixes recall at 0.80 and the false-positive rate at 0.05.","textChars":69,"textLines":1,"bbox":[278,566,724,28]}
+{"kind":"image","id":"im/8bap8zm9","slide":8,"name":"Picture 29","bbox":[397.32,246,485.37,86]}
+{"kind":"notes","id":"nt/wi84e2","slide":8,"text":"Substitute r=.80 and f=.05. The values reproduce the slide 6 precision contrast and fill in intermediate populations.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/qng5u1","slide":9,"title":"POPULATION","textShapes":10}
+{"kind":"textbox","id":"sh/bil0n2x4","slide":9,"name":"Rectangle 15","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/u9ovmp07","slide":9,"name":"Rectangle 1","text":"Reweighting is licensed only when\nclass-conditional scores transport","textPreview":"Reweighting is licensed only when | class-conditional scores transport","textChars":68,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/vuxwvu1s","slide":9,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/4zqxszi9","slide":9,"name":"Rectangle 3","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/50ze14ju","slide":9,"name":"Rectangle 4","text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/ix8fq903","slide":9,"name":"Rounded Rectangle 5","bbox":[84,226,520,302]}
+{"kind":"textbox","id":"sh/jyhwzu1o","slide":9,"name":"Rectangle 6","text":"LICENSED","textPreview":"LICENSED","textChars":8,"textLines":1,"bbox":[116,254,180,22]}
+{"kind":"textbox","id":"sh/l4vepkjq","slide":9,"name":"Rectangle 8","text":"Only the class prior changes.","textPreview":"Only the class prior changes.","textChars":29,"textLines":1,"bbox":[116,466,456,32]}
+{"kind":"shape","id":"sh/pg3ilcfy","slide":9,"name":"Rounded Rectangle 9","bbox":[676,226,520,302]}
+{"kind":"textbox","id":"sh/ofuhs7yd","slide":9,"name":"Rectangle 10","text":"NOT LICENSED","textPreview":"NOT LICENSED","textChars":12,"textLines":1,"bbox":[708,254,220,22]}
+{"kind":"textbox","id":"sh/nel0j2xs","slide":9,"name":"Rectangle 11","text":"Severity shifts\nMeasurement shifts\nWithin-class scores shift","textPreview":"Severity shifts | Measurement shifts | Within-class scores shift","textChars":60,"textLines":3,"bbox":[730,310,412,116]}
+{"kind":"textbox","id":"sh/2dczqxg7","slide":9,"name":"Rectangle 12","text":"Those changes belong in the regime.","textPreview":"Those changes belong in the regime.","textChars":35,"textLines":1,"bbox":[708,466,456,32]}
+{"kind":"shape","id":"sh/x43ipcfu","slide":9,"name":"Rounded Rectangle 13","bbox":[178,568,924,64]}
+{"kind":"textbox","id":"sh/wju1w7yp","slide":9,"name":"Rectangle 14","text":"Invariance is a prespecified transport claim—not something the reweighted curve can prove.","textPreview":"Invariance is a prespecified transport claim—not something the reweighted curve can prove.","textChars":90,"textLines":1,"bbox":[198,586,884,34]}
+{"kind":"image","id":"im/5knepcfu","slide":9,"name":"Picture 22","bbox":[112,343.51,464,36.99]}
+{"kind":"notes","id":"nt/qng5u1","slide":9,"text":"Draw a firm boundary around the reweighting claim. If score behavior within class changes, prevalence must be represented through environments in the regime.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/xkqc0h","slide":10,"title":"POPULATION","textShapes":10}
+{"kind":"textbox","id":"sh/nydgra18","slide":10,"name":"Rectangle 15","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/ils3uhk7","slide":10,"name":"Rectangle 1","text":"AP needs a common baseline\nbefore prevalences can be compared","textPreview":"AP needs a common baseline | before prevalences can be compared","textChars":61,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/jm14nm1c","slide":10,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/wjalsr21","slide":10,"name":"Rectangle 3","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/hkjmlwjm","slide":10,"name":"Rectangle 4","text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/uxs3qhkv","slide":10,"name":"Rectangle 5","text":"Random ranking has","textPreview":"Random ranking has","textChars":18,"textLines":1,"bbox":[106,248,330,38]}
+{"kind":"textbox","id":"sh/0fe54b25","slide":10,"name":"Rectangle 7","text":"So a raw AP of 0.30 means\nsomething different at 1%\nthan at 20% prevalence.","textPreview":"So a raw AP of 0.30 means | something different at 1% | than at 20% prevalence.","textChars":75,"textLines":3,"bbox":[106,390,430,110]}
+{"kind":"textbox","id":"sh/1gnmxgjq","slide":10,"name":"Rectangle 8","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[566,350,50,42]}
+{"kind":"shape","id":"sh/x4vyxkja","slide":10,"name":"Rounded Rectangle 9","bbox":[676,240,478,240]}
+{"kind":"textbox","id":"sh/b2dgvu14","slide":10,"name":"Rectangle 11","text":"0 marks population random ranking","textPreview":"0 marks population random ranking","textChars":33,"textLines":1,"bbox":[710,378,410,30]}
+{"kind":"textbox","id":"sh/a14z2p0j","slide":10,"name":"Rectangle 12","text":"1 marks perfect ranking","textPreview":"1 marks perfect ranking","textChars":23,"textLines":1,"bbox":[710,420,410,30]}
+{"kind":"shape","id":"sh/p0vytkje","slide":10,"name":"Rounded Rectangle 13","bbox":[326,546,628,68]}
+{"kind":"textbox","id":"sh/ozmh0fit","slide":10,"name":"Rectangle 14","text":"Normalize after evaluating the ranking in the target population.","textPreview":"Normalize after evaluating the ranking in the target population.","textChars":64,"textLines":1,"bbox":[346,564,588,38]}
+{"kind":"image","id":"im/lkf6hw7u","slide":10,"name":"Picture 21","bbox":[149.78,294,234.45,66]}
+{"kind":"image","id":"im/ml87ah8f","slide":10,"name":"Picture 25","bbox":[761.33,278,307.34,82]}
+{"kind":"notes","id":"nt/xkqc0h","slide":10,"text":"Explain why raw AP values at different prevalences do not share a random baseline.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/eq398k","slide":11,"title":"POPULATION","textShapes":8}
+{"kind":"textbox","id":"sh/tg7e5cry","slide":11,"name":"Rectangle 11","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/0v6lkfmx","slide":11,"name":"Rectangle 1","text":"Chance normalization aligns the endpoints—\nnot the whole prevalence profile","textPreview":"Chance normalization aligns the endpoints— | not the whole prevalence profile","textChars":75,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/lgzmtk32","slide":11,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/qpo3e54f","slide":11,"name":"Rectangle 3","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/bqx4nal0","slide":11,"name":"Rectangle 4","text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/dsfmpk36","slide":11,"name":"Rounded Rectangle 6","bbox":[884,250,300,270]}
+{"kind":"textbox","id":"sh/al83qp4z","slide":11,"name":"Rectangle 7","text":"Same ranking","textPreview":"Same ranking","textChars":12,"textLines":1,"bbox":[916,282,236,34]}
+{"kind":"textbox","id":"sh/vmh4zulk","slide":11,"name":"Rectangle 8","text":"Same endpoints","textPreview":"Same endpoints","textChars":14,"textLines":1,"bbox":[916,348,236,34]}
+{"kind":"textbox","id":"sh/7epw3m9s","slide":11,"name":"Rectangle 9","text":"Difficulty varies\nby prevalence","textPreview":"Difficulty varies | by prevalence","textChars":31,"textLines":2,"bbox":[916,406,236,62]}
+{"kind":"textbox","id":"sh/6dgvahsn","slide":11,"name":"Rectangle 10","text":"target prevalence →","textPreview":"target prevalence →","textChars":19,"textLines":1,"bbox":[326,596,270,22]}
+{"kind":"chart","id":"ch/sj21cza9","slide":11,"name":"Chart","chartType":"line","bbox":[76,218,770,376]}
+{"kind":"notes","id":"nt/eq398k","slide":11,"text":"Normalization makes zero and one common, but it does not erase how false positives matter differently as prevalence changes.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/j0dj0a","slide":12,"title":"POPULATION","textShapes":18}
+{"kind":"textbox","id":"sh/or6tozi9","slide":12,"name":"Rectangle 25","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/ony90nqd","slide":12,"name":"Rectangle 1","text":"If the claim must hold everywhere,\nan average answers the wrong question","textPreview":"If the claim must hold everywhere, | an average answers the wrong question","textChars":72,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/9o7q9sry","slide":12,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/ehgrud8b","slide":12,"name":"Rectangle 3","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/zip83i9w","slide":12,"name":"Rectangle 4","text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/0jy9wnq1","slide":12,"name":"Rounded Rectangle 5","bbox":[94,268,160,126]}
+{"kind":"textbox","id":"sh/1k7q5srm","slide":12,"name":"Rectangle 6","text":".01 target","textPreview":".01 target","textChars":10,"textLines":1,"bbox":[94,284,160,26]}
+{"kind":"textbox","id":"sh/yd0r6x8f","slide":12,"name":"Rectangle 7","text":"0.55","textPreview":"0.55","textChars":4,"textLines":1,"bbox":[94,326,160,44]}
+{"kind":"shape","id":"sh/je9sf290","slide":12,"name":"Rounded Rectangle 8","bbox":[304,268,160,126]}
+{"kind":"textbox","id":"sh/3698j6hk","slide":12,"name":"Rectangle 9","text":".05 target","textPreview":".05 target","textChars":10,"textLines":1,"bbox":[304,284,160,26]}
+{"kind":"textbox","id":"sh/i507a1gz","slide":12,"name":"Rectangle 10","text":"0.48","textPreview":"0.48","textChars":4,"textLines":1,"bbox":[304,326,160,44]}
+{"kind":"shape","id":"sh/5sbqlgzq","slide":12,"name":"Rounded Rectangle 11","bbox":[514,268,160,126]}
+{"kind":"textbox","id":"sh/4r2pcby5","slide":12,"name":"Rectangle 12","text":".20 target","textPreview":".20 target","textChars":10,"textLines":1,"bbox":[514,284,160,26]}
+{"kind":"textbox","id":"sh/rut8nqhg","slide":12,"name":"Rectangle 13","text":"0.31","textPreview":"0.31","textChars":4,"textLines":1,"bbox":[514,326,160,44]}
+{"kind":"shape","id":"sh/qtk7elgb","slide":12,"name":"Rounded Rectangle 14","bbox":[724,268,160,126]}
+{"kind":"textbox","id":"sh/dwbqp0fm","slide":12,"name":"Rectangle 15","text":".40 target","textPreview":".40 target","textChars":10,"textLines":1,"bbox":[724,284,160,26]}
+{"kind":"textbox","id":"sh/sv2pgvy1","slide":12,"name":"Rectangle 16","text":"0.52","textPreview":"0.52","textChars":4,"textLines":1,"bbox":[724,326,160,44]}
+{"kind":"textbox","id":"sh/fyt8rqxs","slide":12,"name":"Rectangle 17","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[950,314,50,42]}
+{"kind":"shape","id":"sh/exk7ilg7","slide":12,"name":"Rounded Rectangle 18","bbox":[1020,268,170,126]}
+{"kind":"textbox","id":"sh/atobqp0f","slide":12,"name":"Rectangle 19","text":"minimum","textPreview":"minimum","textChars":7,"textLines":1,"bbox":[1020,286,170,26]}
+{"kind":"textbox","id":"sh/buxsjuh0","slide":12,"name":"Rectangle 20","text":"0.31","textPreview":"0.31","textChars":4,"textLines":1,"bbox":[1020,326,170,44]}
+{"kind":"textbox","id":"sh/wv6tszil","slide":12,"name":"Rectangle 21","text":"Average: 0.47","textPreview":"Average: 0.47","textChars":13,"textLines":1,"bbox":[214,456,300,38]}
+{"kind":"textbox","id":"sh/xwfal4z6","slide":12,"name":"Rectangle 22","text":"but the claim failed at 0.31","textPreview":"but the claim failed at 0.31","textChars":28,"textLines":1,"bbox":[666,456,400,38]}
+{"kind":"shape","id":"sh/mp4bmp0j","slide":12,"name":"Rounded Rectangle 23","bbox":[226,550,828,68]}
+{"kind":"textbox","id":"sh/nqxsfu1o","slide":12,"name":"Rectangle 24","text":"Robust CNAP is the largest level attained at every declared prevalence.","textPreview":"Robust CNAP is the largest level attained at every declared prevalence.","textChars":71,"textLines":1,"bbox":[246,568,788,38]}
+{"kind":"notes","id":"nt/j0dj0a","slide":12,"text":"Ask whether the scientific claim is an expectation across populations or a level that must hold in all of them. The infimum answers only the latter.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/5tb8cw","slide":13,"title":"ASSESSMENT","textShapes":10}
+{"kind":"textbox","id":"sh/zuxwz29w","slide":13,"name":"Rectangle 15","text":"ASSESSMENT","textPreview":"ASSESSMENT","textChars":10,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/el8rqlc7","slide":13,"name":"Rectangle 1","text":"A performance claim needs three declarations:\npopulations, regime, and attempts","textPreview":"A performance claim needs three declarations: | populations, regime, and attempts","textChars":79,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/zmh8zqts","slide":13,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/oba9wvu9","slide":13,"name":"Rectangle 3","text":"ASSESSMENT","textPreview":"ASSESSMENT","textChars":10,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/9cjq50bu","slide":13,"name":"Rectangle 4","text":"13","textPreview":"13","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/na183qto","slide":13,"name":"Rounded Rectangle 6","bbox":[100,350,330,202]}
+{"kind":"textbox","id":"sh/4f6pkrup","slide":13,"name":"Rectangle 7","text":"Π","textPreview":"Π","textChars":1,"textLines":1,"bbox":[100,376,330,54]}
+{"kind":"textbox","id":"sh/pgzqtwva","slide":13,"name":"Rectangle 8","text":"Where must the\nclaim hold?","textPreview":"Where must the | claim hold?","textChars":26,"textLines":2,"bbox":[128,446,274,66]}
+{"kind":"shape","id":"sh/dsfexsr6","slide":13,"name":"Rounded Rectangle 9","bbox":[470,350,330,202]}
+{"kind":"textbox","id":"sh/cr6donal","slide":13,"name":"Rectangle 10","text":"ℛ","textPreview":"ℛ","textChars":1,"textLines":1,"bbox":[470,376,330,54]}
+{"kind":"textbox","id":"sh/rqxwvi90","slide":13,"name":"Rectangle 11","text":"What may vary in a\ncomplete replication?","textPreview":"What may vary in a | complete replication?","textChars":40,"textLines":2,"bbox":[498,446,274,66]}
+{"kind":"shape","id":"sh/qpovmdsf","slide":13,"name":"Rounded Rectangle 12","bbox":[840,350,330,202]}
+{"kind":"textbox","id":"sh/lwze1cr2","slide":13,"name":"Rectangle 13","text":"K","textPreview":"K","textChars":1,"textLines":1,"bbox":[840,376,330,54]}
+{"kind":"textbox","id":"sh/0v6ds7qh","slide":13,"name":"Rectangle 14","text":"How many attempts\nmust be survived?","textPreview":"How many attempts | must be survived?","textChars":35,"textLines":2,"bbox":[868,446,274,66]}
+{"kind":"image","id":"im/hsnqt8ru","slide":13,"name":"Picture 20","bbox":[424.68,230,430.65,78]}
+{"kind":"notes","id":"nt/5tb8cw","slide":13,"text":"Introduce the assessment only now that both population and repetition questions are visible.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/nohpq5","slide":14,"title":"ASSESSMENT","textShapes":21}
+{"kind":"textbox","id":"sh/qlg3694j","slide":14,"name":"Rectangle 25","text":"ASSESSMENT","textPreview":"ASSESSMENT","textChars":10,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/e107mlkj","slide":14,"name":"Rectangle 1","text":"“Replication” is incomplete until we say\nwhat is allowed to change","textPreview":"“Replication” is incomplete until we say | what is allowed to change","textChars":66,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/f298vqlo","slide":14,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/o72psv2l","slide":14,"name":"Rectangle 3","text":"ASSESSMENT","textPreview":"ASSESSMENT","textChars":10,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/p8bq1036","slide":14,"name":"Rectangle 4","text":"14","textPreview":"14","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/25k7q5kf","slide":14,"name":"Rectangle 5","text":"REGIME","textPreview":"REGIME","textChars":6,"textLines":1,"bbox":[86,214,250,22]}
+{"kind":"textbox","id":"sh/36t8zql0","slide":14,"name":"Rectangle 6","text":"EVALUATION","textPreview":"EVALUATION","textChars":10,"textLines":1,"bbox":[414,214,200,22]}
+{"kind":"textbox","id":"sh/cvmpwf2h","slide":14,"name":"Rectangle 7","text":"ENVIRONMENT","textPreview":"ENVIRONMENT","textChars":11,"textLines":1,"bbox":[680,214,200,22]}
+{"kind":"textbox","id":"sh/xwvq5k32","slide":14,"name":"Rectangle 8","text":"MODEL","textPreview":"MODEL","textChars":5,"textLines":1,"bbox":[952,214,200,22]}
+{"kind":"shape","id":"sh/98n25ova","slide":14,"name":"Rounded Rectangle 9","bbox":[80,260,1110,78]}
+{"kind":"textbox","id":"sh/87elwjup","slide":14,"name":"Rectangle 10","text":"Fixed model","textPreview":"Fixed model","textChars":11,"textLines":1,"bbox":[100,282,260,30]}
+{"kind":"textbox","id":"sh/765k3ed4","slide":14,"name":"Rectangle 11","text":"new units","textPreview":"new units","textChars":9,"textLines":1,"bbox":[398,282,220,30]}
+{"kind":"textbox","id":"sh/m5w3u9cz","slide":14,"name":"Rectangle 12","text":"same environment","textPreview":"same environment","textChars":16,"textLines":1,"bbox":[650,282,260,30]}
+{"kind":"textbox","id":"sh/hwn29ovm","slide":14,"name":"Rectangle 13","text":"same fitted model","textPreview":"same fitted model","textChars":17,"textLines":1,"bbox":[918,282,240,30]}
+{"kind":"shape","id":"sh/wvel03u1","slide":14,"name":"Rounded Rectangle 14","bbox":[80,364,1110,78]}
+{"kind":"textbox","id":"sh/va5k7ydg","slide":14,"name":"Rectangle 15","text":"New environment","textPreview":"New environment","textChars":15,"textLines":1,"bbox":[100,386,260,30]}
+{"kind":"textbox","id":"sh/u9w3ytcv","slide":14,"name":"Rectangle 16","text":"new units","textPreview":"new units","textChars":9,"textLines":1,"bbox":[398,386,220,30]}
+{"kind":"textbox","id":"sh/x032x4v2","slide":14,"name":"Rectangle 17","text":"new environment","textPreview":"new environment","textChars":15,"textLines":1,"bbox":[650,386,260,30]}
+{"kind":"textbox","id":"sh/czulozeh","slide":14,"name":"Rectangle 18","text":"same fitted model","textPreview":"same fitted model","textChars":17,"textLines":1,"bbox":[918,386,240,30]}
+{"kind":"shape","id":"sh/ojyl4zmd","slide":14,"name":"Rounded Rectangle 19","bbox":[80,468,1110,78]}
+{"kind":"textbox","id":"sh/pk72d43y","slide":14,"name":"Rectangle 20","text":"Repeated development","textPreview":"Repeated development","textChars":20,"textLines":1,"bbox":[100,490,260,30]}
+{"kind":"textbox","id":"sh/2hw32p4n","slide":14,"name":"Rectangle 21","text":"new units","textPreview":"new units","textChars":9,"textLines":1,"bbox":[398,490,220,30]}
+{"kind":"textbox","id":"sh/3i5kbuls","slide":14,"name":"Rectangle 22","text":"new environment","textPreview":"new environment","textChars":15,"textLines":1,"bbox":[650,490,260,30]}
+{"kind":"textbox","id":"sh/cnyl8jmp","slide":14,"name":"Rectangle 23","text":"refit + reselect","textPreview":"refit + reselect","textChars":16,"textLines":1,"bbox":[918,490,240,30]}
+{"kind":"textbox","id":"sh/do7mho3a","slide":14,"name":"Rectangle 24","text":"A unit bootstrap identifies only the first target.","textPreview":"A unit bootstrap identifies only the first target.","textChars":50,"textLines":1,"bbox":[346,594,588,34]}
+{"kind":"notes","id":"nt/nohpq5","slide":14,"text":"A bootstrap is not a scientific target. The regime names the target; resampling must then represent it.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/vmkdyg","slide":15,"title":"ASSESSMENT","textShapes":11}
+{"kind":"textbox","id":"sh/8jqhk36h","slide":15,"name":"Rectangle 15","text":"ASSESSMENT","textPreview":"ASSESSMENT","textChars":10,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/3upcf298","slide":15,"name":"Rectangle 1","text":"Prevalence is computed within each draw;\nother conditions are generated by the regime","textPreview":"Prevalence is computed within each draw; | other conditions are generated by the regime","textChars":85,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/2tgbmh8n","slide":15,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/1s7udcr2","slide":15,"name":"Rectangle 3","text":"ASSESSMENT","textPreview":"ASSESSMENT","textChars":10,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/grytk7qh","slide":15,"name":"Rectangle 4","text":"15","textPreview":"15","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/fqpcb29w","slide":15,"name":"Rounded Rectangle 5","bbox":[84,234,494,290]}
+{"kind":"textbox","id":"sh/epgbix8r","slide":15,"name":"Rectangle 6","text":"COMPUTED CHALLENGE","textPreview":"COMPUTED CHALLENGE","textChars":18,"textLines":1,"bbox":[116,262,250,22]}
+{"kind":"textbox","id":"sh/to7u9sr6","slide":15,"name":"Rectangle 7","text":"Evaluate every target prevalence\nwithin the same replication","textPreview":"Evaluate every target prevalence | within the same replication","textChars":60,"textLines":2,"bbox":[116,326,430,78]}
+{"kind":"textbox","id":"sh/snytgnql","slide":15,"name":"Rectangle 8","text":"Licensed by score-level\nprior-shift invariance","textPreview":"Licensed by score-level | prior-shift invariance","textChars":46,"textLines":2,"bbox":[116,442,430,56]}
+{"kind":"shape","id":"sh/ul8zmton","slide":15,"name":"Rounded Rectangle 9","bbox":[700,234,494,290]}
+{"kind":"textbox","id":"sh/vmh0fyp8","slide":15,"name":"Rectangle 10","text":"GENERATED CHALLENGE","textPreview":"GENERATED CHALLENGE","textChars":19,"textLines":1,"bbox":[732,262,270,22]}
+{"kind":"textbox","id":"sh/wnq1o36d","slide":15,"name":"Rectangle 11","text":"Draw environments, units,\nor development runs from the regime","textPreview":"Draw environments, units, | or development runs from the regime","textChars":61,"textLines":2,"bbox":[732,326,430,78]}
+{"kind":"textbox","id":"sh/hojih87y","slide":15,"name":"Rectangle 12","text":"Cannot be recovered by\nreweighting one evaluation","textPreview":"Cannot be recovered by | reweighting one evaluation","textChars":49,"textLines":2,"bbox":[732,442,430,56]}
+{"kind":"shape","id":"sh/mx8zitob","slide":15,"name":"Rounded Rectangle 13","bbox":[216,558,848,72]}
+{"kind":"textbox","id":"sh/7yh0bypw","slide":15,"name":"Rectangle 14","text":"If invariance fails, prevalence becomes part of the environments generated by the regime.","textPreview":"If invariance fails, prevalence becomes part of the environments generated by the regime.","textChars":89,"textLines":1,"bbox":[236,576,808,42]}
+{"kind":"notes","id":"nt/vmkdyg","slide":15,"text":"Resolve the apparent asymmetry. Prevalence is part of the same assessment, but invariance lets it be computed within a realized replication.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/vfriaf","slide":16,"title":"CORROBORATION","textShapes":13}
+{"kind":"textbox","id":"sh/qxo7itsz","slide":16,"name":"Rectangle 17","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/zilcnydw","slide":16,"name":"Rectangle 1","text":"Expected performance can conceal a replication\nthat defeated the claim","textPreview":"Expected performance can conceal a replication | that defeated the claim","textChars":70,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/yhcvutcb","slide":16,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/dg3ulovq","slide":16,"name":"Rectangle 3","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/cfadsjul","slide":16,"name":"Rectangle 4","text":"16","textPreview":"16","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/ru1cjed0","slide":16,"name":"Rounded Rectangle 5","bbox":[104,246,360,182]}
+{"kind":"textbox","id":"sh/qtsvq9cf","slide":16,"name":"Rectangle 6","text":"Replication 1","textPreview":"Replication 1","textChars":13,"textLines":1,"bbox":[104,272,360,28]}
+{"kind":"textbox","id":"sh/psjuhovu","slide":16,"name":"Rectangle 7","text":"0.70","textPreview":"0.70","textChars":4,"textLines":1,"bbox":[104,322,360,60]}
+{"kind":"textbox","id":"sh/4radoje9","slide":16,"name":"Rectangle 8","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[494,310,58,50]}
+{"kind":"shape","id":"sh/mp8rqds7","slide":16,"name":"Rounded Rectangle 9","bbox":[584,246,360,182]}
+{"kind":"textbox","id":"sh/nqh8zits","slide":16,"name":"Rectangle 10","text":"Replication 2","textPreview":"Replication 2","textChars":13,"textLines":1,"bbox":[584,272,360,28]}
+{"kind":"textbox","id":"sh/ora9snad","slide":16,"name":"Rectangle 11","text":"0.05","textPreview":"0.05","textChars":4,"textLines":1,"bbox":[584,322,360,60]}
+{"kind":"textbox","id":"sh/9sjq1sry","slide":16,"name":"Rectangle 12","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[974,308,50,42]}
+{"kind":"shape","id":"sh/e18rmdsb","slide":16,"name":"Rounded Rectangle 13","bbox":[1042,246,150,182]}
+{"kind":"textbox","id":"sh/z2h8vytw","slide":16,"name":"Rectangle 14","text":"mean","textPreview":"mean","textChars":4,"textLines":1,"bbox":[1042,274,150,28]}
+{"kind":"textbox","id":"sh/0nq9o3ah","slide":16,"name":"Rectangle 15","text":"0.375","textPreview":"0.375","textChars":5,"textLines":1,"bbox":[1042,330,150,46]}
+{"kind":"textbox","id":"sh/1ozqx8bm","slide":16,"name":"Rectangle 16","text":"A claim at 0.375 did not survive replication 2.","textPreview":"A claim at 0.375 did not survive replication 2.","textChars":47,"textLines":1,"bbox":[256,506,768,44]}
+{"kind":"notes","id":"nt/vfriaf","slide":16,"text":"Pause on the failed average. The number 0.375 summarizes compensation, not survival.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/0ikxjg","slide":17,"title":"CORROBORATION","textShapes":16}
+{"kind":"textbox","id":"sh/rat4jyts","slide":17,"name":"Rectangle 24","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/47yt43ix","slide":17,"name":"Rectangle 1","text":"Support is the expected level retained\nby every declared challenge","textPreview":"Support is the expected level retained | by every declared challenge","textChars":66,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/587ux8ji","slide":17,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/uhwbyt0v","slide":17,"name":"Rectangle 3","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/vi5sry1g","slide":17,"name":"Rectangle 4","text":"17","textPreview":"17","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/wjet03i1","slide":17,"name":"Rectangle 5","text":"draw 1","textPreview":"draw 1","textChars":6,"textLines":1,"bbox":[112,228,150,28]}
+{"kind":"shape","id":"sh/h47atoj6","slide":17,"name":"Rounded Rectangle 6","bbox":[112,274,150,108]}
+{"kind":"textbox","id":"sh/ed0bad0z","slide":17,"name":"Rectangle 7","text":"0.62","textPreview":"0.62","textChars":4,"textLines":1,"bbox":[112,304,150,44]}
+{"kind":"textbox","id":"sh/fe9c3i1k","slide":17,"name":"Rectangle 8","text":"draw 2","textPreview":"draw 2","textChars":6,"textLines":1,"bbox":[332,228,150,28]}
+{"kind":"shape","id":"sh/7qpkna98","slide":17,"name":"Rounded Rectangle 9","bbox":[332,274,150,108]}
+{"kind":"textbox","id":"sh/6pg3u5sn","slide":17,"name":"Rectangle 10","text":"0.47","textPreview":"0.47","textChars":4,"textLines":1,"bbox":[332,304,150,44]}
+{"kind":"textbox","id":"sh/tsr2pkre","slide":17,"name":"Rectangle 11","text":"draw 3","textPreview":"draw 3","textChars":6,"textLines":1,"bbox":[552,228,150,28]}
+{"kind":"shape","id":"sh/8rilwfat","slide":17,"name":"Rounded Rectangle 12","bbox":[552,274,150,108]}
+{"kind":"textbox","id":"sh/ve9kru9k","slide":17,"name":"Rectangle 13","text":"0.71","textPreview":"0.71","textChars":4,"textLines":1,"bbox":[552,304,150,44]}
+{"kind":"textbox","id":"sh/ud03ipsz","slide":17,"name":"Rectangle 14","text":"draw 4","textPreview":"draw 4","textChars":6,"textLines":1,"bbox":[772,228,150,28]}
+{"kind":"shape","id":"sh/hgr2t4ra","slide":17,"name":"Rounded Rectangle 15","bbox":[772,274,150,108]}
+{"kind":"textbox","id":"sh/gfilkza5","slide":17,"name":"Rectangle 16","text":"0.29","textPreview":"0.29","textChars":4,"textLines":1,"bbox":[772,304,150,44]}
+{"kind":"textbox","id":"sh/3i9kvu9g","slide":17,"name":"Rectangle 17","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[1008,300,50,42]}
+{"kind":"shape","id":"sh/ih03mpsv","slide":17,"name":"Rounded Rectangle 18","bbox":[1080,274,120,108]}
+{"kind":"textbox","id":"sh/ed4nutc3","slide":17,"name":"Rectangle 19","text":"min","textPreview":"min","textChars":3,"textLines":1,"bbox":[1080,290,120,24]}
+{"kind":"textbox","id":"sh/fedonyto","slide":17,"name":"Rectangle 20","text":"0.29","textPreview":"0.29","textChars":4,"textLines":1,"bbox":[1080,324,120,38]}
+{"kind":"shape","id":"sh/0fm5w3u9","slide":17,"name":"Rounded Rectangle 21","bbox":[256,458,768,98]}
+{"kind":"textbox","id":"sh/q9knqtc7","slide":17,"name":"Rectangle 23","text":"Expectation is over repeated executions of the declared regime.","textPreview":"Expectation is over repeated executions of the declared regime.","textChars":63,"textLines":1,"bbox":[304,584,672,28]}
+{"kind":"image","id":"im/fq5sju5o","slide":17,"name":"Picture 46","bbox":[337.45,472,605.09,72]}
+{"kind":"notes","id":"nt/0ikxjg","slide":17,"text":"The realized minimum is the greatest level all K challenges retain. Expectation keeps the result on the performance scale.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/boxip9","slide":18,"title":"CORROBORATION","textShapes":10}
+{"kind":"textbox","id":"sh/8nqt8rep","slide":18,"name":"Rectangle 16","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/wfi1wf2x","slide":18,"name":"Rectangle 1","text":"With two attempts, corroboration charges\nhalf the replication disagreement","textPreview":"With two attempts, corroboration charges | half the replication disagreement","textChars":74,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/xgbi5k3i","slide":18,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/mp0zq5kv","slide":18,"name":"Rectangle 3","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/nq90zalg","slide":18,"name":"Rectangle 4","text":"18","textPreview":"18","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/obihsf2l","slide":18,"name":"Rounded Rectangle 5","bbox":[106,238,1068,112]}
+{"kind":"shape","id":"sh/elgzm5kj","slide":18,"name":"Rounded Rectangle 7","bbox":[130,416,390,134]}
+{"kind":"textbox","id":"sh/zmp0vql4","slide":18,"name":"Rectangle 8","text":"Expected performance","textPreview":"Expected performance","textChars":20,"textLines":1,"bbox":[160,444,330,30]}
+{"kind":"textbox","id":"sh/zixsbmds","slide":18,"name":"Rectangle 9","text":"0.50","textPreview":"0.50","textChars":4,"textLines":1,"bbox":[160,488,330,40]}
+{"kind":"textbox","id":"sh/yxob2hwn","slide":18,"name":"Rectangle 10","text":"−","textPreview":"−","textChars":1,"textLines":1,"bbox":[578,454,64,48]}
+{"kind":"shape","id":"sh/lkzadwvy","slide":18,"name":"Rounded Rectangle 11","bbox":[700,416,450,134]}
+{"kind":"textbox","id":"sh/kj6t4red","slide":18,"name":"Rectangle 12","text":"Half the expected disagreement","textPreview":"Half the expected disagreement","textChars":30,"textLines":1,"bbox":[730,444,390,30]}
+{"kind":"textbox","id":"sh/7mhsfmd4","slide":18,"name":"Rectangle 13","text":"0.12","textPreview":"0.12","textChars":4,"textLines":1,"bbox":[730,488,390,40]}
+{"kind":"shape","id":"sh/ml8b6hwj","slide":18,"name":"Rounded Rectangle 14","bbox":[450,580,380,62]}
+{"kind":"textbox","id":"sh/9ozahwva","slide":18,"name":"Rectangle 15","text":"Supported level: 0.38","textPreview":"Supported level: 0.38","textChars":21,"textLines":1,"bbox":[470,598,340,32]}
+{"kind":"image","id":"im/8b6p8rit","slide":18,"name":"Picture 22","bbox":[356.52,252,566.95,82]}
+{"kind":"notes","id":"nt/boxip9","slide":18,"text":"At K=2 the operator has a transparent decomposition. This is not a standard-error penalty.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/at0ils","slide":19,"title":"CORROBORATION","textShapes":11}
+{"kind":"textbox","id":"sh/ypkrido3","slide":19,"name":"Rectangle 14","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/cfu9wjel","slide":19,"name":"Rectangle 1","text":"In Popper’s sense, survival is support—\nnot probability of truth","textPreview":"In Popper’s sense, survival is support— | not probability of truth","textChars":64,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/dgnapov6","slide":19,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/29crqpwj","slide":19,"name":"Rectangle 3","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/3al8judo","slide":19,"name":"Rectangle 4","text":"19","textPreview":"19","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/obu9sze9","slide":19,"name":"Rounded Rectangle 5","bbox":[92,232,504,296]}
+{"kind":"textbox","id":"sh/pc3ql4vu","slide":19,"name":"Rectangle 6","text":"WHAT THE CLAIM EARNS","textPreview":"WHAT THE CLAIM EARNS","textChars":20,"textLines":1,"bbox":[124,262,260,22]}
+{"kind":"textbox","id":"sh/m5wr2tcn","slide":19,"name":"Rectangle 7","text":"It survived specified\nopportunities for defeat.","textPreview":"It survived specified | opportunities for defeat.","textChars":47,"textLines":2,"bbox":[124,332,440,90]}
+{"kind":"textbox","id":"sh/765svyd8","slide":19,"name":"Rectangle 8","text":"The assessment makes those\nopportunities criticizable.","textPreview":"The assessment makes those | opportunities criticizable.","textChars":54,"textLines":2,"bbox":[124,454,440,56]}
+{"kind":"shape","id":"sh/bmt8nypc","slide":19,"name":"Rounded Rectangle 9","bbox":[684,232,504,296]}
+{"kind":"textbox","id":"sh/al0retor","slide":19,"name":"Rectangle 10","text":"WHAT IT DOES NOT EARN","textPreview":"WHAT IT DOES NOT EARN","textChars":21,"textLines":1,"bbox":[716,262,300,22]}
+{"kind":"textbox","id":"sh/xobqp87i","slide":19,"name":"Rectangle 11","text":"A probability that the\nmodel or claim is true.","textPreview":"A probability that the | model or claim is true.","textChars":46,"textLines":2,"bbox":[716,332,440,90]}
+{"kind":"textbox","id":"sh/wn29g36x","slide":19,"name":"Rectangle 12","text":"Nor a fixed confidence level.","textPreview":"Nor a fixed confidence level.","textChars":29,"textLines":1,"bbox":[716,466,440,34]}
+{"kind":"textbox","id":"sh/jqt8ripo","slide":19,"name":"Rectangle 13","text":"Corroboration remains negative: the claim has not yet been defeated under 𝒜.","textPreview":"Corroboration remains negative: the claim has not yet been defeated under 𝒜.","textChars":77,"textLines":1,"bbox":[192,574,896,36]}
+{"kind":"notes","id":"nt/at0ils","slide":19,"text":"Use Popper carefully: the language is negative and conditional. Support records survival under stated tests; it is not confirmation.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/gzub1c","slide":20,"title":"CORROBORATION","textShapes":13}
+{"kind":"textbox","id":"sh/uhobadg7","slide":20,"name":"Rectangle 17","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/7qhk32xk","slide":20,"name":"Rectangle 1","text":"A bootstrap estimates projected support;\nit does not manufacture replications","textPreview":"A bootstrap estimates projected support; | it does not manufacture replications","textChars":77,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/mp83uxgz","slide":20,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/loz21sfe","slide":20,"name":"Rectangle 3","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/kn6ls7yt","slide":20,"name":"Rectangle 4","text":"20","textPreview":"20","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/zmxkz2x8","slide":20,"name":"Rectangle 5","text":"COMPUTATION","textPreview":"COMPUTATION","textChars":11,"textLines":1,"bbox":[92,220,220,22]}
+{"kind":"shape","id":"sh/ylo3qxgn","slide":20,"name":"Rounded Rectangle 6","bbox":[92,262,432,238]}
+{"kind":"textbox","id":"sh/5kjmdwfi","slide":20,"name":"Rectangle 7","text":"1 observed evaluation","textPreview":"1 observed evaluation","textChars":21,"textLines":1,"bbox":[122,294,372,34]}
+{"kind":"textbox","id":"sh/4jal4ryx","slide":20,"name":"Rectangle 8","text":"↓","textPreview":"↓","textChars":1,"textLines":1,"bbox":[280,338,56,38]}
+{"kind":"textbox","id":"sh/ip4b2tgz","slide":20,"name":"Rectangle 9","text":"1,000 bootstrap draws","textPreview":"1,000 bootstrap draws","textChars":21,"textLines":1,"bbox":[122,386,372,34]}
+{"kind":"textbox","id":"sh/jqdsvyxk","slide":20,"name":"Rectangle 10","text":"Less Monte Carlo error","textPreview":"Less Monte Carlo error","textChars":22,"textLines":1,"bbox":[122,448,372,30]}
+{"kind":"textbox","id":"sh/krmt43y5","slide":20,"name":"Rectangle 11","text":"EVIDENCE","textPreview":"EVIDENCE","textChars":8,"textLines":1,"bbox":[714,220,220,22]}
+{"kind":"shape","id":"sh/5cvaxofq","slide":20,"name":"Rounded Rectangle 12","bbox":[714,262,474,238]}
+{"kind":"textbox","id":"sh/alkby9g3","slide":20,"name":"Rectangle 13","text":"New sites, measurements,\nor development runs","textPreview":"New sites, measurements, | or development runs","textChars":44,"textLines":2,"bbox":[744,306,414,70]}
+{"kind":"textbox","id":"sh/vmtsrexo","slide":20,"name":"Rectangle 14","text":"Can reveal failures the bootstrap\nheld fixed.","textPreview":"Can reveal failures the bootstrap | held fixed.","textChars":45,"textLines":2,"bbox":[744,414,414,58]}
+{"kind":"shape","id":"sh/wn2t0jyt","slide":20,"name":"Rounded Rectangle 15","bbox":[170,554,940,76]}
+{"kind":"textbox","id":"sh/xobatofe","slide":20,"name":"Rectangle 16","text":"More bootstrap draws improve computation; more attempts strengthen the claim; new environments change the evidence.","textPreview":"More bootstrap draws improve computation; more attempts strengthen the claim; new environments change the evidence.","textChars":115,"textLines":1,"bbox":[190,572,900,46]}
+{"kind":"notes","id":"nt/gzub1c","slide":20,"text":"Separate B, K, and genuinely new evidence. This prevents computational effort from being mistaken for severity.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/kropm7","slide":21,"title":"CORROBORATION","textShapes":7}
+{"kind":"textbox","id":"sh/zu9o3i9w","slide":21,"name":"Rectangle 10","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/rixwryxo","slide":21,"name":"Rectangle 1","text":"Each replication must face\nthe full prevalence set","textPreview":"Each replication must face | the full prevalence set","textChars":50,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/qh4vitg3","slide":21,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/5gvepofy","slide":21,"name":"Rectangle 3","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/4fmdgjyd","slide":21,"name":"Rectangle 4","text":"21","textPreview":"21","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/it4ve9g7","slide":21,"name":"Rounded Rectangle 6","bbox":[856,246,328,258]}
+{"kind":"textbox","id":"sh/pcze1sf2","slide":21,"name":"Rectangle 7","text":"Replication 1 fails first\nat low prevalence.","textPreview":"Replication 1 fails first | at low prevalence.","textChars":44,"textLines":2,"bbox":[884,282,272,70]}
+{"kind":"textbox","id":"sh/obqxsnyh","slide":21,"name":"Rectangle 8","text":"Replication 2 fails first\nat high prevalence.","textPreview":"Replication 2 fails first | at high prevalence.","textChars":45,"textLines":2,"bbox":[884,392,272,70]}
+{"kind":"textbox","id":"sh/yt0nud8r","slide":21,"name":"Rectangle 9","text":"Each replication must reveal its own limiting population.","textPreview":"Each replication must reveal its own limiting population.","textChars":57,"textLines":1,"bbox":[190,604,900,34]}
+{"kind":"chart","id":"ch/s7qx8fmd","slide":21,"name":"Chart","chartType":"line","bbox":[74,220,740,360]}
+{"kind":"notes","id":"nt/kropm7","slide":21,"text":"The different profile shapes show why each replication must face the entire prevalence set before replications are combined.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/9kmxqh","slide":22,"title":"CORROBORATION","textShapes":16}
+{"kind":"textbox","id":"sh/2dwbq58n","slide":22,"name":"Rectangle 22","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/tcnyls76","slide":22,"name":"Rectangle 1","text":"Support equals mean performance\nminus two costs of challenge","textPreview":"Support equals mean performance | minus two costs of challenge","textChars":60,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/sbehcnql","slide":22,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/j6lgfip4","slide":22,"name":"Rectangle 3","text":"CORROBORATION","textPreview":"CORROBORATION","textChars":13,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/y5cz6d8j","slide":22,"name":"Rectangle 4","text":"22","textPreview":"22","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/58nyhs7a","slide":22,"name":"Rounded Rectangle 5","bbox":[86,278,224,170]}
+{"kind":"textbox","id":"sh/k7uh8nqp","slide":22,"name":"Rectangle 6","text":"0.54","textPreview":"0.54","textChars":4,"textLines":1,"bbox":[86,306,224,48]}
+{"kind":"textbox","id":"sh/bilgbyps","slide":22,"name":"Rectangle 7","text":"Best fixed-prevalence\nexpected profile","textPreview":"Best fixed-prevalence | expected profile","textChars":38,"textLines":2,"bbox":[102,374,192,58]}
+{"kind":"textbox","id":"sh/ahcz2d8n","slide":22,"name":"Rectangle 8","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[312,330,50,42]}
+{"kind":"shape","id":"sh/43ilgz2t","slide":22,"name":"Rounded Rectangle 9","bbox":[364,278,224,170]}
+{"kind":"textbox","id":"sh/54r2p43e","slide":22,"name":"Rectangle 10","text":"−0.08","textPreview":"−0.08","textChars":5,"textLines":1,"bbox":[364,306,224,48]}
+{"kind":"textbox","id":"sh/i1g3epkn","slide":22,"name":"Rectangle 11","text":"Movement of limiting\nprevalence","textPreview":"Movement of limiting | prevalence","textChars":31,"textLines":2,"bbox":[380,374,192,58]}
+{"kind":"textbox","id":"sh/329knul8","slide":22,"name":"Rectangle 12","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[590,330,50,42]}
+{"kind":"shape","id":"sh/gzy1cfmh","slide":22,"name":"Rounded Rectangle 13","bbox":[642,278,224,170]}
+{"kind":"textbox","id":"sh/h072lk32","slide":22,"name":"Rectangle 14","text":"−0.06","textPreview":"−0.06","textChars":5,"textLines":1,"bbox":[642,306,224,48]}
+{"kind":"textbox","id":"sh/uxgja54r","slide":22,"name":"Rectangle 15","text":"Replication\ndisagreement","textPreview":"Replication | disagreement","textChars":24,"textLines":2,"bbox":[658,374,192,58]}
+{"kind":"textbox","id":"sh/vypkjalc","slide":22,"name":"Rectangle 16","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[868,330,50,42]}
+{"kind":"shape","id":"sh/0v2loj21","slide":22,"name":"Rounded Rectangle 17","bbox":[920,278,224,170]}
+{"kind":"textbox","id":"sh/1wb2xo3m","slide":22,"name":"Rectangle 18","text":"0.40","textPreview":"0.40","textChars":4,"textLines":1,"bbox":[920,306,224,48]}
+{"kind":"textbox","id":"sh/pgnulkre","slide":22,"name":"Rectangle 19","text":"Supported\nperformance","textPreview":"Supported | performance","textChars":21,"textLines":2,"bbox":[936,374,192,58]}
+{"kind":"textbox","id":"sh/ne5sja98","slide":22,"name":"Rectangle 21","text":"The costs diagnose why support is low; they are not new headline estimands.","textPreview":"The costs diagnose why support is low; they are not new headline estimands.","textChars":75,"textLines":1,"bbox":[208,586,864,32]}
+{"kind":"image","id":"im/apojihg3","slide":22,"name":"Picture 42","bbox":[326.18,500,627.64,72]}
+{"kind":"notes","id":"nt/9kmxqh","slide":22,"text":"The numerical decomposition is illustrative. Its job is diagnostic: distinguish weak mean performance, moving limiting populations, and unstable retained levels.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/tyjkqx","slide":23,"title":"ESTIMATION","textShapes":20}
+{"kind":"textbox","id":"sh/v2t0juhs","slide":23,"name":"Rectangle 29","text":"ESTIMATION","textPreview":"ESTIMATION","textChars":10,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/q9c7e9wv","slide":23,"name":"Rectangle 1","text":"A fixed-model bootstrap preserves\nthe order of the scientific claim","textPreview":"A fixed-model bootstrap preserves | the order of the scientific claim","textChars":67,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/balo7edg","slide":23,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/0fepkjex","slide":23,"name":"Rectangle 3","text":"ESTIMATION","textPreview":"ESTIMATION","textChars":10,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/lgnqdovi","slide":23,"name":"Rectangle 4","text":"23","textPreview":"23","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/ydw7itw7","slide":23,"name":"Rounded Rectangle 5","bbox":[80,252,246,268]}
+{"kind":"shape","id":"sh/ze58byds","slide":23,"name":"Oval 6","bbox":[172,274,62,62]}
+{"kind":"textbox","id":"sh/8jep83e9","slide":23,"name":"Rectangle 7","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[172,288,62,32]}
+{"kind":"textbox","id":"sh/9k7qh8vu","slide":23,"name":"Rectangle 8","text":"Resample units","textPreview":"Resample units","textChars":14,"textLines":1,"bbox":[98,358,210,36]}
+{"kind":"textbox","id":"sh/9s36hw3i","slide":23,"name":"Rectangle 9","text":"Stratify by observed\noutcome class","textPreview":"Stratify by observed | outcome class","textChars":34,"textLines":2,"bbox":[98,416,210,62]}
+{"kind":"textbox","id":"sh/8rapor2x","slide":23,"name":"Rectangle 10","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[326,354,50,42]}
+{"kind":"shape","id":"sh/nq1ofmls","slide":23,"name":"Rounded Rectangle 11","bbox":[366,252,246,268]}
+{"kind":"shape","id":"sh/mps7mhk7","slide":23,"name":"Oval 12","bbox":[458,274,62,62]}
+{"kind":"textbox","id":"sh/hg36lw3u","slide":23,"name":"Rectangle 13","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[458,288,62,32]}
+{"kind":"textbox","id":"sh/wfupsr29","slide":23,"name":"Rectangle 14","text":"Build profile","textPreview":"Build profile","textChars":13,"textLines":1,"bbox":[384,358,210,36]}
+{"kind":"textbox","id":"sh/vulojmlo","slide":23,"name":"Rectangle 15","text":"Evaluate every target\non those same units","textPreview":"Evaluate every target | on those same units","textChars":41,"textLines":2,"bbox":[384,416,210,62]}
+{"kind":"textbox","id":"sh/atc7q1k3","slide":23,"name":"Rectangle 16","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[612,354,50,42]}
+{"kind":"shape","id":"sh/dkz69c3a","slide":23,"name":"Rounded Rectangle 17","bbox":[652,252,246,268]}
+{"kind":"shape","id":"sh/cjq5g725","slide":23,"name":"Oval 18","bbox":[744,274,62,62]}
+{"kind":"textbox","id":"sh/43upw7al","slide":23,"name":"Rectangle 19","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[744,288,62,32]}
+{"kind":"textbox","id":"sh/p436pcb6","slide":23,"name":"Rectangle 20","text":"Retain worst target","textPreview":"Retain worst target","textChars":19,"textLines":1,"bbox":[670,358,210,36]}
+{"kind":"textbox","id":"sh/21c7uxsv","slide":23,"name":"Rectangle 21","text":"Keep the profile minimum\nfor each replication","textPreview":"Keep the profile minimum | for each replication","textChars":45,"textLines":2,"bbox":[670,416,210,62]}
+{"kind":"textbox","id":"sh/32lon2tg","slide":23,"name":"Rectangle 22","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[898,354,50,42]}
+{"kind":"shape","id":"sh/c7ep07ax","slide":23,"name":"Rounded Rectangle 23","bbox":[938,252,246,268]}
+{"kind":"shape","id":"sh/d8n6tcbi","slide":23,"name":"Oval 24","bbox":[1030,274,62,62]}
+{"kind":"textbox","id":"sh/q5c7yhsr","slide":23,"name":"Rectangle 25","text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[1030,288,62,32]}
+{"kind":"textbox","id":"sh/r65ormtc","slide":23,"name":"Rectangle 26","text":"Apply support","textPreview":"Apply support","textChars":13,"textLines":1,"bbox":[956,358,210,36]}
+{"kind":"textbox","id":"sh/0vep4rat","slide":23,"name":"Rectangle 27","text":"Average minima over\ngroups of attempts","textPreview":"Average minima over | groups of attempts","textChars":38,"textLines":2,"bbox":[956,416,210,62]}
+{"kind":"textbox","id":"sh/1wnqxwbe","slide":23,"name":"Rectangle 28","text":"Resampling separately at each prevalence would destroy the joint profile.","textPreview":"Resampling separately at each prevalence would destroy the joint profile.","textChars":73,"textLines":1,"bbox":[278,576,724,32]}
+{"kind":"notes","id":"nt/tyjkqx","slide":23,"text":"Walk left to right. The same sampled units must generate the complete prevalence profile.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/k801vz","slide":24,"title":"DESIGN ANCHOR","textShapes":15}
+{"kind":"textbox","id":"sh/6ls7mdcb","slide":24,"name":"Rectangle 26","text":"DESIGN ANCHOR","textPreview":"DESIGN ANCHOR","textChars":13,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/t0jetgj6","slide":24,"name":"Rectangle 1","text":"Finite-sample AP has a design anchor\nthat need not equal prevalence","textPreview":"Finite-sample AP has a design anchor | that need not equal prevalence","textChars":67,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/szadkbil","slide":24,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/f21wv61c","slide":24,"name":"Rectangle 3","text":"DESIGN ANCHOR","textPreview":"DESIGN ANCHOR","textChars":13,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/u1svml0r","slide":24,"name":"Rectangle 4","text":"24","textPreview":"24","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/h4jexgj2","slide":24,"name":"Rectangle 5","text":"ONE POSITIVE + ONE NEGATIVE; 50% PREVALENCE","textPreview":"ONE POSITIVE + ONE NEGATIVE; 50% PREVALENCE","textChars":43,"textLines":1,"bbox":[92,216,520,22]}
+{"kind":"shape","id":"sh/g3adobix","slide":24,"name":"Rounded Rectangle 6","bbox":[92,266,416,190]}
+{"kind":"textbox","id":"sh/v6hcjm1s","slide":24,"name":"Rectangle 7","text":"ordering 1","textPreview":"ordering 1","textChars":10,"textLines":1,"bbox":[92,286,416,26]}
+{"kind":"shape","id":"sh/a5ovah07","slide":24,"name":"Oval 8","bbox":[220,338,38,38]}
+{"kind":"textbox","id":"sh/072h4v61","slide":24,"name":"Rectangle 9","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[220,343,38,24]}
+{"kind":"shape","id":"sh/18bid0nm","slide":24,"name":"Oval 10","bbox":[290,338,38,38]}
+{"kind":"textbox","id":"sh/e5kz2lov","slide":24,"name":"Rectangle 11","text":"−","textPreview":"−","textChars":1,"textLines":1,"bbox":[290,343,38,24]}
+{"kind":"shape","id":"sh/obmh8v6d","slide":24,"name":"Rounded Rectangle 13","bbox":[548,266,416,190]}
+{"kind":"textbox","id":"sh/pwvih0ni","slide":24,"name":"Rectangle 14","text":"ordering 2","textPreview":"ordering 2","textChars":10,"textLines":1,"bbox":[548,286,416,26]}
+{"kind":"shape","id":"sh/294z6lo7","slide":24,"name":"Oval 15","bbox":[676,338,38,38]}
+{"kind":"textbox","id":"sh/nad0fq5s","slide":24,"name":"Rectangle 16","text":"−","textPreview":"−","textChars":1,"textLines":1,"bbox":[676,343,38,24]}
+{"kind":"shape","id":"sh/4fihwb6t","slide":24,"name":"Oval 17","bbox":[746,338,38,38]}
+{"kind":"textbox","id":"sh/5gry5gne","slide":24,"name":"Rectangle 18","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[746,343,38,24]}
+{"kind":"textbox","id":"sh/kjq5k3ul","slide":24,"name":"Rectangle 20","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[988,338,50,42]}
+{"kind":"shape","id":"sh/zyhobyd0","slide":24,"name":"Rounded Rectangle 21","bbox":[1054,290,138,146]}
+{"kind":"textbox","id":"sh/yx8nitcf","slide":24,"name":"Rectangle 22","text":"support","textPreview":"support","textChars":7,"textLines":1,"bbox":[1054,310,138,30]}
+{"kind":"textbox","id":"sh/toj6h8v2","slide":24,"name":"Rectangle 23","text":"0.25","textPreview":"0.25","textChars":4,"textLines":1,"bbox":[1054,358,138,40]}
+{"kind":"shape","id":"sh/8napo3uh","slide":24,"name":"Rounded Rectangle 24","bbox":[166,536,948,76]}
+{"kind":"textbox","id":"sh/7m1ofidw","slide":24,"name":"Rectangle 25","text":"Pure noise can return positive supported CNAP because stepwise AP rewards favorable finite orderings.","textPreview":"Pure noise can return positive supported CNAP because stepwise AP rewards favorable finite orderings.","textChars":101,"textLines":1,"bbox":[186,554,908,46]}
+{"kind":"image","id":"im/ilw7uhoj","slide":24,"name":"Picture 38","bbox":[116,394.05,368,47.9]}
+{"kind":"image","id":"im/jm5onm54","slide":24,"name":"Picture 45","bbox":[626.91,384,258.19,68]}
+{"kind":"notes","id":"nt/k801vz","slide":24,"text":"This two-unit example proves that a population chance anchor does not automatically center a finite design.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/d8pk2b","slide":25,"title":"DESIGN ANCHOR","textShapes":10}
+{"kind":"textbox","id":"sh/s7u9g3q1","slide":25,"name":"Rectangle 14","text":"DESIGN ANCHOR","textPreview":"DESIGN ANCHOR","textChars":13,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/a1cn6l0r","slide":25,"name":"Rectangle 1","text":"Conditional calibration makes one model\ninterpretable—but not comparable","textPreview":"Conditional calibration makes one model | interpretable—but not comparable","textChars":72,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/b2l4f6hc","slide":25,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/k7e5cvyt","slide":25,"name":"Rectangle 3","text":"DESIGN ANCHOR","textPreview":"DESIGN ANCHOR","textChars":13,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/l8nml0ze","slide":25,"name":"Rectangle 4","text":"25","textPreview":"25","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/y5cnal0n","slide":25,"name":"Rounded Rectangle 5","bbox":[82,236,510,268]}
+{"kind":"textbox","id":"sh/z6l4jqh8","slide":25,"name":"Rectangle 6","text":"FOR ONE FIXED SCORE VECTOR","textPreview":"FOR ONE FIXED SCORE VECTOR","textChars":26,"textLines":1,"bbox":[114,266,330,22]}
+{"kind":"textbox","id":"sh/8ve5gvyp","slide":25,"name":"Rectangle 7","text":"Permute labels under the\ndesign’s allowed symmetry","textPreview":"Permute labels under the | design’s allowed symmetry","textChars":50,"textLines":2,"bbox":[114,322,446,70]}
+{"kind":"textbox","id":"sh/twnmp0za","slide":25,"name":"Rectangle 8","text":"→ estimate its conditional\nnull anchor","textPreview":"→ estimate its conditional | null anchor","textChars":38,"textLines":2,"bbox":[114,420,446,58]}
+{"kind":"textbox","id":"sh/543qlora","slide":25,"name":"Rectangle 9","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[616,338,50,42]}
+{"kind":"shape","id":"sh/k3u9cjqp","slide":25,"name":"Rounded Rectangle 10","bbox":[704,236,486,268]}
+{"kind":"textbox","id":"sh/i1cra98j","slide":25,"name":"Rectangle 12","text":"Raw value + anchor + ratio\nmust travel together.","textPreview":"Raw value + anchor + ratio | must travel together.","textChars":48,"textLines":2,"bbox":[732,394,430,68]}
+{"kind":"textbox","id":"sh/t83ap8rm","slide":25,"name":"Rectangle 13","text":"Different score vectors have different anchors → calibrated values cannot be subtracted.","textPreview":"Different score vectors have different anchors → calibrated values cannot be subtracted.","textChars":88,"textLines":1,"bbox":[166,540,948,66]}
+{"kind":"image","id":"im/4ze14z6l","slide":25,"name":"Picture 25","bbox":[811.69,278,270.63,86]}
+{"kind":"notes","id":"nt/d8pk2b","slide":25,"text":"Calibration is useful for describing one fixed model. Stress the non-composability of different conditional anchors.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/qsddxa","slide":26,"title":"REPLACEMENT","textShapes":9}
+{"kind":"textbox","id":"sh/7ux4r25k","slide":26,"name":"Rectangle 13","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/obypkvyd","slide":26,"name":"Rectangle 1","text":"Subtracting two marginal reports combines\nadverse cases that never co-occurred","textPreview":"Subtracting two marginal reports combines | adverse cases that never co-occurred","textChars":78,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/9c7qt0zy","slide":26,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/elw7elgb","slide":26,"name":"Rectangle 3","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/zm58nqhw","slide":26,"name":"Rectangle 4","text":"26","textPreview":"26","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/0nypgbyh","slide":26,"name":"Rounded Rectangle 5","bbox":[92,240,450,250]}
+{"kind":"textbox","id":"sh/1o7qpgz2","slide":26,"name":"Rectangle 6","text":"MODEL A’S MARGINAL WORST CASE","textPreview":"MODEL A’S MARGINAL WORST CASE","textChars":29,"textLines":1,"bbox":[122,270,360,22]}
+{"kind":"textbox","id":"sh/qhw7a10z","slide":26,"name":"Rectangle 7","text":"site 1\n1% prevalence\nCNAP 0.30","textPreview":"site 1 | 1% prevalence | CNAP 0.30","textChars":30,"textLines":3,"bbox":[122,324,390,126]}
+{"kind":"shape","id":"sh/ri58j6hk","slide":26,"name":"Rounded Rectangle 8","bbox":[738,240,450,250]}
+{"kind":"textbox","id":"sh/jqx4n25o","slide":26,"name":"Rectangle 9","text":"MODEL B’S MARGINAL WORST CASE","textPreview":"MODEL B’S MARGINAL WORST CASE","textChars":29,"textLines":1,"bbox":[768,270,360,22]}
+{"kind":"textbox","id":"sh/ypo3uxo3","slide":26,"name":"Rectangle 10","text":"site 2\n30% prevalence\nCNAP 0.25","textPreview":"site 2 | 30% prevalence | CNAP 0.25","textChars":31,"textLines":3,"bbox":[768,324,390,126]}
+{"kind":"textbox","id":"sh/kr6lw769","slide":26,"name":"Rectangle 12","text":"But no evaluation ever contained that comparison.","textPreview":"But no evaluation ever contained that comparison.","textChars":49,"textLines":1,"bbox":[352,592,576,30]}
+{"kind":"image","id":"im/94bepgz6","slide":26,"name":"Picture 24","bbox":[430,529.27,420,49.46]}
+{"kind":"notes","id":"nt/qsddxa","slide":26,"text":"A replacement effect must be realized under the same conditions. Marginal worst cases do not supply it.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/862wpx","slide":27,"title":"REPLACEMENT","textShapes":12}
+{"kind":"textbox","id":"sh/lsbut4r6","slide":27,"name":"Rectangle 24","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/q90zyt8r","slide":27,"name":"Rectangle 1","text":"Pairing can still reward\narbitrary tie-breaking","textPreview":"Pairing can still reward | arbitrary tie-breaking","textChars":47,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/ra90ry9c","slide":27,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/0f2h4nq9","slide":27,"name":"Rectangle 3","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/1gbixsru","slide":27,"name":"Rectangle 4","text":"27","textPreview":"27","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/ed0z2d83","slide":27,"name":"Rounded Rectangle 5","bbox":[74,230,500,300]}
+{"kind":"textbox","id":"sh/ze90vi9o","slide":27,"name":"Rectangle 6","text":"MODEL A: FOUR DISTINCT SCORES","textPreview":"MODEL A: FOUR DISTINCT SCORES","textChars":29,"textLines":1,"bbox":[104,258,350,22]}
+{"kind":"shape","id":"sh/gjyhsjqp","slide":27,"name":"Rounded Rectangle 7","bbox":[116,326,72,80]}
+{"kind":"textbox","id":"sh/hk7ylora","slide":27,"name":"Rectangle 8","text":"0.9","textPreview":"0.9","textChars":3,"textLines":1,"bbox":[116,348,72,30]}
+{"kind":"shape","id":"sh/hsjqlw3q","slide":27,"name":"Rounded Rectangle 9","bbox":[216,326,72,80]}
+{"kind":"textbox","id":"sh/wra9cr2l","slide":27,"name":"Rectangle 10","text":"0.7","textPreview":"0.7","textChars":3,"textLines":1,"bbox":[216,348,72,30]}
+{"kind":"shape","id":"sh/vq18jml0","slide":27,"name":"Rounded Rectangle 11","bbox":[316,326,72,80]}
+{"kind":"textbox","id":"sh/up8ra1kf","slide":27,"name":"Rectangle 12","text":"0.5","textPreview":"0.5","textChars":3,"textLines":1,"bbox":[316,348,72,30]}
+{"kind":"shape","id":"sh/5wjqpg32","slide":27,"name":"Rounded Rectangle 13","bbox":[416,326,72,80]}
+{"kind":"textbox","id":"sh/4va9gb2h","slide":27,"name":"Rectangle 14","text":"0.3","textPreview":"0.3","textChars":3,"textLines":1,"bbox":[416,348,72,30]}
+{"kind":"shape","id":"sh/itsre1kb","slide":27,"name":"Rounded Rectangle 16","bbox":[706,230,500,300]}
+{"kind":"textbox","id":"sh/t03atgjy","slide":27,"name":"Rectangle 17","text":"MODEL B: ONE COMPLETE TIE","textPreview":"MODEL B: ONE COMPLETE TIE","textChars":25,"textLines":1,"bbox":[736,258,350,22]}
+{"kind":"shape","id":"sh/szu9kb2d","slide":27,"name":"Rounded Rectangle 18","bbox":[790,326,332,80]}
+{"kind":"textbox","id":"sh/c32tgzap","slide":27,"name":"Rectangle 19","text":"0.5     0.5     0.5     0.5","textPreview":"0.5     0.5     0.5     0.5","textChars":27,"textLines":1,"bbox":[808,348,296,30]}
+{"kind":"shape","id":"sh/q1kbepsj","slide":27,"name":"Rounded Rectangle 21","bbox":[250,544,780,92]}
+{"kind":"textbox","id":"sh/r2tsnu94","slide":27,"name":"Rectangle 22","text":"No association—yet the expected paired difference is positive:","textPreview":"No association—yet the expected paired difference is positive:","textChars":62,"textLines":1,"bbox":[276,552,728,28]}
+{"kind":"image","id":"im/x0n6lkbi","slide":27,"name":"Picture 39","bbox":[251.07,438,145.86,56]}
+{"kind":"image","id":"im/wze5sfux","slide":27,"name":"Picture 44","bbox":[911.38,438,89.25,56]}
+{"kind":"image","id":"im/r2147qds","slide":27,"name":"Picture 47","bbox":[460,583.03,360,39.95]}
+{"kind":"notes","id":"nt/862wpx","slide":27,"text":"Both models are uninformative. The finer score vector nevertheless receives positive expected advantage under ordinary AP.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/4szjeu","slide":28,"title":"REPLACEMENT","textShapes":18}
+{"kind":"textbox","id":"sh/ritgvm1s","slide":28,"name":"Rectangle 35","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/kji1gjyl","slide":28,"name":"Rectangle 1","text":"Tie averaging removes expected credit\nfor distinctions the model did not make","textPreview":"Tie averaging removes expected credit | for distinctions the model did not make","textChars":77,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/lkr2pof6","slide":28,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/6l0jitgr","slide":28,"name":"Rectangle 3","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/769kryxc","slide":28,"name":"Rectangle 4","text":"28","textPreview":"28","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/s7i1k3yx","slide":28,"name":"Rectangle 5","text":"ONE TIED BLOCK WITH TWO POSITIVES","textPreview":"ONE TIED BLOCK WITH TWO POSITIVES","textChars":33,"textLines":1,"bbox":[88,218,420,22]}
+{"kind":"shape","id":"sh/t8r2t8f2","slide":28,"name":"Rounded Rectangle 6","bbox":[90,270,250,188]}
+{"kind":"shape","id":"sh/u9kjmdgn","slide":28,"name":"Oval 7","bbox":[130,316,38,38]}
+{"kind":"textbox","id":"sh/fatkvix8","slide":28,"name":"Rectangle 8","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[130,321,38,24]}
+{"kind":"shape","id":"sh/ruh0fqtk","slide":28,"name":"Oval 9","bbox":[188,316,38,38]}
+{"kind":"textbox","id":"sh/6t8j6lsz","slide":28,"name":"Rectangle 10","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[188,321,38,24]}
+{"kind":"shape","id":"sh/tgzih0bq","slide":28,"name":"Oval 11","bbox":[246,316,38,38]}
+{"kind":"textbox","id":"sh/sfq18va5","slide":28,"name":"Rectangle 12","text":"−","textPreview":"−","textChars":1,"textLines":1,"bbox":[246,321,38,24]}
+{"kind":"shape","id":"sh/ipoz2ls3","slide":28,"name":"Rounded Rectangle 14","bbox":[392,270,250,188]}
+{"kind":"shape","id":"sh/5szidgbe","slide":28,"name":"Oval 15","bbox":[432,316,38,38]}
+{"kind":"textbox","id":"sh/4r614ba9","slide":28,"name":"Rectangle 16","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[432,321,38,24]}
+{"kind":"shape","id":"sh/3m107ats","slide":28,"name":"Oval 17","bbox":[490,316,38,38]}
+{"kind":"textbox","id":"sh/2lsje5s7","slide":28,"name":"Rectangle 18","text":"−","textPreview":"−","textChars":1,"textLines":1,"bbox":[490,321,38,24]}
+{"kind":"shape","id":"sh/yhc369cf","slide":28,"name":"Oval 19","bbox":[548,316,38,38]}
+{"kind":"textbox","id":"sh/zil4fed0","slide":28,"name":"Rectangle 20","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[548,321,38,24]}
+{"kind":"shape","id":"sh/lknmhov6","slide":28,"name":"Rounded Rectangle 22","bbox":[694,270,250,188]}
+{"kind":"shape","id":"sh/m5w3atcr","slide":28,"name":"Oval 23","bbox":[734,316,38,38]}
+{"kind":"textbox","id":"sh/n654jedc","slide":28,"name":"Rectangle 24","text":"−","textPreview":"−","textChars":1,"textLines":1,"bbox":[734,321,38,24]}
+{"kind":"shape","id":"sh/87elcjuh","slide":28,"name":"Oval 25","bbox":[792,316,38,38]}
+{"kind":"textbox","id":"sh/98nmlov2","slide":28,"name":"Rectangle 26","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[792,321,38,24]}
+{"kind":"shape","id":"sh/29s3ypc7","slide":28,"name":"Oval 27","bbox":[850,316,38,38]}
+{"kind":"textbox","id":"sh/3a1k7uds","slide":28,"name":"Rectangle 28","text":"+","textPreview":"+","textChars":1,"textLines":1,"bbox":[850,321,38,24]}
+{"kind":"textbox","id":"sh/4f2x0ri1","slide":28,"name":"Rectangle 30","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[974,330,50,42]}
+{"kind":"shape","id":"sh/3e9grm1g","slide":28,"name":"Rounded Rectangle 31","bbox":[1046,270,150,188]}
+{"kind":"textbox","id":"sh/id0fyh0v","slide":28,"name":"Rectangle 32","text":"average","textPreview":"average","textChars":7,"textLines":1,"bbox":[1046,300,150,28]}
+{"kind":"textbox","id":"sh/dkbyxwji","slide":28,"name":"Rectangle 33","text":"0.81","textPreview":"0.81","textChars":4,"textLines":1,"bbox":[1046,350,150,48]}
+{"kind":"textbox","id":"sh/sj2x4rid","slide":28,"name":"Rectangle 34","text":"Useful refinement still helps when it aligns with outcomes; arbitrary refinement earns zero expected advantage.","textPreview":"Useful refinement still helps when it aligns with outcomes; arbitrary refinement earns zero expected advantage.","textChars":111,"textLines":1,"bbox":[142,548,996,64]}
+{"kind":"image","id":"im/50jmh87y","slide":28,"name":"Picture 48","bbox":[128,394.15,174,35.69]}
+{"kind":"image","id":"im/y1oju9oj","slide":28,"name":"Picture 56","bbox":[430,394.15,174,35.69]}
+{"kind":"image","id":"im/z2xk3epo","slide":28,"name":"Picture 64","bbox":[732,394.15,174,35.69]}
+{"kind":"notes","id":"nt/4szjeu","slide":28,"text":"Tie averaging changes the convention rather than subtracting a null artifact. Arbitrary within-block order is averaged away.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/cggrfq","slide":29,"title":"REPLACEMENT","textShapes":12}
+{"kind":"textbox","id":"sh/knehw3ed","slide":29,"name":"Rectangle 22","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/vudcbip0","slide":29,"name":"Rectangle 1","text":"Form the paired advantage before\napplying either challenge","textPreview":"Form the paired advantage before | applying either challenge","textChars":58,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/at4v2d8f","slide":29,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/5kfuhs72","slide":29,"name":"Rectangle 3","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/kjmd8n6h","slide":29,"name":"Rectangle 4","text":"29","textPreview":"29","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/jydcf2pw","slide":29,"name":"Rounded Rectangle 5","bbox":[84,254,220,250]}
+{"kind":"textbox","id":"sh/ix4v6xob","slide":29,"name":"Rectangle 6","text":"PAIR","textPreview":"PAIR","textChars":4,"textLines":1,"bbox":[102,280,184,22]}
+{"kind":"textbox","id":"sh/0n2tw3qd","slide":29,"name":"Rectangle 8","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[308,352,50,42]}
+{"kind":"shape","id":"sh/6psze9gr","slide":29,"name":"Rounded Rectangle 9","bbox":[384,254,220,250]}
+{"kind":"textbox","id":"sh/rq107ehc","slide":29,"name":"Rectangle 10","text":"POPULATION","textPreview":"POPULATION","textChars":10,"textLines":1,"bbox":[402,280,184,22]}
+{"kind":"textbox","id":"sh/dsji9ozi","slide":29,"name":"Rectangle 12","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[608,352,50,42]}
+{"kind":"shape","id":"sh/etszitg3","slide":29,"name":"Rounded Rectangle 13","bbox":[684,254,220,250]}
+{"kind":"textbox","id":"sh/ful0beho","slide":29,"name":"Rectangle 14","text":"REPLICATION","textPreview":"REPLICATION","textChars":11,"textLines":1,"bbox":[702,280,184,22]}
+{"kind":"textbox","id":"sh/1w3idoze","slide":29,"name":"Rectangle 16","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[908,352,50,42]}
+{"kind":"shape","id":"sh/2xczmtgz","slide":29,"name":"Rounded Rectangle 17","bbox":[984,254,220,250]}
+{"kind":"textbox","id":"sh/nyl0fyhk","slide":29,"name":"Rectangle 18","text":"EXPECTATION","textPreview":"EXPECTATION","textChars":11,"textLines":1,"bbox":[1002,280,184,22]}
+{"kind":"shape","id":"sh/y1wzutw7","slide":29,"name":"Rounded Rectangle 20","bbox":[342,560,596,66]}
+{"kind":"textbox","id":"sh/lony58vy","slide":29,"name":"Rectangle 21","text":"Same units → same prevalence → same replication","textPreview":"Same units → same prevalence → same replication","textChars":47,"textLines":1,"bbox":[362,578,556,36]}
+{"kind":"image","id":"im/w36dcfux","slide":29,"name":"Picture 29","bbox":[96,360.09,196,63.82]}
+{"kind":"image","id":"im/x4felkv2","slide":29,"name":"Picture 33","bbox":[396,362.57,196,58.86]}
+{"kind":"image","id":"im/a14vq5cr","slide":29,"name":"Picture 37","bbox":[696,371.41,196,41.18]}
+{"kind":"image","id":"im/b2xwjadc","slide":29,"name":"Picture 41","bbox":[996,355.66,196,72.67]}
+{"kind":"notes","id":"nt/cggrfq","slide":29,"text":"Build the estimand from left to right. Pair first; challenge second.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/8xxg3d","slide":30,"title":"REPLACEMENT","textShapes":11}
+{"kind":"textbox","id":"sh/ry947qx8","slide":30,"name":"Rectangle 14","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/nuh8r29c","slide":30,"name":"Rectangle 1","text":"Tie neutrality needs an\nexchangeable-label reference law","textPreview":"Tie neutrality needs an | exchangeable-label reference law","textChars":56,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/2to7ixsr","slide":30,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/1sfqpsrm","slide":30,"name":"Rectangle 3","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/0r6pgna1","slide":30,"name":"Rectangle 4","text":"30","textPreview":"30","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/fqx8n29g","slide":30,"name":"Rectangle 5","text":"Conditionally on both score vectors and the observed positive count,","textPreview":"Conditionally on both score vectors and the observed positive count,","textChars":68,"textLines":1,"bbox":[178,224,924,38]}
+{"kind":"textbox","id":"sh/epo7exsv","slide":30,"name":"Rectangle 6","text":"every label vector with that many positives is equally likely.","textPreview":"every label vector with that many positives is equally likely.","textChars":62,"textLines":1,"bbox":[172,274,936,44]}
+{"kind":"shape","id":"sh/lojq1wrq","slide":30,"name":"Rounded Rectangle 7","bbox":[94,374,510,188]}
+{"kind":"textbox","id":"sh/kna9sra5","slide":30,"name":"Rectangle 8","text":"DEFENSIBLE REFERENCE","textPreview":"DEFENSIBLE REFERENCE","textChars":20,"textLines":1,"bbox":[126,402,250,22]}
+{"kind":"textbox","id":"sh/el0ni5wz","slide":30,"name":"Rectangle 9","text":"i.i.d. held-out units\nunder a signal-free label law","textPreview":"i.i.d. held-out units | under a signal-free label law","textChars":51,"textLines":2,"bbox":[126,456,446,70]}
+{"kind":"shape","id":"sh/fm94baxk","slide":30,"name":"Rounded Rectangle 10","bbox":[676,374,510,188]}
+{"kind":"textbox","id":"sh/gni5kve5","slide":30,"name":"Rectangle 11","text":"NOT AUTOMATIC","textPreview":"NOT AUTOMATIC","textChars":13,"textLines":1,"bbox":[708,402,220,22]}
+{"kind":"textbox","id":"sh/1ormd0fq","slide":30,"name":"Rectangle 12","text":"matched, clustered, or\nheterogeneous-risk designs","textPreview":"matched, clustered, or | heterogeneous-risk designs","textChars":49,"textLines":2,"bbox":[708,456,446,70]}
+{"kind":"textbox","id":"sh/6xg3elg3","slide":30,"name":"Rectangle 13","text":"Without the law, the paired estimand remains descriptive—but the no-positive-anchor guarantee is lost.","textPreview":"Without the law, the paired estimand remains descriptive—but the no-positive-anchor guarantee is lost.","textChars":102,"textLines":1,"bbox":[126,600,1028,32]}
+{"kind":"notes","id":"nt/8xxg3d","slide":30,"text":"The reference guarantee has a real design assumption. Pairing and tie averaging do not create exchangeability.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/evmutw","slide":31,"title":"REPLACEMENT","textShapes":8}
+{"kind":"textbox","id":"sh/dwfipwvi","slide":31,"name":"Rectangle 18","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/x4vqtszm","slide":31,"name":"Rectangle 1","text":"Coherent replacement permits\na no-verdict region","textPreview":"Coherent replacement permits | a no-verdict region","textChars":48,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/c3mp07ih","slide":31,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/ned8nihk","slide":31,"name":"Rectangle 3","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/2d47ud0z","slide":31,"name":"Rectangle 4","text":"31","textPreview":"31","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/ofmpwni5","slide":31,"name":"Rectangle 6","text":"Both orientations cannot be positive.","textPreview":"Both orientations cannot be positive.","textChars":37,"textLines":1,"bbox":[380,286,520,30]}
+{"kind":"shape","id":"sh/fat8jiho","slide":31,"name":"Rectangle 7","bbox":[154,430,972,5]}
+{"kind":"shape","id":"sh/e9k7qd03","slide":31,"name":"Oval 8","bbox":[630,418,20,20]}
+{"kind":"textbox","id":"sh/g3mho7up","slide":31,"name":"Rectangle 9","text":"0","textPreview":"0","textChars":1,"textLines":1,"bbox":[618,452,44,26]}
+{"kind":"shape","id":"sh/h4vihcva","slide":31,"name":"Rounded Rectangle 10","bbox":[480,405,340,50]}
+{"kind":"shape","id":"sh/u14zmxcz","slide":31,"name":"Oval 11","bbox":[471,418,20,20]}
+{"kind":"shape","id":"sh/v2d0f2d4","slide":31,"name":"Oval 12","bbox":[811,418,20,20]}
+{"kind":"textbox","id":"sh/6xkzixwn","slide":31,"name":"Rectangle 15","text":"no verdict","textPreview":"no verdict","textChars":10,"textLines":1,"bbox":[560,414,180,30]}
+{"kind":"shape","id":"sh/7yt0b2d8","slide":31,"name":"Rounded Rectangle 16","bbox":[276,540,728,88]}
+{"kind":"textbox","id":"sh/sv61wrux","slide":31,"name":"Rectangle 17","text":"The declared challenges may defeat superiority in both directions.","textPreview":"The declared challenges may defeat superiority in both directions.","textChars":66,"textLines":1,"bbox":[296,558,688,58]}
+{"kind":"image","id":"im/2xcnqtsv","slide":31,"name":"Picture 23","bbox":[436.34,212,407.31,72]}
+{"kind":"image","id":"im/3il4zytg","slide":31,"name":"Picture 31","bbox":[398,485.41,174,33.19]}
+{"kind":"image","id":"im/oje5s3al","slide":31,"name":"Picture 32","bbox":[738,484.14,174,35.72]}
+{"kind":"notes","id":"nt/evmutw","slide":31,"text":"The operator is not odd, but the orientation inequality prevents contradictory positive recommendations. It still allows honest indecision.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/ng7kyf","slide":32,"title":"REPLACEMENT","textShapes":10}
+{"kind":"textbox","id":"sh/pcve98zy","slide":32,"name":"Rectangle 16","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/jql4j6hw","slide":32,"name":"Rectangle 1","text":"Replacement needs a lower bound\nabove the decision margin","textPreview":"Replacement needs a lower bound | above the decision margin","textChars":57,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/ipcna10b","slide":32,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/ho3mhwzq","slide":32,"name":"Rectangle 3","text":"REPLACEMENT","textPreview":"REPLACEMENT","textChars":11,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/wnu58ri5","slide":32,"name":"Rectangle 4","text":"32","textPreview":"32","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/vml4fmhk","slide":32,"name":"Rectangle 5","text":"ILLUSTRATIVE RESULT","textPreview":"ILLUSTRATIVE RESULT","textChars":19,"textLines":1,"bbox":[92,220,260,22]}
+{"kind":"shape","id":"sh/ulsn6h0z","slide":32,"name":"Rectangle 6","bbox":[126,410,1010,5]}
+{"kind":"shape","id":"sh/1kn6t0zu","slide":32,"name":"Rounded Rectangle 7","bbox":[366,394,400,38]}
+{"kind":"shape","id":"sh/gje5kvyp","slide":32,"name":"Oval 8","bbox":[756,398,22,22]}
+{"kind":"shape","id":"sh/ad4v2dgj","slide":32,"name":"Rectangle 9","bbox":[523,362,6,100]}
+{"kind":"textbox","id":"sh/bedwbyh4","slide":32,"name":"Rectangle 10","text":"lower bound .03","textPreview":"lower bound .03","textChars":15,"textLines":1,"bbox":[284,460,164,26]}
+{"kind":"textbox","id":"sh/cfmd43yp","slide":32,"name":"Rectangle 11","text":"estimate .08","textPreview":"estimate .08","textChars":12,"textLines":1,"bbox":[694,334,144,26]}
+{"kind":"textbox","id":"sh/xgved8za","slide":32,"name":"Rectangle 12","text":"decision margin .05","textPreview":"decision margin .05","textChars":19,"textLines":1,"bbox":[430,486,192,26]}
+{"kind":"shape","id":"sh/2p4vytgn","slide":32,"name":"Rounded Rectangle 13","bbox":[246,550,788,68]}
+{"kind":"textbox","id":"sh/3qdc7yh8","slide":32,"name":"Rectangle 14","text":"Do not replace: the outer lower bound does not exceed the decision margin.","textPreview":"Do not replace: the outer lower bound does not exceed the decision margin.","textChars":74,"textLines":1,"bbox":[266,568,748,38]}
+{"kind":"textbox","id":"sh/obmd03yt","slide":32,"name":"Rectangle 15","text":"Performance evidence is one decision input; costs, fairness, calibration, and intervention effects remain separate.","textPreview":"Performance evidence is one decision input; costs, fairness, calibration, and intervention effects remain separate.","textChars":115,"textLines":1,"bbox":[132,244,1016,64]}
+{"kind":"notes","id":"nt/ng7kyf","slide":32,"text":"A positive estimate is insufficient. The uncertainty-qualified effect must clear a prespecified practical margin.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/1cb1ma","slide":33,"title":"INTERPRETATION","textShapes":13}
+{"kind":"textbox","id":"sh/qpwnqhwb","slide":33,"name":"Rectangle 19","text":"INTERPRETATION","textPreview":"INTERPRETATION","textChars":14,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/8ri54zih","slide":33,"name":"Rectangle 1","text":"The number is meaningful only together\nwith the assessment it survived","textPreview":"The number is meaningful only together | with the assessment it survived","textChars":70,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/9srmx4z2","slide":33,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/y1g3yp0f","slide":33,"name":"Rectangle 3","text":"INTERPRETATION","textPreview":"INTERPRETATION","textChars":14,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/z294ra1k","slide":33,"name":"Rectangle 4","text":"33","textPreview":"33","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/0nil0fi5","slide":33,"name":"Rounded Rectangle 5","bbox":[96,224,1088,92]}
+{"kind":"textbox","id":"sh/lormtkjq","slide":33,"name":"Rectangle 6","text":"Supported quantity: raw support or paired advantage","textPreview":"Supported quantity: raw support or paired advantage","textChars":51,"textLines":1,"bbox":[130,250,1020,40]}
+{"kind":"shape","id":"sh/qxg3u503","slide":33,"name":"Oval 7","bbox":[132,360,44,44]}
+{"kind":"textbox","id":"sh/ryp4na1o","slide":33,"name":"Rectangle 8","text":"Π","textPreview":"Π","textChars":1,"textLines":1,"bbox":[132,368,44,24]}
+{"kind":"textbox","id":"sh/z21kjydg","slide":33,"name":"Rectangle 9","text":"Which populations had to be survived?","textPreview":"Which populations had to be survived?","textChars":37,"textLines":1,"bbox":[206,365,900,34]}
+{"kind":"shape","id":"sh/y1sjqtcv","slide":33,"name":"Oval 10","bbox":[132,426,44,44]}
+{"kind":"textbox","id":"sh/l4j2lov6","slide":33,"name":"Rectangle 11","text":"ℛ","textPreview":"ℛ","textChars":1,"textLines":1,"bbox":[132,434,44,24]}
+{"kind":"textbox","id":"sh/k3a1sjul","slide":33,"name":"Rectangle 12","text":"What changed in a complete replication?","textPreview":"What changed in a complete replication?","textChars":39,"textLines":1,"bbox":[206,431,900,34]}
+{"kind":"shape","id":"sh/7q1knydc","slide":33,"name":"Oval 13","bbox":[132,492,44,44]}
+{"kind":"textbox","id":"sh/mpsjutcr","slide":33,"name":"Rectangle 14","text":"K","textPreview":"K","textChars":1,"textLines":1,"bbox":[132,500,44,24]}
+{"kind":"textbox","id":"sh/9s32p8vi","slide":33,"name":"Rectangle 15","text":"How many opportunities for defeat were joined?","textPreview":"How many opportunities for defeat were joined?","textChars":46,"textLines":1,"bbox":[206,497,900,34]}
+{"kind":"shape","id":"sh/8ralw3ux","slide":33,"name":"Oval 16","bbox":[132,558,44,44]}
+{"kind":"textbox","id":"sh/nuhkbed8","slide":33,"name":"Rectangle 17","text":"?","textPreview":"?","textChars":1,"textLines":1,"bbox":[132,566,44,24]}
+{"kind":"textbox","id":"sh/2t8ji9cn","slide":33,"name":"Rectangle 18","text":"Which invariance, symmetry, and uncertainty assumptions qualify the result?","textPreview":"Which invariance, symmetry, and uncertainty assumptions qualify the result?","textChars":75,"textLines":1,"bbox":[206,563,900,34]}
+{"kind":"notes","id":"nt/1cb1ma","slide":33,"text":"Model performance is assessment-relative. Reporting only the scalar removes the conditions that gave it meaning.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/capcu8","slide":34,"title":"SYNTHESIS","textShapes":17}
+{"kind":"textbox","id":"sh/yts7m94b","slide":34,"name":"Rectangle 22","text":"SYNTHESIS","textPreview":"SYNTHESIS","textChars":9,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/hcnytwbu","slide":34,"name":"Rectangle 1","text":"Performance becomes a scientific claim\nonly when its challenges are declared","textPreview":"Performance becomes a scientific claim | only when its challenges are declared","textChars":76,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/wbehkrup","slide":34,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/765gnmds","slide":34,"name":"Rectangle 3","text":"SYNTHESIS","textPreview":"SYNTHESIS","textChars":9,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/m5cfehc7","slide":34,"name":"Rectangle 4","text":"34","textPreview":"34","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/98nypcby","slide":34,"name":"Rounded Rectangle 5","bbox":[80,254,240,242]}
+{"kind":"textbox","id":"sh/87ehgrud","slide":34,"name":"Rectangle 6","text":"Name populations","textPreview":"Name populations","textChars":16,"textLines":1,"bbox":[100,286,200,54]}
+{"kind":"textbox","id":"sh/r2pgz6tc","slide":34,"name":"Rectangle 7","text":"Standardize the prior\nand normalize","textPreview":"Standardize the prior | and normalize","textChars":35,"textLines":2,"bbox":[100,380,200,72]}
+{"kind":"textbox","id":"sh/61gzq1cr","slide":34,"name":"Rectangle 8","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[320,356,50,42]}
+{"kind":"shape","id":"sh/g7m987a1","slide":34,"name":"Rounded Rectangle 9","bbox":[370,254,240,242]}
+{"kind":"textbox","id":"sh/1sva1cbm","slide":34,"name":"Rectangle 10","text":"Expose failures","textPreview":"Expose failures","textChars":15,"textLines":1,"bbox":[390,286,200,54]}
+{"kind":"textbox","id":"sh/e5kr6xsv","slide":34,"name":"Rectangle 11","text":"Minimum over target\nprevalence in each draw","textPreview":"Minimum over target | prevalence in each draw","textChars":43,"textLines":2,"bbox":[390,380,200,72]}
+{"kind":"textbox","id":"sh/f6tsz2tg","slide":34,"name":"Rectangle 12","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[610,356,50,42]}
+{"kind":"shape","id":"sh/s3294nap","slide":34,"name":"Rounded Rectangle 13","bbox":[660,254,240,242]}
+{"kind":"textbox","id":"sh/t4baxsba","slide":34,"name":"Rectangle 14","text":"Demand survival","textPreview":"Demand survival","textChars":15,"textLines":1,"bbox":[680,286,200,54]}
+{"kind":"textbox","id":"sh/61kr2dcz","slide":34,"name":"Rectangle 15","text":"Expected minimum\nover attempts","textPreview":"Expected minimum | over attempts","textChars":30,"textLines":2,"bbox":[680,380,200,72]}
+{"kind":"textbox","id":"sh/r2tsvit4","slide":34,"name":"Rectangle 16","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[900,356,50,42]}
+{"kind":"shape","id":"sh/4zi90nut","slide":34,"name":"Rounded Rectangle 17","bbox":[950,254,240,242]}
+{"kind":"textbox","id":"sh/50batsbe","slide":34,"name":"Rectangle 18","text":"Make the claim","textPreview":"Make the claim","textChars":14,"textLines":1,"bbox":[970,286,200,54]}
+{"kind":"textbox","id":"sh/lw3qx432","slide":34,"name":"Rectangle 19","text":"Paired, tie-neutral,\nmargin-qualified","textPreview":"Paired, tie-neutral, | margin-qualified","textChars":37,"textLines":2,"bbox":[970,380,200,72]}
+{"kind":"textbox","id":"sh/kvapozmh","slide":34,"name":"Rectangle 20","text":"Support is not a new name for high performance.","textPreview":"Support is not a new name for high performance.","textChars":47,"textLines":1,"bbox":[282,548,716,36]}
+{"kind":"textbox","id":"sh/ju18velw","slide":34,"name":"Rectangle 21","text":"It is the surviving magnitude after the challenges have been declared.","textPreview":"It is the surviving magnitude after the challenges have been declared.","textChars":70,"textLines":1,"bbox":[178,594,924,32]}
+{"kind":"notes","id":"nt/capcu8","slide":34,"text":"Return to the opening question. The framework’s contribution is a claim structure that can be criticized and improved.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/i5xrn9","slide":35,"title":"BACKUP","textShapes":7}
+{"kind":"textbox","id":"sh/d4buh8va","slide":35,"name":"Rectangle 13","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/q98rq547","slide":35,"name":"Rectangle 1","text":"Empirical prior-standardized AP is\na weighted threshold sum","textPreview":"Empirical prior-standardized AP is | a weighted threshold sum","textChars":59,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/rahsja5s","slide":35,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/0fqtwfm9","slide":35,"name":"Rectangle 3","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/1gjapknu","slide":35,"name":"Rectangle 4","text":"35","textPreview":"35","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/ed8ru543","slide":35,"name":"Rounded Rectangle 5","bbox":[104,224,1072,128]}
+{"kind":"textbox","id":"sh/hkfadgnq","slide":35,"name":"Rectangle 8","text":"recall gained when a score block enters","textPreview":"recall gained when a score block enters","textChars":39,"textLines":1,"bbox":[430,402,670,32]}
+{"kind":"textbox","id":"sh/oz2t43ut","slide":35,"name":"Rectangle 10","text":"target-population positive mass selected","textPreview":"target-population positive mass selected","textChars":40,"textLines":1,"bbox":[430,480,670,32]}
+{"kind":"textbox","id":"sh/2x0b2tcn","slide":35,"name":"Rectangle 12","text":"target-population negative mass selected","textPreview":"target-population negative mass selected","textChars":40,"textLines":1,"bbox":[430,558,670,32]}
+{"kind":"image","id":"im/nqt4jqdc","slide":35,"name":"Picture 19","bbox":[294.39,242,691.23,92]}
+{"kind":"image","id":"im/orm5cvux","slide":35,"name":"Picture 20","bbox":[152.37,392,217.26,48]}
+{"kind":"image","id":"im/psvml0vi","slide":35,"name":"Picture 22","bbox":[214.26,470,93.47,48]}
+{"kind":"image","id":"im/at4ne5c3","slide":35,"name":"Picture 24","bbox":[162.97,548,196.06,48]}
+{"kind":"notes","id":"nt/i5xrn9","slide":35,"text":"Use this only if the audience wants the exact empirical AP definition.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/raoi4r","slide":36,"title":"BACKUP","textShapes":8}
+{"kind":"textbox","id":"sh/d8ba9sna","slide":36,"name":"Rectangle 11","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/cvyh8zyh","slide":36,"name":"Rectangle 1","text":"More attempts strengthen the challenge\nbut do not broaden the regime","textPreview":"More attempts strengthen the challenge | but do not broaden the regime","textChars":68,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/xw7ih4f2","slide":36,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/25wz2pgf","slide":36,"name":"Rectangle 3","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/n650bux0","slide":36,"name":"Rectangle 4","text":"36","textPreview":"36","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/p8nidkfq","slide":36,"name":"Rectangle 6","text":"attempts →","textPreview":"attempts →","textChars":10,"textLines":1,"bbox":[348,596,140,24]}
+{"kind":"shape","id":"sh/e1wzy5g3","slide":36,"name":"Rounded Rectangle 7","bbox":[828,236,340,300]}
+{"kind":"textbox","id":"sh/f2507axo","slide":36,"name":"Rectangle 8","text":"The attempt count controls","textPreview":"The attempt count controls","textChars":26,"textLines":1,"bbox":[842,272,312,34]}
+{"kind":"textbox","id":"sh/b6ts7i54","slide":36,"name":"Rectangle 9","text":"how many draws\nmust survive jointly","textPreview":"how many draws | must survive jointly","textChars":35,"textLines":2,"bbox":[858,340,280,86]}
+{"kind":"textbox","id":"sh/q5kryxoj","slide":36,"name":"Rectangle 10","text":"It does not decide whether\nsites or model fits vary.","textPreview":"It does not decide whether | sites or model fits vary.","textChars":52,"textLines":2,"bbox":[858,458,280,54]}
+{"kind":"chart","id":"ch/gfyxwrex","slide":36,"name":"Chart","chartType":"line","bbox":[86,218,676,378]}
+{"kind":"notes","id":"nt/raoi4r","slide":36,"text":"K and the regime control different aspects of severity. The values in the chart are illustrative.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/p8egxc","slide":37,"title":"BACKUP","textShapes":16}
+{"kind":"textbox","id":"sh/90nihora","slide":37,"name":"Rectangle 24","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/qhojupgj","slide":37,"name":"Rectangle 1","text":"The two-attempt estimator avoids\nenumerating replication pairs","textPreview":"The two-attempt estimator avoids | enumerating replication pairs","textChars":62,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/bix03ux4","slide":37,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/of61szyd","slide":37,"name":"Rectangle 3","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/pgfi1kfy","slide":37,"name":"Rectangle 4","text":"37","textPreview":"37","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/2dojqpg7","slide":37,"name":"Rectangle 5","text":"Sort the retained bootstrap effects","textPreview":"Sort the retained bootstrap effects","textChars":35,"textLines":1,"bbox":[166,226,948,38]}
+{"kind":"shape","id":"sh/3ex0zuxs","slide":37,"name":"Rounded Rectangle 6","bbox":[230,304,130,82]}
+{"kind":"textbox","id":"sh/8ba14jyh","slide":37,"name":"Rectangle 7","text":"ordered 1","textPreview":"ordered 1","textChars":9,"textLines":1,"bbox":[230,316,130,22]}
+{"kind":"textbox","id":"sh/9cj2dof2","slide":37,"name":"Rectangle 8","text":".12","textPreview":".12","textChars":3,"textLines":1,"bbox":[230,346,130,28]}
+{"kind":"shape","id":"sh/h8fy10j2","slide":37,"name":"Rounded Rectangle 9","bbox":[400,304,130,82]}
+{"kind":"textbox","id":"sh/g76h8v2h","slide":37,"name":"Rectangle 10","text":"ordered 2","textPreview":"ordered 2","textChars":9,"textLines":1,"bbox":[400,316,130,22]}
+{"kind":"textbox","id":"sh/f6dgzq1w","slide":37,"name":"Rectangle 11","text":".20","textPreview":".20","textChars":3,"textLines":1,"bbox":[400,346,130,28]}
+{"kind":"shape","id":"sh/u54z6lkr","slide":37,"name":"Rounded Rectangle 12","bbox":[570,304,130,82]}
+{"kind":"textbox","id":"sh/t4vyxgj6","slide":37,"name":"Rectangle 13","text":"ordered 3","textPreview":"ordered 3","textChars":9,"textLines":1,"bbox":[570,316,130,22]}
+{"kind":"textbox","id":"sh/s3mx4b2l","slide":37,"name":"Rectangle 14","text":".31","textPreview":".31","textChars":3,"textLines":1,"bbox":[570,346,130,28]}
+{"kind":"shape","id":"sh/72dgvq10","slide":37,"name":"Rounded Rectangle 15","bbox":[740,304,130,82]}
+{"kind":"textbox","id":"sh/614f2lkf","slide":37,"name":"Rectangle 16","text":"ordered 4","textPreview":"ordered 4","textChars":9,"textLines":1,"bbox":[740,316,130,22]}
+{"kind":"textbox","id":"sh/d0zy9kja","slide":37,"name":"Rectangle 17","text":".44","textPreview":".44","textChars":3,"textLines":1,"bbox":[740,346,130,28]}
+{"kind":"shape","id":"sh/czqhgf2p","slide":37,"name":"Rounded Rectangle 18","bbox":[910,304,130,82]}
+{"kind":"textbox","id":"sh/w3y1cjq1","slide":37,"name":"Rectangle 19","text":"ordered 5","textPreview":"ordered 5","textChars":9,"textLines":1,"bbox":[910,316,130,22]}
+{"kind":"textbox","id":"sh/x47ilorm","slide":37,"name":"Rectangle 20","text":".58","textPreview":".58","textChars":3,"textLines":1,"bbox":[910,346,130,28]}
+{"kind":"shape","id":"sh/a1wja98v","slide":37,"name":"Rounded Rectangle 21","bbox":[146,460,988,100]}
+{"kind":"textbox","id":"sh/ofe18jqp","slide":37,"name":"Rectangle 23","text":"Small values receive larger weights because they are the minimum in more pairs.","textPreview":"Small values receive larger weights because they are the minimum in more pairs.","textChars":79,"textLines":1,"bbox":[232,594,816,30]}
+{"kind":"image","id":"im/po76twjy","slide":37,"name":"Picture 46","bbox":[469.86,472,340.27,76]}
+{"kind":"notes","id":"nt/p8egxc","slide":37,"text":"The sorted formula gives the complete order-two U-statistic efficiently.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/dq5uq2","slide":38,"title":"BACKUP","textShapes":11}
+{"kind":"textbox","id":"sh/kzyl032d","slide":38,"name":"Rectangle 15","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/jadsz6hg","slide":38,"name":"Rectangle 1","text":"Tie averaging can be computed\nwithout enumerating orderings","textPreview":"Tie averaging can be computed | without enumerating orderings","textChars":59,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/i94r6l0v","slide":38,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/t0fa50zi","slide":38,"name":"Rectangle 3","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/sz6tcvyx","slide":38,"name":"Rectangle 4","text":"38","textPreview":"38","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/ryxs3qhs","slide":38,"name":"Rounded Rectangle 5","bbox":[92,230,420,286]}
+{"kind":"textbox","id":"sh/6xobal07","slide":38,"name":"Rectangle 6","text":"FOR EACH TIED BLOCK","textPreview":"FOR EACH TIED BLOCK","textChars":19,"textLines":1,"bbox":[124,260,250,22]}
+{"kind":"textbox","id":"sh/94batwze","slide":38,"name":"Rectangle 7","text":"1. Choose the position k\nof a focal positive\n\n2. Count t preceding positives\nwith a hypergeometric law","textPreview":"1. Choose the position k | of a focal positive |  | 2. Count t preceding positives | with a hypergeometric law","textChars":102,"textLines":5,"bbox":[124,320,356,154]}
+{"kind":"textbox","id":"sh/83290rit","slide":38,"name":"Rectangle 8","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[572,346,50,42]}
+{"kind":"shape","id":"sh/a9w3u9kv","slide":38,"name":"Rounded Rectangle 9","bbox":[686,230,502,300]}
+{"kind":"textbox","id":"sh/ba54ne1g","slide":38,"name":"Rectangle 10","text":"Average its prior-standardized\nprecision over k and t","textPreview":"Average its prior-standardized | precision over k and t","textChars":53,"textLines":2,"bbox":[726,270,422,96]}
+{"kind":"textbox","id":"sh/cbelwj21","slide":38,"name":"Rectangle 11","text":"Computational cost","textPreview":"Computational cost","textChars":18,"textLines":1,"bbox":[726,376,422,30]}
+{"kind":"textbox","id":"sh/yxw3ytk7","slide":38,"name":"Rectangle 13","text":"No enumeration or random jitter is required.","textPreview":"No enumeration or random jitter is required.","textChars":44,"textLines":1,"bbox":[726,468,422,42]}
+{"kind":"textbox","id":"sh/zy54ry1s","slide":38,"name":"Rectangle 14","text":"The combinatorial weights do not depend on prevalence and can be reused during the search.","textPreview":"The combinatorial weights do not depend on prevalence and can be reused during the search.","textChars":90,"textLines":1,"bbox":[172,576,936,36]}
+{"kind":"image","id":"im/2dg3i1cn","slide":38,"name":"Picture 27","bbox":[897.08,402,79.85,50]}
+{"kind":"notes","id":"nt/dq5uq2","slide":38,"text":"The closed form integrates over positions and within-block label composition; the visible slide intentionally omits the full combinatorial expression.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/wax7i6","slide":39,"title":"BACKUP","textShapes":15}
+{"kind":"textbox","id":"sh/69g3m98n","slide":39,"name":"Rectangle 20","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/fydgni1s","slide":39,"name":"Rectangle 1","text":"Outer uncertainty asks how well\none evaluation identifies the target","textPreview":"Outer uncertainty asks how well | one evaluation identifies the target","textChars":68,"textLines":2,"bbox":[72,70,1136,108]}
+{"kind":"shape","id":"sh/ex4fedk7","slide":39,"name":"Rectangle 2","bbox":[72,181,1136,2]}
+{"kind":"textbox","id":"sh/twvyl8jm","slide":39,"name":"Rectangle 3","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/sv2xc321","slide":39,"name":"Rectangle 4","text":"39","textPreview":"39","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"shape","id":"sh/rutgjy1w","slide":39,"name":"Rounded Rectangle 5","bbox":[98,266,280,218]}
+{"kind":"textbox","id":"sh/69kfadkb","slide":39,"name":"Rectangle 6","text":"Observed evaluation","textPreview":"Observed evaluation","textChars":19,"textLines":1,"bbox":[118,300,240,58]}
+{"kind":"textbox","id":"sh/58byh8jq","slide":39,"name":"Rectangle 7","text":"one empirical score–label distribution","textPreview":"one empirical score–label distribution","textChars":38,"textLines":1,"bbox":[122,390,232,62]}
+{"kind":"textbox","id":"sh/472x8325","slide":39,"name":"Rectangle 8","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[380,350,50,42]}
+{"kind":"shape","id":"sh/y94fi1wf","slide":39,"name":"Rounded Rectangle 9","bbox":[430,266,280,218]}
+{"kind":"textbox","id":"sh/zadwb6dk","slide":39,"name":"Rectangle 10","text":"Outer sample","textPreview":"Outer sample","textChars":12,"textLines":1,"bbox":[450,300,240,58]}
+{"kind":"textbox","id":"sh/kbmxkbe5","slide":39,"name":"Rectangle 11","text":"new empirical distribution of units","textPreview":"new empirical distribution of units","textChars":35,"textLines":1,"bbox":[454,390,232,62]}
+{"kind":"textbox","id":"sh/lwvedgvq","slide":39,"name":"Rectangle 12","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[712,350,50,42]}
+{"kind":"shape","id":"sh/q54fehw3","slide":39,"name":"Rounded Rectangle 13","bbox":[762,266,280,218]}
+{"kind":"textbox","id":"sh/b6dw7mdo","slide":39,"name":"Rectangle 14","text":"Full inner procedure","textPreview":"Full inner procedure","textChars":20,"textLines":1,"bbox":[782,300,240,58]}
+{"kind":"textbox","id":"sh/c7mxgre9","slide":39,"name":"Rectangle 15","text":"profile → infimum → support","textPreview":"profile → infimum → support","textChars":27,"textLines":1,"bbox":[786,390,232,62]}
+{"kind":"textbox","id":"sh/x8ve9wvu","slide":39,"name":"Rectangle 16","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[1074,350,50,42]}
+{"kind":"shape","id":"sh/21kvahw7","slide":39,"name":"Rounded Rectangle 17","bbox":[1120,286,90,178]}
+{"kind":"textbox","id":"sh/32tw3mds","slide":39,"name":"Rectangle 18","text":"lower\nbound","textPreview":"lower | bound","textChars":11,"textLines":2,"bbox":[1120,334,90,70]}
+{"kind":"textbox","id":"sh/7apkvep8","slide":39,"name":"Rectangle 19","text":"Coverage is not automatic when the minimizing prevalence is flat or moves.","textPreview":"Coverage is not automatic when the minimizing prevalence is flat or moves.","textChars":74,"textLines":1,"bbox":[180,560,920,52]}
+{"kind":"notes","id":"nt/wax7i6","slide":39,"text":"Outer resampling targets inferential uncertainty about the supported functional, not replication variation itself.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}
+{"kind":"slide","id":"sl/rkm9c5","slide":40,"title":"BACKUP","textShapes":17}
+{"kind":"textbox","id":"sh/ozyp4n25","slide":40,"name":"Rectangle 18","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,34,460,20]}
+{"kind":"textbox","id":"sh/i5kbipsn","slide":40,"name":"Rectangle 1","text":"Key references","textPreview":"Key references","textChars":14,"textLines":1,"bbox":[72,70,1136,64]}
+{"kind":"shape","id":"sh/j6tcbu98","slide":40,"name":"Rectangle 2","bbox":[72,142,1136,2]}
+{"kind":"textbox","id":"sh/sbmdoja5","slide":40,"name":"Rectangle 3","text":"BACKUP","textPreview":"BACKUP","textChars":6,"textLines":1,"bbox":[72,680,760,20]}
+{"kind":"textbox","id":"sh/tcvuh4ra","slide":40,"name":"Rectangle 4","text":"40","textPreview":"40","textChars":2,"textLines":1,"bbox":[1160,678,48,22]}
+{"kind":"textbox","id":"sh/694bm9sz","slide":40,"name":"Rectangle 5","text":"POPULATION + CORROBORATION","textPreview":"POPULATION + CORROBORATION","textChars":26,"textLines":1,"bbox":[84,220,400,22]}
+{"kind":"textbox","id":"sh/7adcfe9k","slide":40,"name":"Rectangle 6","text":"Popper, K. (1959). The Logic of Scientific Discovery.","textPreview":"Popper, K. (1959). The Logic of Scientific Discovery.","textChars":53,"textLines":1,"bbox":[84,266,520,48]}
+{"kind":"textbox","id":"sh/gf6dsjq1","slide":40,"name":"Rectangle 7","text":"Popper, K. (1963). Conjectures and Refutations.","textPreview":"Popper, K. (1963). Conjectures and Refutations.","textChars":47,"textLines":1,"bbox":[84,334,520,48]}
+{"kind":"textbox","id":"sh/h0fulorm","slide":40,"name":"Rectangle 8","text":"Siblini et al. (2020). Master your metrics with calibration.","textPreview":"Siblini et al. (2020). Master your metrics with calibration.","textChars":60,"textLines":1,"bbox":[84,402,520,48]}
+{"kind":"textbox","id":"sh/lsbq5cjy","slide":40,"name":"Rectangle 9","text":"Elkan, C. (2001). Foundations of cost-sensitive learning.","textPreview":"Elkan, C. (2001). Foundations of cost-sensitive learning.","textChars":57,"textLines":1,"bbox":[84,470,520,48]}
+{"kind":"textbox","id":"sh/kr2pc72d","slide":40,"name":"Rectangle 10","text":"Saerens et al. (2002). Adjusting outputs to new priors.","textPreview":"Saerens et al. (2002). Adjusting outputs to new priors.","textChars":55,"textLines":1,"bbox":[84,538,520,48]}
+{"kind":"textbox","id":"sh/jq9832ls","slide":40,"name":"Rectangle 11","text":"DESIGN + COMPUTATION","textPreview":"DESIGN + COMPUTATION","textChars":20,"textLines":1,"bbox":[684,220,400,22]}
+{"kind":"textbox","id":"sh/yp07axk7","slide":40,"name":"Rectangle 12","text":"Bestgen, Y. (2015). Exact expected AP of the random baseline.","textPreview":"Bestgen, Y. (2015). Exact expected AP of the random baseline.","textChars":61,"textLines":1,"bbox":[684,266,520,48]}
+{"kind":"textbox","id":"sh/twbq9wju","slide":40,"name":"Rectangle 13","text":"Ojala & Garriga (2010). Permutation tests for classifier performance.","textPreview":"Ojala & Garriga (2010). Permutation tests for classifier performance.","textChars":69,"textLines":1,"bbox":[684,334,520,48]}
+{"kind":"textbox","id":"sh/8v2pgr29","slide":40,"name":"Rectangle 14","text":"Bareinboim & Pearl (2013). Transportability of experimental results.","textPreview":"Bareinboim & Pearl (2013). Transportability of experimental results.","textChars":68,"textLines":1,"bbox":[684,402,520,48]}
+{"kind":"textbox","id":"sh/7ut87m14","slide":40,"name":"Rectangle 15","text":"Hoeffding, W. (1948). U-statistics.","textPreview":"Hoeffding, W. (1948). U-statistics.","textChars":35,"textLines":1,"bbox":[684,470,520,48]}
+{"kind":"textbox","id":"sh/6tk7ehkj","slide":40,"name":"Rectangle 16","text":"Perdomo et al. (2020). Performative prediction.","textPreview":"Perdomo et al. (2020). Performative prediction.","textChars":47,"textLines":1,"bbox":[684,538,520,48]}
+{"kind":"textbox","id":"sh/p0r6xs3q","slide":40,"name":"Rectangle 17","text":"Complete references appear in Stats_Paper_Extending_PRAUC_v12.tex.","textPreview":"Complete references appear in Stats_Paper_Extending_PRAUC_v12.tex.","textChars":66,"textLines":1,"bbox":[246,626,788,28]}
+{"kind":"notes","id":"nt/rkm9c5","slide":40,"text":"Use this slide for questions about intellectual lineage and technical sources.\n\n[Sources]\n- Stats_Paper_Extending_PRAUC_v12.tex."}

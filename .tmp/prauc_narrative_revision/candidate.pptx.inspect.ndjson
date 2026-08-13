@@ -1,0 +1,758 @@
+{"kind":"deck","id":"pr/k3zil7","name":"Deck"}
+{"kind":"layout","layoutId":"1e13af29-7b18-490c-95d1-81a787355a2b","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"f793bda1-79fd-4e44-85c1-f2c038e14021","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/2n5i3n","slide":1,"title":"Supported model comparison","textShapes":4}
+{"kind":"textbox","id":"sh/fa9076xc","slide":1,"name":"deck-title","text":"Supported model comparison\nacross target prevalences","textPreview":"Supported model comparison | across target prevalences","textChars":52,"textLines":2,"bbox":[42,145,1030,270]}
+{"kind":"textbox","id":"sh/gbi1gbyx","slide":1,"name":"deck-subtitle","text":"A replication-based method for average precision","textPreview":"A replication-based method for average precision","textChars":48,"textLines":1,"bbox":[42,485,800,60]}
+{"kind":"shape","id":"sh/1cri9gfi","slide":1,"name":"title-accent","bbox":[42,565,240,7]}
+{"kind":"textbox","id":"sh/2xkjilg3","slide":1,"name":"author","text":"Marcus A. Thomas  ·  manuscript v12","textPreview":"Marcus A. Thomas  ·  manuscript v12","textChars":35,"textLines":1,"bbox":[42,600,620,34]}
+{"kind":"textbox","id":"sh/3yt0bqxo","slide":1,"name":"page-title","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"notes","id":"nt/2n5i3n","slide":1,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Title and abstract"}
+{"kind":"slide","id":"sl/wh3yqu","slide":2,"title":"Precision changes with prevalence even when ranking does not","textShapes":9}
+{"kind":"textbox","id":"sh/9wfmdw36","slide":2,"name":"title-2","text":"Precision changes with prevalence even when ranking does not","textPreview":"Precision changes with prevalence even when ranking does not","textChars":60,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/mt4nih4v","slide":2,"name":"rule-2","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/7ud4bmlg","slide":2,"name":"deck-footer-2","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/wj658b2x","slide":2,"name":"page-2","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/hkf6hg3i","slide":2,"name":"left-panel-2","bbox":[42,185,565,420]}
+{"kind":"shape","id":"sh/uxon61kr","slide":2,"name":"right-panel-2","bbox":[650,185,588,420]}
+{"kind":"textbox","id":"sh/vix4f6lc","slide":2,"name":"left-kicker-2","text":"50% PREVALENCE","textPreview":"50% PREVALENCE","textChars":14,"textLines":1,"bbox":[74,215,500,30]}
+{"kind":"textbox","id":"sh/cn25c7mt","slide":2,"name":"left-head-2","text":"Precision ≈ 0.94","textPreview":"Precision ≈ 0.94","textChars":16,"textLines":1,"bbox":[74,255,500,82]}
+{"kind":"textbox","id":"sh/dovm5c3y","slide":2,"name":"left-body-2","text":"10,000 cases\n4,000 true positives\n250 false positives\n\nTPR = 80%  ·  FPR = 5%","textPreview":"10,000 cases | 4,000 true positives | 250 false positives |  | TPR = 80%  ·  FPR = 5%","textChars":77,"textLines":5,"bbox":[74,355,500,205]}
+{"kind":"textbox","id":"sh/58bmxcfa","slide":2,"name":"right-kicker-2","text":"1% PREVALENCE","textPreview":"1% PREVALENCE","textChars":13,"textLines":1,"bbox":[682,215,500,30]}
+{"kind":"textbox","id":"sh/472lo7ep","slide":2,"name":"right-head-2","text":"Precision ≈ 0.14","textPreview":"Precision ≈ 0.14","textChars":16,"textLines":1,"bbox":[682,255,520,82]}
+{"kind":"textbox","id":"sh/36t4vmx4","slide":2,"name":"right-body-2","text":"10,000 cases\n80 true positives\n495 false positives\n\nThe ranking rates did not change.","textPreview":"10,000 cases | 80 true positives | 495 false positives |  | The ranking rates did not change.","textChars":85,"textLines":5,"bbox":[682,355,520,205]}
+{"kind":"notes","id":"nt/wh3yqu","slide":2,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Section “The problem: what did the performance claim survive?”"}
+{"kind":"slide","id":"sl/mqbjbz","slide":3,"title":"A portable claim must define its target set, replication law, and K","textShapes":13}
+{"kind":"textbox","id":"sh/cri5wn69","slide":3,"name":"title-3","text":"A portable claim must define its target set, replication law, and K","textPreview":"A portable claim must define its target set, replication law, and K","textChars":67,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/bq94ni5o","slide":3,"name":"rule-3","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/qp0nudo3","slide":3,"name":"deck-footer-3","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/pormlsni","slide":3,"name":"page-3","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/oni5sn6x","slide":3,"name":"card-3-0","bbox":[42,205,376,390]}
+{"kind":"textbox","id":"sh/3m94ji5c","slide":3,"name":"num-3-0","text":"Π★","textPreview":"Π★","textChars":2,"textLines":1,"bbox":[72,235,70,28]}
+{"kind":"textbox","id":"sh/21gnqdor","slide":3,"name":"head-3-0","text":"Where must it hold?","textPreview":"Where must it hold?","textChars":19,"textLines":1,"bbox":[72,285,316,88]}
+{"kind":"textbox","id":"sh/107mh8nm","slide":3,"name":"body-3-0","text":"The target prevalence set: named populations or a defensible interval.","textPreview":"The target prevalence set: named populations or a defensible interval.","textChars":70,"textLines":1,"bbox":[72,395,316,155]}
+{"kind":"shape","id":"sh/gzy5o361","slide":3,"name":"card-3-1","bbox":[452,205,376,390]}
+{"kind":"textbox","id":"sh/q9k7qxw7","slide":3,"name":"num-3-1","text":"ℛ","textPreview":"ℛ","textChars":1,"textLines":1,"bbox":[482,235,70,28]}
+{"kind":"textbox","id":"sh/ratoz2dc","slide":3,"name":"head-3-1","text":"What may change?","textPreview":"What may change?","textChars":16,"textLines":1,"bbox":[482,285,316,88]}
+{"kind":"textbox","id":"sh/sb2ps7ex","slide":3,"name":"body-3-1","text":"The law for one complete replication: units, environments, measurement, or development.","textPreview":"The law for one complete replication: units, environments, measurement, or development.","textChars":87,"textLines":1,"bbox":[482,395,316,155]}
+{"kind":"shape","id":"sh/dcb61cvi","slide":3,"name":"card-3-2","bbox":[862,205,376,390]}
+{"kind":"textbox","id":"sh/il0nmdwv","slide":3,"name":"num-3-2","text":"K","textPreview":"K","textChars":1,"textLines":1,"bbox":[892,235,70,28]}
+{"kind":"textbox","id":"sh/36tovixg","slide":3,"name":"head-3-2","text":"How many chances to fail?","textPreview":"How many chances to fail?","textChars":25,"textLines":1,"bbox":[892,285,316,88]}
+{"kind":"textbox","id":"sh/472pone1","slide":3,"name":"body-3-2","text":"Independent replications that must retain the claimed level jointly.","textPreview":"Independent replications that must retain the claimed level jointly.","textChars":68,"textLines":1,"bbox":[892,395,316,155]}
+{"kind":"textbox","id":"sh/58b6xsfm","slide":3,"name":"bottom-3","text":"A = (Π_(∗),R,K)","textPreview":"A = (Π_(∗),R,K)","textChars":15,"textLines":1,"bbox":[42,600,1196,48]}
+{"kind":"notes","id":"nt/mqbjbz","slide":3,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Section “The problem: what did the performance claim survive?”"}
+{"kind":"slide","id":"sl/8isp3a","slide":4,"title":"How can prevalence change without changing the ranking?","textShapes":9}
+{"kind":"textbox","id":"sh/et4fit87","slide":4,"name":"title-4","text":"How can prevalence change without changing the ranking?","textPreview":"How can prevalence change without changing the ranking?","textChars":55,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/1wvet87i","slide":4,"name":"rule-4","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/gvmxk3qd","slide":4,"name":"deck-footer-4","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/3ixgvipo","slide":4,"name":"page-4","text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/2x4fmd83","slide":4,"name":"formula-panel-4","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/pkfyxs7u","slide":4,"name":"formula-label-4","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/oj6xonq9","slide":4,"name":"formula-4","text":"p_(π)(c) = (πr(c))⁄(πr(c) + (1 - π)f(c))","textPreview":"p_(π)(c) = (πr(c))⁄(πr(c) + (1 - π)f(c))","textChars":40,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/bmxgzip0","slide":4,"name":"formula-caption-4","text":"r(c): true-positive rate   ·   f(c): false-positive rate","textPreview":"r(c): true-positive rate   ·   f(c): false-positive rate","textChars":56,"textLines":1,"bbox":[76,488,592,48]}
+{"kind":"textbox","id":"sh/qlofqd8f","slide":4,"name":"meaning-label-4","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/8vu9s7qt","slide":4,"name":"meaning-4","text":"Reweight the class prior to the target prevalence π.","textPreview":"Reweight the class prior to the target prevalence π.","textChars":52,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/twnalc7e","slide":4,"name":"why-4","text":"The observed class-conditional ranking rates stay fixed. Applying this at every score threshold produces APπ.","textPreview":"The observed class-conditional ranking rates stay fixed. Applying this at every score threshold produces APπ.","textChars":109,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/8isp3a","slide":4,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Prior standardization”"}
+{"kind":"slide","id":"sl/y1xj4u","slide":5,"title":"Valid reweighting must separate prior odds from ranking evidence","textShapes":8}
+{"kind":"textbox","id":"sh/3elgr25g","slide":5,"name":"title-5","text":"Valid reweighting must separate prior odds from ranking evidence","textPreview":"Valid reweighting must separate prior odds from ranking evidence","textChars":64,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/4zuhk761","slide":5,"name":"rule-5","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/p03ytcnm","slide":5,"name":"deck-footer-5","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/u9szexoz","slide":5,"name":"page-5","text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/fa1gni5k","slide":5,"name":"formula-panel-5","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/gbuhgn6p","slide":5,"name":"formula-label-5","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/hc3ypsna","slide":5,"name":"formula-5","text":"(p_(π)(c))⁄(1 - p_(π)(c)) = π⁄(1 - π)(r(c))⁄(f(c))","textPreview":"(p_(π)(c))⁄(1 - p_(π)(c)) = π⁄(1 - π)(r(c))⁄(f(c))","textChars":50,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/65sfadon","slide":5,"name":"meaning-label-5","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/761gji58","slide":5,"name":"meaning-5","text":"Population prior × ranking evidence.","textPreview":"Population prior × ranking evidence.","textChars":36,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/3apwbm1c","slide":5,"name":"why-5","text":"Only the first factor changes with the target population. The second comes from the score distributions within class.","textPreview":"Only the first factor changes with the target population. The second comes from the score distributions within class.","textChars":117,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/y1xj4u","slide":5,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Prior standardization”"}
+{"kind":"slide","id":"sl/cuuawv","slide":6,"title":"Prior reweighting requires stable within-class score behavior","textShapes":9}
+{"kind":"textbox","id":"sh/v2x8n254","slide":6,"name":"title-6","text":"Prior reweighting requires stable within-class score behavior","textPreview":"Prior reweighting requires stable within-class score behavior","textChars":61,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/wn6pwn6p","slide":6,"name":"rule-6","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/hofqpsna","slide":6,"name":"deck-footer-6","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/ip8ryxov","slide":6,"name":"page-6","text":"6","textPreview":"6","textChars":1,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/jqh8r25g","slide":6,"name":"left-panel-6","bbox":[42,185,565,420]}
+{"kind":"shape","id":"sh/4rq90761","slide":6,"name":"right-panel-6","bbox":[650,185,588,420]}
+{"kind":"textbox","id":"sh/5szqtcnm","slide":6,"name":"left-kicker-6","text":"LICENSED","textPreview":"LICENSED","textChars":8,"textLines":1,"bbox":[74,215,500,30]}
+{"kind":"textbox","id":"sh/6t8r2hor","slide":6,"name":"left-head-6","text":"P_(obs)(S≥c | Y = y) = P_(target)(S≥c | Y = y)","textPreview":"P_(obs)(S≥c | Y = y) = P_(target)(S≥c | Y = y)","textChars":46,"textLines":1,"bbox":[74,245,500,100]}
+{"kind":"textbox","id":"sh/ruh8vm5c","slide":6,"name":"left-body-6","text":"Target populations differ in prevalence, while within-class score behavior is stable.","textPreview":"Target populations differ in prevalence, while within-class score behavior is stable.","textChars":85,"textLines":1,"bbox":[74,355,500,205]}
+{"kind":"textbox","id":"sh/b65ofyp8","slide":6,"name":"right-kicker-6","text":"NOT LICENSED","textPreview":"NOT LICENSED","textChars":12,"textLines":1,"bbox":[682,215,500,30]}
+{"kind":"textbox","id":"sh/a5wn6d8n","slide":6,"name":"right-head-6","text":"Severity, measurement, or within-class behavior changes","textPreview":"Severity, measurement, or within-class behavior changes","textChars":55,"textLines":1,"bbox":[682,255,520,82]}
+{"kind":"textbox","id":"sh/x8n6h87y","slide":6,"name":"right-body-6","text":"Then prevalence must enter through environments generated by ℛ. Reweighting one evaluation cannot transport the ranking.","textPreview":"Then prevalence must enter through environments generated by ℛ. Reweighting one evaluation cannot transport the ranking.","textChars":120,"textLines":1,"bbox":[682,355,520,205]}
+{"kind":"notes","id":"nt/cuuawv","slide":6,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “What licenses the transformation”"}
+{"kind":"slide","id":"sl/vq5pqd","slide":7,"title":"Chance-Normalized AP changes the prior—not the ranking evidence","textShapes":9}
+{"kind":"textbox","id":"sh/lwfihwbm","slide":7,"name":"title-7","text":"Chance-Normalized AP changes the prior—not the ranking evidence","textPreview":"Chance-Normalized AP changes the prior—not the ranking evidence","textChars":63,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/yt4zm1cv","slide":7,"name":"rule-7","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/jud0f6tg","slide":7,"name":"deck-footer-7","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/w7mhkru5","slide":7,"name":"page-7","text":"7","textPreview":"7","textChars":1,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/x8vidwba","slide":7,"name":"formula-panel-7","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/a54zihcz","slide":7,"name":"formula-label-7","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/b6d0bmtk","slide":7,"name":"formula-7","text":"CNAP_(π)(D) = (AP_(π)(D) - π)⁄(1 - π)","textPreview":"CNAP_(π)(D) = (AP_(π)(D) - π)⁄(1 - π)","textChars":37,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/g3qhwbu9","slide":7,"name":"formula-caption-7","text":"0 = population random ranking   ·   1 = perfect ranking","textPreview":"0 = population random ranking   ·   1 = perfect ranking","textChars":55,"textLines":1,"bbox":[76,488,592,48]}
+{"kind":"textbox","id":"sh/h4zipgbu","slide":7,"name":"meaning-label-7","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/xo7qdore","slide":7,"name":"meaning-7","text":"Subtract the prevalence-specific chance level, then rescale to the ceiling.","textPreview":"Subtract the prevalence-specific chance level, then rescale to the ceiling.","textChars":75,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/wnypkjat","slide":7,"name":"why-7","text":"Common endpoints improve interpretation—but the profile can still change with prevalence.","textPreview":"Common endpoints improve interpretation—but the profile can still change with prevalence.","textChars":89,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/vq5pqd","slide":7,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “A common effect scale”"}
+{"kind":"slide","id":"sl/b8mvef","slide":8,"title":"Robust performance is the minimum normalized AP across prevalences","textShapes":7}
+{"kind":"textbox","id":"sh/ormlsn6x","slide":8,"name":"title-8","text":"Robust performance is the minimum normalized AP across prevalences","textPreview":"Robust performance is the minimum normalized AP across prevalences","textChars":66,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/nqdkzipc","slide":8,"name":"rule-8","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/2p43qdor","slide":8,"name":"deck-footer-8","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/xwfm5s7e","slide":8,"name":"page-8","text":"8","textPreview":"8","textChars":1,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/cvmlwn6t","slide":8,"name":"chart-frame-8","bbox":[42,180,690,445]}
+{"kind":"textbox","id":"sh/at43uxo3","slide":8,"name":"chart-note-label-8","text":"ROBUST CNAP","textPreview":"ROBUST CNAP","textChars":11,"textLines":1,"bbox":[790,215,380,28]}
+{"kind":"textbox","id":"sh/d0b2t87a","slide":8,"name":"chart-note-8","text":"inf_(π∈Π_(∗))CNAP_(π)(D)","textPreview":"inf_(π∈Π_(∗))CNAP_(π)(D)","textChars":24,"textLines":1,"bbox":[790,250,410,125]}
+{"kind":"textbox","id":"sh/sz2lk3qp","slide":8,"name":"chart-body-8","text":"The largest level attained at every declared prevalence. Broadening Π★ can only keep or lower this value.","textPreview":"The largest level attained at every declared prevalence. Broadening Π★ can only keep or lower this value.","textChars":105,"textLines":1,"bbox":[790,405,410,150]}
+{"kind":"textbox","id":"sh/qps7udwb","slide":8,"name":"schematic-8","text":"Schematic profile — not empirical study data","textPreview":"Schematic profile — not empirical study data","textChars":44,"textLines":1,"bbox":[790,585,410,28]}
+{"kind":"chart","id":"ch/nep4vahw","slide":8,"name":"","chartType":"line","bbox":[70,215,635,365]}
+{"kind":"notes","id":"nt/b8mvef","slide":8,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “From a profile to a claim”"}
+{"kind":"slide","id":"sl/jvj4px","slide":9,"title":"What, exactly, is allowed to vary across replications?","textShapes":13}
+{"kind":"textbox","id":"sh/cv2h8n21","slide":9,"name":"title-9","text":"What, exactly, is allowed to vary across replications?","textPreview":"What, exactly, is allowed to vary across replications?","textChars":54,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/but0fi1w","slide":9,"name":"rule-9","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/atkz6dkb","slide":9,"name":"deck-footer-9","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/lkvilsjy","slide":9,"name":"page-9","text":"9","textPreview":"9","textChars":1,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/kjmhcn2d","slide":9,"name":"card-9-0","bbox":[42,205,376,390]}
+{"kind":"textbox","id":"sh/zyd0j21s","slide":9,"name":"num-9-0","text":"FIXED MODEL","textPreview":"FIXED MODEL","textChars":11,"textLines":1,"bbox":[72,235,316,28]}
+{"kind":"textbox","id":"sh/yx4zaxk7","slide":9,"name":"head-9-0","text":"New evaluation units","textPreview":"New evaluation units","textChars":20,"textLines":1,"bbox":[72,285,316,88]}
+{"kind":"textbox","id":"sh/9ofipcju","slide":9,"name":"body-9-0","text":"Hold the environment, measurement process, and fitted model fixed.","textPreview":"Hold the environment, measurement process, and fitted model fixed.","textChars":66,"textLines":1,"bbox":[72,395,316,155]}
+{"kind":"shape","id":"sh/8nmhg729","slide":9,"name":"card-9-1","bbox":[452,205,376,390]}
+{"kind":"textbox","id":"sh/uxsnmtov","slide":9,"name":"num-9-1","text":"NEW ENVIRONMENT","textPreview":"NEW ENVIRONMENT","textChars":15,"textLines":1,"bbox":[482,235,316,28]}
+{"kind":"textbox","id":"sh/vy1ovy5g","slide":9,"name":"head-9-1","text":"New deployment setting","textPreview":"New deployment setting","textChars":22,"textLines":1,"bbox":[482,285,316,88]}
+{"kind":"textbox","id":"sh/gza5o36l","slide":9,"name":"body-9-1","text":"Redraw the environment and declare how measurement changes.","textPreview":"Redraw the environment and declare how measurement changes.","textChars":59,"textLines":1,"bbox":[482,395,316,155]}
+{"kind":"shape","id":"sh/h0j6x8n6","slide":9,"name":"card-9-2","bbox":[862,205,376,390]}
+{"kind":"textbox","id":"sh/i1snqdor","slide":9,"name":"num-9-2","text":"REPEATED DEVELOPMENT","textPreview":"REPEATED DEVELOPMENT","textChars":20,"textLines":1,"bbox":[892,235,316,28]}
+{"kind":"textbox","id":"sh/32lozi5c","slide":9,"name":"head-9-2","text":"Redevelop the model","textPreview":"Redevelop the model","textChars":19,"textLines":1,"bbox":[892,285,316,88]}
+{"kind":"textbox","id":"sh/43upsn6x","slide":9,"name":"body-9-2","text":"Redraw training, tuning, selection, fitting, and evaluation.","textPreview":"Redraw training, tuning, selection, fitting, and evaluation.","textChars":60,"textLines":1,"bbox":[892,395,316,155]}
+{"kind":"textbox","id":"sh/54361sni","slide":9,"name":"bottom-9","text":"The scientific claim changes when the source of variation changes.","textPreview":"The scientific claim changes when the source of variation changes.","textChars":66,"textLines":1,"bbox":[42,610,1196,38]}
+{"kind":"notes","id":"nt/jvj4px","slide":9,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “The evaluation-generating regime”"}
+{"kind":"slide","id":"sl/1b1x7k","slide":10,"title":"Prevalence and replication require different challenge operations","textShapes":9}
+{"kind":"textbox","id":"sh/y1c32x8z","slide":10,"name":"title-10","text":"Prevalence and replication require different challenge operations","textPreview":"Prevalence and replication require different challenge operations","textChars":65,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/l432dcra","slide":10,"name":"rule-10","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/03ul47qp","slide":10,"name":"deck-footer-10","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/by1k7298","slide":10,"name":"page-10","text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/qdsjyx8n","slide":10,"name":"left-panel-10","bbox":[42,185,565,420]}
+{"kind":"shape","id":"sh/d0329sre","slide":10,"name":"right-panel-10","bbox":[650,185,588,420]}
+{"kind":"textbox","id":"sh/czul0nqt","slide":10,"name":"left-kicker-10","text":"WITHIN EACH REPLICATION","textPreview":"WITHIN EACH REPLICATION","textChars":23,"textLines":1,"bbox":[74,215,500,30]}
+{"kind":"textbox","id":"sh/3a1k3i9c","slide":10,"name":"left-head-10","text":"Interrogate every π ∈ Π★","textPreview":"Interrogate every π ∈ Π★","textChars":24,"textLines":1,"bbox":[74,255,500,82]}
+{"kind":"textbox","id":"sh/29sjud8r","slide":10,"name":"left-body-10","text":"When score-level invariance holds, one realized evaluation supplies the rates needed for all target prevalences.","textPreview":"When score-level invariance holds, one realized evaluation supplies the rates needed for all target prevalences.","textChars":112,"textLines":1,"bbox":[74,355,500,205]}
+{"kind":"textbox","id":"sh/4f2lc7m5","slide":10,"name":"right-kicker-10","text":"ACROSS REPLICATIONS","textPreview":"ACROSS REPLICATIONS","textChars":19,"textLines":1,"bbox":[682,215,500,30]}
+{"kind":"textbox","id":"sh/5gvmlc3q","slide":10,"name":"right-head-10","text":"Generate draws from ℛ","textPreview":"Generate draws from ℛ","textChars":21,"textLines":1,"bbox":[682,255,520,82]}
+{"kind":"textbox","id":"sh/idk3ax4z","slide":10,"name":"right-body-10","text":"Environments, measurement conditions, and development runs cannot be recovered by prevalence reweighting.","textPreview":"Environments, measurement conditions, and development runs cannot be recovered by prevalence reweighting.","textChars":105,"textLines":1,"bbox":[682,355,520,205]}
+{"kind":"notes","id":"nt/1b1x7k","slide":10,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “One assessment, two modes of challenge”"}
+{"kind":"slide","id":"sl/nxk4yt","slide":11,"title":"Should strong replications compensate for a failed one?","textShapes":9}
+{"kind":"textbox","id":"sh/atsfil0r","slide":11,"name":"title-11","text":"Should strong replications compensate for a failed one?","textPreview":"Should strong replications compensate for a failed one?","textChars":55,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/xwjyd0zi","slide":11,"name":"rule-11","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/wvaxkvix","slide":11,"name":"deck-footer-11","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/nqhw7qhg","slide":11,"name":"page-11","text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/mp8fel0v","slide":11,"name":"formula-panel-11","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/9sje9gz6","slide":11,"name":"formula-label-11","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/oraxgbil","slide":11,"name":"formula-11","text":"S_(K)(T;R) = E_(R)[min_(1≤j≤K),T_(j)]","textPreview":"S_(K)(T;R) = E_(R)[min_(1≤j≤K),T_(j)]","textChars":37,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/7mlgjahk","slide":11,"name":"formula-caption-11","text":"Example: min(0.70, 0.05) = 0.05, while the mean is 0.375","textPreview":"Example: min(0.70, 0.05) = 0.05, while the mean is 0.375","textChars":56,"textLines":1,"bbox":[76,488,592,48]}
+{"kind":"textbox","id":"sh/6lcfq50z","slide":11,"name":"meaning-label-11","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/kb2x4r21","slide":11,"name":"meaning-11","text":"A stronger replication cannot rescue a level defeated by a weaker one.","textPreview":"A stronger replication cannot rescue a level defeated by a weaker one.","textChars":70,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/lcvyxwj6","slide":11,"name":"why-11","text":"At K=2, support equals expected performance minus half the expected absolute disagreement between replications.","textPreview":"At K=2, support equals expected performance minus half the expected absolute disagreement between replications.","textChars":111,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/nxk4yt","slide":11,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “From a failed average to joint survival”"}
+{"kind":"slide","id":"sl/6pn4nw","slide":12,"title":"K changes the claim—not computation or new evidence","textShapes":13}
+{"kind":"textbox","id":"sh/r690j6p4","slide":12,"name":"title-12","text":"K changes the claim—not computation or new evidence","textPreview":"K changes the claim—not computation or new evidence","textChars":51,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/c721cbqp","slide":12,"name":"rule-12","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/d8bi5g7u","slide":12,"name":"deck-footer-12","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/ih0j6h87","slide":12,"name":"page-12","text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/3i90fmps","slide":12,"name":"card-12-0","bbox":[42,205,376,390]}
+{"kind":"textbox","id":"sh/4ji18rqd","slide":12,"name":"num-12-0","text":"B","textPreview":"B","textChars":1,"textLines":1,"bbox":[72,235,70,28]}
+{"kind":"textbox","id":"sh/pkrihw7y","slide":12,"name":"head-12-0","text":"Computational replications","textPreview":"Computational replications","textChars":26,"textLines":1,"bbox":[72,285,316,88]}
+{"kind":"textbox","id":"sh/udgz2h8b","slide":12,"name":"body-12-0","text":"More bootstrap draws reduce Monte Carlo error for the same target.","textPreview":"More bootstrap draws reduce Monte Carlo error for the same target.","textChars":66,"textLines":1,"bbox":[72,395,316,155]}
+{"kind":"shape","id":"sh/vep0bmpw","slide":12,"name":"card-12-1","bbox":[452,205,376,390]}
+{"kind":"textbox","id":"sh/f6hkjeto","slide":12,"name":"num-12-1","text":"K","textPreview":"K","textChars":1,"textLines":1,"bbox":[482,235,70,28]}
+{"kind":"textbox","id":"sh/e583q9s3","slide":12,"name":"head-12-1","text":"Required joint survival","textPreview":"Required joint survival","textChars":23,"textLines":1,"bbox":[482,285,316,88]}
+{"kind":"textbox","id":"sh/18jmlobe","slide":12,"name":"body-12-1","text":"Changing K changes the claim and its severity.","textPreview":"Changing K changes the claim and its severity.","textChars":46,"textLines":1,"bbox":[482,395,316,155]}
+{"kind":"shape","id":"sh/07qlsjat","slide":12,"name":"card-12-2","bbox":[862,205,376,390]}
+{"kind":"textbox","id":"sh/nu14netk","slide":12,"name":"num-12-2","text":"NEW DATA","textPreview":"NEW DATA","textChars":8,"textLines":1,"bbox":[892,235,150,28]}
+{"kind":"textbox","id":"sh/2ts3utsz","slide":12,"name":"head-12-2","text":"Empirical replication","textPreview":"Empirical replication","textChars":21,"textLines":1,"bbox":[892,285,316,88]}
+{"kind":"textbox","id":"sh/pwjmpobq","slide":12,"name":"body-12-2","text":"New environments or development runs can expose failures the bootstrap cannot see.","textPreview":"New environments or development runs can expose failures the bootstrap cannot see.","textChars":82,"textLines":1,"bbox":[892,395,316,155]}
+{"kind":"textbox","id":"sh/ovalwja5","slide":12,"name":"bottom-12","text":"The estimate projects what would survive K executions of the declared regime.","textPreview":"The estimate projects what would survive K executions of the declared regime.","textChars":77,"textLines":1,"bbox":[42,610,1196,38]}
+{"kind":"notes","id":"nt/6pn4nw","slide":12,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Projected support and empirical corroboration”"}
+{"kind":"slide","id":"sl/er5ftl","slide":13,"title":"Support minimizes prevalence before applying joint survival","textShapes":9}
+{"kind":"textbox","id":"sh/qh0v6p8r","slide":13,"name":"title-13","text":"Support minimizes prevalence before applying joint survival","textPreview":"Support minimizes prevalence before applying joint survival","textChars":59,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/dkre147i","slide":13,"name":"rule-13","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/cjid8zqx","slide":13,"name":"deck-footer-13","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/zm9w3epo","slide":13,"name":"page-13","text":"13","textPreview":"13","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/yl0va983","slide":13,"name":"formula-panel-13","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/lobe5o7e","slide":13,"name":"formula-label-13","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/0nixcjq9","slide":13,"name":"formula-13-0","text":"Z_(j) = inf_(π∈Π_(∗))CNAP_(π)(D_(j))","textPreview":"Z_(j) = inf_(π∈Π_(∗))CNAP_(π)(D_(j))","textChars":36,"textLines":1,"bbox":[76,278,592,89]}
+{"kind":"textbox","id":"sh/natw7epk","slide":13,"name":"formula-13-1","text":"S_(K,Π_(∗))^(AP)(R) = E_(R)[min_(j≤K),Z_(j)]","textPreview":"S_(K,Π_(∗))^(AP)(R) = E_(R)[min_(j≤K),Z_(j)]","textChars":44,"textLines":1,"bbox":[76,367,592,89]}
+{"kind":"textbox","id":"sh/mpkfe9oz","slide":13,"name":"meaning-label-13","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/8z6ls3el","slide":13,"name":"meaning-13","text":"Within every replication, find its weakest target population; then require all K replications to retain the level.","textPreview":"Within every replication, find its weakest target population; then require all K replications to retain the level.","textChars":114,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/tkz2l8v6","slide":13,"name":"why-13","text":"At K=2, the result is expected worst-prevalence performance minus half the expected disagreement between replications.","textPreview":"At K=2, the result is expected worst-prevalence performance minus half the expected disagreement between replications.","textChars":118,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/er5ftl","slide":13,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Prevalence-robust supported performance”"}
+{"kind":"slide","id":"sl/rp2xjx","slide":14,"title":"What fails if prevalence minimization occurs after replication?","textShapes":9}
+{"kind":"textbox","id":"sh/0ny5k3i5","slide":14,"name":"title-14","text":"What fails if prevalence minimization occurs after replication?","textPreview":"What fails if prevalence minimization occurs after replication?","textChars":63,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/zm54bi1k","slide":14,"name":"rule-14","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/elwnid0z","slide":14,"name":"deck-footer-14","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/dknm98je","slide":14,"name":"page-14","text":"14","textPreview":"14","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/cje5g3i9","slide":14,"name":"left-panel-14","bbox":[42,185,565,420]}
+{"kind":"shape","id":"sh/ri547y1o","slide":14,"name":"right-panel-14","bbox":[650,185,588,420]}
+{"kind":"textbox","id":"sh/qhwnet03","slide":14,"name":"left-kicker-14","text":"INTENDED CLAIM","textPreview":"INTENDED CLAIM","textChars":14,"textLines":1,"bbox":[74,215,500,30]}
+{"kind":"textbox","id":"sh/xgr6lsjy","slide":14,"name":"left-head-14","text":"E([min_(j),inf_(π),CNAP_(π),(,D_(j),)])","textPreview":"E([min_(j),inf_(π),CNAP_(π),(,D_(j),)])","textChars":39,"textLines":1,"bbox":[74,245,500,100]}
+{"kind":"textbox","id":"sh/wfi5snid","slide":14,"name":"left-body-14","text":"Each replication reveals the population that defeats it. Replication 1 may fail at 1%; replication 2 at 40%.","textPreview":"Each replication reveals the population that defeats it. Replication 1 may fail at 1%; replication 2 at 40%.","textChars":108,"textLines":1,"bbox":[74,355,500,205]}
+{"kind":"textbox","id":"sh/6dcji1s7","slide":14,"name":"right-kicker-14","text":"WEAKER CLAIM","textPreview":"WEAKER CLAIM","textChars":12,"textLines":1,"bbox":[682,215,500,30]}
+{"kind":"textbox","id":"sh/rel0r6ts","slide":14,"name":"right-head-14","text":"inf_(π)E([min_(j),CNAP_(π),(,D_(j),)])","textPreview":"inf_(π)E([min_(j),CNAP_(π),(,D_(j),)])","textChars":38,"textLines":1,"bbox":[682,245,520,100]}
+{"kind":"textbox","id":"sh/sfu1kbad","slide":14,"name":"right-body-14","text":"All replications are challenged at the same prevalence before the population minimum is taken.","textPreview":"All replications are challenged at the same prevalence before the population minimum is taken.","textChars":94,"textLines":1,"bbox":[682,355,520,205]}
+{"kind":"notes","id":"nt/rp2xjx","slide":14,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Why the prevalence search occurs inside each replication”"}
+{"kind":"slide","id":"sl/fi8kvx","slide":15,"title":"Low support can reflect shifting worst cases or unstable replications","textShapes":13}
+{"kind":"textbox","id":"sh/8365svex","slide":15,"name":"title-15","text":"Low support can reflect shifting worst cases or unstable replications","textPreview":"Low support can reflect shifting worst cases or unstable replications","textChars":69,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/72x4jqdc","slide":15,"name":"rule-15","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/614nqlwr","slide":15,"name":"deck-footer-15","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/h8f6p0ve","slide":15,"name":"page-15","text":"15","textPreview":"15","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/g765wve9","slide":15,"name":"card-15-0","bbox":[42,205,376,390]}
+{"kind":"textbox","id":"sh/f6xonqdo","slide":15,"name":"num-15-0","text":"START","textPreview":"START","textChars":5,"textLines":1,"bbox":[72,235,70,28]}
+{"kind":"textbox","id":"sh/u5onu5w3","slide":15,"name":"head-15-0","text":"Best worst-population mean","textPreview":"Best worst-population mean","textChars":26,"textLines":1,"bbox":[72,285,316,88]}
+{"kind":"textbox","id":"sh/pcz6tkvq","slide":15,"name":"body-15-0","text":"The lowest expected profile value over the declared prevalence set.","textPreview":"The lowest expected profile value over the declared prevalence set.","textChars":67,"textLines":1,"bbox":[72,395,316,155]}
+{"kind":"shape","id":"sh/4bq50fe5","slide":15,"name":"card-15-1","bbox":[452,205,376,390]}
+{"kind":"textbox","id":"sh/utgful8f","slide":15,"name":"num-15-1","text":"− CPREV","textPreview":"− CPREV","textChars":7,"textLines":1,"bbox":[482,235,70,28]}
+{"kind":"textbox","id":"sh/vupw3qp0","slide":15,"name":"head-15-1","text":"Moving limiting prevalence","textPreview":"Moving limiting prevalence","textChars":26,"textLines":1,"bbox":[482,285,316,88]}
+{"kind":"textbox","id":"sh/wvixwvql","slide":15,"name":"body-15-1","text":"The weakest population changes across replications.","textPreview":"The weakest population changes across replications.","textChars":51,"textLines":1,"bbox":[482,395,316,155]}
+{"kind":"shape","id":"sh/hwry5076","slide":15,"name":"card-15-2","bbox":[862,205,376,390]}
+{"kind":"textbox","id":"sh/ix0fy58r","slide":15,"name":"num-15-2","text":"− CREP","textPreview":"− CREP","textChars":6,"textLines":1,"bbox":[892,235,70,28]}
+{"kind":"textbox","id":"sh/jy9g7apw","slide":15,"name":"head-15-2","text":"Replication disagreement","textPreview":"Replication disagreement","textChars":24,"textLines":1,"bbox":[892,285,316,88]}
+{"kind":"textbox","id":"sh/4zix0fqh","slide":15,"name":"body-15-2","text":"Retained levels vary; at K=2 this is ½E|Z₁−Z₂|.","textPreview":"Retained levels vary; at K=2 this is ½E|Z₁−Z₂|.","textChars":47,"textLines":1,"bbox":[892,395,316,155]}
+{"kind":"textbox","id":"sh/50ry9k72","slide":15,"name":"bottom-15","text":"S_(K,Π_(∗))^(AP) = inf_(π∈Π_(∗))E_(R)[CNAP_(π)] - C_(prev) - C_(rep)","textPreview":"S_(K,Π_(∗))^(AP) = inf_(π∈Π_(∗))E_(R)[CNAP_(π)] - C_(prev) - C_(rep)","textChars":68,"textLines":1,"bbox":[42,600,1196,48]}
+{"kind":"notes","id":"nt/fi8kvx","slide":15,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Why the prevalence search occurs inside each replication”"}
+{"kind":"slide","id":"sl/1pk2os","slide":16,"title":"Expanding the challenge set cannot increase raw support","textShapes":9}
+{"kind":"textbox","id":"sh/w3u9o7q1","slide":16,"name":"title-16","text":"Expanding the challenge set cannot increase raw support","textPreview":"Expanding the challenge set cannot increase raw support","textChars":55,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/vil8vm9w","slide":16,"name":"rule-16","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/uhcrmh8b","slide":16,"name":"deck-footer-16","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/58nq1w7y","slide":16,"name":"page-16","text":"16","textPreview":"16","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/47e9srqd","slide":16,"name":"formula-panel-16","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/j658zmps","slide":16,"name":"formula-label-16","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/i5crqh87","slide":16,"name":"formula-16-0","text":"Π₁⊆Π₂, K₁≤K₂","textPreview":"Π₁⊆Π₂, K₁≤K₂","textChars":12,"textLines":1,"bbox":[76,278,592,89]}
+{"kind":"textbox","id":"sh/lcjqpsre","slide":16,"name":"formula-16-1","text":"S_(K₂,Π₂)^(AP)(R)≤S_(K₁,Π₁)^(AP)(R)","textPreview":"S_(K₂,Π₂)^(AP)(R)≤S_(K₁,Π₁)^(AP)(R)","textChars":35,"textLines":1,"bbox":[76,367,592,89]}
+{"kind":"textbox","id":"sh/kbapwnqt","slide":16,"name":"meaning-label-16","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/2do3ylgf","slide":16,"name":"meaning-16","text":"Broader population coverage or more independent chances for defeat can only keep or lower support.","textPreview":"Broader population coverage or more independent chances for defeat can only keep or lower support.","textChars":98,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/3ex4rqx0","slide":16,"name":"why-16","text":"Arbitrary regimes are not ordered this way: changing what is redrawn changes the scientific claim, not merely its index set.","textPreview":"Arbitrary regimes are not ordered this way: changing what is redrawn changes the scientific claim, not merely its index set.","textChars":124,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/1pk2os","slide":16,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Severity and its limits”"}
+{"kind":"slide","id":"sl/kmp9uf","slide":17,"title":"How can one evaluation estimate a replication-level target?","textShapes":16}
+{"kind":"textbox","id":"sh/qpwn65g7","slide":17,"name":"title-17","text":"How can one evaluation estimate a replication-level target?","textPreview":"How can one evaluation estimate a replication-level target?","textChars":59,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/xcnmhkfy","slide":17,"name":"rule-17","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/cbe58fyd","slide":17,"name":"deck-footer-17","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/zepojax4","slide":17,"name":"page-17","text":"17","textPreview":"17","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/ydwnapgj","slide":17,"name":"arrow-17-0","bbox":[328,380,32,22]}
+{"kind":"shape","id":"sh/lg76lkfu","slide":17,"name":"arrow-17-1","bbox":[624,380,32,22]}
+{"kind":"shape","id":"sh/kfy5cfyp","slide":17,"name":"arrow-17-2","bbox":[920,380,32,22]}
+{"kind":"shape","id":"sh/fil47qxk","slide":17,"name":"step-17-0","bbox":[62,245,268,310]}
+{"kind":"textbox","id":"sh/ehcnylgz","slide":17,"name":"step-num-17-0","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[86,269,36,30]}
+{"kind":"textbox","id":"sh/ofelkjud","slide":17,"name":"step-head-17-0","text":"Resample within class","textPreview":"Resample within class","textChars":21,"textLines":1,"bbox":[86,323,220,76]}
+{"kind":"textbox","id":"sh/pgn2tovy","slide":17,"name":"step-body-17-0","text":"Draw planned positive and negative counts with replacement.","textPreview":"Draw planned positive and negative counts with replacement.","textChars":59,"textLines":1,"bbox":[86,420,220,95]}
+{"kind":"shape","id":"sh/2tcji9c7","slide":17,"name":"step-17-1","bbox":[358,245,268,310]}
+{"kind":"textbox","id":"sh/3u5kreds","slide":17,"name":"step-num-17-1","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[382,269,36,30]}
+{"kind":"textbox","id":"sh/cjeloju9","slide":17,"name":"step-head-17-1","text":"Recombine units","textPreview":"Recombine units","textChars":15,"textLines":1,"bbox":[382,323,220,76]}
+{"kind":"textbox","id":"sh/dkn2xovu","slide":17,"name":"step-body-17-1","text":"Keep each unit’s score and outcome together.","textPreview":"Keep each unit’s score and outcome together.","textChars":44,"textLines":1,"bbox":[382,420,220,95]}
+{"kind":"shape","id":"sh/qhw3mtc3","slide":17,"name":"step-17-2","bbox":[654,245,268,310]}
+{"kind":"textbox","id":"sh/bi5kvydo","slide":17,"name":"step-num-17-2","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[678,269,36,30]}
+{"kind":"textbox","id":"sh/snu1cze5","slide":17,"name":"step-head-17-2","text":"Evaluate all π","textPreview":"Evaluate all π","textChars":14,"textLines":1,"bbox":[678,323,220,76]}
+{"kind":"textbox","id":"sh/to32l4vq","slide":17,"name":"step-body-17-2","text":"Use the same resampled units across the full prevalence set.","textPreview":"Use the same resampled units across the full prevalence set.","textChars":60,"textLines":1,"bbox":[678,420,220,95]}
+{"kind":"shape","id":"sh/9kvipgne","slide":17,"name":"step-17-3","bbox":[950,245,268,310]}
+{"kind":"textbox","id":"sh/8jmhgv6t","slide":17,"name":"step-num-17-3","text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[974,269,36,30]}
+{"kind":"textbox","id":"sh/7it0nq58","slide":17,"name":"step-head-17-3","text":"Record the retained level","textPreview":"Record the retained level","textChars":25,"textLines":1,"bbox":[974,323,220,76]}
+{"kind":"textbox","id":"sh/mhkzelon","slide":17,"name":"step-body-17-3","text":"Store the lowest CNAP over the declared prevalence set.","textPreview":"Store the lowest CNAP over the declared prevalence set.","textChars":55,"textLines":1,"bbox":[974,420,220,95]}
+{"kind":"textbox","id":"sh/h8vit0na","slide":17,"name":"lead-17","text":"Observed evaluation units must be the mechanism the regime redraws.","textPreview":"Observed evaluation units must be the mechanism the regime redraws.","textChars":67,"textLines":1,"bbox":[62,172,1120,48]}
+{"kind":"notes","id":"nt/kmp9uf","slide":17,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “The fixed-model bootstrap”"}
+{"kind":"slide","id":"sl/uqspij","slide":18,"title":"A finite grid can miss the worst prevalence in a continuous set","textShapes":9}
+{"kind":"textbox","id":"sh/8rato7qp","slide":18,"name":"title-18","text":"A finite grid can miss the worst prevalence in a continuous set","textPreview":"A finite grid can miss the worst prevalence in a continuous set","textChars":63,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/7q1sv294","slide":18,"name":"rule-18","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/6psbmxsj","slide":18,"name":"deck-footer-18","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/hg3a1cr6","slide":18,"name":"page-18","text":"18","textPreview":"18","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/gvats7q1","slide":18,"name":"formula-panel-18","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/fu1sz29g","slide":18,"name":"formula-label-18","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/utsbqh8v","slide":18,"name":"formula-18-0","text":"Π_(∗) = {π₁,…,π_(G)} finite challenge","textPreview":"Π_(∗) = {π₁,…,π_(G)} finite challenge","textChars":37,"textLines":1,"bbox":[76,278,592,89]}
+{"kind":"textbox","id":"sh/pk3u5wri","slide":18,"name":"formula-18-1","text":"Π_(∗) = [π_(L),π_(U)] continuous challenge","textPreview":"Π_(∗) = [π_(L),π_(U)] continuous challenge","textChars":42,"textLines":1,"bbox":[76,367,592,89]}
+{"kind":"textbox","id":"sh/4jutwrqx","slide":18,"name":"meaning-label-18","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/25g7mhcr","slide":18,"name":"meaning-18","text":"A coarse grid can miss an interior minimum and inflate the result.","textPreview":"A coarse grid can miss an interior minimum and inflate the result.","textChars":66,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/3698v2dc","slide":18,"name":"why-18","text":"Outer resampling repeats the complete inner procedure. Richer regimes require data or a hierarchy that actually represents them.","textPreview":"Outer resampling repeats the complete inner procedure. Richer regimes require data or a hierarchy that actually represents them.","textChars":128,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/uqspij","slide":18,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Intervals, grids, and richer regimes”"}
+{"kind":"slide","id":"sl/7gnxdo","slide":19,"title":"Why can random ranking exceed zero in a finite design?","textShapes":9}
+{"kind":"textbox","id":"sh/p8ba5sr2","slide":19,"name":"title-19","text":"Why can random ranking exceed zero in a finite design?","textPreview":"Why can random ranking exceed zero in a finite design?","textChars":54,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/250budsr","slide":19,"name":"rule-19","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/n69s3i9c","slide":19,"name":"deck-footer-19","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/0jits3al","slide":19,"name":"page-19","text":"19","textPreview":"19","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/14ra18r6","slide":19,"name":"left-panel-19","bbox":[42,185,565,420]}
+{"kind":"shape","id":"sh/eh0bqtsf","slide":19,"name":"right-panel-19","bbox":[650,185,588,420]}
+{"kind":"textbox","id":"sh/fi9szy90","slide":19,"name":"left-kicker-19","text":"ONE POSITIVE + ONE NEGATIVE","textPreview":"ONE POSITIVE + ONE NEGATIVE","textChars":27,"textLines":1,"bbox":[74,215,500,30]}
+{"kind":"textbox","id":"sh/kf2t47a5","slide":19,"name":"left-head-19","text":"Random order gives CNAP = 1 or 0","textPreview":"Random order gives CNAP = 1 or 0","textChars":32,"textLines":1,"bbox":[74,255,500,82]}
+{"kind":"textbox","id":"sh/l0vudcra","slide":19,"name":"left-body-19","text":"Each ordering occurs with probability ½. Mean CNAP = ½.","textPreview":"Each ordering occurs with probability ½. Mean CNAP = ½.","textChars":55,"textLines":1,"bbox":[74,355,500,205]}
+{"kind":"textbox","id":"sh/pkzu9wr2","slide":19,"name":"right-kicker-19","text":"TWO INDEPENDENT REPLICATIONS","textPreview":"TWO INDEPENDENT REPLICATIONS","textChars":28,"textLines":1,"bbox":[682,215,500,30]}
+{"kind":"textbox","id":"sh/ojqtgrah","slide":19,"name":"right-head-19","text":"E([min,(,Z₁,Z₂,)]) = (14)⁄","textPreview":"E([min,(,Z₁,Z₂,)]) = (14)⁄","textChars":26,"textLines":1,"bbox":[682,245,520,100]}
+{"kind":"textbox","id":"sh/nihc7m9w","slide":19,"name":"right-body-19","text":"Pure noise returns +0.25 on a population scale whose zero denotes random ranking.","textPreview":"Pure noise returns +0.25 on a population scale whose zero denotes random ranking.","textChars":81,"textLines":1,"bbox":[682,355,520,205]}
+{"kind":"notes","id":"nt/7gnxdo","slide":19,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “The displacement”"}
+{"kind":"slide","id":"sl/mjyffe","slide":20,"title":"Permutation supplies a finite-design reference for one model","textShapes":9}
+{"kind":"textbox","id":"sh/dsrqpori","slide":20,"name":"title-20","text":"Permutation supplies a finite-design reference for one model","textPreview":"Permutation supplies a finite-design reference for one model","textChars":60,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/qp0re9sr","slide":20,"name":"rule-20","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/bq98ne9c","slide":20,"name":"deck-footer-20","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/ony9cja1","slide":20,"name":"page-20","text":"20","textPreview":"20","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/po7ql4rm","slide":20,"name":"formula-panel-20","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/2lgra9sv","slide":20,"name":"formula-label-20","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/3mp8je9g","slide":20,"name":"formula-20","text":"S_(est)^(cal) = (S_(est) - S_(est)^(null))⁄(1 - S_(est)^(null))","textPreview":"S_(est)^(cal) = (S_(est) - S_(est)^(null))⁄(1 - S_(est)^(null))","textChars":63,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/gjy98zap","slide":20,"name":"formula-caption-20","text":"Condition on the score vector, tie structure, units, and class counts","textPreview":"Condition on the score vector, tie structure, units, and class counts","textChars":69,"textLines":1,"bbox":[76,488,592,48]}
+{"kind":"textbox","id":"sh/1k7qh4ra","slide":20,"name":"meaning-label-20","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/1wb69gru","slide":20,"name":"meaning-20","text":"Permutation estimates the finite-design anchor for this fixed score vector.","textPreview":"Permutation estimates the finite-design anchor for this fixed score vector.","textChars":75,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/0v2pgbap","slide":20,"name":"why-20","text":"The calibrated value is conditional on the realized score vector, tie structure, units, and class counts.","textPreview":"The calibrated value is conditional on the realized score vector, tie structure, units, and class counts.","textChars":105,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/mjyffe","slide":20,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “A design-relative report for one model”"}
+{"kind":"slide","id":"sl/orzp5u","slide":21,"title":"Can two separately calibrated reports decide model replacement?","textShapes":9}
+{"kind":"textbox","id":"sh/x4nqtorm","slide":21,"name":"title-21","text":"Can two separately calibrated reports decide model replacement?","textPreview":"Can two separately calibrated reports decide model replacement?","textChars":63,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/a1c7it8v","slide":21,"name":"rule-21","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/b2l8re9g","slide":21,"name":"deck-footer-21","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/ozupgjq5","slide":21,"name":"page-21","text":"21","textPreview":"21","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/9036pora","slide":21,"name":"left-panel-21","bbox":[42,185,565,420]}
+{"kind":"shape","id":"sh/mxc7e98z","slide":21,"name":"right-panel-21","bbox":[650,185,588,420]}
+{"kind":"textbox","id":"sh/nylone9k","slide":21,"name":"left-kicker-21","text":"MARGINAL SUBTRACTION","textPreview":"MARGINAL SUBTRACTION","textChars":20,"textLines":1,"bbox":[74,215,500,30]}
+{"kind":"textbox","id":"sh/0vupczat","slide":21,"name":"left-head-21","text":"S_(K)(A_(Π_(∗))) - S_(K)(B_(Π_(∗)))","textPreview":"S_(K)(A_(Π_(∗))) - S_(K)(B_(Π_(∗)))","textChars":35,"textLines":1,"bbox":[74,245,500,100]}
+{"kind":"textbox","id":"sh/1w36l4re","slide":21,"name":"left-body-21","text":"A and B may meet different worst prevalences and different worst replications.","textPreview":"A and B may meet different worst prevalences and different worst replications.","textChars":78,"textLines":1,"bbox":[74,355,500,205]}
+{"kind":"textbox","id":"sh/xsve1cv2","slide":21,"name":"right-kicker-21","text":"PAIRED CLAIM","textPreview":"PAIRED CLAIM","textChars":12,"textLines":1,"bbox":[682,215,500,30]}
+{"kind":"textbox","id":"sh/wrmds7eh","slide":21,"name":"right-head-21","text":"S_(K)(inf_(π∈Π_(∗)),{,A_(π),-,B_(π),})","textPreview":"S_(K)(inf_(π∈Π_(∗)),{,A_(π),-,B_(π),})","textChars":38,"textLines":1,"bbox":[682,245,520,100]}
+{"kind":"textbox","id":"sh/b6dwz2dw","slide":21,"name":"right-body-21","text":"Compare on the same units, at the same prevalence, before any population or replication minimum.","textPreview":"Compare on the same units, at the same prevalence, before any population or replication minimum.","textChars":96,"textLines":1,"bbox":[682,355,520,205]}
+{"kind":"notes","id":"nt/orzp5u","slide":21,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Why marginal reports do not compose”"}
+{"kind":"slide","id":"sl/a6p4r4","slide":22,"title":"Even paired comparison can reward arbitrary tie-breaking","textShapes":9}
+{"kind":"textbox","id":"sh/hcv6lsne","slide":22,"name":"title-22","text":"Even paired comparison can reward arbitrary tie-breaking","textPreview":"Even paired comparison can reward arbitrary tie-breaking","textChars":56,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/a94nqdon","slide":22,"name":"rule-22","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/vad4ji58","slide":22,"name":"deck-footer-22","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/4z65wn65","slide":22,"name":"page-22","text":"22","textPreview":"22","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/50f6psna","slide":22,"name":"left-panel-22","bbox":[42,185,565,420]}
+{"kind":"shape","id":"sh/id4nuxoz","slide":22,"name":"right-panel-22","bbox":[650,185,588,420]}
+{"kind":"textbox","id":"sh/jexoni5k","slide":22,"name":"left-kicker-22","text":"MODEL A","textPreview":"MODEL A","textChars":7,"textLines":1,"bbox":[74,215,500,30]}
+{"kind":"textbox","id":"sh/s3650761","slide":22,"name":"left-head-22","text":"Four distinct scores","textPreview":"Four distinct scores","textChars":20,"textLines":1,"bbox":[74,255,500,82]}
+{"kind":"textbox","id":"sh/t4f6tcnm","slide":22,"name":"left-body-22","text":"With 2 positive and 2 negative labels assigned at random, its expected CNAP advantage is about 0.361.","textPreview":"With 2 positive and 2 negative labels assigned at random, its expected CNAP advantage is about 0.361.","textChars":101,"textLines":1,"bbox":[74,355,500,205]}
+{"kind":"textbox","id":"sh/5czy1s7a","slide":22,"name":"right-kicker-22","text":"MODEL B","textPreview":"MODEL B","textChars":7,"textLines":1,"bbox":[682,215,500,30]}
+{"kind":"textbox","id":"sh/4bqxsn6p","slide":22,"name":"right-head-22","text":"One fully tied score","textPreview":"One fully tied score","textChars":20,"textLines":1,"bbox":[682,255,520,82]}
+{"kind":"textbox","id":"sh/3ahgzip4","slide":22,"name":"right-body-22","text":"Neither score vector is associated with outcomes—yet A receives credit merely for breaking ties.","textPreview":"Neither score vector is associated with outcomes—yet A receives credit merely for breaking ties.","textChars":96,"textLines":1,"bbox":[682,355,520,205]}
+{"kind":"notes","id":"nt/a6p4r4","slide":22,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Why ordinary pairing is still not neutral”"}
+{"kind":"slide","id":"sl/2g6cdc","slide":23,"title":"Tie averaging removes arbitrary within-tie advantage","textShapes":9}
+{"kind":"textbox","id":"sh/lsv6pgne","slide":23,"name":"title-23","text":"Tie averaging removes arbitrary within-tie advantage","textPreview":"Tie averaging removes arbitrary within-tie advantage","textChars":52,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/yp47e1o3","slide":23,"name":"rule-23","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/zqdon65o","slide":23,"name":"deck-footer-23","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/cnmpcb6x","slide":23,"name":"page-23","text":"23","textPreview":"23","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/xov6lgni","slide":23,"name":"formula-panel-23","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/a1k7a1or","slide":23,"name":"formula-label-23","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/b2toj65c","slide":23,"name":"formula-23","text":"AP_(π)^(TA)(D) = 1⁄(|O(D)|)∑_(o∈O(D)) AP_(π)(Dₒ)","textPreview":"AP_(π)^(TA)(D) = 1⁄(|O(D)|)∑_(o∈O(D)) AP_(π)(Dₒ)","textChars":48,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/wj6pov61","slide":23,"name":"formula-caption-23","text":"Average over all strict rankings consistent with the score blocks","textPreview":"Average over all strict rankings consistent with the score blocks","textChars":65,"textLines":1,"bbox":[76,488,592,48]}
+{"kind":"textbox","id":"sh/hkfqx0nm","slide":23,"name":"meaning-label-23","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/h4v29kj2","slide":23,"name":"meaning-23","text":"Average AP over every within-tie ordering consistent with the observed score blocks.","textPreview":"Average AP over every within-tie ordering consistent with the observed score blocks.","textChars":84,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/w3210f2h","slide":23,"name":"why-23","text":"Outcome-relevant refinement can still improve AP; granularity alone receives no expected credit.","textPreview":"Outcome-relevant refinement can still improve AP; granularity alone receives no expected credit.","textChars":96,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/2g6cdc","slide":23,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Tie-averaged average precision”"}
+{"kind":"slide","id":"sl/8lsrjg","slide":24,"title":"Pair model differences before prevalence and replication challenges","textShapes":9}
+{"kind":"textbox","id":"sh/w7mpgj2x","slide":24,"name":"title-24","text":"Pair model differences before prevalence and replication challenges","textPreview":"Pair model differences before prevalence and replication challenges","textChars":67,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/b6tony1c","slide":24,"name":"rule-24","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/a5k7etkr","slide":24,"name":"deck-footer-24","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/lwv6t8je","slide":24,"name":"page-24","text":"24","textPreview":"24","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/kvmpk32t","slide":24,"name":"formula-panel-24","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/judory18","slide":24,"name":"formula-label-24","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/yt47itkn","slide":24,"name":"formula-24-0","text":"Δ_(π)^(TA)(D) = CNAP_(A,π)^(TA)(D) - CNAP_(B,π)^(TA)(D)","textPreview":"Δ_(π)^(TA)(D) = CNAP_(A,π)^(TA)(D) - CNAP_(B,π)^(TA)(D)","textChars":55,"textLines":1,"bbox":[76,278,592,89]}
+{"kind":"textbox","id":"sh/10b6h4ja","slide":24,"name":"formula-24-1","text":"θ_(A:B) = E_(R)[min_(j≤K),inf_(π∈Π_(∗)),Δ_(π,j)^(TA)]","textPreview":"θ_(A:B) = E_(R)[min_(j≤K),inf_(π∈Π_(∗)),Δ_(π,j)^(TA)]","textChars":53,"textLines":1,"bbox":[76,367,592,89]}
+{"kind":"textbox","id":"sh/0zi58z2p","slide":24,"name":"meaning-label-24","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/ml0bml43","slide":24,"name":"meaning-24","text":"Same units → tie-neutral difference → prevalence challenge → replication challenge.","textPreview":"Same units → tie-neutral difference → prevalence challenge → replication challenge.","textChars":83,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/nmtsfqlo","slide":24,"name":"why-24","text":"Estimation preserves pairing at every layer. Neither marginal model score is an intermediate input.","textPreview":"Estimation preserves pairing at every layer. Neither marginal model score is an intermediate input.","textChars":99,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/8lsrjg","slide":24,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “The paired supported advantage”"}
+{"kind":"slide","id":"sl/qprcvq","slide":25,"title":"A zero-reference guarantee requires exchangeable fixed-count labels","textShapes":13}
+{"kind":"textbox","id":"sh/fidcfqlk","slide":25,"name":"title-25","text":"A zero-reference guarantee requires exchangeable fixed-count labels","textPreview":"A zero-reference guarantee requires exchangeable fixed-count labels","textChars":67,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/gjmt8v25","slide":25,"name":"rule-25","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/hkvuh03q","slide":25,"name":"deck-footer-25","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/6tkb2lk3","slide":25,"name":"page-25","text":"25","textPreview":"25","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/7utcbql8","slide":25,"name":"card-25-0","bbox":[42,205,376,390]}
+{"kind":"textbox","id":"sh/sv2t4v2t","slide":25,"name":"num-25-0","text":"REFERENCE LAW","textPreview":"REFERENCE LAW","textChars":13,"textLines":1,"bbox":[72,235,150,28]}
+{"kind":"textbox","id":"sh/tgbud03e","slide":25,"name":"head-25-0","text":"All fixed-count label vectors are equally likely","textPreview":"All fixed-count label vectors are equally likely","textChars":48,"textLines":1,"bbox":[72,285,316,88]}
+{"kind":"textbox","id":"sh/qp4vepk7","slide":25,"name":"body-25-0","text":"Condition on both score vectors and n+.","textPreview":"Condition on both score vectors and n+.","textChars":39,"textLines":1,"bbox":[72,395,316,155]}
+{"kind":"shape","id":"sh/rqxcnals","slide":25,"name":"card-25-1","bbox":[452,205,376,390]}
+{"kind":"textbox","id":"sh/n6dwrudw","slide":25,"name":"num-25-1","text":"CONSEQUENCE","textPreview":"CONSEQUENCE","textChars":11,"textLines":1,"bbox":[482,235,150,28]}
+{"kind":"textbox","id":"sh/m54fypwb","slide":25,"name":"head-25-1","text":"Expected paired profile is zero","textPreview":"Expected paired profile is zero","textChars":31,"textLines":1,"bbox":[482,285,316,88]}
+{"kind":"textbox","id":"sh/98vyt4v2","slide":25,"name":"body-25-1","text":"Tie structure no longer changes the expected AP anchor.","textPreview":"Tie structure no longer changes the expected AP anchor.","textChars":55,"textLines":1,"bbox":[482,395,316,155]}
+{"kind":"shape","id":"sh/87mx0zeh","slide":25,"name":"card-25-2","bbox":[862,205,376,390]}
+{"kind":"textbox","id":"sh/vaxgvud8","slide":25,"name":"num-25-2","text":"BOUND","textPreview":"BOUND","textChars":5,"textLines":1,"bbox":[892,235,70,28]}
+{"kind":"textbox","id":"sh/a94f29wn","slide":25,"name":"head-25-2","text":"Supported advantage ≤ 0 under noise","textPreview":"Supported advantage ≤ 0 under noise","textChars":35,"textLines":1,"bbox":[892,285,316,88]}
+{"kind":"textbox","id":"sh/xcfyx4ve","slide":25,"name":"body-25-2","text":"The infimum and minimum may push the reference value below zero.","textPreview":"The infimum and minimum may push the reference value below zero.","textChars":64,"textLines":1,"bbox":[892,395,316,155]}
+{"kind":"textbox","id":"sh/wb6x4zet","slide":25,"name":"bottom-25","text":"Matched, clustered, or heterogeneous-risk designs may require a design-specific claim.","textPreview":"Matched, clustered, or heterogeneous-risk designs may require a design-specific claim.","textChars":86,"textLines":1,"bbox":[42,610,1196,38]}
+{"kind":"notes","id":"nt/qprcvq","slide":25,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Reference behavior and design scope”"}
+{"kind":"slide","id":"sl/vkj6v0","slide":26,"title":"A valid replacement rule may return no verdict","textShapes":8}
+{"kind":"textbox","id":"sh/14bqdkzm","slide":26,"name":"title-26","text":"A valid replacement rule may return no verdict","textPreview":"A valid replacement rule may return no verdict","textChars":46,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/e10ri50b","slide":26,"name":"rule-26","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/z2t8ba1w","slide":26,"name":"deck-footer-26","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/czi9gfi5","slide":26,"name":"page-26","text":"26","textPreview":"26","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/d0rq90jq","slide":26,"name":"formula-panel-26","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/qx0re50z","slide":26,"name":"formula-label-26","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/ry987a1k","slide":26,"name":"formula-26","text":"θ_(A:B) + θ_(B:A)≤0, LB((θ_(A:B)))>d","textPreview":"θ_(A:B) + θ_(B:A)≤0, LB((θ_(A:B)))>d","textChars":36,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/4bi9cvi9","slide":26,"name":"meaning-label-26","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/pwrq50je","slide":26,"name":"meaning-26","text":"Both orientations cannot show a positive supported advantage.","textPreview":"Both orientations cannot show a positive supported advantage.","textChars":61,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/twvy5s7q","slide":26,"name":"why-26","text":"If both are nonpositive, the declared challenges defeated superiority in either direction. The practical margin d belongs to the decision specification.","textPreview":"If both are nonpositive, the declared challenges defeated superiority in either direction. The practical margin d belongs to the decision...","textChars":152,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/vkj6v0","slide":26,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “No verdict and replacement”"}
+{"kind":"slide","id":"sl/c3azwe","slide":27,"title":"What does a supported-performance value actually describe?","textShapes":13}
+{"kind":"textbox","id":"sh/poj2hcrm","slide":27,"name":"title-27","text":"What does a supported-performance value actually describe?","textPreview":"What does a supported-performance value actually describe?","textChars":58,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/2l836hsb","slide":27,"name":"rule-27","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/3mhkfm9w","slide":27,"name":"deck-footer-27","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/gzql47a5","slide":27,"name":"page-27","text":"27","textPreview":"27","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/h0z2dcrq","slide":27,"name":"card-27-0","bbox":[42,205,376,390]}
+{"kind":"textbox","id":"sh/ux832xsz","slide":27,"name":"num-27-0","text":"Π★","textPreview":"Π★","textChars":2,"textLines":1,"bbox":[72,235,70,28]}
+{"kind":"textbox","id":"sh/fyhkb29k","slide":27,"name":"head-27-0","text":"Where the claim had to hold","textPreview":"Where the claim had to hold","textChars":27,"textLines":1,"bbox":[72,285,316,88]}
+{"kind":"textbox","id":"sh/sv6l07a9","slide":27,"name":"body-27-0","text":"The target prevalence set travels with the value.","textPreview":"The target prevalence set travels with the value.","textChars":49,"textLines":1,"bbox":[72,395,316,155]}
+{"kind":"shape","id":"sh/twf29sre","slide":27,"name":"card-27-1","bbox":[452,205,376,390]}
+{"kind":"textbox","id":"sh/l03e9k7q","slide":27,"name":"num-27-1","text":"ℛ","textPreview":"ℛ","textChars":1,"textLines":1,"bbox":[482,235,70,28]}
+{"kind":"textbox","id":"sh/kzuxgfq5","slide":27,"name":"head-27-1","text":"What could expose failure","textPreview":"What could expose failure","textChars":25,"textLines":1,"bbox":[482,285,316,88]}
+{"kind":"textbox","id":"sh/jylw7apk","slide":27,"name":"body-27-1","text":"Fixed model, new environment, or repeated development.","textPreview":"Fixed model, new environment, or repeated development.","textChars":54,"textLines":1,"bbox":[482,395,316,155]}
+{"kind":"shape","id":"sh/yxcfe58f","slide":27,"name":"card-27-2","bbox":[862,205,376,390]}
+{"kind":"textbox","id":"sh/xw3e507u","slide":27,"name":"num-27-2","text":"K","textPreview":"K","textChars":1,"textLines":1,"bbox":[892,235,70,28]}
+{"kind":"textbox","id":"sh/wvuxcvq9","slide":27,"name":"head-27-2","text":"How many failures were possible","textPreview":"How many failures were possible","textChars":31,"textLines":1,"bbox":[892,285,316,88]}
+{"kind":"textbox","id":"sh/bu1w3qpo","slide":27,"name":"body-27-2","text":"Independent challenges required to retain the level jointly.","textPreview":"Independent challenges required to retain the level jointly.","textChars":60,"textLines":1,"bbox":[892,395,316,155]}
+{"kind":"textbox","id":"sh/a9sval83","slide":27,"name":"bottom-27","text":"It is a supported magnitude—not a confidence level or a probability of truth.","textPreview":"It is a supported magnitude—not a confidence level or a probability of truth.","textChars":77,"textLines":1,"bbox":[42,610,1196,38]}
+{"kind":"notes","id":"nt/c3azwe","slide":27,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “What the number says”"}
+{"kind":"slide","id":"sl/kz1bzj","slide":28,"title":"A complete report separates estimand, decision, and evidence","textShapes":12}
+{"kind":"textbox","id":"sh/8v25kv6x","slide":28,"name":"title-28","text":"A complete report separates estimand, decision, and evidence","textPreview":"A complete report separates estimand, decision, and evidence","textChars":60,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/7ut4bq5c","slide":28,"name":"rule-28","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/mtk3i5or","slide":28,"name":"deck-footer-28","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/lsrm90n6","slide":28,"name":"page-28","text":"28","textPreview":"28","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/krilgv6l","slide":28,"name":"card-28-0","bbox":[42,205,376,390]}
+{"kind":"textbox","id":"sh/zq947q50","slide":28,"name":"num-28-0","text":"ESTIMAND","textPreview":"ESTIMAND","textChars":8,"textLines":1,"bbox":[72,235,150,28]}
+{"kind":"textbox","id":"sh/yp03elof","slide":28,"name":"head-28-0","text":"Supported quantity + assessment","textPreview":"Supported quantity + assessment","textChars":31,"textLines":1,"bbox":[72,285,316,88]}
+{"kind":"textbox","id":"sh/5ovmlkna","slide":28,"name":"body-28-0","text":"Raw value; Π★ and its basis; ℛ; K; replication counts and resampling unit.","textPreview":"Raw value; Π★ and its basis; ℛ; K; replication counts and resampling unit.","textChars":74,"textLines":1,"bbox":[72,395,316,155]}
+{"kind":"shape","id":"sh/4nm5sf6p","slide":28,"name":"card-28-1","bbox":[452,205,376,390]}
+{"kind":"textbox","id":"sh/upcfqp4b","slide":28,"name":"num-28-1","text":"DECISION RULE","textPreview":"DECISION RULE","textChars":13,"textLines":1,"bbox":[482,235,150,28]}
+{"kind":"textbox","id":"sh/fqlgju5g","slide":28,"name":"head-28-1","text":"Pairing + practical margin","textPreview":"Pairing + practical margin","textChars":26,"textLines":1,"bbox":[482,285,316,88]}
+{"kind":"textbox","id":"sh/gruhszm1","slide":28,"name":"body-28-1","text":"Orientation, tie averaging, exchangeability argument, d, and reversed orientation.","textPreview":"Orientation, tie averaging, exchangeability argument, d, and reversed orientation.","textChars":82,"textLines":1,"bbox":[482,395,316,155]}
+{"kind":"shape","id":"sh/hs3yl4nm","slide":28,"name":"card-28-2","bbox":[862,205,376,390]}
+{"kind":"textbox","id":"sh/61sfm54z","slide":28,"name":"num-28-2","text":"EVIDENCE","textPreview":"EVIDENCE","textChars":8,"textLines":1,"bbox":[892,235,150,28]}
+{"kind":"textbox","id":"sh/721gfa5k","slide":28,"name":"head-28-2","text":"Diagnostics + uncertainty","textPreview":"Diagnostics + uncertainty","textChars":25,"textLines":1,"bbox":[892,285,316,88]}
+{"kind":"textbox","id":"sh/s3axofm5","slide":28,"name":"body-28-2","text":"Profiles, minimizing prevalences, costs, computation, Monte Carlo error, and validated outer bound.","textPreview":"Profiles, minimizing prevalences, costs, computation, Monte Carlo error, and validated outer bound.","textChars":99,"textLines":1,"bbox":[892,395,316,155]}
+{"kind":"notes","id":"nt/kz1bzj","slide":28,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “What should be reported”"}
+{"kind":"slide","id":"sl/u4h1z9","slide":29,"title":"Sparse positives coarsen the supported-performance profile","textShapes":9}
+{"kind":"textbox","id":"sh/72xgn2pg","slide":29,"name":"title-29","text":"Sparse positives coarsen the supported-performance profile","textPreview":"Sparse positives coarsen the supported-performance profile","textChars":58,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/836xg76l","slide":29,"name":"rule-29","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/94fypc76","slide":29,"name":"deck-footer-29","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/upofihor","slide":29,"name":"page-29","text":"29","textPreview":"29","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/vqxgr2pc","slide":29,"name":"left-panel-29","bbox":[42,185,565,420]}
+{"kind":"shape","id":"sh/wrqhk76x","slide":29,"name":"right-panel-29","bbox":[650,185,588,420]}
+{"kind":"textbox","id":"sh/hszytc7i","slide":29,"name":"left-kicker-29","text":"WHAT CHANGES","textPreview":"WHAT CHANGES","textChars":12,"textLines":1,"bbox":[74,215,500,30]}
+{"kind":"textbox","id":"sh/it8zmho3","slide":29,"name":"left-head-29","text":"Each positive makes one full recall step","textPreview":"Each positive makes one full recall step","textChars":40,"textLines":1,"bbox":[74,255,500,82]}
+{"kind":"textbox","id":"sh/juhgvmp8","slide":29,"name":"left-body-29","text":"One case can reshape the complete profile, its lower tail, and the minimizing prevalence.","textPreview":"One case can reshape the complete profile, its lower tail, and the minimizing prevalence.","textChars":89,"textLines":1,"bbox":[74,355,500,205]}
+{"kind":"textbox","id":"sh/n61k3yps","slide":29,"name":"right-kicker-29","text":"WHAT DOES NOT HELP","textPreview":"WHAT DOES NOT HELP","textChars":18,"textLines":1,"bbox":[682,215,500,30]}
+{"kind":"textbox","id":"sh/m5s3ato7","slide":29,"name":"right-head-29","text":"More bootstrap draws do not create more positives","textPreview":"More bootstrap draws do not create more positives","textChars":49,"textLines":1,"bbox":[682,255,520,82]}
+{"kind":"textbox","id":"sh/98j2587y","slide":29,"name":"right-body-29","text":"Show the replication distribution and minimizers. Decimal precision is not evidential precision.","textPreview":"Show the replication distribution and minimizers. Decimal precision is not evidential precision.","textChars":96,"textLines":1,"bbox":[682,355,520,205]}
+{"kind":"notes","id":"nt/u4h1z9","slide":29,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Sparse outcomes and uncertainty”"}
+{"kind":"slide","id":"sl/c961ae","slide":30,"title":"What conclusions remain outside the method’s scope?","textShapes":13}
+{"kind":"textbox","id":"sh/zqpwjup4","slide":30,"name":"title-30","text":"What conclusions remain outside the method’s scope?","textPreview":"What conclusions remain outside the method’s scope?","textChars":51,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/krixcz6p","slide":30,"name":"rule-30","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/lsrel47a","slide":30,"name":"deck-footer-30","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/mt0fepov","slide":30,"name":"page-30","text":"30","textPreview":"30","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/7u9wnupg","slide":30,"name":"card-30-0","bbox":[42,205,376,390]}
+{"kind":"textbox","id":"sh/8vixgz61","slide":30,"name":"num-30-0","text":"TRANSPORT","textPreview":"TRANSPORT","textChars":9,"textLines":1,"bbox":[72,235,150,28]}
+{"kind":"textbox","id":"sh/9wrep47m","slide":30,"name":"head-30-0","text":"Beyond prior shift","textPreview":"Beyond prior shift","textChars":18,"textLines":1,"bbox":[72,285,316,88]}
+{"kind":"textbox","id":"sh/2xwv25or","slide":30,"name":"body-30-0","text":"Reweighting does not protect against within-class behavior changes.","textPreview":"Reweighting does not protect against within-class behavior changes.","textChars":67,"textLines":1,"bbox":[72,395,316,155]}
+{"kind":"shape","id":"sh/ny5wbapw","slide":30,"name":"card-30-1","bbox":[452,205,376,390]}
+{"kind":"textbox","id":"sh/vmhkr6h0","slide":30,"name":"num-30-1","text":"DESIGN","textPreview":"DESIGN","textChars":6,"textLines":1,"bbox":[482,235,70,28]}
+{"kind":"textbox","id":"sh/ul8ji10f","slide":30,"name":"head-30-1","text":"Pairing alone removes chance","textPreview":"Pairing alone removes chance","textChars":28,"textLines":1,"bbox":[482,285,316,88]}
+{"kind":"textbox","id":"sh/hoj2tgzq","slide":30,"name":"body-30-1","text":"Exchangeable labels are also required for the reference guarantee.","textPreview":"Exchangeable labels are also required for the reference guarantee.","textChars":66,"textLines":1,"bbox":[482,395,316,155]}
+{"kind":"shape","id":"sh/wnq1kbil","slide":30,"name":"card-30-2","bbox":[862,205,376,390]}
+{"kind":"textbox","id":"sh/7ihknmho","slide":30,"name":"num-30-2","text":"DEPLOYMENT","textPreview":"DEPLOYMENT","textChars":10,"textLines":1,"bbox":[892,235,150,28]}
+{"kind":"textbox","id":"sh/mh8je103","slide":30,"name":"head-30-2","text":"Good ranking implies intervention benefit","textPreview":"Good ranking implies intervention benefit","textChars":41,"textLines":1,"bbox":[892,285,316,88]}
+{"kind":"textbox","id":"sh/9kz2pwzu","slide":30,"name":"body-30-2","text":"Passive evaluation does not identify effects of acting on the ranking.","textPreview":"Passive evaluation does not identify effects of acting on the ranking.","textChars":70,"textLines":1,"bbox":[892,395,316,155]}
+{"kind":"textbox","id":"sh/8jq1gri9","slide":30,"name":"bottom-30","text":"Nor does a common normalized scale create a universal leaderboard.","textPreview":"Nor does a common normalized scale create a universal leaderboard.","textChars":66,"textLines":1,"bbox":[42,610,1196,38]}
+{"kind":"notes","id":"nt/c961ae","slide":30,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Subsection “Inferences the result does not license”"}
+{"kind":"slide","id":"sl/wanzh5","slide":31,"title":"The final estimand combines worst-prevalence and joint survival","textShapes":10}
+{"kind":"textbox","id":"sh/vqtkbmxk","slide":31,"name":"title-31","text":"The final estimand combines worst-prevalence and joint survival","textPreview":"The final estimand combines worst-prevalence and joint survival","textChars":63,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/wr214ry5","slide":31,"name":"rule-31","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/hsb2dwfq","slide":31,"name":"deck-footer-31","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/ml0jyhg3","slide":31,"name":"page-31","text":"31","textPreview":"31","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/7m9k7mxo","slide":31,"name":"formula-panel-31","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/8n210ry9","slide":31,"name":"formula-label-31","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/9ob29wfu","slide":31,"name":"formula-31-0","text":"Z_(j) = inf_(π∈Π_(∗))CNAP_(π)(D_(j))","textPreview":"Z_(j) = inf_(π∈Π_(∗))CNAP_(π)(D_(j))","textChars":36,"textLines":1,"bbox":[76,278,592,89]}
+{"kind":"textbox","id":"sh/6h4jalg7","slide":31,"name":"formula-31-1","text":"S_(K,Π_(∗))^(AP) = E_(R)[min_(j≤K),Z_(j)]","textPreview":"S_(K,Π_(∗))^(AP) = E_(R)[min_(j≤K),Z_(j)]","textChars":41,"textLines":1,"bbox":[76,367,592,89]}
+{"kind":"textbox","id":"sh/ridkj6xs","slide":31,"name":"formula-caption-31","text":"population challenge inside each replication · corroboration across replications","textPreview":"population challenge inside each replication · corroboration across replications","textChars":80,"textLines":1,"bbox":[76,488,592,48]}
+{"kind":"textbox","id":"sh/rml8b2t8","slide":31,"name":"meaning-label-31","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/qlsr2xcn","slide":31,"name":"meaning-31","text":"The estimand is indexed by the target prevalence set, replication law, and K.","textPreview":"The estimand is indexed by the target prevalence set, replication law, and K.","textChars":77,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/do3qdcby","slide":31,"name":"why-31","text":"For replacement, paired tie-averaged differences are compared with a practical margin through a validated outer bound.","textPreview":"For replacement, paired tie-averaged differences are compared with a practical margin through a validated outer bound.","textChars":118,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/wanzh5","slide":31,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Conclusion"}
+{"kind":"slide","id":"sl/5cdmmf","slide":32,"title":"Technical appendix:","textShapes":3}
+{"kind":"textbox","id":"sh/q1k7atoj","slide":32,"name":"divider-title-32","text":"Technical appendix:\ndefinitions, proofs, and computation","textPreview":"Technical appendix: | definitions, proofs, and computation","textChars":56,"textLines":2,"bbox":[42,175,1100,290]}
+{"kind":"textbox","id":"sh/d4v6l8nu","slide":32,"name":"divider-sub-32","text":"Mathematical properties, design conditions, and implementation details.","textPreview":"Mathematical properties, design conditions, and implementation details.","textChars":71,"textLines":1,"bbox":[42,545,900,72]}
+{"kind":"textbox","id":"sh/s3mpc36p","slide":32,"name":"divider-page-32","text":"32","textPreview":"32","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"notes","id":"nt/5cdmmf","slide":32,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix overview"}
+{"kind":"slide","id":"sl/pjzb8p","slide":33,"title":"Prior-standardized AP is weighted stepwise precision","textShapes":9}
+{"kind":"textbox","id":"sh/8ra50nah","slide":33,"name":"title-33","text":"Prior-standardized AP is weighted stepwise precision","textPreview":"Prior-standardized AP is weighted stepwise precision","textChars":52,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/7q1ori9w","slide":33,"name":"rule-33","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/6psnydsb","slide":33,"name":"deck-footer-33","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/loz6psb6","slide":33,"name":"page-33","text":"33","textPreview":"33","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/knq5wnal","slide":33,"name":"formula-panel-33","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/zmhonit0","slide":33,"name":"formula-label-33","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/y18nudsf","slide":33,"name":"formula-33-0","text":"p_(π,h) = (πr_(h))⁄(πr_(h) + (1 - π)f_(h))","textPreview":"p_(π,h) = (πr_(h))⁄(πr_(h) + (1 - π)f_(h))","textChars":42,"textLines":1,"bbox":[76,278,592,89]}
+{"kind":"textbox","id":"sh/x0z6l8bu","slide":33,"name":"formula-33-1","text":"AP_(π)(D) = ∑_(h = 1)^(H) (r_(h) - r_(h - 1))p_(π,h)","textPreview":"AP_(π)(D) = ∑_(h = 1)^(H) (r_(h) - r_(h - 1))p_(π,h)","textChars":52,"textLines":1,"bbox":[76,367,592,89]}
+{"kind":"textbox","id":"sh/czq5s3a9","slide":33,"name":"meaning-label-33","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/2d8fa9sn","slide":33,"name":"meaning-33","text":"Each recall increment is weighted by precision in the target population.","textPreview":"Each recall increment is weighted by precision in the target population.","textChars":72,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/3ehgje98","slide":33,"name":"why-33","text":"Equivalent weights are π/n+ for every positive and (1−π)/n− for every negative. Score ties enter as threshold blocks.","textPreview":"Equivalent weights are π/n+ for every positive and (1−π)/n− for every negative. Score ties enter as threshold blocks.","textChars":117,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/pjzb8p","slide":33,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Definition and weighted implementation”"}
+{"kind":"slide","id":"sl/8jt1c9","slide":34,"title":"The CNAP minimum may lie inside the prevalence interval","textShapes":9}
+{"kind":"textbox","id":"sh/ds7y9cj2","slide":34,"name":"title-34","text":"The CNAP minimum may lie inside the prevalence interval","textPreview":"The CNAP minimum may lie inside the prevalence interval","textChars":55,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/qpgzyxkb","slide":34,"name":"rule-34","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/rqpg721w","slide":34,"name":"deck-footer-34","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/4nyhw725","slide":34,"name":"page-34","text":"34","textPreview":"34","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/po7y5sjq","slide":34,"name":"formula-panel-34","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/2lgfuxkf","slide":34,"name":"formula-label-34","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/3mpg321k","slide":34,"name":"formula-34-0","text":"q_(h)(π) = (π(r_(h) - f_(h)))⁄(πr_(h) + (1 - π)f_(h))","textPreview":"q_(h)(π) = (π(r_(h) - f_(h)))⁄(πr_(h) + (1 - π)f_(h))","textChars":53,"textLines":1,"bbox":[76,278,592,89]}
+{"kind":"textbox","id":"sh/gzexsn29","slide":34,"name":"formula-34-1","text":"q_(h)'(π) = (f_(h)(r_(h) - f_(h)))⁄({πr_(h) + (1 - π)f_(h)}²)","textPreview":"q_(h)'(π) = (f_(h)(r_(h) - f_(h)))⁄({πr_(h) + (1 - π)f_(h)}²)","textChars":61,"textLines":1,"bbox":[76,367,592,89]}
+{"kind":"textbox","id":"sh/hkny1sju","slide":34,"name":"meaning-label-34","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/5kzatcfi","slide":34,"name":"meaning-34","text":"If the true-positive rate is at least the false-positive rate at every contributing threshold, the profile is nondecreasing.","textPreview":"If the true-positive rate is at least the false-positive rate at every contributing threshold, the profile is nondecreasing.","textChars":124,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/kj69k7ex","slide":34,"name":"why-34","text":"Then the interval minimum is at πL. Thresholds crossing the ROC diagonal—or paired differences—can create interior extrema.","textPreview":"Then the interval minimum is at πL. Thresholds crossing the ROC diagonal—or paired differences—can create interior extrema.","textChars":123,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/8jt1c9","slide":34,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Behavior across prevalence”"}
+{"kind":"slide","id":"sl/ylcfbw","slide":35,"title":"Expected minimum equals integrated joint survival","textShapes":8}
+{"kind":"textbox","id":"sh/zmt4zq14","slide":35,"name":"title-35","text":"Expected minimum equals integrated joint survival","textPreview":"Expected minimum equals integrated joint survival","textChars":49,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/kn2lsvip","slide":35,"name":"rule-35","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/l8bm10ja","slide":35,"name":"deck-footer-35","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/m9k3u50v","slide":35,"name":"page-35","text":"35","textPreview":"35","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/7at43a1g","slide":35,"name":"formula-panel-35","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/8b25wfi1","slide":35,"name":"formula-label-35","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/9cvm5kj6","slide":35,"name":"formula-35","text":"S_(K)(T) = L + ∫_(L)^(U) P((T,>,s))^(K) ds","textPreview":"S_(K)(T) = L + ∫_(L)^(U) P((T,>,s))^(K) ds","textChars":42,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/ud4ny50r","slide":35,"name":"meaning-label-35","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/ved47a1c","slide":35,"name":"meaning-35","text":"At every level s, P(T>s)K is the chance that all K independent replications retain it.","textPreview":"At every level s, P(T>s)K is the chance that all K independent replications retain it.","textChars":86,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/7qtkzudg","slide":35,"name":"why-35","text":"For robust CNAP, T>s means the profile exceeds s at every π in Π★.","textPreview":"For robust CNAP, T>s means the profile exceeds s at every π in Π★.","textChars":66,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/ylcfbw","slide":35,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Survival-function representation”"}
+{"kind":"slide","id":"sl/8w44fn","slide":36,"title":"Expectation creates the operator-order gap","textShapes":14}
+{"kind":"textbox","id":"sh/d03m5s3i","slide":36,"name":"title-36","text":"Expectation creates the operator-order gap","textPreview":"Expectation creates the operator-order gap","textChars":42,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/qdcnad4r","slide":36,"name":"rule-36","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/rel43ilc","slide":36,"name":"deck-footer-36","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/03e5gnmt","slide":36,"name":"page-36","text":"36","textPreview":"36","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/14nm9s3e","slide":36,"name":"identity-36","bbox":[42,205,510,375]}
+{"kind":"textbox","id":"sh/e1cnex43","slide":36,"name":"identity-label-36","text":"KEY IDENTITY","textPreview":"KEY IDENTITY","textChars":12,"textLines":1,"bbox":[74,235,250,28]}
+{"kind":"textbox","id":"sh/z25472l8","slide":36,"name":"identity-formula-36","text":"min_(j)inf_(π)X_(π)^((j)) = inf_(π)min_(j)X_(π)^((j))","textPreview":"min_(j)inf_(π)X_(π)^((j)) = inf_(π)min_(j)X_(π)^((j))","textChars":53,"textLines":1,"bbox":[74,285,446,220]}
+{"kind":"textbox","id":"sh/o7e5k7m5","slide":36,"name":"proof-num-36-0","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[610,215,35,32]}
+{"kind":"textbox","id":"sh/98nmdc3q","slide":36,"name":"proof-head-36-0","text":"Pathwise","textPreview":"Pathwise","textChars":8,"textLines":1,"bbox":[660,215,520,36]}
+{"kind":"textbox","id":"sh/ls72p87u","slide":36,"name":"proof-body-36-0","text":"Minimum over replications and infimum over prevalence commute on each realized array.","textPreview":"Minimum over replications and infimum over prevalence commute on each realized array.","textChars":85,"textLines":1,"bbox":[660,263,520,62]}
+{"kind":"textbox","id":"sh/krylg369","slide":36,"name":"proof-num-36-1","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[610,355,35,32]}
+{"kind":"textbox","id":"sh/zqpknipo","slide":36,"name":"proof-head-36-1","text":"Then average","textPreview":"Then average","textChars":12,"textLines":1,"bbox":[660,355,520,36]}
+{"kind":"textbox","id":"sh/ypg3edo3","slide":36,"name":"proof-body-36-1","text":"The expected profilewise minimum cannot exceed the minimum expected profile value.","textPreview":"The expected profilewise minimum cannot exceed the minimum expected profile value.","textChars":82,"textLines":1,"bbox":[660,403,520,62]}
+{"kind":"textbox","id":"sh/9gr2ts7q","slide":36,"name":"proof-num-36-2","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[610,495,35,32]}
+{"kind":"textbox","id":"sh/8filkn6l","slide":36,"name":"proof-head-36-2","text":"Equality","textPreview":"Equality","textChars":8,"textLines":1,"bbox":[660,495,520,36]}
+{"kind":"textbox","id":"sh/7epkrip0","slide":36,"name":"proof-body-36-2","text":"A common almost-sure minimizing prevalence removes the gap.","textPreview":"A common almost-sure minimizing prevalence removes the gap.","textChars":59,"textLines":1,"bbox":[660,543,520,62]}
+{"kind":"notes","id":"nt/8w44fn","slide":36,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Proof of the operator-order inequality”"}
+{"kind":"slide","id":"sl/t0a23u","slide":37,"title":"Challenge monotonicity follows from pathwise set inclusion","textShapes":14}
+{"kind":"textbox","id":"sh/baho7edk","slide":37,"name":"title-37","text":"Challenge monotonicity follows from pathwise set inclusion","textPreview":"Challenge monotonicity follows from pathwise set inclusion","textChars":58,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/wbqp0je5","slide":37,"name":"rule-37","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/xwz69ovq","slide":37,"name":"deck-footer-37","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/m5o7u9w3","slide":37,"name":"page-37","text":"37","textPreview":"37","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/n6ho3edo","slide":37,"name":"identity-37","bbox":[42,205,510,375]}
+{"kind":"textbox","id":"sh/o7qpwzet","slide":37,"name":"identity-label-37","text":"KEY IDENTITY","textPreview":"KEY IDENTITY","textChars":12,"textLines":1,"bbox":[74,235,250,28]}
+{"kind":"textbox","id":"sh/98z654ve","slide":37,"name":"identity-formula-37","text":"min_(j≤K₂)inf_(π∈Π₂)X_(π)^((j))≤min_(j≤K₁)inf_(π∈Π₁)X_(π)^((j))","textPreview":"min_(j≤K₂)inf_(π∈Π₂)X_(π)^((j))≤min_(j≤K₁)inf_(π∈Π₁)X_(π)^((j))","textChars":63,"textLines":1,"bbox":[74,285,446,220]}
+{"kind":"textbox","id":"sh/61s76tw7","slide":37,"name":"proof-num-37-0","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[610,215,35,32]}
+{"kind":"textbox","id":"sh/7218fyds","slide":37,"name":"proof-head-37-0","text":"Couple","textPreview":"Couple","textChars":6,"textLines":1,"bbox":[660,215,520,36]}
+{"kind":"textbox","id":"sh/vudg32hs","slide":37,"name":"proof-body-37-0","text":"Draw K₂ replications once.","textPreview":"Draw K₂ replications once.","textChars":26,"textLines":1,"bbox":[660,263,520,62]}
+{"kind":"textbox","id":"sh/ut4fuxg7","slide":37,"name":"proof-num-37-1","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[610,355,35,32]}
+{"kind":"textbox","id":"sh/hwvy5czy","slide":37,"name":"proof-head-37-1","text":"Reuse","textPreview":"Reuse","textChars":5,"textLines":1,"bbox":[660,355,520,36]}
+{"kind":"textbox","id":"sh/wvmhw7yd","slide":37,"name":"proof-body-37-1","text":"Use the first K₁ for the smaller assessment.","textPreview":"Use the first K₁ for the smaller assessment.","textChars":44,"textLines":1,"bbox":[660,403,520,62]}
+{"kind":"textbox","id":"sh/jyxg7mho","slide":37,"name":"proof-num-37-2","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[610,495,35,32]}
+{"kind":"textbox","id":"sh/ixozyhgj","slide":37,"name":"proof-head-37-2","text":"Contain","textPreview":"Contain","textChars":7,"textLines":1,"bbox":[660,495,520,36]}
+{"kind":"textbox","id":"sh/50fy9czu","slide":37,"name":"proof-body-37-2","text":"The larger challenge set contains every index in the smaller one.","textPreview":"The larger challenge set contains every index in the smaller one.","textChars":65,"textLines":1,"bbox":[660,543,520,62]}
+{"kind":"notes","id":"nt/t0a23u","slide":37,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Proof of challenge monotonicity”"}
+{"kind":"slide","id":"sl/m7ntah","slide":38,"title":"Increasing K shifts support toward the lower tail","textShapes":8}
+{"kind":"textbox","id":"sh/r6hsbuxw","slide":38,"name":"title-38","text":"Increasing K shifts support toward the lower tail","textPreview":"Increasing K shifts support toward the lower tail","textChars":49,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/s7q9kzyh","slide":38,"name":"rule-38","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/d8zadkf2","slide":38,"name":"deck-footer-38","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/i18re5gf","slide":38,"name":"page-38","text":"38","textPreview":"38","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/32hs7ax0","slide":38,"name":"formula-panel-38","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/43q9gfyl","slide":38,"name":"formula-label-38","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/54za9kf6","slide":38,"name":"formula-38","text":"S_(K)(T) = ∫₀¹ Q(v) K(1 - v)^(K - 1) dv","textPreview":"S_(K)(T) = ∫₀¹ Q(v) K(1 - v)^(K - 1) dv","textChars":39,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/2xsbq9gj","slide":38,"name":"meaning-label-38","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/ny1sjex4","slide":38,"name":"meaning-38","text":"The minimum of K draws samples lower quantiles more heavily as K grows.","textPreview":"The minimum of K draws samples lower quantiles more heavily as K grows.","textChars":71,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/va9ova10","slide":38,"name":"why-38","text":"At K=2: support = first L-moment − second L-moment. A mean-preserving spread cannot raise support.","textPreview":"At K=2: support = first L-moment − second L-moment. A mean-preserving spread cannot raise support.","textChars":98,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/m7ntah","slide":38,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Quantile representation and dispersion”"}
+{"kind":"slide","id":"sl/txkeqr","slide":39,"title":"Why does joint survival imply a power distortion?","textShapes":9}
+{"kind":"textbox","id":"sh/3atsjalg","slide":39,"name":"title-39","text":"Why does joint survival imply a power distortion?","textPreview":"Why does joint survival imply a power distortion?","textChars":49,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/4v2tcf21","slide":39,"name":"rule-39","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/5wbalk3m","slide":39,"name":"deck-footer-39","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/u50r6lkz","slide":39,"name":"page-39","text":"39","textPreview":"39","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/v6tsfqlk","slide":39,"name":"formula-panel-39","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/w7298v25","slide":39,"name":"formula-label-39","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/h8bah03q","slide":39,"name":"formula-39-0","text":"g(u₁u₂) = g(u₁)g(u₂) → g(u) = u^(c)","textPreview":"g(u₁u₂) = g(u₁)g(u₂) → g(u) = u^(c)","textChars":35,"textLines":1,"bbox":[76,278,592,89]}
+{"kind":"textbox","id":"sh/m10r2lk3","slide":39,"name":"formula-39-1","text":"K replications → c = K","textPreview":"K replications → c = K","textChars":22,"textLines":1,"bbox":[76,367,592,89]}
+{"kind":"textbox","id":"sh/729sbql8","slide":39,"name":"meaning-label-39","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/7mhsz6t0","slide":39,"name":"meaning-39","text":"Weights must compose multiplicatively when independent challenges are conjoined.","textPreview":"Weights must compose multiplicatively when independent challenges are conjoined.","textChars":80,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/6l8r6lcf","slide":39,"name":"why-39","text":"This characterizes the family under explicit representation assumptions; it does not make quantiles or expected shortfall illegitimate.","textPreview":"This characterizes the family under explicit representation assumptions; it does not make quantiles or expected shortfall illegitimate.","textChars":135,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/txkeqr","slide":39,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix section “Why joint survival selects a power distortion”"}
+{"kind":"slide","id":"sl/9gw2nr","slide":40,"title":"Why must model differences be paired before subtraction?","textShapes":14}
+{"kind":"textbox","id":"sh/xore9gfi","slide":40,"name":"title-40","text":"Why must model differences be paired before subtraction?","textPreview":"Why must model differences be paired before subtraction?","textChars":56,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/al0fylgr","slide":40,"name":"rule-40","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/vm9w76xc","slide":40,"name":"deck-footer-40","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/kb2x4vyt","slide":40,"name":"page-40","text":"40","textPreview":"40","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/5cbyd0fe","slide":40,"name":"identity-40","bbox":[42,205,510,375]}
+{"kind":"textbox","id":"sh/i9kf2lgn","slide":40,"name":"identity-label-40","text":"KEY IDENTITY","textPreview":"KEY IDENTITY","textChars":12,"textLines":1,"bbox":[74,235,250,28]}
+{"kind":"textbox","id":"sh/jatgbqx8","slide":40,"name":"identity-formula-40","text":"S_(K)(U_(Π_(∗))) - S_(K)(V_(Π_(∗)))≥S_(K)(T_(Π_(∗)))","textPreview":"S_(K)(U_(Π_(∗))) - S_(K)(V_(Π_(∗)))≥S_(K)(T_(Π_(∗)))","textChars":52,"textLines":1,"bbox":[74,285,446,220]}
+{"kind":"textbox","id":"sh/sf2x8vy5","slide":40,"name":"proof-num-40-0","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[610,215,35,32]}
+{"kind":"textbox","id":"sh/tgbyh0fa","slide":40,"name":"proof-head-40-0","text":"Population step","textPreview":"Population step","textChars":15,"textLines":1,"bbox":[660,215,520,36]}
+{"kind":"textbox","id":"sh/xovq5sny","slide":40,"name":"proof-body-40-0","text":"The worst paired difference cannot exceed the difference between separate worst profiles.","textPreview":"The worst paired difference cannot exceed the difference between separate worst profiles.","textChars":89,"textLines":1,"bbox":[660,263,520,62]}
+{"kind":"textbox","id":"sh/cn29cnmd","slide":40,"name":"proof-num-40-1","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[610,355,35,32]}
+{"kind":"textbox","id":"sh/bmt83i5s","slide":40,"name":"proof-head-40-1","text":"Replication step","textPreview":"Replication step","textChars":16,"textLines":1,"bbox":[660,355,520,36]}
+{"kind":"textbox","id":"sh/alkrad47","slide":40,"name":"proof-body-40-1","text":"The minimum is superadditive on paired replications.","textPreview":"The minimum is superadditive on paired replications.","textChars":52,"textLines":1,"bbox":[660,403,520,62]}
+{"kind":"textbox","id":"sh/lcva9snu","slide":40,"name":"proof-num-40-2","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[610,495,35,32]}
+{"kind":"textbox","id":"sh/kbm9gnmp","slide":40,"name":"proof-head-40-2","text":"Conclusion","textPreview":"Conclusion","textChars":10,"textLines":1,"bbox":[660,495,520,36]}
+{"kind":"textbox","id":"sh/zad87i54","slide":40,"name":"proof-body-40-2","text":"Separate adverse cases lose the joint comparison.","textPreview":"Separate adverse cases lose the joint comparison.","textChars":49,"textLines":1,"bbox":[660,543,520,62]}
+{"kind":"notes","id":"nt/9gw2nr","slide":40,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Why marginal subtraction overstates the paired advantage”"}
+{"kind":"slide","id":"sl/dnz35q","slide":41,"title":"Tie refinement is neutral by the tower property","textShapes":14}
+{"kind":"textbox","id":"sh/va9kjyl4","slide":41,"name":"title-41","text":"Tie refinement is neutral by the tower property","textPreview":"Tie refinement is neutral by the tower property","textChars":47,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/wbils3mp","slide":41,"name":"rule-41","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/xcrml83u","slide":41,"name":"deck-footer-41","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/m5g3mt47","slide":41,"name":"page-41","text":"41","textPreview":"41","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/n6pkfyls","slide":41,"name":"identity-41","bbox":[42,205,510,375]}
+{"kind":"textbox","id":"sh/87ilojmd","slide":41,"name":"identity-label-41","text":"KEY IDENTITY","textPreview":"KEY IDENTITY","textChars":12,"textLines":1,"bbox":[74,235,250,28]}
+{"kind":"textbox","id":"sh/98r2ho3y","slide":41,"name":"identity-formula-41","text":"E([AP_(A,π)^(TA), ,|, ,S_(B),Y]) = AP_(B,π)^(TA)","textPreview":"E([AP_(A,π)^(TA), ,|, ,S_(B),Y]) = AP_(B,π)^(TA)","textChars":48,"textLines":1,"bbox":[74,285,446,220]}
+{"kind":"textbox","id":"sh/61k3yd4r","slide":41,"name":"proof-num-41-0","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[610,215,35,32]}
+{"kind":"textbox","id":"sh/72t4rilc","slide":41,"name":"proof-head-41-0","text":"Condition","textPreview":"Condition","textChars":9,"textLines":1,"bbox":[660,215,520,36]}
+{"kind":"textbox","id":"sh/zulofmdw","slide":41,"name":"proof-body-41-0","text":"Hold the coarse score blocks and realized outcomes fixed.","textPreview":"Hold the coarse score blocks and realized outcomes fixed.","textChars":57,"textLines":1,"bbox":[660,263,520,62]}
+{"kind":"textbox","id":"sh/ytc7mhwb","slide":41,"name":"proof-num-41-1","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[610,355,35,32]}
+{"kind":"textbox","id":"sh/lw36hwv2","slide":41,"name":"proof-head-41-1","text":"Average","textPreview":"Average","textChars":7,"textLines":1,"bbox":[660,355,520,36]}
+{"kind":"textbox","id":"sh/kvuporeh","slide":41,"name":"proof-body-41-1","text":"A’s strict ranking is uniform over the orderings allowed by B’s ties.","textPreview":"A’s strict ranking is uniform over the orderings allowed by B’s ties.","textChars":69,"textLines":1,"bbox":[660,403,520,62]}
+{"kind":"textbox","id":"sh/7i58j6d8","slide":41,"name":"proof-num-41-2","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[610,495,35,32]}
+{"kind":"textbox","id":"sh/mhc7q1wn","slide":41,"name":"proof-head-41-2","text":"Collapse","textPreview":"Collapse","textChars":8,"textLines":1,"bbox":[660,495,520,36]}
+{"kind":"textbox","id":"sh/9knqlgvy","slide":41,"name":"proof-body-41-2","text":"Expected ordinary AP becomes B’s tie-averaged AP.","textPreview":"Expected ordinary AP becomes B’s tie-averaged AP.","textChars":49,"textLines":1,"bbox":[660,543,520,62]}
+{"kind":"notes","id":"nt/dnz35q","slide":41,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Proof of refinement neutrality”"}
+{"kind":"slide","id":"sl/j6wmvf","slide":42,"title":"Exchangeable labels make the zero-reference law rank-invariant","textShapes":14}
+{"kind":"textbox","id":"sh/y5onq9kz","slide":42,"name":"title-42","text":"Exchangeable labels make the zero-reference law rank-invariant","textPreview":"Exchangeable labels make the zero-reference law rank-invariant","textChars":62,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/l8z614jq","slide":42,"name":"rule-42","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/k7q5sz25","slide":42,"name":"deck-footer-42","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/b2x4vu18","slide":42,"name":"page-42","text":"42","textPreview":"42","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/a1onmpk3","slide":42,"name":"identity-42","bbox":[42,205,510,375]}
+{"kind":"textbox","id":"sh/x4fmx4je","slide":42,"name":"identity-label-42","text":"KEY IDENTITY","textPreview":"KEY IDENTITY","textChars":12,"textLines":1,"bbox":[74,235,250,28]}
+{"kind":"textbox","id":"sh/c365oz2t","slide":42,"name":"identity-formula-42","text":"E₀[Δ_(π)^(TA)] = 0","textPreview":"E₀[Δ_(π)^(TA)] = 0","textChars":18,"textLines":1,"bbox":[74,285,446,220]}
+{"kind":"textbox","id":"sh/vy1o7y1s","slide":42,"name":"proof-num-42-0","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[610,215,35,32]}
+{"kind":"textbox","id":"sh/uxsnyt07","slide":42,"name":"proof-head-42-0","text":"Uniform sequences","textPreview":"Uniform sequences","textChars":17,"textLines":1,"bbox":[660,215,520,36]}
+{"kind":"textbox","id":"sh/8bet8ny5","slide":42,"name":"proof-body-42-0","text":"Along any fixed strict ranking, fixed-count label sequences have the same law.","textPreview":"Along any fixed strict ranking, fixed-count label sequences have the same law.","textChars":78,"textLines":1,"bbox":[660,263,520,62]}
+{"kind":"textbox","id":"sh/9cnu1sfq","slide":42,"name":"proof-num-42-1","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[610,355,35,32]}
+{"kind":"textbox","id":"sh/m9wb6dgz","slide":42,"name":"proof-head-42-1","text":"Average ties","textPreview":"Average ties","textChars":12,"textLines":1,"bbox":[660,355,520,36]}
+{"kind":"textbox","id":"sh/na5czixk","slide":42,"name":"proof-body-42-1","text":"A convex combination of equal expectations keeps the same anchor.","textPreview":"A convex combination of equal expectations keeps the same anchor.","textChars":65,"textLines":1,"bbox":[660,403,520,62]}
+{"kind":"textbox","id":"sh/07et4nyt","slide":42,"name":"proof-num-42-2","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[610,495,35,32]}
+{"kind":"textbox","id":"sh/l8nuxsfe","slide":42,"name":"proof-head-42-2","text":"Challenge","textPreview":"Challenge","textChars":9,"textLines":1,"bbox":[660,495,520,36]}
+{"kind":"textbox","id":"sh/y5cb2dg3","slide":42,"name":"proof-body-42-2","text":"Infimum and minimum can only move paired support to ≤ 0.","textPreview":"Infimum and minimum can only move paired support to ≤ 0.","textChars":56,"textLines":1,"bbox":[660,543,520,62]}
+{"kind":"notes","id":"nt/j6wmvf","slide":42,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Rank invariance under exchangeable labels”"}
+{"kind":"slide","id":"sl/c7x5ez","slide":43,"title":"Restricted label symmetry leaves multiple design orbits","textShapes":9}
+{"kind":"textbox","id":"sh/wfa98zud","slide":43,"name":"title-43","text":"Restricted label symmetry leaves multiple design orbits","textPreview":"Restricted label symmetry leaves multiple design orbits","textChars":55,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/be18zuds","slide":43,"name":"rule-43","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/adsr6pc7","slide":43,"name":"deck-footer-43","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/9cjqxkvm","slide":43,"name":"page-43","text":"43","textPreview":"43","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/oba94fu1","slide":43,"name":"left-panel-43","bbox":[42,185,565,420]}
+{"kind":"shape","id":"sh/nah8vadw","slide":43,"name":"right-panel-43","bbox":[650,185,588,420]}
+{"kind":"textbox","id":"sh/m98r25cb","slide":43,"name":"left-kicker-43","text":"MATCHED EXAMPLE","textPreview":"MATCHED EXAMPLE","textChars":15,"textLines":1,"bbox":[74,215,500,30]}
+{"kind":"textbox","id":"sh/18zqtkvq","slide":43,"name":"left-head-43","text":"Two pairs, exactly one positive per pair","textPreview":"Two pairs, exactly one positive per pair","textChars":40,"textLines":1,"bbox":[74,255,500,82]}
+{"kind":"textbox","id":"sh/0nq90fu5","slide":43,"name":"left-body-43","text":"Permitted permutations swap labels only within pairs. A score aligned with pairs carries design information.","textPreview":"Permitted permutations swap labels only within pairs. A score aligned with pairs carries design information.","textChars":108,"textLines":1,"bbox":[74,355,500,205]}
+{"kind":"textbox","id":"sh/ep83idcn","slide":43,"name":"right-kicker-43","text":"CONSEQUENCE","textPreview":"CONSEQUENCE","textChars":11,"textLines":1,"bbox":[682,215,500,30]}
+{"kind":"textbox","id":"sh/zqh4bids","slide":43,"name":"right-head-43","text":"Tie averaging cannot cross design orbits","textPreview":"Tie averaging cannot cross design orbits","textChars":40,"textLines":1,"bbox":[682,255,520,82]}
+{"kind":"textbox","id":"sh/0rqlknud","slide":43,"name":"right-body-43","text":"Possible remedies change the claim: restrict model pairs, evaluate within strata, or standardize to another target population.","textPreview":"Possible remedies change the claim: restrict model pairs, evaluate within strata, or standardize to another target population.","textChars":126,"textLines":1,"bbox":[682,355,520,205]}
+{"kind":"notes","id":"nt/c7x5ez","slide":43,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Why restricted label symmetry is insufficient”"}
+{"kind":"slide","id":"sl/40sy7p","slide":44,"title":"A null anchor cannot serve as an additive correction","textShapes":9}
+{"kind":"textbox","id":"sh/rulkva14","slide":44,"name":"title-44","text":"A null anchor cannot serve as an additive correction","textPreview":"A null anchor cannot serve as an additive correction","textChars":52,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/svul4f2p","slide":44,"name":"rule-44","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/twn2xkja","slide":44,"name":"deck-footer-44","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/i5c3ylkn","slide":44,"name":"page-44","text":"44","textPreview":"44","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/j6lkrql8","slide":44,"name":"left-panel-44","bbox":[42,185,565,420]}
+{"kind":"shape","id":"sh/4rul0v2t","slide":44,"name":"right-panel-44","bbox":[650,185,588,420]}
+{"kind":"textbox","id":"sh/5s32t0jy","slide":44,"name":"left-kicker-44","text":"INFORMATIVE DATA","textPreview":"INFORMATIVE DATA","textChars":16,"textLines":1,"bbox":[74,215,500,30]}
+{"kind":"textbox","id":"sh/21w3apkr","slide":44,"name":"left-head-44","text":"Both models separate perfectly","textPreview":"Both models separate perfectly","textChars":30,"textLines":1,"bbox":[74,255,500,82]}
+{"kind":"textbox","id":"sh/325k3u1c","slide":44,"name":"left-body-44","text":"Paired CNAP difference is zero in every stratified bootstrap replication.","textPreview":"Paired CNAP difference is zero in every stratified bootstrap replication.","textChars":73,"textLines":1,"bbox":[74,355,500,205]}
+{"kind":"textbox","id":"sh/zmd0b6l0","slide":44,"name":"right-kicker-44","text":"NULL-CENTERED RESULT","textPreview":"NULL-CENTERED RESULT","textChars":20,"textLines":1,"bbox":[682,215,500,30]}
+{"kind":"textbox","id":"sh/el4z21kf","slide":44,"name":"right-head-44","text":"One orientation can falsely favor the coarser model","textPreview":"One orientation can falsely favor the coarser model","textChars":51,"textLines":1,"bbox":[682,255,520,82]}
+{"kind":"textbox","id":"sh/1ovidg36","slide":44,"name":"right-body-44","text":"The displacement is largest near no association and must vanish at the ceiling. It cannot be subtracted uniformly.","textPreview":"The displacement is largest near no association and must vanish at the ceiling. It cannot be subtracted uniformly.","textChars":114,"textLines":1,"bbox":[682,355,520,205]}
+{"kind":"notes","id":"nt/40sy7p","slide":44,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Why paired null centering fails”"}
+{"kind":"slide","id":"sl/2g4nqi","slide":45,"title":"Reversing orientation turns a minimum into a maximum","textShapes":8}
+{"kind":"textbox","id":"sh/rehc7yxw","slide":45,"name":"title-45","text":"Reversing orientation turns a minimum into a maximum","textPreview":"Reversing orientation turns a minimum into a maximum","textChars":52,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/cfqtg3yh","slide":45,"name":"rule-45","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/dgzu98f2","slide":45,"name":"deck-footer-45","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/ipobatgf","slide":45,"name":"page-45","text":"45","textPreview":"45","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/3qxc3yx0","slide":45,"name":"formula-panel-45","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/4rqtc3yl","slide":45,"name":"formula-label-45","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/5czu5ofq","slide":45,"name":"formula-45","text":"S_(K)(T) + S_(K)( - T) = E([min_(j≤K),T_(j),-,max_(j≤K),T_(j)])≤0","textPreview":"S_(K)(T) + S_(K)( - T) = E([min_(j≤K),T_(j),-,max_(j≤K),T_(j)])≤0","textChars":65,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/ulob69g3","slide":45,"name":"meaning-label-45","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/vmxczexo","slide":45,"name":"meaning-45","text":"Reversing orientation converts the expected minimum into the negative expected maximum.","textPreview":"Reversing orientation converts the expected minimum into the negative expected maximum.","textChars":87,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/fmd4b25o","slide":45,"name":"why-45","text":"At K=2, the negative sum is E|T₁−T₂|: the width of the no-verdict region.","textPreview":"At K=2, the negative sum is E|T₁−T₂|: the width of the no-verdict region.","textChars":73,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/2g4nqi","slide":45,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Proof of the orientation bound”"}
+{"kind":"slide","id":"sl/2rnzcl","slide":46,"title":"How can tie-averaged AP avoid enumerating tie orders?","textShapes":16}
+{"kind":"textbox","id":"sh/z29c7yhs","slide":46,"name":"title-46","text":"How can tie-averaged AP avoid enumerating tie orders?","textPreview":"How can tie-averaged AP avoid enumerating tie orders?","textChars":53,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/03idgjyd","slide":46,"name":"rule-46","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/14ru9ozy","slide":46,"name":"deck-footer-46","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/qxgva90b","slide":46,"name":"page-46","text":"46","textPreview":"46","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/rypc3ehw","slide":46,"name":"arrow-46-0","bbox":[328,380,32,22]}
+{"kind":"shape","id":"sh/czydcji1","slide":46,"name":"arrow-46-1","bbox":[624,380,32,22]}
+{"kind":"shape","id":"sh/d07u5ozm","slide":46,"name":"arrow-46-2","bbox":[920,380,32,22]}
+{"kind":"shape","id":"sh/atkvmdgf","slide":46,"name":"step-46-0","bbox":[62,245,268,310]}
+{"kind":"textbox","id":"sh/butwfih0","slide":46,"name":"step-num-46-0","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[86,269,36,30]}
+{"kind":"textbox","id":"sh/jelo7uts","slide":46,"name":"step-head-46-0","text":"Choose position k","textPreview":"Choose position k","textChars":17,"textLines":1,"bbox":[86,323,220,76]}
+{"kind":"textbox","id":"sh/ydcnyps7","slide":46,"name":"step-body-46-0","text":"Within a block of size mj, k is uniform.","textPreview":"Within a block of size mj, k is uniform.","textChars":40,"textLines":1,"bbox":[86,420,220,95]}
+{"kind":"shape","id":"sh/lg369kby","slide":46,"name":"step-46-1","bbox":[358,245,268,310]}
+{"kind":"textbox","id":"sh/kfu50fad","slide":46,"name":"step-num-46-1","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[382,269,36,30]}
+{"kind":"textbox","id":"sh/7ilobuto","slide":46,"name":"step-head-46-1","text":"Count earlier positives t","textPreview":"Count earlier positives t","textChars":25,"textLines":1,"bbox":[382,323,220,76]}
+{"kind":"textbox","id":"sh/6hcn2ps3","slide":46,"name":"step-body-46-1","text":"t follows a hypergeometric law.","textPreview":"t follows a hypergeometric law.","textChars":31,"textLines":1,"bbox":[382,420,220,95]}
+{"kind":"shape","id":"sh/t436d4bu","slide":46,"name":"step-46-2","bbox":[654,245,268,310]}
+{"kind":"textbox","id":"sh/8ju54za9","slide":46,"name":"step-num-46-2","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[678,269,36,30]}
+{"kind":"textbox","id":"sh/v65ofet0","slide":46,"name":"step-head-46-2","text":"Compute rjkt and fjkt","textPreview":"Compute rjkt and fjkt","textChars":21,"textLines":1,"bbox":[678,323,220,76]}
+{"kind":"textbox","id":"sh/u5w769sf","slide":46,"name":"step-body-46-2","text":"Add preceding blocks and the within-block counts.","textPreview":"Add preceding blocks and the within-block counts.","textChars":49,"textLines":1,"bbox":[678,420,220,95]}
+{"kind":"shape","id":"sh/q1grydcn","slide":46,"name":"step-46-3","bbox":[950,245,268,310]}
+{"kind":"textbox","id":"sh/r2p87id8","slide":46,"name":"step-num-46-3","text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[974,269,36,30]}
+{"kind":"textbox","id":"sh/s3y903ut","slide":46,"name":"step-head-46-3","text":"Average and sum","textPreview":"Average and sum","textChars":15,"textLines":1,"bbox":[974,323,220,76]}
+{"kind":"textbox","id":"sh/d4rq98vy","slide":46,"name":"step-body-46-3","text":"Reuse combinatorial weights across π values.","textPreview":"Reuse combinatorial weights across π values.","textChars":44,"textLines":1,"bbox":[974,420,220,95]}
+{"kind":"textbox","id":"sh/idgrutcb","slide":46,"name":"lead-46","text":"For each score block, average the precision contribution of one representative positive.","textPreview":"For each score block, average the precision contribution of one representative positive.","textChars":88,"textLines":1,"bbox":[62,172,1120,48]}
+{"kind":"notes","id":"nt/2rnzcl","slide":46,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix section “Closed-form computation of tie-averaged AP”"}
+{"kind":"slide","id":"sl/e3r81b","slide":47,"title":"Sorting yields the complete order-K support estimator","textShapes":8}
+{"kind":"textbox","id":"sh/1gn2507u","slide":47,"name":"title-47","text":"Sorting yields the complete order-K support estimator","textPreview":"Sorting yields the complete order-K support estimator","textChars":53,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/udwjalo3","slide":47,"name":"rule-47","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/fe5k3qpo","slide":47,"name":"deck-footer-47","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/ojelgf65","slide":47,"name":"page-47","text":"47","textPreview":"47","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/pk729k7q","slide":47,"name":"formula-panel-47","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/2hwje5of","slide":47,"name":"formula-label-47","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/3i5k7apk","slide":47,"name":"formula-47","text":"S_(K,est) = 1⁄(C(B,K))∑ᵢ₌₁^(B - K + 1) C(B - i,K - 1) z₍ᵢ₎","textPreview":"S_(K,est) = 1⁄(C(B,K))∑ᵢ₌₁^(B - K + 1) C(B - i,K - 1) z₍ᵢ₎","textChars":58,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/c7ylkf6h","slide":47,"name":"meaning-label-47","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/d872dk72","slide":47,"name":"meaning-47","text":"z(i) is the minimum in every K-subset that contains it and K−1 larger effects.","textPreview":"z(i) is the minimum in every K-subset that contains it and K−1 larger effects.","textChars":78,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/5wnq10jm","slide":47,"name":"why-47","text":"Sorting avoids enumerating all C(B,K) subsets. For K=2, the weight is proportional to B−i.","textPreview":"Sorting avoids enumerating all C(B,K) subsets. For K=2, the weight is proportional to B−i.","textChars":90,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/e3r81b","slide":47,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “General support order”"}
+{"kind":"slide","id":"sl/2eipp7","slide":48,"title":"Leave-one-replication projections quantify Monte Carlo error","textShapes":8}
+{"kind":"textbox","id":"sh/h43exknq","slide":48,"name":"title-48","text":"Leave-one-replication projections quantify Monte Carlo error","textPreview":"Leave-one-replication projections quantify Monte Carlo error","textChars":60,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/uhcf254z","slide":48,"name":"rule-48","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/vilwva5k","slide":48,"name":"deck-footer-48","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/47ex8fmh","slide":48,"name":"page-48","text":"48","textPreview":"48","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/58ny1knm","slide":48,"name":"formula-panel-48","bbox":[42,190,660,380]}
+{"kind":"textbox","id":"sh/i5wf654b","slide":48,"name":"formula-label-48","text":"FORM","textPreview":"FORM","textChars":4,"textLines":1,"bbox":[76,220,220,28]}
+{"kind":"textbox","id":"sh/j65gza5w","slide":48,"name":"formula-48","text":"SE_(MC) = 2⁄(√B)sdᵢ{h_(1, - i)^(est),(,zᵢ,)}","textPreview":"SE_(MC) = 2⁄(√B)sdᵢ{h_(1, - i)^(est),(,zᵢ,)}","textChars":44,"textLines":1,"bbox":[76,270,592,200]}
+{"kind":"textbox","id":"sh/sbexczmd","slide":48,"name":"meaning-label-48","text":"READ IT AS","textPreview":"READ IT AS","textChars":10,"textLines":1,"bbox":[760,215,420,28]}
+{"kind":"textbox","id":"sh/tc7y54ny","slide":48,"name":"meaning-48","text":"Measure how much each computational replication influences its average pairwise minimum.","textPreview":"Measure how much each computational replication influences its average pairwise minimum.","textChars":88,"textLines":1,"bbox":[760,265,430,130]}
+{"kind":"textbox","id":"sh/9czidsve","slide":48,"name":"why-48","text":"Prefix sums compute all projections after sorting. Conditional permutation adds a second Monte Carlo component governed by M.","textPreview":"Prefix sums compute all projections after sorting. Conditional permutation adds a second Monte Carlo component governed by M.","textChars":125,"textLines":1,"bbox":[760,430,430,140]}
+{"kind":"notes","id":"nt/2eipp7","slide":48,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Monte Carlo error”"}
+{"kind":"slide","id":"sl/1ifdyu","slide":49,"title":"Efficient prevalence evaluation reuses threshold structure","textShapes":12}
+{"kind":"textbox","id":"sh/kb2hkf61","slide":49,"name":"title-49","text":"Efficient prevalence evaluation reuses threshold structure","textPreview":"Efficient prevalence evaluation reuses threshold structure","textChars":58,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/jat0ba5g","slide":49,"name":"rule-49","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/y9kzipov","slide":49,"name":"deck-footer-49","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/tgvih4ni","slide":49,"name":"page-49","text":"49","textPreview":"49","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/8fm1oz6x","slide":49,"name":"card-49-0","bbox":[42,205,376,390]}
+{"kind":"textbox","id":"sh/7ed0fu5c","slide":49,"name":"num-49-0","text":"FINITE SET","textPreview":"FINITE SET","textChars":10,"textLines":1,"bbox":[72,235,150,28]}
+{"kind":"textbox","id":"sh/6d4jmpor","slide":49,"name":"head-49-0","text":"Reuse threshold counts","textPreview":"Reuse threshold counts","textChars":22,"textLines":1,"bbox":[72,285,316,88]}
+{"kind":"textbox","id":"sh/h4vil4ne","slide":49,"name":"body-49-0","text":"Ordinary block AP costs O(BGH) for B bootstraps, G prevalences, H thresholds.","textPreview":"Ordinary block AP costs O(BGH) for B bootstraps, G prevalences, H thresholds.","textChars":77,"textLines":1,"bbox":[72,395,316,155]}
+{"kind":"shape","id":"sh/g3m1sz6t","slide":49,"name":"card-49-1","bbox":[452,205,376,390]}
+{"kind":"textbox","id":"sh/u50jm9g3","slide":49,"name":"num-49-1","text":"PAIRED TIES","textPreview":"PAIRED TIES","textChars":11,"textLines":1,"bbox":[482,235,150,28]}
+{"kind":"textbox","id":"sh/vq9kveh8","slide":49,"name":"head-49-1","text":"Reuse block combinatorics","textPreview":"Reuse block combinatorics","textChars":25,"textLines":1,"bbox":[482,285,316,88]}
+{"kind":"textbox","id":"sh/gri1ojyt","slide":49,"name":"body-49-1","text":"Only the prevalence-dependent precision term changes.","textPreview":"Only the prevalence-dependent precision term changes.","textChars":53,"textLines":1,"bbox":[482,395,316,155]}
+{"kind":"shape","id":"sh/hsr2xoze","slide":49,"name":"card-49-2","bbox":[862,205,376,390]}
+{"kind":"textbox","id":"sh/it0jqtgz","slide":49,"name":"num-49-2","text":"INTERVAL","textPreview":"INTERVAL","textChars":8,"textLines":1,"bbox":[892,235,150,28]}
+{"kind":"textbox","id":"sh/3u9kzehk","slide":49,"name":"head-49-2","text":"Optimize one dimension","textPreview":"Optimize one dimension","textChars":22,"textLines":1,"bbox":[892,285,316,88]}
+{"kind":"textbox","id":"sh/4vi1sjy5","slide":49,"name":"body-49-2","text":"Check endpoints and stationary points; validate against a dense grid.","textPreview":"Check endpoints and stationary points; validate against a dense grid.","textChars":69,"textLines":1,"bbox":[892,395,316,155]}
+{"kind":"notes","id":"nt/1ifdyu","slide":49,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Prevalence evaluation”"}
+{"kind":"slide","id":"sl/1gk1vb","slide":50,"title":"Outer confidence bounds must repeat the full inner procedure","textShapes":16}
+{"kind":"textbox","id":"sh/mh0ji98n","slide":50,"name":"title-50","text":"Outer confidence bounds must repeat the full inner procedure","textPreview":"Outer confidence bounds must repeat the full inner procedure","textChars":60,"textLines":1,"bbox":[42,34,1196,82]}
+{"kind":"shape","id":"sh/9kb2t47e","slide":50,"name":"rule-50","bbox":[42,132,1196,2]}
+{"kind":"textbox","id":"sh/oji1kzqt","slide":50,"name":"deck-footer-50","text":"Supported model comparison across target prevalences","textPreview":"Supported model comparison across target prevalences","textChars":52,"textLines":1,"bbox":[42,670,640,18]}
+{"kind":"textbox","id":"sh/ze9knupc","slide":50,"name":"page-50","text":"50","textPreview":"50","textChars":2,"textLines":1,"bbox":[1184,665,54,22]}
+{"kind":"shape","id":"sh/ed0jep8r","slide":50,"name":"arrow-50-0","bbox":[328,380,32,22]}
+{"kind":"shape","id":"sh/1gr2p472","slide":50,"name":"arrow-50-1","bbox":[624,380,32,22]}
+{"kind":"shape","id":"sh/0fi1gzqh","slide":50,"name":"arrow-50-2","bbox":[920,380,32,22]}
+{"kind":"shape","id":"sh/jatkzypg","slide":50,"name":"step-50-0","bbox":[62,245,268,310]}
+{"kind":"textbox","id":"sh/y9k3qt8v","slide":50,"name":"step-num-50-0","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[86,269,36,30]}
+{"kind":"textbox","id":"sh/s3ml0bu5","slide":50,"name":"step-head-50-0","text":"Outer sample","textPreview":"Outer sample","textChars":12,"textLines":1,"bbox":[86,323,220,76]}
+{"kind":"textbox","id":"sh/t4vm9gbq","slide":50,"name":"step-body-50-0","text":"Resample the observed evaluation within class.","textPreview":"Resample the observed evaluation within class.","textChars":46,"textLines":1,"bbox":[86,420,220,95]}
+{"kind":"shape","id":"sh/6h43y1cz","slide":50,"name":"step-50-1","bbox":[358,245,268,310]}
+{"kind":"textbox","id":"sh/72d476tk","slide":50,"name":"step-num-50-1","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[382,269,36,30]}
+{"kind":"textbox","id":"sh/kf2lwrut","slide":50,"name":"step-head-50-1","text":"Inner support","textPreview":"Inner support","textChars":13,"textLines":1,"bbox":[382,323,220,76]}
+{"kind":"textbox","id":"sh/5gvm5wbe","slide":50,"name":"step-body-50-1","text":"Repeat bootstrap, prevalence search, and joint-survival estimator.","textPreview":"Repeat bootstrap, prevalence search, and joint-survival estimator.","textChars":66,"textLines":1,"bbox":[382,420,220,95]}
+{"kind":"shape","id":"sh/idk3u1c3","slide":50,"name":"step-50-2","bbox":[654,245,268,310]}
+{"kind":"textbox","id":"sh/jet43mdo","slide":50,"name":"step-num-50-2","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[678,269,36,30]}
+{"kind":"textbox","id":"sh/wb2lsrux","slide":50,"name":"step-head-50-2","text":"Preserve design","textPreview":"Preserve design","textChars":15,"textLines":1,"bbox":[678,323,220,76]}
+{"kind":"textbox","id":"sh/xcbm1wvi","slide":50,"name":"step-body-50-2","text":"Keep model pairs attached; recompute single-model anchors.","textPreview":"Keep model pairs attached; recompute single-model anchors.","textChars":58,"textLines":1,"bbox":[678,420,220,95]}
+{"kind":"shape","id":"sh/d832p8n6","slide":50,"name":"step-50-3","bbox":[950,245,268,310]}
+{"kind":"textbox","id":"sh/c7u1wnml","slide":50,"name":"step-num-50-3","text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[974,269,36,30]}
+{"kind":"textbox","id":"sh/b6lkni50","slide":50,"name":"step-head-50-3","text":"Validate the bound","textPreview":"Validate the bound","textChars":18,"textLines":1,"bbox":[974,323,220,76]}
+{"kind":"textbox","id":"sh/q5cjud4v","slide":50,"name":"step-body-50-3","text":"Nonsmooth minima can break nominal coverage.","textPreview":"Nonsmooth minima can break nominal coverage.","textChars":44,"textLines":1,"bbox":[974,420,220,95]}
+{"kind":"textbox","id":"sh/p4j2l8na","slide":50,"name":"lead-50","text":"The outer layer asks how well the observed evaluation identifies the supported target.","textPreview":"The outer layer asks how well the observed evaluation identifies the supported target.","textChars":86,"textLines":1,"bbox":[62,172,1120,48]}
+{"kind":"notes","id":"nt/1gk1vb","slide":50,"text":"[Sources]\n- User-provided manuscript: Stats_Paper_Extending_PRAUC_v12.tex — Appendix subsection “Outer bounds”"}

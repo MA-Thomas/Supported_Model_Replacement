@@ -1,0 +1,29 @@
+Communication job: By the end of the opening “WHY AP?” sequence, a technical audience should understand that Average Precision is the integral of precision over recall and, empirically, a weighted sum of precision values where the weights are recall increments.
+
+Source structure:
+- 40-slide 16:9 deck, 1280 × 720 px.
+- All visible elements are slide-local; the inherited “Title Slide” layout and “Master” contain no visible elements.
+- Slide 1 is a title slide. Slides 2–40 share a consistent content-slide frame.
+- Content slides use a top-left section label, a 48 pt dark navy title, a thin horizontal rule at y=181, a bottom-left section label, and a bottom-right two-digit slide number.
+
+Reusable patterns:
+- Slide 3 supplies the two-column precision/recall conceptual setup.
+- Slide 35 supplies the best formula-explanation pattern: a large bordered equation field followed by three aligned term-definition rows.
+
+Typography and spacing:
+- Calibri throughout.
+- Section labels: 14–15 pt, bold.
+- Main titles: 48 pt, bold, #11253D.
+- Formula-term explanations on slide 35: 24 pt.
+- Background: #F7F5F0.
+- Horizontal content margins: 72 px; main rule spans 1136 px.
+
+Insertion contract:
+- Preserve every source slide.
+- Duplicate source slide 35 as the new output slide 4 and edit only inherited title, section labels, footer number, equation images, and definition text.
+- Edit source slide 3 in place to introduce P_n, R_n, and the per-step AP contribution.
+- Shift visible slide numbers on all original slides 4–40 by one.
+
+Placeholder audit:
+- No inherited structural placeholders were detected in the source inventory.
+- All requested edits target explicit slide-local shape IDs.

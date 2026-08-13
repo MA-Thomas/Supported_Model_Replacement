@@ -1,0 +1,1630 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{booktabs,tabularx,array}
+\IfFileExists{lmodern.sty}
+  {\usepackage{lmodern}\usepackage{microtype}}
+  {\usepackage[expansion=false]{microtype}}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlist[itemize]{leftmargin=*,itemsep=0.15em,topsep=0.25em}
+\renewcommand{\arraystretch}{1.12}
+
+\newcommand{\AP}{\operatorname{AP}}
+\newcommand{\CNAP}{\operatorname{CNAP}}
+\newcommand{\Regime}{\mathcal{R}}
+\newcommand{\Assess}{\mathcal{A}}
+\newcommand{\CSet}{\mathcal{C}}
+\newcommand{\PSet}{\Pi_\star}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prb}{\mathbb{P}}
+\newcommand{\iid}{\mathrel{\overset{\mathrm{iid}}{\sim}}}
+\newcommand{\APta}{\widetilde{\AP}}
+\newcommand{\CNAPta}{\widetilde{\CNAP}}
+\newcommand{\Dta}{\widetilde{\Delta}}
+\newcommand{\RobDta}{\underline{\widetilde{\Delta}}_{\PSet}}
+
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Supported Model Replacement Across Target Prevalences\\
+\large A Paired Replication-Based Method for Average Precision}
+\author{Marcus A. Thomas}
+\date{Methodological proposal}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Average precision depends on the prevalence of the population being evaluated, while a model-replacement claim may fail when the evaluation is repeated. A defensible comparison must therefore preserve pairing while challenging the claimed advantage across both target populations and independent replications. Let $\PSet$ be a declared set of target prevalences, let $\Regime$ be a law for one evaluation containing the outcomes and both models' scores, and let $K$ be the order of the replication challenge. For candidate model $A$ and incumbent model $B$, prior-standardize average precision to prevalence $\pi$ and normalize population random ranking to zero. The proposed replacement estimand is
+\[
+\theta_{A:B}
+=
+\E_{\Regime}\left[
+\min_{1\leq j\leq K}
+\inf_{\pi\in\PSet}
+\left\{
+\widetilde{\CNAP}_{A,\pi}(D_j)
+-
+\widetilde{\CNAP}_{B,\pi}(D_j)
+\right\}
+\right].
+\]
+The difference is formed on the same units before either challenge is applied, so favorable conditions for one model cannot be matched against unfavorable conditions for the other. The tildes denote average precision averaged over the orderings within each score-tie block. This convention removes expected credit for arbitrary score refinement and, under an exchangeable-label reference law, prevents differing tie structures from creating a positive supported advantage in either orientation. With several empirical replications, a complete U-statistic estimates the criterion directly. With one evaluation, a paired stratified bootstrap provides only projected support under an empirical fixed-model regime. The supported advantage is an integrated joint-survival magnitude, while literal survival records the probability that the same challenged advantage exceeds a declared floor. Replacement requires simultaneous validated lower bounds to establish both a sufficiently large supported magnitude and a sufficiently high probability of clearing that floor.
+\end{abstract}
+
+
+\section{Performance Claims and their Support}
+\label{sec:introduction}
+
+Prediction systems often rank cases so that a selected set can receive further
+attention. A radiology service, for example, may send its highest-scored images
+for review. The composition of that set matters, not only the separation
+between outcome classes, because the selected set is what the decision maker
+receives.
+
+Separation (eg AUROC) and selected-set purity (eg Average Precision) part company when prevalence changes.
+Suppose a threshold selects $80\%$ of positive cases and $5\%$ of negative
+cases. In a balanced population of 10,000 cases, it returns 4,000 positives and
+250 negatives, for precision $0.94$. In a population with $1\%$ positives, the
+same threshold returns 80 positives and 495 negatives, for precision $0.14$.
+Its true-positive and false-positive rates have not moved. The supply of
+negative cases has, and that is enough to change the meaning of the selected
+set.
+
+Average precision aggregates precision as the ranking is traversed, so ordinary
+empirical AP evaluates performance using the positive fraction in the
+evaluation data. Let $D$ denote those data: the observed outcomes and model
+scores on a common set of evaluation units. When $D$ represents one intended
+population, its prevalence can remain implicit. Reporting AP at the
+evaluation's own prevalence answers a question about that sample. Resampling to
+a target ratio discards data while still fixing a single population. Reporting
+the precision--recall curve defers the choice to a reader who lacks the
+sampling information needed to make it. Each leaves the claim indexed to one
+population. A first task may therefore be to construct a target-indexed
+quantity, $\AP_\pi(D)$, that allows for calculation of average precision at any
+chosen prevalence using all of the available data. Such a quantity carries the
+selection rates observed in the evaluation over to the target population
+unchanged, which is a claim about that population rather than a property of the
+arithmetic.
+
+One target-prevalence value does not render a performance claim applicable to
+several different deployment populations. Any single convenient prevalence
+hides where performance weakens, while averaging over a distribution of target
+prevalences both requires that distribution to be defensible and permits a
+strong result at one prevalence to offset a weak result elsewhere. The claim
+pursued here is the more demanding one: that a performance level holds
+throughout a scientifically plausible prevalence range rather than in
+expectation across it.
+
+A second problem arises if the claim is intended to persist under new
+evaluation units or under other sources of variation. This calls for some
+notion of an evaluation regime under which a performance claim can be
+repeatedly subjected to the same challenge. The extent to which a claim
+survives those repeated attempts at refutation is what will be called its
+support.
+
+The population and replication problems cannot be solved independently.
+Different evaluations may weaken at different prevalences, so challenging every
+evaluation at one common prevalence can miss the condition that defeats each of
+them. A claim required to hold throughout the population set in every
+evaluation must allow the limiting prevalence to change between evaluations.
+
+Neither problem concerns the precision of an estimate. An interval for an
+expected advantage describes how far the number would move under resampling; it
+does not say whether the advantage would remain in a population with a
+different supply of negatives, or in the next evaluation. What is at issue is
+survival rather than precision: whether the advantage remains once the
+conditions under which it could fail have been named and imposed.
+
+Call $D$ a full evaluation when it contains the outcomes and scores needed to
+evaluate every declared condition on one set of units, so that no condition
+requires a separate dataset. Let
+\[
+\Assess=(\CSet,\Regime,K),
+\]
+where $\CSet$ contains the conditions that can be evaluated within each full
+evaluation, $\Regime$ describes how full evaluations are generated, and $K$ is
+the order of the replication challenge. For AP, target prevalence will supply
+the condition set; mechanisms that cannot be recovered by changing prevalence
+must instead vary through $\Regime$. The order $K$ is the number of independent
+opportunities to fail that the claim is required to survive. It is neither
+estimated from data nor equipped with a default, because it does not describe
+the data at all: it states how severe a test the claimant has chosen to face.
+These elements belong to the claim rather than to the analysis. Like a
+preregistered analysis plan, they lose their force if they are chosen after the
+comparison has been seen.
+
+What can then be estimated depends on the evidence available. Resampling a
+single evaluation can stand in for repeated evaluation, but only under an
+empirical regime closed to whatever that evaluation did not contain. The
+resulting support is projected rather than observed, and no number of resamples
+converts one evaluation into new empirical tests.
+
+The motivating application we develop is model replacement: whether a candidate
+model $A$ should replace an incumbent model $B$ on ranking performance. Pairing
+introduces a third difficulty. Subtracting two separately challenged reports
+lets each model meet its adverse condition in a different population or a
+different evaluation. Forming the difference on the same units removes that
+latitude at the cost of a new one, since finite-sample AP can reward whichever
+model divides tied scores more finely, whether or not the division tracks the
+outcomes.
+
+
+\section{Average precision across target prevalences}
+\label{sec:prevalence}
+
+\subsection{Prior-standardized average precision}
+
+Changing the observed positive fraction can alter both the population represented and the evidence used to describe the ranking. Prior standardization separates these operations by asking a counterfactual question: what precision would the observed class-conditional ranking behavior produce under a different class prior?
+
+With $S$ denoting either fixed model score, let the observed class-conditional selection rates at threshold $\tau$ be
+\[
+r(\tau)=\Prb_{\mathrm{obs}}(S\geq \tau\mid Y=1),
+\qquad
+f(\tau)=\Prb_{\mathrm{obs}}(S\geq \tau\mid Y=0).
+\]
+Holding these rates fixed while varying the target prevalence is warranted only when the class-conditional score behavior transports. Because replacement is paired, the required condition for each target population is the joint invariance
+\begin{equation}
+\Prb_{\mathrm{obs}}\{(S_A,S_B)\in G\mid Y=y\}
+=
+\Prb_{\mathrm{target}}\{(S_A,S_B)\in G\mid Y=y\},
+\qquad y\in\{0,1\},
+\label{eq:score-invariance}
+\end{equation}
+for every measurable $G\subseteq\mathbb R^2$. Its marginal implications identify each model's target AP profile, while the joint condition preserves the within-class score dependence needed for the sampling law of the paired difference. This score-level form of prior-probability shift is weaker than invariance of $P(X\mid Y)$ but follows from it for fixed scoring rules \cite{saerens2002adjusting,storkey2009training,lipton2018detecting}.
+
+Under this condition, Bayes' rule expresses precision at threshold $\tau$ in a target population with prevalence $\pi\in(0,1)$ as
+\begin{equation}
+p_\pi(\tau)
+=
+\frac{\pi r(\tau)}
+{\pi r(\tau)+(1-\pi)f(\tau)}.
+\label{eq:reference-precision}
+\end{equation}
+Its odds separate the target prior from the ranking behavior:
+\begin{equation}
+\frac{p_\pi(\tau)}{1-p_\pi(\tau)}
+=
+\frac{\pi}{1-\pi}\frac{r(\tau)}{f(\tau)}.
+\label{eq:precision-odds}
+\end{equation}
+The functions $r(\tau)$ and $f(\tau)$ are therefore held at the values supplied by evaluation $D$ while $\pi$ indexes the declared target populations. Varying $\pi$ changes only the class prior. Aggregating $p_\pi(\tau)$ across the distinct score thresholds using the observed positive-class recall increments gives $\AP_\pi(D)$, prior-standardized AP for evaluation $D$ at prevalence $\pi$ \cite{elkan2001foundations,siblini2020calibration}. Appendix~\ref{app:ap} gives the empirical definition.
+
+The restriction matters because prevalence can accompany other population changes. A referral population may contain more severe cases within each outcome class, while a new measurement process may change the score for otherwise similar cases. In either setting, Equation~\eqref{eq:reference-precision} reweights rates that need not describe the target. Those changes must be represented by observed evaluations from the corresponding environments rather than by prior adjustment alone \cite{bareinboim2013transportability}.
+
+\subsection{A common effect scale}
+
+Prior-standardized AP still has a different random-ranking value at every target prevalence. Population random ranking has $r(\tau)=f(\tau)$ and hence $\AP_\pi=\pi$. Define
+\begin{equation}
+\CNAP_\pi(D)
+=
+\frac{\AP_\pi(D)-\pi}{1-\pi}.
+\label{eq:cnap}
+\end{equation}
+CNAP is zero for population random ranking, one for perfect ranking, and negative below chance. The normalization has the chance-corrected form $(\text{observed}-\text{chance})/(\text{ceiling}-\text{chance})$ \cite{cohen1960coefficient}. For two models,
+\begin{equation}
+\CNAP_{A,\pi}-\CNAP_{B,\pi}
+=
+\frac{\AP_{A,\pi}-\AP_{B,\pi}}{1-\pi}.
+\label{eq:cnap-difference}
+\end{equation}
+The common chance term cancels, while division by the random-to-perfect headroom $1-\pi$ expresses the AP gap on a common opportunity scale. Thus a margin $d$ requires a raw AP gain of $d(1-\pi)$ at prevalence $\pi$; the same identity applies after tie averaging. This scaling is substantive and is appropriate when the replacement margin refers to a fraction of random-to-perfect improvement rather than an equal raw AP increment at every prevalence.
+
+Common endpoints do not make the profile prevalence-invariant. At a threshold with true-positive and false-positive rates $r_h$ and $f_h$, the normalized contribution is
+\begin{equation}
+\frac{p_{\pi,h}-\pi}{1-\pi}
+=
+\frac{\pi(r_h-f_h)}
+{\pi r_h+(1-\pi)f_h}.
+\label{eq:threshold-cnap}
+\end{equation}
+Rare-positive populations therefore charge false positives more heavily. Two models can exchange order as $\pi$ changes even when both profiles improve with prevalence.
+
+Let $\PSet\subset(0,1)$ be a nonempty compact set chosen from deployment plans or scientific knowledge before the paired-difference profile is examined. The CNAP profile then supplies the AP-specific condition index: $c=\pi$ and $\CSet=\PSet$. No prevalence has yet been selected or averaged away. The next problem is to determine what a claim throughout this profile must retain when the evaluation is replicated.
+
+\section{Support across declared conditions and evaluations}
+\label{sec:support}
+
+The prevalence profile in Section~\ref{sec:prevalence} is one instance of a condition-indexed effect. More generally, let $\Delta_c(D)$ denote an effect under condition $c\in\CSet$, oriented so that larger values favor the claim. Every condition in the nonempty set $\CSet$ must be evaluable from one complete evaluation $D$. For AP under score-level prior invariance, $c$ is a target prevalence and $\CSet=\PSet$.
+
+Not every condition can be placed in $\CSet$. When a change alters class-conditional ranking behavior, one evaluation cannot recover its effect by reweighting. Such variation must be observed through complete evaluations generated by $\Regime$. The assessment introduced above therefore separates conditions challenged within each evaluation from mechanisms challenged by generating evaluations.
+
+\subsection{The evaluation-generating regime}
+
+Let $\Regime$ denote the probability law for one complete evaluation $D$. A replication is one draw from that law. A newly observed draw is an \emph{empirical replication}; a bootstrap evaluation drawn from an empirical approximation $\widehat{\Regime}$ is a \emph{computational replication} intended to approximate such a draw. In either case, the replication is the complete evaluation, not the act of resampling.
+
+Let $D_1,\ldots,D_K\iid\Regime$, with $K\geq1$. The value of $K$ belongs to the claim: it sets the order of the replication challenge and hence its lower-tail emphasis, not how many evaluations happen to be available for estimation. Independence is required between complete evaluations, although observations within an evaluation may be clustered or matched when the design and analysis preserve that structure.
+
+A fixed-model regime draws new evaluation units while holding the fitted models, environment, and measurement process fixed. When only one complete evaluation is observed, resampling its units can approximate that regime; it does not define the regime or release mechanisms that the evaluation held fixed. A broader regime may vary environments or repeat development, but estimating it requires corresponding empirical replications or a justified generating hierarchy.
+
+Several empirical replications do not by themselves determine how broad the regime is. They may share one measurement process or arise from a regime that releases additional mechanisms. A bootstrap can likewise redraw units from heterogeneous data without representing new heterogeneity. Scientific reach is determined by the declared regime and the adequacy of its empirical approximation, not by the number of draws alone.
+
+\subsection{Joint survival}
+
+Expected performance is weaker than performance required to persist. If two independent replications yield effects $0.70$ and $0.05$, their mean is $0.375$, although a claim at that level failed in the second replication. The greatest level retained by both is their minimum.
+
+\begin{definition}[Replication-survival support]
+For $D_1,\ldots,D_K\iid\Regime$, let $T_j=T(D_j)$ be an effect oriented so that larger values are better. Define
+\begin{equation}
+S_K(T;\Regime)
+=
+\E_{\Regime}\left[
+\min_{1\leq j\leq K}T_j
+\right].
+\label{eq:support}
+\end{equation}
+\end{definition}
+
+The realized minimum is the greatest level retained by one set of $K$ replications. Its expectation preserves the magnitude of every outcome: large retained effects contribute more than small ones, and severe failures contribute less than minor failures. It is neither a confidence bound nor the probability that a particular margin survives. For a prespecified floor $d$, literal joint survival is instead
+\[
+\psi_{K,d}
+=
+\Prb_{\Regime}\left(\min_{j\leq K}T_j>d\right)
+=
+\Prb_{\Regime}(T>d)^K.
+\]
+Thus $S_K$ summarizes the magnitude of the challenged effect over all levels, whereas $\psi_{K,d}$ records its survival probability at one decision-relevant level. Appendix~\ref{app:literal-survival} gives their integral relationship and inferential details. At $K=2$,
+\begin{equation}
+S_2(T;\Regime)
+=
+\E_{\Regime}[T]
+-
+\frac12\E_{\Regime}|T_1-T_2|.
+\label{eq:k2}
+\end{equation}
+The criterion is expected performance minus half the expected disagreement between two independent replications.
+
+The interpretation is Popperian only in a limited, negative sense. A level is retained when it survives specified opportunities for defeat, but survival does not establish truth \cite{popper1959logic,popper1963conjectures}. The regime determines the kind of failure presented, while $K$ determines how many independent opportunities are required. Neither choice is supplied by the philosophy.
+
+\subsection{Projected and observed support}
+\label{sec:projected}
+
+One observed evaluation has not empirically faced $K$ replications. Resampling it generates computational replications from $\widehat{\Regime}$ and estimates replication-survival support under that empirical approximation to $\Regime$. The resulting quantity is \emph{projected support}. Because $\widehat{\Regime}$ is closed to score values and failure modes absent from the observed evaluation, projected support offers a narrower challenge than new empirical replications can provide.
+
+Independent empirical replications drawn under $\Regime$ can reveal failures that the regime permits but the original evaluation did not contain. An evaluation involving a mechanism excluded from $\Regime$ has a different role: it may show that the declared assessment was too narrow rather than estimate the same criterion. When relevant empirical replications are available, they enter the estimator directly rather than serving only as an aspiration for future work.
+
+Computational and empirical replication must consequently remain distinct. Increasing the bootstrap count $B$ reduces Monte Carlo error in the same projected quantity. Increasing $K$ changes the criterion by shifting weight toward worse evaluations. Increasing the number $M$ of observed empirical replications changes the evidence available to estimate the criterion.
+
+\subsection{The order of the challenges}
+
+Let
+\[
+Z_{\CSet}(D)
+=
+\inf_{c\in\CSet}\Delta_c(D).
+\]
+The supported advantage is
+\begin{equation}
+S_{K,\CSet}(\Delta;\Regime)
+=
+\E_{\Regime}
+\left[
+\min_{1\leq j\leq K}
+\inf_{c\in\CSet}\Delta_c(D_j)
+\right].
+\label{eq:robust-support}
+\end{equation}
+At level $s$, the event inside the construction requires $\Delta_c(D_j)>s$ for every $c\in\CSet$ and every $j\leq K$.
+
+Moving the condition search outside support weakens that requirement. The alternative
+\[
+\inf_{c\in\CSet}S_K(\Delta_c;\Regime)
+\]
+challenges every evaluation at the same condition before taking the infimum. In the AP application, it can therefore miss a failure at $\pi=0.01$ in one evaluation and a failure at $\pi=0.40$ in another. The intended order satisfies
+\begin{equation}
+S_K\left(
+\inf_{c\in\CSet}\Delta_c;\Regime
+\right)
+\leq
+\inf_{c\in\CSet}
+S_K(\Delta_c;\Regime).
+\label{eq:order}
+\end{equation}
+Equality holds when the same condition minimizes the relevant profile almost surely; Appendix~\ref{app:support-proofs} gives the proof.
+
+The challenge becomes stronger when either index set grows.
+
+\begin{proposition}[Challenge monotonicity]
+\label{prop:monotonicity}
+If $\mathcal C_1\subseteq\mathcal C_2$ and $K_1\leq K_2$, then
+\[
+S_{K_2,\mathcal C_2}(\Delta;\Regime)
+\leq
+S_{K_1,\mathcal C_1}(\Delta;\Regime).
+\]
+\end{proposition}
+
+No comparable ordering holds for arbitrary changes of $\Regime$, because releasing environments or development runs changes the law of the effect rather than enlarging an index set within the same law.
+
+\section{Constructing the paired AP effect}
+\label{sec:paired}
+
+\subsection{Marginal summaries do not compose}
+
+A replacement decision concerns an advantage realized under the same conditions. For candidate $A$ and incumbent $B$, let
+\[
+A_{\PSet}(D)
+=
+\inf_{\pi\in\PSet}\CNAP_{A,\pi}(D),
+\qquad
+B_{\PSet}(D)
+=
+\inf_{\pi\in\PSet}\CNAP_{B,\pi}(D).
+\]
+Subtracting their supported marginal values allows the two models to meet different adverse prevalences and different adverse evaluations.
+
+The error is one-sided:
+\begin{equation}
+S_K(A_{\PSet};\Regime)
+-
+S_K(B_{\PSet};\Regime)
+\geq
+S_K\left(
+\inf_{\pi\in\PSet}
+\{\CNAP_{A,\pi}-\CNAP_{B,\pi}\};
+\Regime
+\right).
+\label{eq:noncomposition}
+\end{equation}
+The proof in Appendix~\ref{app:paired-proofs} uses only properties of the infimum and minimum. Separate reports therefore overstate the supported paired advantage by an amount they do not identify.
+
+\subsection{Ordinary pairing rewards arbitrary refinement}
+
+Pairing aligns the units and outcomes, but ordinary finite-sample AP still depends on the score vectors' tie structures. Stepwise AP is upward displaced under random ordering because it evaluates precision when positive cases enter the ranking \cite{bestgen2015random}. A fully tied score vector has one threshold and returns the population random-ranking value, while a vector of distinct scores creates more opportunities for favorable positive entries.
+
+Four units show why this matters for replacement. Let model $A$ assign four distinct scores and model $B$ assign one common score. With two positive labels, two negative labels, and $\pi=1/2$, assign the labels uniformly over the six possibilities. Neither score vector is associated with the outcomes. Under the ordinary threshold-block convention, model $A$ has expected AP $49/72$, while model $B$ has AP $1/2$ under every assignment. Hence
+\[
+\E[\CNAP_A-\CNAP_B]
+=
+\frac{13}{36}.
+\]
+For two independent assignments, the supported difference remains positive at $29/216$. Pairing has favored the model that broke ties without information.
+
+A null anchor cannot be subtracted uniformly because the displacement depends on model performance. It is large near no association but vanishes at perfect separation, where both models reach the ceiling. Appendix~\ref{app:paired-proofs} gives an exact four-unit example in which centering by the joint-permutation anchor favors the coarser model even though both models separate the classes perfectly. The defect must therefore be removed before the nonlinear population and replication challenges are applied.
+
+\subsection{Tie-averaged average precision}
+\label{sec:tie-average}
+
+Let $\mathcal O(D)$ be the strict rankings consistent with a score vector, obtained by ordering tied units in every possible way while preserving the order of the score blocks.
+
+\begin{definition}[Tie-averaged average precision]
+\begin{equation}
+\APta_\pi(D)
+=
+\frac{1}{|\mathcal O(D)|}
+\sum_{o\in\mathcal O(D)}
+\AP_\pi(D_o),
+\label{eq:tie-average}
+\end{equation}
+where $D_o$ is evaluation $D$ resolved into strict ranking $o$. Define $\CNAPta_\pi$ through Equation~\eqref{eq:cnap}.
+\end{definition}
+
+The convention corresponds to a declared random or otherwise outcome-blind resolution of units within each score block. It is appropriate when an operational cutoff may split a block and the model supplies no within-block information. If deployment selects whole score blocks or uses a prespecified informative secondary rule, threshold-block AP or the resulting ordered ranking may be more faithful. Under the random-resolution regime, tie averaging is equivalent to adding independent continuous jitter within blocks and averaging ordinary AP; Appendix~\ref{app:tie-computation} evaluates that average without enumeration or random jitter.
+
+Tie averaging still rewards informative refinement. A finer score improves realized AP when it orders cases correctly within a coarse block and loses AP when it orders them incorrectly. Only refinement unrelated to the outcomes receives zero expected credit.
+
+\begin{proposition}[Neutrality to arbitrary refinement]
+\label{prop:refinement}
+Suppose model $A$ preserves the order of model $B$'s score blocks and, conditionally on $S_B$ and $Y$, its strict ranking is uniform over the rankings consistent with $S_B$. Then, for every $\pi$,
+\[
+\E\!\left[
+\APta_{A,\pi}\mid S_B,Y
+\right]
+=
+\APta_{B,\pi}.
+\]
+\end{proposition}
+
+The proposition conditions on the realized outcomes, so it applies when the coarse model is informative. It removes expected credit for arbitrary refinement without requiring exchangeable evaluation units.
+
+\subsection{The supported paired advantage}
+
+The paired profile is
+\[
+\Dta_\pi(D)
+=
+\CNAPta_{A,\pi}(D)
+-
+\CNAPta_{B,\pi}(D),
+\]
+and the advantage retained within evaluation $D$ is
+\[
+\RobDta(D)
+=
+\inf_{\pi\in\PSet}\Dta_\pi(D).
+\]
+The model-replacement estimand is
+\begin{equation}
+\theta_{A:B}
+=
+S_K(\RobDta;\Regime)
+=
+\E_{\Regime}
+\left[
+\min_{1\leq j\leq K}
+\inf_{\pi\in\PSet}
+\{\CNAPta_{A,\pi}(D_j)-\CNAPta_{B,\pi}(D_j)\}
+\right].
+\label{eq:paired-estimand}
+\end{equation}
+The difference is formed before either minimum. A positive value is therefore a positive expected worst-of-$K$ advantage after every evaluation has been challenged throughout the declared prevalence set. It describes retained magnitude; the probability that this same challenged advantage clears a particular floor enters the replacement rule below.
+
+\subsection{Reference behavior and design scope}
+\label{sec:paired-scope}
+
+Refinement neutrality compares a fine ranking with a coarser ranking it refines. Two arbitrary uninformative rankings require a stronger reference law.
+
+\begin{definition}[Exchangeable-label reference law]
+\label{def:exchangeable}
+Conditionally on both score vectors and the positive count $n_+$, every label vector containing $n_+$ positives has probability $\binom{n}{n_+}^{-1}$.
+\end{definition}
+
+Under this law, labels read along any fixed strict ranking are uniform over the same set of arrangements. Expected tie-averaged AP therefore depends on $n_+$, $n_-$, and $\pi$, but not on the score vector or its tie structure.
+
+Let $\Regime_0$ denote the diagnostic reference regime. Under $\Regime_0$, each complete evaluation is generated by the exchangeable-label law, conditional on the score vectors and positive count fixed by the design. This regime diagnoses the comparison's anchor; it is not the scientific replication regime.
+
+\begin{proposition}[Reference behavior of paired support]
+\label{prop:paired-reference}
+Under the exchangeable-label reference law,
+\[
+\E_0[\Dta_\pi]=0
+\qquad\text{for every }\pi\in\PSet,
+\]
+and consequently
+\[
+S_K(\RobDta;\Regime_0)\leq0.
+\]
+The same bound holds after exchanging $A$ and $B$.
+\end{proposition}
+
+The inequality need not be equality because the prevalence and replication minima can move an uninformative paired effect below zero. The result prevents differing tie structures from manufacturing a positive supported advantage, although the challenge itself may be conservative.
+
+Full exchangeability is stronger than independence. Matched, clustered, and heterogeneous-risk designs usually permit only a restricted group of label arrangements, under which score vectors aligned with the strata can have different reference values. Tie averaging still removes arbitrary ordering within score blocks, and Equation~\eqref{eq:paired-estimand} remains descriptive, but the no-positive-anchor result no longer follows. Appendix~\ref{app:paired-proofs} gives a matched-pair counterexample.
+
+\subsection{No verdict and a two-part replacement rule}
+
+The reversed orientation is
+\[
+\theta_{B:A}
+=
+S_K\left(
+\inf_{\pi\in\PSet}\{-\Dta_\pi\};
+\Regime
+\right).
+\]
+Because the support operator contains minima, the reversed value is not generally the negative of the original. The two orientations nevertheless satisfy
+\begin{equation}
+\theta_{A:B}+\theta_{B:A}\leq0.
+\label{eq:orientation}
+\end{equation}
+Both models therefore cannot receive a positive supported advantage over the other.
+
+The inequality permits a no-verdict region: both orientations may be nonpositive because the declared challenges defeat superiority in either direction. The diagnostic range $[\theta_{A:B},-\theta_{B:A}]$, characterized in Appendix~\ref{app:paired-proofs}, reflects variation across target prevalences and disagreement across evaluations; it is not an uncertainty interval.
+
+For a prespecified floor $d\geq0$, define literal survival of the paired advantage as
+\begin{equation}
+\psi^{A:B}_{K,d}
+=
+\Prb_{\Regime}
+\left\{
+\min_{j\leq K}\RobDta(D_j)>d
+\right\}.
+\label{eq:paired-literal-survival}
+\end{equation}
+The supported magnitude $\theta_{A:B}$ and literal-survival probability $\psi^{A:B}_{K,d}$ summarize the same replication-challenged paired effect. The first retains the size of every outcome; the second records whether the outcome clears $d$.
+
+Let $\delta\geq0$ be the smallest expected replication-challenged CNAP advantage that would justify replacement, and let $\gamma\in(0,1)$ be the minimum acceptable probability of clearing $d$. At the estimand level, the two-part policy requires
+\begin{equation}
+\theta_{A:B}>\delta
+\qquad\text{and}\qquad
+\psi^{A:B}_{K,d}>\gamma.
+\label{eq:replacement-targets}
+\end{equation}
+The magnitude condition prevents a negligible but highly reliable advantage from automatically justifying replacement and remains sensitive to the severity of adverse outcomes. The survival condition prevents large favorable outcomes from compensating for an unacceptable frequency of failure at $d$. Separating $\delta$ from $d$ clarifies these questions: for example, $\delta>0$ and $d=0$ require a worthwhile expected retained advantage together with reliable positive superiority. Setting $\delta=d$ is permissible when the same practical effect level is intended for both purposes.
+
+Point estimates do not establish Equation~\eqref{eq:replacement-targets}. Replacement is declared only when simultaneous validated lower bounds satisfy
+\begin{equation}
+L_{\theta_{A:B}}>\delta
+\qquad\text{and}\qquad
+L_{\psi^{A:B}_{K,d}}>\gamma.
+\label{eq:replacement}
+\end{equation}
+Failure of either requirement returns no verdict rather than evidence that the incumbent is superior.
+
+The severity of the reliability requirement depends jointly on $K$ and $\gamma$. Writing
+\[
+p_d=\Prb_{\Regime}\{\RobDta(D)>d\},
+\]
+independence gives
+\begin{equation}
+\psi^{A:B}_{K,d}=p_d^K,
+\qquad
+\psi^{A:B}_{K,d}>\gamma
+\ \Longleftrightarrow\ 
+p_d>\gamma^{1/K}.
+\label{eq:implied-one-evaluation}
+\end{equation}
+For example, $K=5$ and $\gamma=0.90$ require one evaluation to clear $d$ with probability greater than $0.90^{1/5}\approx0.979$. Reports should give this implied one-evaluation requirement whenever they give $K$ and $\gamma$.
+
+The reverse decision applies the same two-part rule to $\theta_{B:A}$ and $\psi^{B:A}_{K,d}$, with orientation-specific thresholds if the consequences are asymmetric. If neither orientation satisfies both requirements, the analysis returns no verdict.
+
+\section{Evidence and estimation}
+\label{sec:estimation}
+
+\subsection{Several empirical replications}
+
+Suppose $M$ genuinely independent empirical replications $D_1,\ldots,D_M\iid\Regime$ are available. Here $M$ counts complete evaluations; replication $D_m$ may itself contain $n_m$ evaluation units. For each replication, compute
+\[
+z_m
+=
+\inf_{c\in\CSet}\Delta_c(D_m).
+\]
+When $M\geq K$, the complete order-$K$ U-statistic \cite{hoeffding1948ustat}
+\begin{equation}
+\widehat S_{K,\CSet,M}^{\,\mathrm{obs}}
+=
+\binom MK^{-1}
+\sum_{\substack{I\subseteq\{1,\ldots,M\}\\|I|=K}}
+\min_{m\in I}z_m
+\label{eq:observed-u}
+\end{equation}
+is unbiased for Equation~\eqref{eq:robust-support}. Sorting avoids enumerating all subsets; Appendix~\ref{app:computation} gives the resulting formula. For AP replacement, $\CSet=\PSet$ and $\Delta_\pi=\Dta_\pi$. We denote the resulting observed-evaluation estimate of $\theta_{A:B}$ by $\widehat\theta_{A:B}^{\,\mathrm{obs}}$.
+
+The same replication effects estimate literal survival without further model evaluation. Let
+\[
+R_d=\sum_{m=1}^M\mathbf 1\{z_m>d\}.
+\]
+The complete order-$K$ estimator is
+\begin{equation}
+\widehat\psi_{K,d}^{\,\mathrm{obs}}
+=
+\frac{\binom{R_d}{K}}{\binom MK},
+\label{eq:literal-survival-estimator}
+\end{equation}
+with $\binom{R_d}{K}=0$ when $R_d<K$. It is unbiased for $\psi_{K,d}$ because it averages the joint-success indicator over every order-$K$ subset.
+
+Empirical replications make the inferential basis transparent, but they do not remove the need to define $\Regime$. Several test sets from one measurement process identify a narrower regime than evaluations that repeat the development procedure. When $M$ is small, the U-statistic can also be imprecise, especially as $K$ approaches $M$ and few distinct subsets remain.
+
+\subsection{One observed evaluation}
+
+When only one independent evaluation is available, resampling can project Equation~\eqref{eq:robust-support} only under the empirical regime $\widehat{\Regime}$ represented by that evaluation. Each bootstrap resample is one computational replication intended to approximate an independent draw of a complete evaluation from the applicable fixed-model regime. It must preserve the pairing and the joint condition profile before it records
+\[
+z_b
+=
+\inf_{c\in\CSet}\Delta_c(D^{(b)}).
+\]
+The $B$ computational replications approximate the evaluation-effect distribution under $\widehat{\Regime}$. Applying the complete order-$K$ U-statistic to $z_1,\ldots,z_B$ estimates the expected minimum for groups of $K$ independent draws from that distribution. For AP replacement, we denote this projected estimate by $\widehat\theta_{A:B}^{\,\mathrm{proj}}$.
+
+For AP, let $D_{\mathrm{obs},+}$ and $D_{\mathrm{obs},-}$ contain the positive and negative evaluation units. Computational replication $b$ samples the declared numbers of units with replacement within each class, keeps both model scores attached to every sampled unit, and evaluates the complete tie-averaged CNAP difference throughout $\PSet$. Its recorded effect is
+\[
+z_b
+=
+\inf_{\pi\in\PSet}
+\{\CNAPta_{A,\pi}(D^{(b)})-\CNAPta_{B,\pi}(D^{(b)})\}.
+\]
+
+The same computational replications give
+\begin{equation}
+\widehat\psi_{K,d}^{\,\mathrm{proj}}
+=
+\frac{\binom{R_d^{(B)}}{K}}{\binom BK},
+\qquad
+R_d^{(B)}=\sum_{b=1}^B\mathbf 1\{z_b>d\}.
+\label{eq:projected-literal-survival}
+\end{equation}
+Increasing $B$ reduces Monte Carlo error in this projected quantity; it does not provide additional empirical evidence that the scientific regime clears $d$.
+
+Stratification conditions the projected regime on its positive and negative counts. A same-design analysis uses the observed counts, whereas a prospective analysis uses the counts planned for future evaluations. If the claim instead allows class counts to vary, their generating law belongs in $\Regime$. Clustered or matched studies must resample the coarsest unit treated as independent, which may preclude simple class-stratified sampling.
+
+The same sampled units must be used for both models and throughout the prevalence profile. Resampling models separately would destroy pairing, while resampling separately at each prevalence would prevent one evaluation from revealing its own limiting population.
+
+The bootstrap represents only variation available in the observed score pools. It cannot generate unseen score values or failures caused by a new environment, measurement process, or development run. Its claim must therefore be reported as projected fixed-model support rather than as survival of $K$ observed replications.
+
+\subsection{Tail fidelity, prevalence search, and sparse outcomes}
+
+The role of $K$ creates an estimation tension. Let $Q_T$ denote the quantile function of $T$. From Appendix~\ref{app:support-proofs},
+\[
+S_K(T;\Regime)
+=
+\int_0^1Q_T(v)K(1-v)^{K-1}\,dv,
+\]
+so increasing $K$ moves weight toward the lower tail of the replication-effect distribution. The stronger challenge consequently depends more heavily on whether the empirical replications, or their bootstrap approximation, represent adverse outcomes. This dependence is especially consequential when positive outcomes are sparse and the distribution of AP is coarse. Literal survival introduces an additional boundary sensitivity: when the distribution of $z$ has substantial mass near $d$, small perturbations can change the exceedance indicator even when the estimated effect changes little.
+
+A finite set $\PSet=\{\pi_1,\ldots,\pi_G\}$ defines an exact finite challenge. A grid used to approximate an interval can miss an interior minimum and raise the reported value. A one-dimensional optimizer can instead search a compact interval, with its tolerance checked against a dense grid.
+
+Nonunique or moving prevalence minimizers require a further distinction. Uniformly accurate profiles may still yield an accurate infimum value even when the minimizing prevalence is unstable. Inference about that value is less regular, however, because the infimum is nonsmooth at flat or multiple minima. Consistency of the projected point estimate, fidelity of its lower tail, and coverage of an outer bound must therefore be studied separately.
+
+\subsection{Outer uncertainty}
+
+An outer resampling layer estimates uncertainty from the observed evidence. With several empirical replications, an outer sample resamples complete evaluations. With one evaluation, each outer sample first resamples units according to the study design; an inner layer then generates computational replications. Every outer sample must preserve pairing and repeat tie averaging, the prevalence search, and the order-$K$ calculations for both $\widehat\theta_{A:B}$ and $\widehat\psi^{A:B}_{K,d}$.
+
+Because replacement requires both inequalities in Equation~\eqref{eq:replacement}, the lower bounds must have simultaneous coverage. A simple conservative procedure allocates a total one-sided error rate $\alpha$ across the two claims, for example by constructing each bound with error rate $\alpha/2$. Alternatively, the joint outer distribution of $(\widehat\theta,\widehat\psi)$ may calibrate a less conservative simultaneous lower confidence region.
+
+Coverage is not automatic. AP can be discrete, the prevalence infimum is nonsmooth when the minimizing prevalence changes, and the indicator defining $\widehat\psi_{K,d}$ is discontinuous at $d$. Percentile, basic, studentized, or jointly calibrated bounds may therefore behave differently, particularly when effects concentrate near the floor. The complete two-bound procedure should be validated under designs resembling the intended application. With one observed evaluation, the bounds address sampling uncertainty in the projected procedure; they do not account for failure modes omitted from $\widehat{\Regime}$.
+
+\section{Interpretation, reporting, and scope}
+\label{sec:discussion}
+
+\subsection{What the quantities support}
+
+Both the supported-magnitude estimand and its literal-survival probability depend on the declared assessment; neither is a portable property of either model. They concern the same paired effect after challenge throughout $\CSet$ and across $K$ evaluations generated by $\Regime$. The first summarizes retained magnitude; the second evaluates reliability at the declared floor $d$. In the AP application, $\CSet=\PSet$ and the effect is the tie-averaged CNAP difference. Omitting any of those declarations changes what the quantities mean.
+
+Projected and observed estimates require different language. Estimates based on several independent empirical replications may be described as replicated evidence under the declared regime. A one-evaluation bootstrap estimates projected magnitude and survival under empirical within-class score distributions and should not be described as having survived external replications.
+
+The result also remains a ranking-performance claim. A deployment decision may turn on calibration or on the consequences of acting on the selected cases, neither of which Equation~\eqref{eq:replacement} evaluates.
+
+\subsection{Minimum reporting content}
+
+A concise report should identify the claim before presenting diagnostics. Table~\ref{tab:reporting} gives the minimum content.
+
+\begin{table}[ht]
+\centering
+\caption{Minimum reporting content for a supported replacement analysis.}
+\label{tab:reporting}
+\begin{tabularx}{\textwidth}{@{}p{0.23\textwidth}X@{}}
+\toprule
+Component & Report \\
+\midrule
+Supported quantity &
+$\widehat\theta_{A:B}$ and $\widehat\psi^{A:B}_{K,d}$ (identified as observed or projected), the reversed orientation, $\delta$, $d$, $\gamma$, and the simultaneous lower bounds used for the decision \\
+Assessment &
+$\CSet$ and its scientific basis, with $\CSet=\PSet$ for AP; $\Regime$; what is fixed and redrawn; the independent evaluation unit; $K$; and the implied one-evaluation requirement $\gamma^{1/K}$ \\
+Evidence &
+Whether complete evaluations are observed or bootstrap-projected; observed class counts; replication counts; and resampling hierarchy \\
+Condition transport &
+The invariance used to evaluate every $c\in\CSet$ from one evaluation; for AP, the score-level prior-shift assumption and its target populations \\
+Comparison &
+Model orientation, paired sampling, tie-averaged convention, and the basis for the exchangeable-label reference law \\
+Diagnostics &
+Paired-difference profile, distribution of minimizing conditions, evaluation-effect distribution, mass near $d$, and sensitivity to $K$, $\CSet$, and prespecified alternative floors \\
+Computation &
+Condition set or optimizer, bootstrap count where applicable, Monte Carlo error, outer-bound method, and simultaneous-coverage procedure \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+A possible headline statement is:
+\begin{quote}
+Across the declared prevalence set $\PSet$ and under an order-$K$ replication challenge in the fixed-model regime, model $A$ had an estimated tie-averaged supported CNAP advantage of [value] over model $B$, with estimated literal-survival probability [value] above floor $d=[value]$; the reversed orientation was [values]. The simultaneous lower bounds were [value] for supported magnitude and [value] for literal survival. They [did or did not] exceed the prespecified requirements $\delta=[value]$ and $\gamma=[value]$; the implied one-evaluation survival requirement was $\gamma^{1/K}=[value]$.
+\end{quote}
+When the estimate comes from one test set, the opening should instead read, ``Under a bootstrap approximation to the empirical fixed-model regime, model $A$ had an estimated advantage under the prevalence and order-$K$ replication challenges.''
+
+\subsection{Limits of the AP claim}
+
+Prior standardization does not transport ranking behavior across changes within outcome class. If severity, measurement, or feature distributions change $P(S\mid Y)$, target-population evaluations are required.
+
+Tie averaging does not create full label exchangeability. In matched, clustered, or heterogeneous-risk designs, the paired estimand remains computable but may inherit a design-specific anchor unless the admissible comparisons respect the design's symmetry.
+
+The choices of $\PSet$, $\Regime$, and $K$ remain scientific commitments. Widening $\PSet$ or increasing $K$ mechanically lowers the criterion, but neither operation proves that the resulting assessment captures the failures relevant to deployment.
+
+\subsection{Beyond prevalence: empirical case-mix breakdown for AUROC}
+\label{sec:auroc-outlook}
+
+The support construction is not confined to prevalence or AP. Pure prior shift leaves the area under the receiver operating characteristic curve (AUROC) unchanged, but changes in the mix of cases within each outcome class can still challenge an AUROC advantage. Appendix~\ref{app:auroc} gives a canonical empirical version of that challenge. It bounds every observation's weight by a common multiple $\Gamma$ of its uniform within-class weight, increases $\Gamma$ rather than asking the analyst to select it, and reports the first value at which the complete replacement criteria fail. The resulting empirical case-mix breakdown factor remains limited to the case types represented in the evaluation; it does not claim transport to types or mechanisms absent from those data.
+
+\section{Conclusion}
+
+A model-replacement claim based on average precision must survive more than a favorable marginal summary. The population must be named because AP changes with prevalence, while the evaluations must be named because an expected advantage can conceal a failure to persist. These are instances of the same noncompensation requirement, but they enter the assessment differently: target prevalence can be evaluated within each replication, whereas other variation must be generated through $\Regime$.
+
+Prior standardization evaluates each model at the target prevalences when class-conditional score behavior is invariant. Chance normalization places those values on a common population random-to-perfect scale. Tie averaging then removes expected credit for arbitrary refinement before the models are compared on the same units. The prevalence infimum and replication minimum are applied only after that paired difference has been formed:
+\[
+\theta_{A:B}
+=
+\E_{\Regime}
+\left[
+\min_{j\leq K}
+\inf_{\pi\in\PSet}
+\{\CNAPta_{A,\pi}(D_j)-\CNAPta_{B,\pi}(D_j)\}
+\right].
+\]
+
+This supported magnitude and the literal-survival probability summarize different features of the same challenged advantage. Replacement requires simultaneous evidence that the expected retained magnitude exceeds $\delta$ and that the probability of clearing floor $d$ exceeds $\gamma$. The first requirement preserves practical magnitude and sensitivity to severe losses; the second prevents favorable outcomes from compensating for excessive failure at the declared floor.
+
+Several independent empirical replications estimate both quantities from the same evaluation effects. One evaluation can support only bootstrap projections under an empirical fixed-model regime. Those projections can guide a replacement analysis, but they cannot substitute computational resampling for new empirical opportunities to reveal failure.
+
+The condition-indexed support operator is not confined to prevalence. For AUROC, a canonical symmetric concentration challenge can search over increasingly adverse redistributions of the observed positive and negative cases and report the empirical case-mix breakdown factor at which the same replacement policy first fails. This extension supplies a reproducible empirical robustness assessment without requiring a selected target mix or analyst-chosen concentration bound, while remaining silent about case types absent from the evaluation.
+
+\appendix
+
+\section{Empirical prior-standardized average precision}
+\label{app:ap}
+
+\subsection{Definition and weighted implementation}
+
+Let
+\[
+D=\{(s_i,y_i)\}_{i=1}^{n},
+\qquad
+y_i\in\{0,1\},
+\]
+with $n_+=\sum_i y_i>0$ and $n_-=n-n_+>0$. Let $c_1>\cdots>c_H$ be the distinct observed score values. At threshold $h$, define
+\[
+\operatorname{TP}_h
+=
+\sum_i\mathbf 1\{y_i=1,s_i\geq c_h\},
+\qquad
+\operatorname{FP}_h
+=
+\sum_i\mathbf 1\{y_i=0,s_i\geq c_h\},
+\]
+and
+\[
+r_h=\frac{\operatorname{TP}_h}{n_+},
+\qquad
+f_h=\frac{\operatorname{FP}_h}{n_-}.
+\]
+With $r_0=0$, noninterpolated prior-standardized AP under the threshold-block convention is
+\begin{equation}
+\AP_\pi(D)
+=
+\sum_{h=1}^{H}
+(r_h-r_{h-1})
+\frac{\pi r_h}
+{\pi r_h+(1-\pi)f_h}.
+\label{eq:empirical-ap}
+\end{equation}
+All units sharing a score enter one threshold block. A block containing only negative cases has zero recall increment, although its false positives reduce the precision of later blocks.
+
+The same quantity can be computed by weighting each positive unit by $w_+=\pi/n_+$ and each negative unit by $w_-=(1-\pi)/n_-$. Weighted precision at threshold $h$ is Equation~\eqref{eq:reference-precision}, while weighted recall remains $r_h$.
+
+\subsection{Behavior across prevalence}
+
+Combining Equations~\eqref{eq:cnap} and \eqref{eq:empirical-ap} gives
+\begin{equation}
+\CNAP_\pi(D)
+=
+\sum_{h=1}^{H}
+(r_h-r_{h-1})
+\frac{\pi(r_h-f_h)}
+{\pi r_h+(1-\pi)f_h}.
+\label{eq:cnap-profile}
+\end{equation}
+The derivative of a threshold contribution is
+\begin{equation}
+\frac{\partial}{\partial\pi}
+\left\{
+\frac{\pi(r_h-f_h)}
+{\pi r_h+(1-\pi)f_h}
+\right\}
+=
+\frac{f_h(r_h-f_h)}
+{\{\pi r_h+(1-\pi)f_h\}^2}.
+\label{eq:cnap-derivative}
+\end{equation}
+If $r_h\geq f_h$ at every threshold with positive recall increment, the profile is nondecreasing and its minimum over $[\pi_L,\pi_U]$ occurs at $\pi_L$. A paired difference can remain nonmonotone even when both marginal profiles are nondecreasing.
+
+\section{Properties of replication-survival support}
+\label{app:support-proofs}
+
+\subsection{Survival and quantile representations}
+
+For a random variable $T\in[L,U]$,
+\[
+T=L+\int_L^U\mathbf 1\{T>s\}\,ds.
+\]
+For $K$ independent copies, expectation of their minimum gives
+\begin{equation}
+S_K(T;\Regime)
+=
+L+\int_L^U\Prb_{\Regime}(T>s)^K\,ds.
+\label{eq:survival-representation}
+\end{equation}
+At each level $s$, the powered survival probability is the probability that all $K$ evaluations retain the level.
+
+\subsection{Literal survival of a practical margin}
+\label{app:literal-survival}
+
+For a prespecified practical margin $d$, define
+\begin{equation}
+\psi_{K,d}
+=
+\Prb_{\Regime}\left(\min_{j\leq K}T_j>d\right)
+=
+\Prb_{\Regime}(T>d)^K.
+\label{eq:literal-survival}
+\end{equation}
+Unlike $S_K$, this quantity is a probability at one effect level. Equation~\eqref{eq:survival-representation} can be written
+\[
+S_K(T;\Regime)=L+\int_L^U\psi_{K,s}\,ds,
+\]
+so replication-survival support is an integrated joint-survival magnitude, whereas $\psi_{K,d}$ is literal survival of the decision margin.
+
+Equation~\eqref{eq:literal-survival-estimator} gives the complete order-$K$ estimator from independent empirical-replication effects. Writing $p_d=\Prb_{\Regime}(T>d)$, the count $R_d$ is binomial with parameters $M$ and $p_d$. A one-sided lower confidence bound $p_L$ therefore yields
+\begin{equation}
+L_{\psi_{K,d}}=p_L^K,
+\label{eq:literal-survival-lower-bound}
+\end{equation}
+because $p\mapsto p^K$ is increasing on $[0,1]$. This direct binomial construction applies to genuinely independent empirical evaluations. When $R_d$ counts inner computational replications from one observed evaluation, it measures conditional Monte Carlo variation rather than scientific uncertainty; the outer procedure of Section~\ref{sec:estimation} must instead supply the lower bound.
+
+The reliability condition can require substantial empirical evidence. If all $M$ independent evaluations clear $d$, a one-sided exact $1-\alpha$ lower bound gives $L_{\psi}=\alpha^{K/M}$. Consequently, with $\alpha=0.05$, $K=5$, and $\gamma=0.90$, at least $143$ failure-free evaluations are required for $L_{\psi}>\gamma$. This demand reflects the strength of the joint-survival claim rather than the computational cost of its estimator. Because AP is discrete, the choice between $>$ and $\geq$ and sensitivity to mass at $d$ must be declared.
+
+\subsection{Quantile representation}
+
+If $Q_T$ is the quantile function of $T$, the smallest of $K$ independent uniform variables has density $K(1-v)^{K-1}$. Hence
+\begin{equation}
+S_K(T;\Regime)
+=
+\int_0^1Q_T(v)K(1-v)^{K-1}\,dv.
+\label{eq:quantile-weight}
+\end{equation}
+The weight moves toward the lower tail as $K$ increases.
+
+\subsection{Proof of the operator-order inequality}
+
+Let $X_c^{(j)}=\Delta_c(D_j)$ and $Y_c=\min_{j\leq K}X_c^{(j)}$. For every realized array,
+\[
+\min_j\inf_{c\in\CSet}X_c^{(j)}
+=
+\inf_{c\in\CSet}\min_jX_c^{(j)}
+=
+\inf_{c\in\CSet}Y_c.
+\]
+Since $\inf_c Y_c\leq Y_{c'}$ for every $c'\in\CSet$,
+\[
+\E\left[\inf_{c\in\CSet}Y_c\right]
+\leq
+\inf_{c\in\CSet}\E[Y_c],
+\]
+which proves Equation~\eqref{eq:order}.
+
+\subsection{Proof of challenge monotonicity}
+
+Take $\mathcal C_1\subseteq\mathcal C_2$ and $K_1\leq K_2$. Draw $K_2$ evaluations once and use the first $K_1$ for the smaller assessment. For every realized array,
+\[
+\min_{j\leq K_2}\inf_{c\in\mathcal C_2}\Delta_c(D_j)
+\leq
+\min_{j\leq K_1}\inf_{c\in\mathcal C_1}\Delta_c(D_j).
+\]
+Expectation preserves the inequality and proves Proposition~\ref{prop:monotonicity}.
+
+\section{Paired comparison proofs and counterexamples}
+\label{app:paired-proofs}
+
+\subsection{Why marginal subtraction overstates paired advantage}
+
+Let $U_\pi$ and $V_\pi$ be two profiles, with
+\[
+U_{\PSet}=\inf_{\pi\in\PSet}U_\pi,
+\qquad
+V_{\PSet}=\inf_{\pi\in\PSet}V_\pi,
+\qquad
+T_{\PSet}=\inf_{\pi\in\PSet}(U_\pi-V_\pi).
+\]
+Choosing a prevalence minimizing $U_\pi$ gives
+\[
+T_{\PSet}
+\leq
+U_{\PSet}-V_\pi
+\leq
+U_{\PSet}-V_{\PSet}.
+\]
+Monotonicity of $S_K$ therefore gives
+\[
+S_K(U_{\PSet}-V_{\PSet})
+\geq
+S_K(T_{\PSet}).
+\]
+
+For effects evaluated on the same replications, the minimum is superadditive:
+\[
+\min_j(X_j+Y_j)
+\geq
+\min_jX_j+\min_jY_j.
+\]
+Taking $X=U_{\PSet}-V_{\PSet}$ and $Y=V_{\PSet}$ yields
+\[
+S_K(U_{\PSet})-S_K(V_{\PSet})
+\geq
+S_K(U_{\PSet}-V_{\PSet}),
+\]
+which completes Equation~\eqref{eq:noncomposition}.
+
+\subsection{Proof of refinement neutrality}
+
+Condition on $S_B$ and $Y$. Proposition~\ref{prop:refinement} makes model $A$'s strict ranking $O_A$ uniform on $\mathcal O(D_B)$. Tie-averaged AP for $A$ is the conditional expectation of ordinary AP over whatever ties $A$ retains. By the tower property,
+\[
+\E[\APta_{A,\pi}\mid S_B,Y]
+=
+\E[\AP_\pi(D_{O_A})\mid S_B,Y].
+\]
+Uniformity of $O_A$ turns the right side into the average of $\AP_\pi$ over $\mathcal O(D_B)$, which is $\APta_{B,\pi}$.
+
+\subsection{Rank invariance under exchangeable labels}
+
+Fix $n_+$, $n_-$, and a strict ranking $o$. Under Definition~\ref{def:exchangeable}, the label sequence read along $o$ is uniform over the $\binom n{n_+}$ arrangements containing $n_+$ positives. Reading along another strict ranking is a bijection of the same arrangements, so the sequence has the same law.
+
+For a strict ranking, $\pi\mapsto\CNAP_\pi(D_o)$ is a deterministic function of that sequence. Its expectation is therefore the same for every strict ranking. Tie-averaged AP is a convex combination of strict-ranking values, so any two score vectors on the same units satisfy
+\[
+\E_0[\CNAPta_{A,\pi}]
+=
+\E_0[\CNAPta_{B,\pi}].
+\]
+Thus $\E_0[\Dta_\pi]=0$.
+
+Finally,
+\[
+\E_0[\RobDta]
+\leq
+\inf_{\pi\in\PSet}\E_0[\Dta_\pi]
+=0,
+\]
+and $S_K(T)\leq\E[T]$. Their composition proves Proposition~\ref{prop:paired-reference}; replacing $\Dta$ by $-\Dta$ proves the reversed orientation.
+
+\subsection{Why restricted label symmetry is insufficient}
+
+Take four units in two matched pairs, each containing exactly one positive. The design permits labels to swap within pairs but not between pairs. Let model $A$ give all units the same score, while model $B$ places the first pair above the second and ties the units within each pair. At $\pi=1/2$, exact tie averaging over the four permitted assignments gives
+\[
+\CNAPta_A-\CNAPta_B
+=
+\frac1{36}
+\]
+in one orientation for every assignment. The effect has no replication variation, so its supported value remains $1/36$ for every $K$.
+
+The obstruction is the symmetry group of the design. Full exchangeability places every strict ranking in one orbit of the label-permutation group. Restricted designs may divide rankings into several orbits with different anchors, and averaging within score ties cannot move a ranking between them.
+
+\subsection{Why paired null centering fails}
+
+Take two positive and two negative units at $\pi=1/2$, with
+\[
+s_A=(4,3,2,1),
+\qquad
+s_B=(2,2,1,1),
+\]
+and let the two highest-scored units be positive. Both models separate the classes perfectly, so every stratified bootstrap evaluation has CNAP one for each model and paired difference zero.
+
+Under joint label permutation, exact enumeration of the nested $K=2$ procedure gives a design anchor of $35/384$ for $A-B$ and $-295/1152$ for $B-A$. Subtracting these anchors would report a positive corrected value of about $0.256$ for the second orientation, favoring the coarser model although both predictions are perfect. The displacement is not an additive constant because perfect separation leaves no room for it.
+
+\subsection{Proof of the orientation bound}
+
+For evaluation $j$, write
+\[
+L_j=\inf_{\pi\in\PSet}\Dta_\pi(D_j),
+\qquad
+U_j=\sup_{\pi\in\PSet}\Dta_\pi(D_j).
+\]
+The two orientations satisfy
+\[
+\theta_{A:B}
+=
+\E\left[\min_{j\leq K}L_j\right],
+\qquad
+\theta_{B:A}
+=
+-\E\left[\max_{j\leq K}U_j\right].
+\]
+Since $L_j\leq U_j$ for every evaluation,
+\[
+\theta_{A:B}+\theta_{B:A}
+=
+\E\left[
+\min_{j\leq K}L_j-\max_{j\leq K}U_j
+\right]
+\leq0,
+\]
+which proves Equation~\eqref{eq:orientation}. The negative of this sum is the width of the no-verdict region. When $\PSet$ is a singleton and $K=2$, $L_j=U_j=T_j$, so the width reduces to $\E|T_1-T_2|$.
+
+\section{Closed-form computation of tie-averaged AP}
+\label{app:tie-computation}
+
+Index score blocks $j=1,\ldots,J$ from highest to lowest. Let block $j$ contain $a_j$ positive and $b_j$ negative units, with $m_j=a_j+b_j$, and define
+\[
+A_j=\sum_{\ell<j}a_\ell,
+\qquad
+B_j=\sum_{\ell<j}b_\ell.
+\]
+Then
+\begin{equation}
+\APta_\pi(D)
+=
+\sum_{j=1}^{J}
+\frac{a_j}{n_+}\frac1{m_j}
+\sum_{k=1}^{m_j}
+\sum_{t=\max(0,k-1-b_j)}^{\min(k-1,a_j-1)}
+\frac{\binom{a_j-1}{t}\binom{b_j}{k-1-t}}
+{\binom{m_j-1}{k-1}}
+\frac{\pi r_{jkt}}
+{\pi r_{jkt}+(1-\pi)f_{jkt}},
+\label{eq:tie-closed}
+\end{equation}
+where
+\[
+r_{jkt}=\frac{A_j+t+1}{n_+},
+\qquad
+f_{jkt}=\frac{B_j+k-1-t}{n_-}.
+\]
+
+To obtain the formula, fix one positive unit in block $j$. Under a uniformly random ordering of the block, its position $k$ is uniform on $\{1,\ldots,m_j\}$. Given $k$, the number $t$ of other positive units in the $k-1$ preceding positions is hypergeometric with $a_j-1$ available positives and $b_j$ negatives. The final fraction in Equation~\eqref{eq:tie-closed} is the prior-standardized precision when that positive enters the ranking. Averaging over $t$ and $k$, multiplying by the block's $a_j$ positive units, and summing over blocks gives the result.
+
+The calculation costs $O(\sum_jm_j^2)$ operations. Its combinatorial weights do not depend on $\pi$ and can be reused throughout the prevalence search. When all scores are distinct, Equation~\eqref{eq:tie-closed} reduces to ordinary stepwise AP.
+
+\section{Computation and outer uncertainty}
+\label{app:computation}
+
+\subsection{General support order}
+
+Sort $M$ observed empirical-replication effects:
+\[
+z_{(1)}\leq\cdots\leq z_{(M)}.
+\]
+The value $z_{(i)}$ is the minimum in every order-$K$ subset containing it and $K-1$ of the $M-i$ larger values. Hence Equation~\eqref{eq:observed-u} equals
+\begin{equation}
+\widehat S_{K,\CSet,M}^{\,\mathrm{obs}}
+=
+\binom MK^{-1}
+\sum_{i=1}^{M-K+1}
+\binom{M-i}{K-1}z_{(i)}.
+\label{eq:sorted-observed}
+\end{equation}
+
+For $B$ bootstrap effects, the projected estimator is
+\begin{equation}
+\widehat S_{K,\CSet,B}^{\,\mathrm{proj}}
+=
+\binom BK^{-1}
+\sum_{i=1}^{B-K+1}
+\binom{B-i}{K-1}z_{(i)}.
+\label{eq:sorted-bootstrap}
+\end{equation}
+At $K=2$, this reduces to
+\[
+\widehat S_{2,\CSet,B}^{\,\mathrm{proj}}
+=
+\frac{2}{B(B-1)}
+\sum_{i=1}^{B-1}(B-i)z_{(i)}.
+\]
+
+\subsection{Monte Carlo error}
+
+For $K=2$, define the leave-one-replication projection
+\[
+\widehat h_{1,-i}(z_i)
+=
+\frac1{B-1}\sum_{j\ne i}\min(z_i,z_j).
+\]
+A first-order Monte Carlo standard error for the projected estimator is
+\begin{equation}
+\widehat{\operatorname{se}}_{\mathrm{MC}}
+=
+\frac2{\sqrt B}
+\operatorname{sd}_{i}
+\left\{
+\widehat h_{1,-i}(z_i)
+\right\}.
+\label{eq:mcse}
+\end{equation}
+Prefix sums over the sorted array compute all projections in linear time after sorting.
+
+\subsection{Prevalence evaluation and outer bounds}
+
+For a finite prevalence set with $G$ values, score-block counts are computed once in each evaluation and reused across prevalences. For a continuous interval, Equation~\eqref{eq:cnap-profile} is a smooth one-dimensional objective away from thresholds with no recall contribution. Endpoint values and stationary points may be checked directly, while a numerical optimizer should be validated against a dense grid.
+
+With several empirical replications, an outer sample resamples the complete evaluations. With one observed evaluation, an outer sample resamples the independent units or clusters according to the study design, and the inner bootstrap then generates computational replications from that outer empirical distribution. Pairing must be retained in both layers, and every outer sample must repeat the prevalence search. Because the target combines a lower-tail functional with a potentially nonsmooth infimum, coverage should be established under designs resembling the intended application.
+
+\section{Canonical empirical case-mix breakdown for AUROC}
+\label{app:auroc}
+
+\subsection{Prior shift supplies no AUROC challenge}
+
+The condition set used for AP is a set of target prevalences. It is available
+because AP depends on the class prior. AUROC does not. AUROC is the probability
+that a randomly drawn positive outranks a randomly drawn negative, with half
+credit for a tie, and is therefore a functional of the two class-conditional
+score distributions alone. Changing the prior alters how often each class is
+drawn while leaving both conditionals intact. An AUROC advantage that survives
+every $\pi\in\PSet$ has consequently survived no additional challenge.
+
+The within-class composition remains free to change, however. A new population
+may contain different proportions of mild and severe positives or easy and
+difficult negatives even when its prevalence is unchanged. Named target mixes
+can be evaluated when those proportions and the required transport assumptions
+are available. The construction here addresses the setting in which they are
+not. It uses the observed cases themselves as the empirical support, admits
+increasingly concentrated redistributions within each outcome class, and
+reports the concentration at which the complete replacement conclusion first
+fails. It therefore begins with uniform within-class weights and progressively
+relaxes a common upper bound on the weight any observation may receive, rather
+than requiring the analyst to select that bound. The bound and the resulting
+breakdown factor are defined below.
+
+\subsection{The paired AUROC difference as a case-mix average}
+
+Let $D$ contain paired scores $(s_i^A,s_i^B)$ and outcome $Y_i$ for every
+evaluation unit, with positive index set $\mathcal I_+$, negative index set
+$\mathcal I_-$, and class counts $n_+$ and $n_-$. For model $m\in\{A,B\}$,
+write
+\[
+\phi_m(i,k)
+=
+\mathbf 1\{s_i^m>s_k^m\}
++\tfrac12\mathbf 1\{s_i^m=s_k^m\},
+\qquad i\in\mathcal I_+,\quad k\in\mathcal I_-.
+\]
+Thus $\phi_m(i,k)$ is one when model $m$ orders the positive--negative
+pair correctly, one half for a tie, and zero otherwise. Define the pairwise
+gain matrix
+\[
+G_{ik}=\phi_A(i,k)-\phi_B(i,k).
+\]
+If positive and negative cases receive normalized weights $w_+$ and $w_-$,
+the paired AUROC difference under that empirical case mix is
+\begin{equation}
+\Delta_D(w_+,w_-)
+=
+\sum_{i\in\mathcal I_+}\sum_{k\in\mathcal I_-}
+w_{+,i}w_{-,k}G_{ik}.
+\label{eq:auroc-weighted-difference}
+\end{equation}
+Uniform within-class weights recover the ordinary empirical AUROC difference.
+Because both models are evaluated with the same $w_+$ and $w_-$, the
+redistribution remains paired.
+
+No additional tie correction is needed. Each pair already receives half credit
+for a tie, so exchangeable labels give every fixed score vector mean AUROC one
+half regardless of its tie structure. The positive finite-sample anchor that
+required tie-averaged AP in Section~\ref{sec:tie-average} does not recur.
+
+\subsection{Why unrestricted redistribution degenerates}
+
+If the weights in Equation~\eqref{eq:auroc-weighted-difference} are otherwise
+unrestricted, all positive weight may be placed on one positive case and all
+negative weight on one negative case. The infimum then reduces to the least
+favorable single entry of $M$. This is too concentrated to support a useful
+replacement criterion.
+
+The degeneracy is especially clear when candidate $A$ separates perfectly.
+Then $G_{ik}=1-\phi_B(i,k)\geq0$ for every pair, but concentrating on any pair
+that incumbent $B$ also orders correctly gives difference zero. A perfect
+candidate can show a strictly positive worst-case advantage only if the
+incumbent fails on every pair. Unrestricted empirical reweighting therefore
+does not make replacement appropriately demanding; it generally makes a
+strict advantage unavailable.
+
+\subsection{The canonical symmetric concentration challenge}
+
+What causes the degeneracy is concentration rather than empirical reweighting
+itself. For a common factor $\Gamma\geq1$, define
+\begin{equation}
+\mathcal W_{+,\Gamma}(D)
+=
+\left\{
+w_+:
+\sum_{i\in\mathcal I_+}w_{+,i}=1,\quad
+0\leq w_{+,i}\leq\frac{\Gamma}{n_+}
+\right\},
+\label{eq:auroc-positive-weights}
+\end{equation}
+and
+\begin{equation}
+\mathcal W_{-,\Gamma}(D)
+=
+\left\{
+w_-:
+\sum_{k\in\mathcal I_-}w_{-,k}=1,\quad
+0\leq w_{-,k}\leq\frac{\Gamma}{n_-}
+\right\}.
+\label{eq:auroc-negative-weights}
+\end{equation}
+The canonical condition set is
+\[
+\CSet_\Gamma(D)
+=
+\mathcal W_{+,\Gamma}(D)\times\mathcal W_{-,\Gamma}(D),
+\]
+and the advantage retained in evaluation $D$ is
+\begin{equation}
+Z_\Gamma^{A:B}(D)
+=
+\inf_{(w_+,w_-)\in\CSet_\Gamma(D)}
+\Delta_D(w_+,w_-).
+\label{eq:auroc-z-gamma}
+\end{equation}
+
+At $\Gamma=1$, normalization forces every weight to be uniform, so
+\begin{equation}
+Z_1^{A:B}(D)
+=
+\operatorname{AUC}_A(D)-\operatorname{AUC}_B(D).
+\label{eq:auroc-gamma-one}
+\end{equation}
+At larger values, no observation may receive more than $\Gamma$ times its
+uniform within-class weight. The bound is one-sided: an observation may receive
+zero weight, while concentration on the retained observations is limited from
+above. The effective sample size (ESS) summarizes this concentration. For
+either class $y$,
+\[
+\sum_i w_{y,i}^2
+\leq
+\left(\max_i w_{y,i}\right)\sum_iw_{y,i}
+\leq
+\frac{\Gamma}{n_y},
+\]
+and hence
+\begin{equation}
+\operatorname{ESS}(w_y)
+=
+\left(\sum_iw_{y,i}^2\right)^{-1}
+\geq
+\frac{n_y}{\Gamma}.
+\label{eq:auroc-gamma-ess}
+\end{equation}
+Thus $1/\Gamma$ is a guaranteed minimum effective-support fraction implied by
+the cap, although an effective-sample-size restriction alone would not define
+the same set of weights.
+
+The admissible sets are nested:
+\[
+\Gamma_1\leq\Gamma_2
+\quad\Longrightarrow\quad
+\CSet_{\Gamma_1}(D)\subseteq\CSet_{\Gamma_2}(D),
+\]
+so
+\begin{equation}
+Z_{\Gamma_2}^{A:B}(D)
+\leq
+Z_{\Gamma_1}^{A:B}(D).
+\label{eq:auroc-gamma-monotone}
+\end{equation}
+A perfectly separating model continues to attain AUROC one throughout every
+admissible set. The challenge changes only how much of the observed empirical
+support may speak for each outcome class.
+
+The common factor is a canonical symmetric allowance, not a requirement that
+the two classes undergo the same realized redistribution. The positive and
+negative weights are optimized separately. If separate upper bounds were
+introduced, monotonicity would make $(\Gamma,\Gamma)$ the most adverse corner
+among all combinations in which neither class's bound exceeds $\Gamma$.
+Equation~\eqref{eq:auroc-z-gamma} therefore challenges the entire square of
+weaker positive- and negative-class concentration allowances while retaining a
+single concentration coordinate. Asymmetric bounds may be useful diagnostically,
+but they are not part of the canonical implementation or its minimum report.
+
+\subsection{Replication-challenged decision profiles}
+
+Apply the paper's support construction separately at every common concentration
+factor. Define the supported-magnitude profile
+\begin{equation}
+\theta_{A:B}(\Gamma)
+=
+S_K(Z_\Gamma^{A:B};\Regime)
+=
+\E_{\Regime}
+\left[
+\min_{1\leq j\leq K}Z_\Gamma^{A:B}(D_j)
+\right]
+\label{eq:auroc-theta-gamma}
+\end{equation}
+and, for an AUROC-difference floor $d\geq0$, the literal-survival profile
+\begin{equation}
+\psi_{K,d}^{A:B}(\Gamma)
+=
+\Prb_{\Regime}
+\left\{
+\min_{1\leq j\leq K}Z_\Gamma^{A:B}(D_j)>d
+\right\}.
+\label{eq:auroc-psi-gamma}
+\end{equation}
+The same common $\Gamma$ is applied to every evaluation, while the adverse
+weights may differ between evaluations. Because
+Equation~\eqref{eq:auroc-gamma-monotone} holds pointwise, both
+$\theta_{A:B}(\Gamma)$ and $\psi_{K,d}^{A:B}(\Gamma)$ are nonincreasing in
+$\Gamma$.
+
+Let $\delta\geq0$ now denote the smallest supported AUROC advantage that would
+justify replacement, and retain $\gamma\in(0,1)$ as the required literal
+survival probability. At concentration factor $\Gamma$, the AUROC replacement
+policy requires
+\begin{equation}
+\theta_{A:B}(\Gamma)>\delta
+\qquad\text{and}\qquad
+\psi_{K,d}^{A:B}(\Gamma)>\gamma.
+\label{eq:auroc-policy-gamma}
+\end{equation}
+At $\Gamma=1$, Equation~\eqref{eq:auroc-policy-gamma} is the ordinary paired
+AUROC replacement assessment under the declared replication challenge. As
+$\Gamma$ grows, it asks how far that same conclusion survives increasingly
+concentrated recombinations of the cases represented in each evaluation.
+
+\subsection{The empirical case-mix breakdown factor}
+
+The analyst does not select a value of $\Gamma$ at which to report a verdict.
+Instead, the canonical procedure locates the first value at which the complete
+policy fails.
+
+\begin{definition}[Empirical case-mix breakdown factor]
+For the oriented comparison of candidate $A$ with incumbent $B$, define
+\begin{equation}
+\Gamma_{\mathrm{ECM},A:B}^{\dagger}
+=
+\inf\left\{
+\Gamma\geq1:
+\theta_{A:B}(\Gamma)\leq\delta
+\ \text{or}\ 
+\psi_{K,d}^{A:B}(\Gamma)\leq\gamma
+\right\}.
+\label{eq:auroc-ecm-breakdown}
+\end{equation}
+\end{definition}
+
+The quantity is the smallest common upper within-class concentration factor at
+which the replacement justification first fails. Equivalently, before the
+breakdown, the conclusion survives every pair of empirical positive- and
+negative-class redistributions whose individual weights are capped by
+$\Gamma/n_+$ and $\Gamma/n_-$. A larger value means that a stronger empirical
+concentration challenge is required to defeat the declared replacement policy.
+
+If Equation~\eqref{eq:auroc-policy-gamma} already fails at $\Gamma=1$, then
+$\Gamma_{\mathrm{ECM},A:B}^{\dagger}=1$: there is no supported replacement
+conclusion before case-mix stress is applied. If the failure set in
+Equation~\eqref{eq:auroc-ecm-breakdown} is empty, its infimum is $+\infty$ and
+the report should state that no breakdown occurred over the complete empirical
+support. In a finite evaluation the weight sets eventually saturate, because a
+cap of at least one permits unrestricted simplex weights. A zero crossing of
+$\theta_{A:B}(\Gamma)$ may be informative as a secondary sensitivity
+diagnostic, but the policy breakdown is primary because it preserves the
+paper's practical-magnitude and literal-survival requirements.
+
+The breakdown factor remains indexed by the complete assessment: the paired
+models, empirical support, evaluation regime, replication order, and policy
+thresholds $\delta$, $d$, and $\gamma$. Its canonical status means that the
+weight family and search rule are fixed rather than chosen after the result is
+seen; it does not make the quantity a context-free property of either model.
+
+\subsection{Estimation and certification}
+
+Three counts have different roles. Let $M$ be the number of genuinely
+independent empirical evaluations, let $B$ be the number of computational
+bootstrap replications generated when only one evaluation is observed, and let
+$K$ be the declared order of the replication challenge. Increasing $M$ adds
+empirical evidence, increasing $B$ reduces Monte Carlo error in a projected
+analysis, and increasing $K$ changes the criterion by placing greater emphasis
+on adverse evaluations.
+
+\paragraph{Several independent empirical evaluations.}
+Suppose $D_1,\ldots,D_M\iid\Regime$ are genuinely independent complete
+evaluations, with $M\geq K$. At each searched concentration factor, compute
+\[
+z_m(\Gamma)
+=
+Z_\Gamma^{A:B}(D_m),
+\qquad m=1,\ldots,M.
+\]
+Applying the complete order-$K$ estimators in
+Equations~\eqref{eq:observed-u} and
+\eqref{eq:literal-survival-estimator} to these effects gives
+\[
+\widehat\theta_{A:B}^{\,\mathrm{obs}}(\Gamma)
+\qquad\text{and}\qquad
+\widehat\psi_{K,d}^{A:B,\mathrm{obs}}(\Gamma).
+\]
+The observed-replication breakdown estimate is
+\begin{equation}
+\widehat\Gamma_{\mathrm{ECM},A:B}^{\dagger,\mathrm{obs}}
+=
+\inf\left\{
+\Gamma\geq1:
+\widehat\theta_{A:B}^{\,\mathrm{obs}}(\Gamma)\leq\delta
+\ \text{or}\ 
+\widehat\psi_{K,d}^{A:B,\mathrm{obs}}(\Gamma)\leq\gamma
+\right\}.
+\label{eq:auroc-ecm-breakdown-observed}
+\end{equation}
+
+\paragraph{One observed evaluation.}
+When only one independent evaluation $D_{\mathrm{obs}}$ is available, generate
+$B$ computational replications $D^{(1)},\ldots,D^{(B)}$ from the bootstrap
+approximation $\widehat{\Regime}$ to the applicable empirical fixed-model
+regime. Every computational replication must preserve the paired scores,
+resample according to the study design, and repeat the optimization in
+Equation~\eqref{eq:auroc-z-gamma}. For every computational replication and
+searched concentration factor, compute
+\[
+z_b(\Gamma)
+=
+Z_\Gamma^{A:B}\!\left(D^{(b)}\right),
+\qquad b=1,\ldots,B.
+\]
+The same $D^{(b)}$ must be reused throughout the $\Gamma$ search. Changes in
+$z_b(\Gamma)$ then arise from relaxing the concentration bound rather than from
+using different bootstrap samples at different values of $\Gamma$.
+
+Applying the complete order-$K$ estimators to
+$z_1(\Gamma),\ldots,z_B(\Gamma)$, with $B\geq K$, gives
+\[
+\widehat\theta_{A:B}^{\,\mathrm{proj}}(\Gamma)
+\qquad\text{and}\qquad
+\widehat\psi_{K,d}^{A:B,\mathrm{proj}}(\Gamma).
+\]
+Their first policy crossing gives the projected empirical case-mix breakdown
+estimate
+\begin{equation}
+\widehat\Gamma_{\mathrm{ECM},A:B}^{\dagger,\mathrm{proj}}
+=
+\inf\left\{
+\Gamma\geq1:
+\widehat\theta_{A:B}^{\,\mathrm{proj}}(\Gamma)\leq\delta
+\ \text{or}\ 
+\widehat\psi_{K,d}^{A:B,\mathrm{proj}}(\Gamma)\leq\gamma
+\right\}.
+\label{eq:auroc-ecm-breakdown-projected}
+\end{equation}
+The $B$ computational replications approximate the evaluation-effect
+distribution under $\widehat{\Regime}$; they are not $M=B$ observed
+evaluations. Increasing $B$ reduces Monte Carlo error but cannot expose a case
+type, environment, measurement process, or failure mechanism absent from
+$D_{\mathrm{obs}}$. The resulting profiles and breakdown factor must therefore
+be described as projected.
+
+The estimated first crossing in either evidence path is not by itself an
+inferential guarantee. With several empirical evaluations, an outer sample
+resamples complete evaluations. With one observed evaluation, an outer sample
+first resamples the independent units or clusters according to the study design
+and then regenerates the inner set of $B$ computational replications. Every
+outer sample repeats the complete $\Gamma$ search.
+
+For either path, let $L_\theta(\Gamma)$ and $L_\psi(\Gamma)$ be the corresponding
+simultaneous lower confidence bands for the two profiles over the searched
+range. Their interpretation inherits the evidence source: bands obtained from
+independent empirical evaluations support observed-replication claims, whereas
+bands obtained from one evaluation support only projected claims. A certified
+empirical case-mix factor is
+\begin{equation}
+\Gamma_{\mathrm{ECM},A:B}^{\mathrm{cert}}
+=
+\sup\left\{
+g\geq1:
+L_\theta(\Gamma)>\delta
+\ \text{and}\ 
+L_\psi(\Gamma)>\gamma
+\ \text{for every }1\leq\Gamma\leq g
+\right\}.
+\label{eq:auroc-ecm-certified}
+\end{equation}
+Pointwise bounds do not generally certify a crossing selected after searching
+over $\Gamma$. The outer procedure must therefore cover both decision profiles
+simultaneously over the searched range, as well as accounting for the two
+requirements at each value. If the lower bounds do not establish both
+requirements at $\Gamma=1$, no positive range is certified and the report
+should return no replacement verdict rather than assign a robustness factor.
+
+
+
+\subsection{Computation and minimum reporting}
+
+Writing $G=(G_{ik})$, Equation~\eqref{eq:auroc-z-gamma} minimizes the bilinear
+form $w_+^\top G w_-$ over two capped simplices. A feasible weighting supplies
+an upper bound on the infimum and can demonstrate failure when its value
+violates a policy requirement. Certifying that the requirement continues to
+hold needs a valid global lower bound; alternating optimization without such a
+bound may stop above the true infimum and overstate robustness.
+
+Monotonicity permits a bracketed search for the corresponding observed or
+projected breakdown estimate rather than evaluation of a dense curve solely for
+reporting. The numerical tolerance, global-optimization gap, Monte Carlo error,
+and simultaneous-band procedure should be recorded. The full profiles remain
+useful diagnostics and should be retained by the software, but they need not
+appear in the headline report.
+
+A minimum report gives the decision results at $\Gamma=1$, the estimated
+breakdown factor, the certified factor when inference is performed, and which
+of the supported-magnitude and literal-survival requirements fails first. Every
+estimate, lower band, and breakdown factor must be identified as
+observed-replication or projected. After the evidence source has been made
+explicit, unsuffixed notation may be used for readability. A possible statement
+is:
+\begin{quote}
+At the observed case mix, model $A$ satisfied the order-$K$ supported-magnitude
+and literal-survival requirements for replacement of model $B$. Under the
+canonical symmetric empirical case-mix challenge, the estimated breakdown
+factor was $\widehat\Gamma_{\mathrm{ECM},A:B}^{\dagger}=[\text{value}]$, and
+the conclusion was simultaneously certified through
+$\Gamma_{\mathrm{ECM},A:B}^{\mathrm{cert}}=[\text{value}]$. Through that
+certified factor, no observation could receive more than [value] times its
+uniform within-class weight, and every admissible weighting retained effective
+support of at least [fraction] of each observed outcome class. The first failure
+involved [supported magnitude, literal survival, or both].
+\end{quote}
+With several independent evaluations, the statement should open, ``Across $M$
+independent empirical evaluations from the declared regime.'' With one
+bootstrapped evaluation, it should instead open, ``Under a bootstrap
+approximation to the empirical fixed-model regime,'' and every estimate and
+certification in the statement must be qualified as projected.
+
+\subsection{Scope of the empirical challenge}
+
+The canonical construction is complete for its empirical target but does not
+extend the claim beyond the case types the evaluation contains. Every
+admissible mix is a recombination of observed cases. A type absent from the
+evaluation receives weight zero at every $\Gamma$; reaching it requires new
+data or an explicit extrapolation model. Individual reweighting may also
+concentrate on sample-specific errors rather than on a named scientific
+subpopulation, so the breakdown factor should not be presented as the magnitude
+of a known deployment shift.
+
+The boundary is the one already met in the AP construction. Prior
+standardization and computational replication explore recombinations of a
+fixed empirical world while holding unobserved mechanisms fixed. Empirical
+case-mix reweighting does the same within outcome class. None can reveal score
+behavior outside the observed support or a failure mechanism excluded from the
+declared regime. Independent empirical evaluations can challenge those fixed
+features only to the extent that their generating regime permits them to vary.
+
+These limitations restrict interpretation without leaving the criterion
+undetermined. The procedure does not claim that any value encountered in the
+$\Gamma$ search describes an external target population. It starts from uniform
+empirical weights, increases a normalized concentration allowance according to
+a fixed symmetric rule, and reports where the declared replacement policy
+breaks. The empirical case-mix breakdown factor is therefore a reproducible
+property of the paired comparison under the declared assessment, measuring
+robustness over represented case support while remaining silent about case
+types and mechanisms absent from that support.
+
+
+\begin{thebibliography}{99}
+
+\bibitem{bareinboim2013transportability}
+Bareinboim, E., \& Pearl, J. (2013).
+A general algorithm for deciding transportability of experimental results.
+\emph{Journal of Causal Inference}, 1(1), 107--134.
+
+\bibitem{bestgen2015random}
+Bestgen, Y. (2015).
+Exact expected average precision of the random baseline for system evaluation.
+\emph{The Prague Bulletin of Mathematical Linguistics}, 103, 131--138.
+
+\bibitem{cohen1960coefficient}
+Cohen, J. (1960).
+A coefficient of agreement for nominal scales.
+\emph{Educational and Psychological Measurement}, 20, 37--46.
+
+\bibitem{elkan2001foundations}
+Elkan, C. (2001).
+The foundations of cost-sensitive learning.
+In \emph{Proceedings of the Seventeenth International Joint Conference on Artificial Intelligence}, 973--978.
+
+\bibitem{hoeffding1948ustat}
+Hoeffding, W. (1948).
+A class of statistics with asymptotically normal distribution.
+\emph{Annals of Mathematical Statistics}, 19, 293--325.
+
+\bibitem{lipton2018detecting}
+Lipton, Z. C., Wang, Y.-X., \& Smola, A. (2018).
+Detecting and correcting for label shift with black box predictors.
+In \emph{Proceedings of the 35th International Conference on Machine Learning}, PMLR 80, 3122--3130.
+
+\bibitem{popper1959logic}
+Popper, K. R. (1959).
+\emph{The Logic of Scientific Discovery}.
+Hutchinson.
+
+\bibitem{popper1963conjectures}
+Popper, K. R. (1963).
+\emph{Conjectures and Refutations: The Growth of Scientific Knowledge}.
+Routledge.
+
+\bibitem{saerens2002adjusting}
+Saerens, M., Latinne, M., \& Decaestecker, C. (2002).
+Adjusting the outputs of a classifier to new a priori probabilities.
+\emph{Neural Computation}, 14(1), 21--41.
+
+\bibitem{siblini2020calibration}
+Siblini, W., Fr\'ery, J., He-Guelton, L., Obl\'e, F., \& Wang, Y. (2020).
+Master your metrics with calibration.
+In \emph{Advances in Intelligent Data Analysis XVIII}, 457--469.
+
+\bibitem{storkey2009training}
+Storkey, A. (2009).
+When training and test sets are different: characterizing learning transfer.
+In \emph{Dataset Shift in Machine Learning}, 3--28. MIT Press.
+
+\end{thebibliography}
+
+\end{document}
