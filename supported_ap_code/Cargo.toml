@@ -7,6 +7,10 @@ description = "V17 staged finite-evidence challenges for supported AP and AUROC"
 license = "MIT"
 readme = "README.md"
 
+[workspace]
+members = [".", "crates/directed_round_robin_organizer"]
+resolver = "3"
+
 [features]
 default = ["parallel"]
 parallel = ["dep:rayon"]

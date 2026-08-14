@@ -8,6 +8,11 @@
 //! The observed empirical gate precedes any declared computational challenge,
 //! and every computational challenge retains the observed effect as an anchor.
 
+/// Cargo package version embedded in scientific result provenance.
+pub const PACKAGE_VERSION: &str = env!("CARGO_PKG_VERSION");
+/// Manuscript/report contract implemented by this crate.
+pub const MANUSCRIPT_VERSION: &str = "v17";
+
 mod auroc;
 mod decision;
 mod error;

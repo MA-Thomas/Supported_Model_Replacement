@@ -3,6 +3,12 @@
 This crate implements the finite-evidence procedures in
 `Stats_Paper_Extending_PRAUC_v17_Codex.tex`.
 
+The Cargo workspace also contains
+[`directed_round_robin_organizer`](crates/directed_round_robin_organizer/README.md), which validates
+portable single-metric tournament bundles, delegates every paired judgment to this library, and
+performs deterministic verdict-only graph reduction. The organizer does not duplicate any of this
+crate's evidential mathematics.
+
 For AP, each complete evaluation is reduced in the manuscript's order:
 
 1. compute the prior-standardized paired CNAP difference over the declared
