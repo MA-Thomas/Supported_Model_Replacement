@@ -212,7 +212,7 @@ fn projected_resampling(
             .map_err(|error| Error::Judge(error.to_string()))?,
         counts,
         seed,
-        Execution::Sequential,
+        Execution::Parallel,
         ResamplingUnit::IndependentObservation,
     )
     .map_err(|error| Error::Judge(error.to_string()))
@@ -268,7 +268,7 @@ mod tests {
     };
     use crate::spec::{
         AurocSpecification, ComputationalDesign, EvidencePolicy, ResamplingUnitSpec,
-        SPEC_SCHEMA_VERSION, TournamentSpec,
+        SPEC_SCHEMA_VERSION, SelectionStrategy, TournamentSpec,
     };
     use crate::system::{SystemRecord, SystemRegistry};
 
@@ -305,6 +305,7 @@ mod tests {
             conjunction_rule: "all_evaluations".into(),
             graph_maximality_rule: "source_strongly_connected_components".into(),
             selection_rule: "source_scc_maximal_vertices".into(),
+            selection_strategy: SelectionStrategy::CandidateConservative,
             pr_cnap: None,
             auroc: Some(AurocSpecification {
                 optimization: AuRocOptimizationOptions::default(),
@@ -314,6 +315,17 @@ mod tests {
             operational_tie_break: None,
         };
         let policy_hash = hash_serializable(&spec).unwrap();
+        // The selection strategy is a reduction-time choice and must never affect
+        // tournament identity.
+        let strategy_flipped = TournamentSpec {
+            selection_strategy: SelectionStrategy::ReplacementConservative,
+            ..spec.clone()
+        };
+        assert_eq!(
+            hash_serializable(&spec.identity_view()).unwrap(),
+            hash_serializable(&strategy_flipped.identity_view()).unwrap(),
+            "selection strategy must not affect tournament identity"
+        );
         let evaluation = LoadedEvaluation {
             evaluation_id: "evaluation".into(),
             positive_count: 3,

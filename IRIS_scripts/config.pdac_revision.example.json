@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "configuration_kind": "pdac_context_revision",
+  "revision_id": "pdac_no_splen_evac_grid4",
+  "replace_evaluation": "pdac",
+  "excluded_patient_ids": [
+    "99122",
+    "99299",
+    "99316",
+    "99366",
+    "99559",
+    "99593",
+    "99646"
+  ],
+  "vaccination_grid_id": 4,
+  "expected_endpoint_count": 112,
+  "expected_positive_count": 19,
+  "expected_negative_count": 93,
+  "expected_matches_per_metric": 1770,
+  "revision_bundle_root": "prebuilt_bundles/pdac_no_splen_evac_grid4",
+  "base_run_root": "/path/to/completed/threshold_zero/run",
+  "new_run_root": "/path/to/new/pdac_no_splen_evac_grid4/run"
+}

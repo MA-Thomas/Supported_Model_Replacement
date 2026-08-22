@@ -2,7 +2,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use directed_round_robin_organizer::artifact::{checksum_path, result_path, run_shard};
+use directed_round_robin_organizer::artifact::{
+    checksum_path, read_artifact, result_path, run_shard,
+};
 use directed_round_robin_organizer::audit::audit_results;
 use directed_round_robin_organizer::identity::{
     canonical_label_hash, canonical_vector_hash, sha256_file,
@@ -12,14 +14,19 @@ use directed_round_robin_organizer::input::{
     PortableEvaluationHashes, compute_bundle_content_hash, load_bundle,
 };
 use directed_round_robin_organizer::plan::{
-    plan_with_match_target, plan_with_shard_count, validate_plan,
+    plan_with_match_target, plan_with_shard_count, validate_plan, write_plan,
 };
 use directed_round_robin_organizer::reduce::{
-    SelectionOutcome, audit_reduction, reduce_tournament, write_reduction,
+    SelectionOutcome, audit_reduction, induce_reduction_view, load_reduction_for,
+    reduce_tournament, write_induced_reduction_view, write_reduction,
+};
+use directed_round_robin_organizer::revision::{
+    TournamentReductionSource, TournamentSource, VerdictSource, audit_revision_composition_for,
+    compose_revision, compose_revision_from_reductions, write_revision_composition,
 };
 use directed_round_robin_organizer::spec::{
     ComputationalDesign, EvidencePolicy, MetricKind, PrCnapSpecification, ResamplingUnitSpec,
-    SPEC_SCHEMA_VERSION, TournamentSpec,
+    SPEC_SCHEMA_VERSION, SelectionStrategy, TournamentSpec,
 };
 use directed_round_robin_organizer::system::{SystemRecord, SystemRegistry};
 use supported_ap::{Prevalence, ReferenceAssessment, SearchOptions, TargetPrevalences};
@@ -74,9 +81,188 @@ fn complete_pr_tournament_is_resumable_reducible_and_auditable() {
         SelectionOutcome::UnresolvedCandidateSet { ref system_ids }
             if system_ids == &["m1_max".to_owned(), "m1_mean".to_owned()]
     ));
+    // Both selections are always produced; the active one honors the spec.
+    assert_eq!(
+        reduction.selection.strategy,
+        SelectionStrategy::ReplacementConservative
+    );
+    assert_eq!(
+        reduction.alternate_selection.strategy,
+        SelectionStrategy::CandidateConservative
+    );
+    assert_eq!(reduction.per_evaluation_maximal.len(), 2);
+    // Candidate-conservative survivors are the intersection of the per-evaluation
+    // maximal sets, so every survivor is maximal in every evaluation.
+    for survivor in &reduction.alternate_selection.graph_maximal_systems {
+        assert!(
+            reduction
+                .per_evaluation_maximal
+                .iter()
+                .all(|set| set.maximal_systems.contains(survivor))
+        );
+    }
+    let reloaded = load_reduction_for(
+        &{
+            let root = temporary.path().join("reduction-roundtrip");
+            write_reduction(&reduction, &root).unwrap();
+            root
+        },
+        &bundle,
+        &plan,
+    )
+    .unwrap();
+    assert_eq!(reloaded.selection, reduction.selection);
+    assert_eq!(reloaded.alternate_selection, reduction.alternate_selection);
     let reduction_root = temporary.path().join("reduction");
     write_reduction(&reduction, &reduction_root).unwrap();
     audit_reduction(&reduction_root).unwrap();
+    let view = induce_reduction_view(
+        &bundle,
+        &reduction,
+        &reduction_root,
+        &["m2_mean".to_owned()],
+    )
+    .unwrap();
+    assert_eq!(view.included_systems.len(), 3);
+    assert_eq!(view.induced_pair_cohort_count, 6);
+    assert_eq!(view.atomic_directed_verdicts.len(), 12);
+    assert!(
+        view.selection
+            .survivor_evidence
+            .iter()
+            .all(|evidence| evidence.comparisons.len() == 2)
+    );
+    let view_root = temporary.path().join("induced-view");
+    write_induced_reduction_view(&view, &view_root).unwrap();
+    assert!(view_root.join("induced_view_manifest.json").is_file());
+}
+
+#[test]
+fn pdac_style_revision_replaces_one_evaluation_and_preserves_sources() {
+    let temporary = TempDir::new().unwrap();
+    let base_root = temporary.path().join("base-bundle");
+    let revision_root = temporary.path().join("revision-bundle");
+    build_pr_bundle(&base_root, false);
+    build_revision_bundle(&revision_root);
+    let base_bundle = load_bundle(&base_root).unwrap();
+    let revision_bundle = load_bundle(&revision_root).unwrap();
+    let base_plan = plan_with_shard_count(&base_bundle, 1).unwrap();
+    let revision_plan = plan_with_shard_count(&revision_bundle, 1).unwrap();
+    let base_results = temporary.path().join("base-results");
+    let revision_results = temporary.path().join("revision-results");
+    run_shard(&base_bundle, &base_plan, 0, &base_results, 2).unwrap();
+    run_shard(&revision_bundle, &revision_plan, 0, &revision_results, 2).unwrap();
+
+    let composition = compose_revision(
+        TournamentSource {
+            bundle: &base_bundle,
+            plan: &base_plan,
+            results: &base_results,
+        },
+        TournamentSource {
+            bundle: &revision_bundle,
+            plan: &revision_plan,
+            results: &revision_results,
+        },
+        "eval_b",
+        "pdac_style_revision",
+    )
+    .unwrap();
+    let base_reduction_root = temporary.path().join("base-reduction");
+    let revision_reduction_root = temporary.path().join("revision-reduction");
+    write_reduction(
+        &reduce_tournament(&base_bundle, &base_plan, &base_results).unwrap(),
+        &base_reduction_root,
+    )
+    .unwrap();
+    write_reduction(
+        &reduce_tournament(&revision_bundle, &revision_plan, &revision_results).unwrap(),
+        &revision_reduction_root,
+    )
+    .unwrap();
+    let base_reduction =
+        load_reduction_for(&base_reduction_root, &base_bundle, &base_plan).unwrap();
+    let revision_reduction =
+        load_reduction_for(&revision_reduction_root, &revision_bundle, &revision_plan).unwrap();
+    let base_plan_root = temporary.path().join("base-plan");
+    let revision_plan_root = temporary.path().join("revision-plan");
+    write_plan(&base_plan, &base_plan_root).unwrap();
+    write_plan(&revision_plan, &revision_plan_root).unwrap();
+    run_cli([
+        "audit-reduction",
+        "--bundle",
+        path(&base_root),
+        "--plan",
+        path(&base_plan_root),
+        "--reduction",
+        path(&base_reduction_root),
+        "--threads",
+        "2",
+    ]);
+    let cli_composition = temporary.path().join("cli-composition");
+    run_cli([
+        "compose-revision-from-reductions",
+        "--base-bundle",
+        path(&base_root),
+        "--base-plan",
+        path(&base_plan_root),
+        "--base-reduction",
+        path(&base_reduction_root),
+        "--revision-bundle",
+        path(&revision_root),
+        "--revision-plan",
+        path(&revision_plan_root),
+        "--revision-reduction",
+        path(&revision_reduction_root),
+        "--replace-evaluation",
+        "eval_b",
+        "--revision-id",
+        "pdac_style_revision",
+        "--output",
+        path(&cli_composition),
+        "--threads",
+        "2",
+    ]);
+    audit_revision_composition_for(
+        &cli_composition,
+        &base_plan,
+        &revision_plan,
+        "eval_b",
+        "pdac_style_revision",
+    )
+    .unwrap();
+    let reduction_composition = compose_revision_from_reductions(
+        TournamentReductionSource {
+            bundle: &base_bundle,
+            plan: &base_plan,
+            reduction: &base_reduction,
+        },
+        TournamentReductionSource {
+            bundle: &revision_bundle,
+            plan: &revision_plan,
+            reduction: &revision_reduction,
+        },
+        "eval_b",
+        "pdac_style_revision",
+    )
+    .unwrap();
+    assert_eq!(reduction_composition, composition);
+    assert_eq!(composition.atomic_directed_verdicts.len(), 24);
+    assert!(composition.atomic_directed_verdicts.iter().all(|row| {
+        (row.evaluation_id == "eval_a" && row.source == VerdictSource::Base)
+            || (row.evaluation_id == "eval_b" && row.source == VerdictSource::Revision)
+    }));
+    assert_eq!(composition.evaluation_conjunctive_verdicts.len(), 12);
+    let output = temporary.path().join("composition");
+    write_revision_composition(&composition, &output).unwrap();
+    audit_revision_composition_for(
+        &output,
+        &base_plan,
+        &revision_plan,
+        "eval_b",
+        "pdac_style_revision",
+    )
+    .unwrap();
 }
 
 #[test]
@@ -106,6 +292,38 @@ fn row_and_registry_order_do_not_change_match_ids_or_seeds() {
     );
     assert_eq!(first_scientific, second_scientific);
     assert_ne!(first_plan.plan_id, second_plan.plan_id);
+}
+
+#[test]
+fn rayon_pool_size_does_not_change_scientific_results() {
+    let temporary = TempDir::new().unwrap();
+    let bundle_root = temporary.path().join("bundle");
+    build_pr_bundle(&bundle_root, false);
+    let bundle = load_bundle(&bundle_root).unwrap();
+    let plan = plan_with_shard_count(&bundle, 1).unwrap();
+    let serial_results = temporary.path().join("one-thread-results");
+    let parallel_results = temporary.path().join("four-thread-results");
+
+    let serial = run_shard(&bundle, &plan, 0, &serial_results, 1).unwrap();
+    let parallel = run_shard(&bundle, &plan, 0, &parallel_results, 4).unwrap();
+    assert_eq!(serial.worker_threads, 1);
+    assert_eq!(parallel.worker_threads, 4);
+
+    for item in &plan.matches {
+        let serial_artifact = read_artifact(&result_path(&serial_results, &item.match_id)).unwrap();
+        let parallel_artifact =
+            read_artifact(&result_path(&parallel_results, &item.match_id)).unwrap();
+        assert_eq!(serial_artifact.judged, parallel_artifact.judged);
+        assert_eq!(serial_artifact.seed, parallel_artifact.seed);
+        assert_eq!(
+            serial_artifact.judge_execution,
+            "rayon_shared_pool:1_threads"
+        );
+        assert_eq!(
+            parallel_artifact.judge_execution,
+            "rayon_shared_pool:4_threads"
+        );
+    }
 }
 
 #[test]
@@ -300,6 +518,78 @@ fn build_pr_bundle(root: &Path, permuted: bool) {
     write_json(&root.join("bundle_manifest.json"), &manifest);
 }
 
+fn build_revision_bundle(root: &Path) {
+    fs::create_dir_all(root.join("evaluations/eval_b")).unwrap();
+    let mut spec = tournament_spec();
+    spec.evaluations = vec!["eval_b".into()];
+    spec.annotations.insert(
+        "context_revision".into(),
+        serde_json::json!({"revision_id": "pdac_style_revision"}),
+    );
+    let registry = system_registry();
+    write_json(&root.join("tournament_spec.json"), &spec);
+    write_json(&root.join("systems.json"), &registry);
+    let directory = root.join("evaluations/eval_b");
+    fs::write(
+        directory.join("endpoints.csv"),
+        "endpoint_id,label\ne1,1\ne2,1\ne3,1\ne4,0\ne5,0\ne6,0\n",
+    )
+    .unwrap();
+    let rows = score_rows(false);
+    let mut scores =
+        String::from("endpoint_id,score_m1_max,score_m1_mean,score_m2_max,score_m2_mean\n");
+    for row in rows {
+        scores.push_str(&row);
+        scores.push('\n');
+    }
+    fs::write(directory.join("scores.csv"), scores).unwrap();
+    fs::write(directory.join("source_provenance.json"), "{}\n").unwrap();
+    let base = PathBuf::from("evaluations/eval_b");
+    let evaluations = vec![EvaluationManifest {
+        evaluation_id: "eval_b".into(),
+        endpoints: hashed(root, base.join("endpoints.csv")),
+        scores: hashed(root, base.join("scores.csv")),
+        source_provenance: hashed(root, base.join("source_provenance.json")),
+    }];
+    let endpoint_ids: Vec<_> = (1..=6).map(|index| format!("e{index}")).collect();
+    let labels = vec![true, true, true, false, false, false];
+    let values = score_values(false);
+    let score_vector_hashes = [
+        ("m1_max", values[0].clone()),
+        ("m1_mean", values[1].clone()),
+        ("m2_max", values[2].clone()),
+        ("m2_mean", values[3].clone()),
+    ]
+    .into_iter()
+    .map(|(system, values)| {
+        (
+            system.to_owned(),
+            canonical_vector_hash(&endpoint_ids, &values),
+        )
+    })
+    .collect();
+    let portable = vec![PortableEvaluationHashes {
+        evaluation_id: "eval_b".into(),
+        label_vector_hash: canonical_label_hash(&endpoint_ids, &labels),
+        score_vector_hashes,
+    }];
+    let mut manifest = BundleManifest {
+        schema_name: BUNDLE_SCHEMA_NAME.into(),
+        schema_version: BUNDLE_SCHEMA_VERSION,
+        metric: MetricKind::PrCnap,
+        bundle_creation_time: "2026-08-17T00:00:00Z".into(),
+        systems: hashed(root, "systems.json".into()),
+        tournament_spec: hashed(root, "tournament_spec.json".into()),
+        evaluations,
+        score_provider_identity: "synthetic-revision-provider-v1".into(),
+        minimum_organizer_schema_version: BUNDLE_SCHEMA_VERSION,
+        bundle_content_hash: String::new(),
+    };
+    manifest.bundle_content_hash =
+        compute_bundle_content_hash(&spec, &registry, &portable).unwrap();
+    write_json(&root.join("bundle_manifest.json"), &manifest);
+}
+
 fn tournament_spec() -> TournamentSpec {
     TournamentSpec {
         schema_version: SPEC_SCHEMA_VERSION,
@@ -324,6 +614,7 @@ fn tournament_spec() -> TournamentSpec {
         conjunction_rule: "all_evaluations".into(),
         graph_maximality_rule: "source_strongly_connected_components".into(),
         selection_rule: "source_scc_maximal_vertices".into(),
+        selection_strategy: SelectionStrategy::ReplacementConservative,
         pr_cnap: Some(PrCnapSpecification {
             target_prevalences: TargetPrevalences::finite([
                 Prevalence::new(0.1).unwrap(),

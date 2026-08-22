@@ -22,11 +22,34 @@ to `(patient_id, long_peptide)` nor chooses a replacement response. COVID
 NONSPIKE and PDAC use `(patient_id, long_peptide)`; PDAC has no mutation field
 in its scientific endpoint identity.
 
-## Commands
+## Rust full-roster input builder
 
-Copy and edit `config.example.json`. All scientific choices, including the
-non-count aggregation menu and evidence policy, must be explicit. Aggregation
-families are not part of either the provider or organizer contract.
+Production mappings, mono inputs, crosswalks, generated TOMLs, audits, and the
+input manifest are built by the workspace crate `external_validation_inputs`.
+Its example configuration locks the authoritative source SHA-256 hashes and
+expected cohort counts:
+
+```text
+cargo run --release \
+  --manifest-path supported_ap_code/Cargo.toml \
+  --package external_validation_inputs -- \
+  build \
+  --config IRIS_scripts/external_validation_inputs.example.json \
+  --input-root /Users/thomm15/Work_Data \
+  --output /path/to/full_roster_inputs_v1
+```
+
+The output includes representation-neutral candidate rosters and separate
+full- and mono-environment mappings. The builder does not choose a numeric
+score for `floor` candidates; transfer scoring applies the frozen
+`log(1e-12)` policy.
+
+## Provider commands
+
+Use `config.example.json` only when rebuilding bundles from upstream transfer
+outputs. All scientific choices, including the non-count aggregation menu and
+evidence policy, must be explicit. Aggregation families are not part of either
+the provider or organizer contract.
 
 The configuration also requires one named
 `covid_spike_label_specification`. The included example selects
@@ -63,6 +86,12 @@ python3 -m unittest discover -s tests -v
 See `CLUSTER_RUNBOOK.md` for the complete cluster copy, configuration, build,
 pilot, full-run, monitoring, output-layout, and resumption instructions.
 
+For the current 70-system workload, use
+`config.cluster.full_roster_selfgated_dual_selection_v1.json`. It selects the
+immutable PR and ROC bundles under
+`../cluster_inputs/full_roster_selfgated_dual_selection_v1`; no configuration
+editing or upstream biological files are required on a compute node.
+
 `submit_directed_round_robin_slurm.sh` prepares immutable PR and ROC bundles,
 creates deterministic plans, and submits `run_directed_round_robin_array.slurm`.
 The required command-line label-set ID must match the configuration, preventing
@@ -96,9 +125,10 @@ stable runtime sample. Reducing scientific replications would create a smoke
 test, not a valid estimate of production runtime, and is intentionally not
 done implicitly by the scheduler wrapper.
 
-Run all 5,310 matches in each metric after using the pilot measurements to
-choose `--threads`, `--full-matches-per-shard`, memory, wall time, and array
-concurrency:
+Run the full bundle after using the pilot measurements to choose `--threads`,
+`--full-matches-per-shard`, memory, wall time, and array concurrency. The
+launcher derives the exact match count from the validated bundle; the current
+70-system bundle contains 7,245 matches per metric:
 
 ```text
 bash submit_directed_round_robin_slurm.sh \
@@ -111,14 +141,45 @@ bash submit_directed_round_robin_slurm.sh \
   --max-concurrent 16
 ```
 
+`--threads` sets both Slurm `--cpus-per-task` and the size of the organizer's
+single shared Rayon pool. The pool schedules independent matches as well as
+parallel computational evaluations within a match. OpenMP, MKL, and OpenBLAS
+remain restricted to one thread.
+
 The pilot runs shard 0 for both metrics because their computational costs can
 differ. Each array task writes elapsed time, maximum resident memory, and exact
 match-artifact bytes under `<run-root>/<mode>/resource_usage/`. A dependent
 finalizer aggregates those records under `resource_report/`. In full mode it
-also audits completeness and writes the PR and ROC reductions.
+also uses the bounded Rayon pool to create or validate the PR and ROC
+reductions. Context-revision finalization composes from those compact audited
+reductions rather than reparsing the raw match reports.
+
+Two dedicated single-context workflows avoid rerunning unchanged comparisons:
+
+- `submit_pdac_revision_round_robin_slurm.sh` replaces only PDAC with
+  `pdac_no_splen_evac_grid4`.
+- `submit_covid_spike_revision_round_robin_slurm.sh` replaces only SPIKE with
+  the strict `cd8_IFNg_dmso_adj > 0.53` definition.
+
+The corresponding providers create one-evaluation bundles with 60 systems and
+1,770 matches per metric. Each finalizer composes its revised verdicts with the
+audited threshold-zero reductions. The SPIKE wrapper therefore retains the
+original PDAC context; it does not implicitly combine both revisions. See the
+cluster runbook for the exact contracts and commands.
 
 Use `--prepare-only` to build and validate the bundles and plans without
 submitting jobs, or `--dry-run` to print the array submission command. Slurm
 resources default to the `componc_cpu` partition and `lukszam` account seen in
 the existing IRIS scripts, but all relevant resource choices are command-line
 options. Neither wrapper writes to the configured source-data directories.
+
+## Historical selected adaptive Hill-2 tournament
+
+`adaptive_hill2_selected_parameters_v1.json` freezes one component-specific
+parameter pair for each model and metric branch. The packaged bundles under
+`prebuilt_bundles/adaptive_hill2_selected_v1/` preserve the original 60 systems
+and append five adaptive systems, giving 65 systems and 6,240 matches per
+metric across the original PDAC, threshold-zero SPIKE, and NONSPIKE contexts.
+
+This workflow is retained for provenance. Its historical prebuilt bundles are
+not required by the current 70-system tournament.

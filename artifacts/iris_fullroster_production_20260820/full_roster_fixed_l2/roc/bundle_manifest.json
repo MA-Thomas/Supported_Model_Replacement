@@ -1,0 +1,64 @@
+{
+  "schema_name": "directed_round_robin_input_bundle",
+  "schema_version": 2,
+  "metric": "auroc",
+  "bundle_creation_time": "2026-08-20T17:10:32.126537Z",
+  "systems": {
+    "path": "systems.json",
+    "sha256": "57c6d16d7ab8bd47eee327e5feedbf7530eb102e52f894cad1228752bd011986"
+  },
+  "tournament_spec": {
+    "path": "tournament_spec.json",
+    "sha256": "1398f8a68c6dc1fa6db6c520f6a8fec23b902476ed6a9d2510633dbce6c06f22"
+  },
+  "evaluations": [
+    {
+      "evaluation_id": "pdac",
+      "endpoints": {
+        "path": "evaluations/pdac/endpoints.csv",
+        "sha256": "caf0eed4310a347427c12377246b8db1511444a5af0042fbb6bf1488775d534a"
+      },
+      "scores": {
+        "path": "evaluations/pdac/scores.csv",
+        "sha256": "6e8118ff8243d4fe9c1f1b910f7b5ddb7a94a86ee835357fc0002decf7d10530"
+      },
+      "source_provenance": {
+        "path": "evaluations/pdac/source_provenance.json",
+        "sha256": "2ebe6de4d90b5182416df52e5c5788356019f6d3bee528ce38beab28aed1d46b"
+      }
+    },
+    {
+      "evaluation_id": "covid_spike",
+      "endpoints": {
+        "path": "evaluations/covid_spike/endpoints.csv",
+        "sha256": "c7f5a51a8c50e3a2b28443b3a385e925d10e87eee986c52b733980d1f6839343"
+      },
+      "scores": {
+        "path": "evaluations/covid_spike/scores.csv",
+        "sha256": "b76df413fad438efc64f440e14fb734a10080b14daec70ca4494fe4c3adb0cfa"
+      },
+      "source_provenance": {
+        "path": "evaluations/covid_spike/source_provenance.json",
+        "sha256": "e497446343b06ea85732a43e1dd6896082987036d533b6105eaecd31142b5f7c"
+      }
+    },
+    {
+      "evaluation_id": "covid_nonspike",
+      "endpoints": {
+        "path": "evaluations/covid_nonspike/endpoints.csv",
+        "sha256": "90b2194e8eebdff6a2f9604d3bec2f7ddea4465f7a07b96e5b35979673acc5e5"
+      },
+      "scores": {
+        "path": "evaluations/covid_nonspike/scores.csv",
+        "sha256": "7f416758d463c544d61cefed56deb6c9abded636ac5509af5a9a63bce22c317e"
+      },
+      "source_provenance": {
+        "path": "evaluations/covid_nonspike/source_provenance.json",
+        "sha256": "8eefab8a35fd28cd692ab6af8b7233c701f55544f76392dbf04560dc89590291"
+      }
+    }
+  ],
+  "score_provider_identity": "iris-rust-fullroster-provider-v1",
+  "minimum_organizer_schema_version": 2,
+  "bundle_content_hash": "3ba6e5fbe472a5235f1aba9263ee06ab3ec7565f11b6377371eec7ef66e58553"
+}

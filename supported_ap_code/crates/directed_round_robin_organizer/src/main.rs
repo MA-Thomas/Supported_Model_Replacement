@@ -5,9 +5,29 @@ use directed_round_robin_organizer::audit::{audit_results, status_results};
 use directed_round_robin_organizer::plan::{read_plan, write_plan};
 use directed_round_robin_organizer::reduce::audit_reduction_for;
 use directed_round_robin_organizer::{
-    Error, Result, load_bundle, load_bundle_for_hashing, plan_with_match_target,
-    plan_with_shard_count, reduce_tournament, run_shard, write_reduction,
+    Error, Result, SelectionStrategy, TournamentReductionSource, TournamentSource,
+    audit_revision_composition_for, compose_revision, compose_revision_from_reductions,
+    induce_reduction_view, load_bundle, load_bundle_for_hashing, load_reduction_for,
+    plan_with_match_target, plan_with_shard_count, reduce_tournament, run_shard,
+    write_induced_reduction_view, write_reduction, write_revision_composition,
 };
+
+/// CLI spelling of the reduction selection strategy (kebab-cased on the command
+/// line: `candidate-conservative` / `replacement-conservative`).
+#[derive(Debug, Clone, Copy, clap::ValueEnum)]
+enum SelectionStrategyArg {
+    ReplacementConservative,
+    CandidateConservative,
+}
+
+impl From<SelectionStrategyArg> for SelectionStrategy {
+    fn from(value: SelectionStrategyArg) -> Self {
+        match value {
+            SelectionStrategyArg::ReplacementConservative => Self::ReplacementConservative,
+            SelectionStrategyArg::CandidateConservative => Self::CandidateConservative,
+        }
+    }
+}
 
 #[derive(Debug, Parser)]
 #[command(
@@ -28,7 +48,12 @@ enum Command {
     RunShard(RunShardArgs),
     Status(StatusArgs),
     Reduce(ReduceArgs),
+    InduceView(InduceViewArgs),
     Audit(AuditArgs),
+    AuditReduction(AuditReductionArgs),
+    ComposeRevision(ComposeRevisionArgs),
+    ComposeRevisionFromReductions(ComposeRevisionFromReductionsArgs),
+    AuditRevision(AuditRevisionArgs),
 }
 
 #[derive(Debug, Args)]
@@ -63,7 +88,11 @@ struct RunShardArgs {
     shard_id: usize,
     #[arg(long)]
     results: PathBuf,
-    #[arg(long, default_value_t = 1)]
+    #[arg(
+        long,
+        default_value_t = 1,
+        help = "Size of the shared Rayon pool used across and within matches"
+    )]
     threads: usize,
 }
 
@@ -73,6 +102,8 @@ struct StatusArgs {
     plan: PathBuf,
     #[arg(long)]
     results: PathBuf,
+    #[arg(long, default_value_t = 1)]
+    threads: usize,
 }
 
 #[derive(Debug, Args)]
@@ -85,6 +116,34 @@ struct ReduceArgs {
     results: PathBuf,
     #[arg(long)]
     output: PathBuf,
+    #[arg(
+        long,
+        help = "Override the bundle's declared selection strategy for this reduction"
+    )]
+    selection_strategy: Option<SelectionStrategyArg>,
+    #[arg(long, default_value_t = 1)]
+    threads: usize,
+}
+
+#[derive(Debug, Args)]
+struct InduceViewArgs {
+    #[arg(long)]
+    bundle: PathBuf,
+    #[arg(long)]
+    plan: PathBuf,
+    #[arg(long)]
+    reduction: PathBuf,
+    #[arg(long, required = true, num_args = 1..)]
+    exclude_system: Vec<String>,
+    #[arg(long)]
+    output: PathBuf,
+    #[arg(
+        long,
+        help = "Override the bundle's declared selection strategy for the induced view"
+    )]
+    selection_strategy: Option<SelectionStrategyArg>,
+    #[arg(long, default_value_t = 1)]
+    threads: usize,
 }
 
 #[derive(Debug, Args)]
@@ -97,6 +156,80 @@ struct AuditArgs {
     results: PathBuf,
     #[arg(long)]
     reduction: Option<PathBuf>,
+    #[arg(long, default_value_t = 1)]
+    threads: usize,
+}
+
+#[derive(Debug, Args)]
+struct AuditReductionArgs {
+    #[arg(long)]
+    bundle: PathBuf,
+    #[arg(long)]
+    plan: PathBuf,
+    #[arg(long)]
+    reduction: PathBuf,
+    #[arg(long, default_value_t = 1)]
+    threads: usize,
+}
+
+#[derive(Debug, Args)]
+struct ComposeRevisionArgs {
+    #[arg(long)]
+    base_bundle: PathBuf,
+    #[arg(long)]
+    base_plan: PathBuf,
+    #[arg(long)]
+    base_results: PathBuf,
+    #[arg(long)]
+    revision_bundle: PathBuf,
+    #[arg(long)]
+    revision_plan: PathBuf,
+    #[arg(long)]
+    revision_results: PathBuf,
+    #[arg(long)]
+    replace_evaluation: String,
+    #[arg(long)]
+    revision_id: String,
+    #[arg(long)]
+    output: PathBuf,
+}
+
+#[derive(Debug, Args)]
+struct ComposeRevisionFromReductionsArgs {
+    #[arg(long)]
+    base_bundle: PathBuf,
+    #[arg(long)]
+    base_plan: PathBuf,
+    #[arg(long)]
+    base_reduction: PathBuf,
+    #[arg(long)]
+    revision_bundle: PathBuf,
+    #[arg(long)]
+    revision_plan: PathBuf,
+    #[arg(long)]
+    revision_reduction: PathBuf,
+    #[arg(long)]
+    replace_evaluation: String,
+    #[arg(long)]
+    revision_id: String,
+    #[arg(long)]
+    output: PathBuf,
+    #[arg(long, default_value_t = 1)]
+    threads: usize,
+}
+
+#[derive(Debug, Args)]
+struct AuditRevisionArgs {
+    #[arg(long)]
+    base_plan: PathBuf,
+    #[arg(long)]
+    revision_plan: PathBuf,
+    #[arg(long)]
+    replace_evaluation: String,
+    #[arg(long)]
+    revision_id: String,
+    #[arg(long)]
+    composition: PathBuf,
 }
 
 fn main() {
@@ -139,20 +272,41 @@ fn run() -> Result<()> {
         }
         Command::Status(args) => {
             let plan = read_plan(&args.plan)?;
-            let status = status_results(&plan, &args.results)?;
+            let status = with_pool(args.threads, || status_results(&plan, &args.results))?;
             print_json(&status)
         }
         Command::Reduce(args) => {
-            let bundle = load_bundle(&args.bundle)?;
+            let mut bundle = load_bundle(&args.bundle)?;
+            if let Some(strategy) = args.selection_strategy {
+                bundle.spec.selection_strategy = strategy.into();
+            }
             let plan = read_plan(&args.plan)?;
-            let reduction = reduce_tournament(&bundle, &plan, &args.results)?;
+            let reduction = with_pool(args.threads, || {
+                reduce_tournament(&bundle, &plan, &args.results)
+            })?;
             write_reduction(&reduction, &args.output)?;
             print_json(&reduction.selection)
+        }
+        Command::InduceView(args) => {
+            let mut bundle = load_bundle(&args.bundle)?;
+            if let Some(strategy) = args.selection_strategy {
+                bundle.spec.selection_strategy = strategy.into();
+            }
+            let plan = read_plan(&args.plan)?;
+            let reduction = with_pool(args.threads, || {
+                load_reduction_for(&args.reduction, &bundle, &plan)
+            })?;
+            let view =
+                induce_reduction_view(&bundle, &reduction, &args.reduction, &args.exclude_system)?;
+            write_induced_reduction_view(&view, &args.output)?;
+            print_json(&view.selection)
         }
         Command::Audit(args) => {
             let bundle = load_bundle(&args.bundle)?;
             let plan = read_plan(&args.plan)?;
-            let audit = audit_results(&bundle, &plan, &args.results)?;
+            let audit = with_pool(args.threads, || {
+                audit_results(&bundle, &plan, &args.results)
+            })?;
             print_json(&audit)?;
             if !audit.complete {
                 return Err(Error::Incomplete("audit did not pass".into()));
@@ -162,7 +316,95 @@ fn run() -> Result<()> {
             }
             Ok(())
         }
+        Command::AuditReduction(args) => {
+            let bundle = load_bundle(&args.bundle)?;
+            let plan = read_plan(&args.plan)?;
+            with_pool(args.threads, || {
+                load_reduction_for(&args.reduction, &bundle, &plan).map(|_| ())
+            })
+        }
+        Command::ComposeRevision(args) => {
+            let base_bundle = load_bundle(&args.base_bundle)?;
+            let base_plan = read_plan(&args.base_plan)?;
+            let revision_bundle = load_bundle(&args.revision_bundle)?;
+            let revision_plan = read_plan(&args.revision_plan)?;
+            let composition = compose_revision(
+                TournamentSource {
+                    bundle: &base_bundle,
+                    plan: &base_plan,
+                    results: &args.base_results,
+                },
+                TournamentSource {
+                    bundle: &revision_bundle,
+                    plan: &revision_plan,
+                    results: &args.revision_results,
+                },
+                &args.replace_evaluation,
+                &args.revision_id,
+            )?;
+            write_revision_composition(&composition, &args.output)?;
+            print_json(&composition.selection)
+        }
+        Command::ComposeRevisionFromReductions(args) => {
+            let base_bundle = load_bundle(&args.base_bundle)?;
+            let base_plan = read_plan(&args.base_plan)?;
+            let revision_bundle = load_bundle(&args.revision_bundle)?;
+            let revision_plan = read_plan(&args.revision_plan)?;
+            let composition = with_pool(args.threads, || {
+                let (base_reduction, revision_reduction) = rayon::join(
+                    || load_reduction_for(&args.base_reduction, &base_bundle, &base_plan),
+                    || {
+                        load_reduction_for(
+                            &args.revision_reduction,
+                            &revision_bundle,
+                            &revision_plan,
+                        )
+                    },
+                );
+                compose_revision_from_reductions(
+                    TournamentReductionSource {
+                        bundle: &base_bundle,
+                        plan: &base_plan,
+                        reduction: &base_reduction?,
+                    },
+                    TournamentReductionSource {
+                        bundle: &revision_bundle,
+                        plan: &revision_plan,
+                        reduction: &revision_reduction?,
+                    },
+                    &args.replace_evaluation,
+                    &args.revision_id,
+                )
+            })?;
+            write_revision_composition(&composition, &args.output)?;
+            print_json(&composition.selection)
+        }
+        Command::AuditRevision(args) => {
+            let base_plan = read_plan(&args.base_plan)?;
+            let revision_plan = read_plan(&args.revision_plan)?;
+            audit_revision_composition_for(
+                &args.composition,
+                &base_plan,
+                &revision_plan,
+                &args.replace_evaluation,
+                &args.revision_id,
+            )
+        }
     }
+}
+
+fn with_pool<T: Send>(threads: usize, operation: impl FnOnce() -> Result<T> + Send) -> Result<T> {
+    if threads == 0 {
+        return Err(Error::InvalidPlan(
+            "finalization thread count must be positive".into(),
+        ));
+    }
+    let pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(threads)
+        .thread_name(|index| format!("directed-round-robin-finalize-{index}"))
+        .build()
+        .map_err(|error| Error::InvalidPlan(format!("could not create Rayon pool: {error}")))?;
+    pool.install(operation)
 }
 
 fn print_json<T: serde::Serialize>(value: &T) -> Result<()> {

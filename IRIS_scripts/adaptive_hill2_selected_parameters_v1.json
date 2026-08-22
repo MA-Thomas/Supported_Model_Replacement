@@ -1,0 +1,120 @@
+{
+  "schema_name": "iris_adaptive_hill2_selected_parameters",
+  "schema_version": 1,
+  "selection_id": "adaptive_hill2_component_metric_selected_v1",
+  "status": "frozen_post_hoc_model_development",
+  "aggregation_id": "adaptive_h2_selected",
+  "aggregation_family": "adaptive_hill2_gated_v1",
+  "formula": "m + D2 * sigmoid((c-m)/kappa) * B",
+  "score_scale": "log_F",
+  "candidate_roster_policy": "raw unique candidate tuple roster used to reproduce committed max and logsumexp",
+  "empty_roster_score": -690.7755126953125,
+  "selection_contract": {
+    "cohorts": [
+      "pdac",
+      "covid_spike",
+      "covid_nonspike"
+    ],
+    "cohort_weighting": "equal",
+    "model_specific": true,
+    "metric_specific": true,
+    "pr_metric": "ordinary empirical average precision with threshold-block tie handling",
+    "roc_metric": "AUROC with half credit for tied positive-negative pairs"
+  },
+  "label_contracts": {
+    "covid_spike": {
+      "id": "threshold_zero",
+      "response_field": "cd8_IFNg_dmso_adj",
+      "comparison_operator": ">",
+      "threshold": 0.0
+    },
+    "covid_nonspike": {
+      "response_field": "cd8_TNFa_IFNg_dmso_adj",
+      "comparison_operator": ">",
+      "threshold": 0.0
+    }
+  },
+  "expected_endpoints": {
+    "pdac": {
+      "total": 213,
+      "positive": 23,
+      "negative": 190
+    },
+    "covid_spike": {
+      "total": 1765,
+      "positive": 1159,
+      "negative": 606
+    },
+    "covid_nonspike": {
+      "total": 1607,
+      "positive": 692,
+      "negative": 915
+    }
+  },
+  "selection_artifacts": {
+    "manifest": {
+      "path": "analysis_reports/adaptive_hill2_parameter_selection_v1/selection_manifest.json",
+      "sha256": "53c3559ed63c2c345661eec3e2ef62e98d4f473e67dc577b9b4f3199fcf89d11"
+    },
+    "selected_parameters": {
+      "path": "analysis_reports/adaptive_hill2_parameter_selection_v1/selected_parameters.csv",
+      "sha256": "9c21a63f2ef79a64642250c38a632888f8f55cf2137ba663bb2a559118677121"
+    },
+    "selected_endpoint_scores": {
+      "path": "analysis_reports/adaptive_hill2_parameter_selection_v1/selected_endpoint_scores.csv",
+      "sha256": "32f756f7ff75cc48c4b056f943da75bc9b74499b8ddc3ee358fafbee4a1eea4f"
+    }
+  },
+  "branches": {
+    "pr": {
+      "selection_metric": "average_precision",
+      "models": {
+        "full_hla": {
+          "c": -2.0,
+          "kappa": 0.008535355287482936
+        },
+        "focal_hla": {
+          "c": -1.55,
+          "kappa": 0.008535355287482936
+        },
+        "old_monoallelic": {
+          "c": -0.3,
+          "kappa": 0.0622454845246464
+        },
+        "mono_q_full_pn": {
+          "c": -0.5,
+          "kappa": 0.0033137778446013506
+        },
+        "full_q_mono_pn": {
+          "c": -2.2,
+          "kappa": 0.029200432301826246
+        }
+      }
+    },
+    "roc": {
+      "selection_metric": "auroc",
+      "models": {
+        "full_hla": {
+          "c": -1.55,
+          "kappa": 0.006426168951124776
+        },
+        "focal_hla": {
+          "c": -1.5,
+          "kappa": 0.0040040826438662224
+        },
+        "old_monoallelic": {
+          "c": -0.15,
+          "kappa": 0.00025757174100817686
+        },
+        "mono_q_full_pn": {
+          "c": -0.35,
+          "kappa": 0.012461803212209004
+        },
+        "full_q_mono_pn": {
+          "c": -1.55,
+          "kappa": 0.0009686250859269985
+        }
+      }
+    }
+  }
+}

@@ -58,9 +58,10 @@ RUN_SUMMARY="${USAGE_DIR}/shard_${SHARD_ID}.run_summary.json"
 RESOURCE_SUMMARY="${USAGE_DIR}/shard_${SHARD_ID}.json"
 TEMP_SUMMARY="${RUN_SUMMARY}.tmp.${SLURM_JOB_ID}"
 
-# Match-level parallelism is owned by the organizer's std::thread workers.
-# Prevent numerical libraries or incidental Rayon users from nesting pools.
-export RAYON_NUM_THREADS=1
+# The organizer uses one shared Rayon pool for match-level and within-match work.
+# Keep other numerical-library pools serial so they do not create independent
+# compute pools alongside Rayon.
+export RAYON_NUM_THREADS="${THREADS}"
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
@@ -69,31 +70,32 @@ echo "Started:            $(date -Iseconds)"
 echo "Node:               $(hostname)"
 echo "Job/array task:     ${SLURM_ARRAY_JOB_ID:-${SLURM_JOB_ID}}/${SLURM_ARRAY_TASK_ID}"
 echo "Mode:               ${MODE}"
-echo "SPIKE label set:    ${COVID_SPIKE_LABEL_SET_ID}"
+if [ -n "${CONTEXT_REVISION_ID:-}" ]; then
+    echo "Context revision:   ${CONTEXT_REVISION_ID}"
+else
+    echo "SPIKE label set:    ${COVID_SPIKE_LABEL_SET_ID}"
+fi
 echo "Metric/shard:       ${METRIC}/${SHARD_ID}"
-echo "Organizer threads:  ${THREADS}"
+echo "Shared Rayon threads:${THREADS}"
 echo "Bundle:             ${BUNDLE}"
 echo "Plan:               ${PLAN}"
 echo "Results:            ${RESULTS}"
 
 set +e
-if /usr/bin/time --version 2>&1 | grep -q GNU; then
-    TIME_STYLE=(-v)
-else
-    TIME_STYLE=(-l)
-fi
-/usr/bin/time "${TIME_STYLE[@]}" -o "${TIME_FILE}" \
+python3 "${HELPER}" run-measured \
+    --time-file "${TIME_FILE}" \
+    --stdout-file "${TEMP_SUMMARY}" \
+    -- \
     "${ORGANIZER}" run-shard \
         --bundle "${BUNDLE}" \
         --plan "${PLAN}" \
         --shard-id "${SHARD_ID}" \
         --results "${RESULTS}" \
-        --threads "${THREADS}" \
-        > "${TEMP_SUMMARY}"
+        --threads "${THREADS}"
 TIME_EXIT=$?
 set -e
 
-if python3 "${HELPER}" check-run-summary --path "${TEMP_SUMMARY}"; then
+if [ "${TIME_EXIT}" -eq 0 ] && python3 "${HELPER}" check-run-summary --path "${TEMP_SUMMARY}"; then
     RUN_EXIT=0
     mv "${TEMP_SUMMARY}" "${RUN_SUMMARY}"
 else

@@ -2,9 +2,12 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::path::Path;
 
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::artifact::{read_artifact, result_path, validate_artifact, validate_checksum};
+use crate::artifact::{
+    MatchArtifact, read_artifact, read_artifact_with_checksum, result_path, validate_artifact,
+};
 use crate::input::LoadedBundle;
 use crate::plan::{TournamentPlan, validate_plan};
 use crate::spec::DirectedVerdict;
@@ -32,6 +35,17 @@ pub fn audit_results(
     plan: &TournamentPlan,
     results_root: &Path,
 ) -> Result<CompletenessAudit> {
+    audit_results_with_artifacts(bundle, plan, results_root).map(|(audit, _)| audit)
+}
+
+/// Audits each planned artifact once and returns the already-deserialized
+/// artifacts for reduction. The indexed parallel iterator preserves plan
+/// order while Rayon schedules independent files across the caller's pool.
+pub(crate) fn audit_results_with_artifacts(
+    bundle: &LoadedBundle,
+    plan: &TournamentPlan,
+    results_root: &Path,
+) -> Result<(CompletenessAudit, Vec<Option<MatchArtifact>>)> {
     validate_plan(plan, bundle)?;
     let mut audit = empty_audit(plan);
     let expected_ids: BTreeSet<_> = plan
@@ -58,26 +72,37 @@ pub fn audit_results(
             }
         }
     }
-    for item in &plan.matches {
-        let path = result_path(results_root, &item.match_id);
-        if !path.exists() {
+    let validations: Vec<_> = plan
+        .matches
+        .par_iter()
+        .map(|item| {
+            let path = result_path(results_root, &item.match_id);
+            if !path.exists() {
+                let recorded_failure = results_root
+                    .join("failures")
+                    .join(format!("{}.json", item.match_id))
+                    .exists();
+                return (path, recorded_failure, None);
+            }
+            let validation = (|| {
+                let artifact = read_artifact_with_checksum(&path)?;
+                validate_artifact(&artifact, bundle, plan, item)?;
+                Ok::<_, Error>(artifact)
+            })();
+            (path, false, Some(validation))
+        })
+        .collect();
+    let mut artifacts = Vec::with_capacity(plan.matches.len());
+    for (item, (path, recorded_failure, validation)) in plan.matches.iter().zip(validations) {
+        let Some(validation) = validation else {
             audit.missing_matches += 1;
             audit.missing_match_ids.push(item.match_id.clone());
-            if results_root
-                .join("failures")
-                .join(format!("{}.json", item.match_id))
-                .exists()
-            {
+            if recorded_failure {
                 audit.recorded_operational_failures_without_result += 1;
             }
+            artifacts.push(None);
             continue;
-        }
-        let validation = (|| {
-            let artifact = read_artifact(&path)?;
-            validate_artifact(&artifact, bundle, plan, item)?;
-            validate_checksum(&path)?;
-            Ok::<_, Error>(artifact)
-        })();
+        };
         match validation {
             Ok(artifact) => {
                 audit.valid_completed_matches += 1;
@@ -86,12 +111,14 @@ pub fn audit_results(
                 {
                     audit.valid_scientific_unresolved_matches += 1;
                 }
+                artifacts.push(Some(artifact));
             }
             Err(error) => {
                 audit.invalid_or_corrupt_artifacts += 1;
                 audit
                     .invalid_artifacts
                     .push(format!("{}: {error}", path.display()));
+                artifacts.push(None);
             }
         }
     }
@@ -100,7 +127,7 @@ pub fn audit_results(
         && audit.invalid_or_corrupt_artifacts == 0
         && audit.duplicated_results == 0
         && audit.incompatible_results == 0;
-    Ok(audit)
+    Ok((audit, artifacts))
 }
 
 pub fn status_results(plan: &TournamentPlan, results_root: &Path) -> Result<CompletenessAudit> {
@@ -129,21 +156,32 @@ pub fn status_results(plan: &TournamentPlan, results_root: &Path) -> Result<Comp
             }
         }
     }
-    for item in &plan.matches {
-        let path = result_path(results_root, &item.match_id);
-        if !path.exists() {
+    let statuses: Vec<_> = plan
+        .matches
+        .par_iter()
+        .map(|item| {
+            let path = result_path(results_root, &item.match_id);
+            if !path.exists() {
+                let recorded_failure = results_root
+                    .join("failures")
+                    .join(format!("{}.json", item.match_id))
+                    .exists();
+                return (path, recorded_failure, None);
+            }
+            let artifact = read_artifact(&path);
+            (path, false, Some(artifact))
+        })
+        .collect();
+    for (item, (path, recorded_failure, status)) in plan.matches.iter().zip(statuses) {
+        let Some(status) = status else {
             audit.missing_matches += 1;
             audit.missing_match_ids.push(item.match_id.clone());
-            if results_root
-                .join("failures")
-                .join(format!("{}.json", item.match_id))
-                .exists()
-            {
+            if recorded_failure {
                 audit.recorded_operational_failures_without_result += 1;
             }
             continue;
-        }
-        match read_artifact(&path) {
+        };
+        match status {
             Ok(artifact)
                 if artifact.complete
                     && artifact.match_id == item.match_id

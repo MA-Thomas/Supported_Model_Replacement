@@ -1,0 +1,433 @@
+{
+  "configuration": {
+    "path": "IRIS_scripts/external_validation_inputs.example.json",
+    "schema_version": 1,
+    "sha256": "db9889f339bf79c986f4087d31a938f5f0b02538f649d8114b3c5f30b9050fd7"
+  },
+  "datasets": {
+    "COVID_NONSPIKE": {
+      "blank_hla_rows": 0,
+      "candidate_roster_rows": 199124,
+      "conflicting_binary_label_examples": [],
+      "dataset": "COVID_NONSPIKE",
+      "duplicate_mono_compute_identities": 0,
+      "endpoint_key_fields": [
+        "patient_id",
+        "long_peptide"
+      ],
+      "endpoints_positive_label_noise_ceiling": null,
+      "endpoints_positive_label_thr0": 692,
+      "exact_duplicate_candidate_rows_removed": 0,
+      "exact_duplicate_query_rows_removed": 0,
+      "exact_duplicate_source_mapping_rows": 0,
+      "floor_candidate_rows": 193571,
+      "full_environment_rows": 16,
+      "full_only_biological_identities": 0,
+      "full_query_rows": 4242,
+      "generator": "external_validation_inputs",
+      "input_audit_status": "pass",
+      "label_zero_threshold": 0.0,
+      "mapping_endpoints": 1607,
+      "mapping_endpoints_with_conflicting_binary_labels": 0,
+      "mapping_endpoints_with_conflicting_response_values": 0,
+      "mapping_source_rows": 35446,
+      "mapping_source_rows_outside_query_roster": 31814,
+      "mapping_source_rows_with_query_support": 3632,
+      "materialized_label_columns": [],
+      "mono_environment_rows": 71,
+      "mono_only_biological_identities": 0,
+      "mono_query_rows": 4242,
+      "noise_ceiling_threshold": null,
+      "noncontained_scoreable_mapping_rows": 0,
+      "output_files": {
+        "canonical_mapping": "covid_nonspike_candidate_roster.csv",
+        "env_crosswalk": "covid_nonspike_full_to_mono_env_crosswalk.csv",
+        "env_dict": "covid_nonspike_mono_hla_env_dict.csv",
+        "full_mapping": "covid_nonspike_full_longpep_mapping.csv",
+        "mono_config": "binding_sim_updated_COVID_Nonspike_Mono.toml",
+        "mono_mapping": "covid_nonspike_mono_longpep_mapping.csv",
+        "observation_crosswalk": "covid_nonspike_full_to_mono_observation_crosswalk.csv",
+        "query": "covid_nonspike_mono_query.csv"
+      },
+      "schema_version": 2,
+      "scoreable_candidate_rows": 5553,
+      "source_files": {
+        "config_template": {
+          "bytes": 1924,
+          "path": "/Users/thomm15/Work_Data/New_Approaches/MHC_competition_solver/src/binding_sim_updated_COVID_Nonspike.toml",
+          "sha256": "04801a7bd2f1a2008ceffac58713c0b484becb2304b2d78bb5c079bcfa089226"
+        },
+        "env_dict": {
+          "bytes": 666,
+          "path": "/Users/thomm15/Work_Data/Cansu_Covid_Nonspike/Marcus_preprocessing/atlas_hla_env_dict.csv",
+          "sha256": "7d232adc1ce7cccff742b21ff3721ef2cbccee8f0ae3399b4e09889eb50cc53e"
+        },
+        "mapping": {
+          "bytes": 1678590,
+          "path": "/Users/thomm15/Work_Data/Cansu_Covid_Nonspike/Marcus_preprocessing/atlas_patient_peptide_CD8_response_mapping.csv",
+          "sha256": "947264b0134387b6d41124d4d4961047eafc11591dd035b880af703cedae3619"
+        },
+        "query": {
+          "bytes": 203480,
+          "path": "/Users/thomm15/Work_Data/Cansu_Covid_Nonspike/processed_cansu_covid_neoepitope_data_9to12mer_kd9000_ap0.3_halflife1.2.csv",
+          "sha256": "67ab6defce264ca49fd0e1e6808fc60a205036ef215fe9349f615d1570f4ab46"
+        }
+      },
+      "suggested_production_env_chunks": 71,
+      "suggested_smoke_env_chunks": 71,
+      "unique_full_query_compute_rows": 4242
+    },
+    "COVID_SPIKE": {
+      "blank_hla_rows": 0,
+      "candidate_roster_rows": 137175,
+      "conflicting_binary_label_examples": [],
+      "dataset": "COVID_SPIKE",
+      "duplicate_mono_compute_identities": 0,
+      "endpoint_key_fields": [
+        "patient_id",
+        "mutation",
+        "long_peptide"
+      ],
+      "endpoints_positive_label_noise_ceiling": 667,
+      "endpoints_positive_label_thr0": 1159,
+      "exact_duplicate_candidate_rows_removed": 0,
+      "exact_duplicate_query_rows_removed": 0,
+      "exact_duplicate_source_mapping_rows": 0,
+      "floor_candidate_rows": 133517,
+      "full_environment_rows": 13,
+      "full_only_biological_identities": 0,
+      "full_query_rows": 2866,
+      "generator": "external_validation_inputs",
+      "input_audit_status": "pass",
+      "label_zero_threshold": 0.0,
+      "mapping_endpoints": 1765,
+      "mapping_endpoints_with_conflicting_binary_labels": 0,
+      "mapping_endpoints_with_conflicting_response_values": 0,
+      "mapping_source_rows": 25740,
+      "mapping_source_rows_outside_query_roster": 23141,
+      "mapping_source_rows_with_query_support": 2599,
+      "materialized_label_columns": [
+        "long_peptide_label_thr0",
+        "long_peptide_label_noise_ceiling"
+      ],
+      "mono_environment_rows": 67,
+      "mono_only_biological_identities": 0,
+      "mono_query_rows": 2866,
+      "noise_ceiling_threshold": 0.53,
+      "noncontained_scoreable_mapping_rows": 0,
+      "output_files": {
+        "canonical_mapping": "covid_spike_candidate_roster.csv",
+        "env_crosswalk": "covid_spike_full_to_mono_env_crosswalk.csv",
+        "env_dict": "covid_spike_mono_hla_env_dict.csv",
+        "full_mapping": "covid_spike_full_longpep_mapping.csv",
+        "mono_config": "binding_sim_updated_COVID_Spike_Mono.toml",
+        "mono_mapping": "covid_spike_mono_longpep_mapping.csv",
+        "observation_crosswalk": "covid_spike_full_to_mono_observation_crosswalk.csv",
+        "query": "covid_spike_mono_query.csv"
+      },
+      "schema_version": 2,
+      "scoreable_candidate_rows": 3658,
+      "source_files": {
+        "config_template": {
+          "bytes": 1918,
+          "path": "/Users/thomm15/Work_Data/New_Approaches/MHC_competition_solver/src/binding_sim_updated_COVID_Spike.toml",
+          "sha256": "9d43622003a8a9ab9efd7a2a3ecf72d06063501936f9ad82e021fe310aed2543"
+        },
+        "env_dict": {
+          "bytes": 543,
+          "path": "/Users/thomm15/Work_Data/Cansu_Covid_Spike/Marcus_preprocessing/covid_spike_hla_env_dict.csv",
+          "sha256": "42651c4f94775a8f4cadba1b986e641f763a5cddac88b6f507f8aafb68108bc5"
+        },
+        "mapping": {
+          "bytes": 1436139,
+          "path": "/Users/thomm15/Work_Data/Cansu_Covid_Spike/Marcus_preprocessing/spike_patient_peptide_CD8_response_mapping.csv",
+          "sha256": "52ca3d073bb0a8e43abd6be5f2862eeafc4475bfbcc6d48e895a5d1de35eddda"
+        },
+        "query": {
+          "bytes": 136179,
+          "path": "/Users/thomm15/Work_Data/Cansu_Covid_Spike/processed_cansu_covid_neoepitope_data_9to12mer_kd9000_ap0.3_halflife0.5.csv",
+          "sha256": "fd89cfbe684d1c2bdd867a627475fd680420964f5d1ef3fc4b4c426f2b247aef"
+        }
+      },
+      "suggested_production_env_chunks": 67,
+      "suggested_smoke_env_chunks": 67,
+      "unique_full_query_compute_rows": 2866
+    },
+    "PDAC": {
+      "blank_hla_rows": 0,
+      "candidate_roster_rows": 9315,
+      "conflicting_binary_label_examples": [],
+      "dataset": "PDAC",
+      "duplicate_mono_compute_identities": 0,
+      "endpoint_key_fields": [
+        "patient_id",
+        "long_peptide"
+      ],
+      "endpoints_positive_label_noise_ceiling": null,
+      "endpoints_positive_label_thr0": 23,
+      "exact_duplicate_candidate_rows_removed": 0,
+      "exact_duplicate_query_rows_removed": 118,
+      "exact_duplicate_source_mapping_rows": 0,
+      "floor_candidate_rows": 7006,
+      "full_environment_rows": 22,
+      "full_only_biological_identities": 0,
+      "full_query_rows": 4300,
+      "generator": "external_validation_inputs",
+      "input_audit_status": "pass",
+      "label_zero_threshold": 0.0,
+      "mapping_endpoints": 213,
+      "mapping_endpoints_with_conflicting_binary_labels": 0,
+      "mapping_endpoints_with_conflicting_response_values": 0,
+      "mapping_source_rows": 1573,
+      "mapping_source_rows_outside_query_roster": 0,
+      "mapping_source_rows_with_query_support": 1573,
+      "materialized_label_columns": [],
+      "mono_environment_rows": 93,
+      "mono_only_biological_identities": 0,
+      "mono_query_rows": 4182,
+      "noise_ceiling_threshold": null,
+      "noncontained_scoreable_mapping_rows": 0,
+      "output_files": {
+        "canonical_mapping": "pdac_candidate_roster.csv",
+        "env_crosswalk": "pdac_full_to_mono_env_crosswalk.csv",
+        "env_dict": "pdac_mono_hla_env_dict.csv",
+        "full_deduplicated_config": "binding_sim_updated_PDAC_Full_Deduplicated.toml",
+        "full_deduplicated_query": "pdac_full_deduplicated_query.csv",
+        "full_mapping": "pdac_full_longpep_mapping.csv",
+        "mono_config": "binding_sim_updated_PDAC_Mono.toml",
+        "mono_mapping": "pdac_mono_longpep_mapping.csv",
+        "observation_crosswalk": "pdac_full_to_mono_observation_crosswalk.csv",
+        "query": "pdac_mono_query.csv"
+      },
+      "schema_version": 2,
+      "scoreable_candidate_rows": 2309,
+      "source_files": {
+        "config_template": {
+          "bytes": 2249,
+          "path": "/Users/thomm15/Work_Data/New_Approaches/MHC_competition_solver/src/binding_sim_updated_PDAC.toml",
+          "sha256": "eb7d25ebf530d08b599bd6fe5200c18bb7f1a727667e3a2a623771559828282c"
+        },
+        "env_dict": {
+          "bytes": 941,
+          "path": "/Users/thomm15/Work_Data/Jayon/hla_env_dict.csv",
+          "sha256": "711fa1bb314ed9142ae68ac6d6c52081f6c04fdce344e4de4a07fb08faceb70a"
+        },
+        "mapping": {
+          "bytes": 129244,
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer/pdac_full_mapping_noResponderFilter_noKdFilter_9to12mer.csv",
+          "sha256": "cd4df34de2a2e3970f0800a57a49d3b50d6f77504daae1a27740a175da8c7309"
+        },
+        "query": {
+          "bytes": 274655,
+          "path": "/Users/thomm15/Work_Data/Jayon/processed_PDAC_neoepitope_data_9to12mer_kd10000_ap0.1_halflife0.2_pass_kd_and_ap_and_stability.csv",
+          "sha256": "780a0591e48de2f89cd25bde5ef36bcc94446ac871eeba0eb0691a90a4f2efb0"
+        }
+      },
+      "suggested_production_env_chunks": 31,
+      "suggested_smoke_env_chunks": 93,
+      "unique_full_query_compute_rows": 4182
+    }
+  },
+  "generator": {
+    "crate": "external_validation_inputs",
+    "version": "0.1.0"
+  },
+  "input_root": "/Users/thomm15/Work_Data",
+  "output_files": {
+    "binding_sim_updated_COVID_Nonspike_Mono.toml": {
+      "bytes": 1984,
+      "sha256": "74daac2e70e7f8d8764b39c91609a98c762d8f924bf91655bf1410bb0354bf6d"
+    },
+    "binding_sim_updated_COVID_Spike_Mono.toml": {
+      "bytes": 1972,
+      "sha256": "ce46bed69d47aeb5fa2dec0ce04de503bca72103b020648c479cfded507fd091"
+    },
+    "binding_sim_updated_PDAC_Full_Deduplicated.toml": {
+      "bytes": 2272,
+      "sha256": "898ef36384594dd752e82c779ce3759dbf8d9a5583533835fc76567c60e718ab"
+    },
+    "binding_sim_updated_PDAC_Mono.toml": {
+      "bytes": 2287,
+      "sha256": "cb914ff71ade0eb77714e9962322f53b7bf5adad4f37b6602aff8e58aa40cb47"
+    },
+    "covid_nonspike_candidate_roster.csv": {
+      "bytes": 12450558,
+      "sha256": "75e92a9f4653577c96efd1375a0c80ef15a6db4914c08b0d1c4ad4a0204267d4"
+    },
+    "covid_nonspike_full_longpep_mapping.csv": {
+      "bytes": 12344570,
+      "sha256": "e4e486d251fa5fc797b726dd1eb6cb1e769065fb987ab3c0b40725058f72bc8b"
+    },
+    "covid_nonspike_full_to_mono_env_crosswalk.csv": {
+      "bytes": 4599,
+      "sha256": "53853b171eb79444a7315017ed494620179041174ffb9f7a9c24639a3c19f3e2"
+    },
+    "covid_nonspike_full_to_mono_observation_crosswalk.csv": {
+      "bytes": 253793,
+      "sha256": "42be6d09cbbcde53296fcde50065e35946c09c77182eab554647885838c65f98"
+    },
+    "covid_nonspike_inputs_audit.json": {
+      "bytes": 2968,
+      "sha256": "bcfddbf5d4fa2595bcd6996da4facf61c7c6359ac12f6cd4498ff3d15c60ac91"
+    },
+    "covid_nonspike_mono_hla_env_dict.csv": {
+      "bytes": 655,
+      "sha256": "d6731ce70e99260af0c10f6597da606a6152e3fdf3ca72d2890c79f7d0d930df"
+    },
+    "covid_nonspike_mono_longpep_mapping.csv": {
+      "bytes": 12450553,
+      "sha256": "258ef6a15e01a9054c83213e0e3ed3a1a8c1b5ba697d3cd82682daccc139c645"
+    },
+    "covid_nonspike_mono_query.csv": {
+      "bytes": 201433,
+      "sha256": "84f75bd5e6f3972376e9d51e757e31d3628c06e3ab61a676046f875be34766e7"
+    },
+    "covid_spike_candidate_roster.csv": {
+      "bytes": 10284698,
+      "sha256": "686db1838bb0026d6c88abbea0e8ec1401bfbd8c59516dfb0124ed6961c80b57"
+    },
+    "covid_spike_full_longpep_mapping.csv": {
+      "bytes": 10182628,
+      "sha256": "2a38db3b76fda73b9d5b6b3a4203b96d28d654bf392c2ed61630d9a4987f9eec"
+    },
+    "covid_spike_full_to_mono_env_crosswalk.csv": {
+      "bytes": 4132,
+      "sha256": "2b75377ca33635e8d6133c320369c3e897cac43355baf963790bd66f01d49740"
+    },
+    "covid_spike_full_to_mono_observation_crosswalk.csv": {
+      "bytes": 164526,
+      "sha256": "20cb580f735ad3b23ec566658f472fab1366d8cc352e75e7ced49c6302362f89"
+    },
+    "covid_spike_inputs_audit.json": {
+      "bytes": 3024,
+      "sha256": "815d88c13b0b337e08f25b79648eafb87e35593a8e35bec8ef3f6b0a57c0d0aa"
+    },
+    "covid_spike_mono_hla_env_dict.csv": {
+      "bytes": 619,
+      "sha256": "689d4aedc74bc93031bcb42c229a3bf3560d633cee06a776434c0fc0ea85f7d0"
+    },
+    "covid_spike_mono_longpep_mapping.csv": {
+      "bytes": 10284693,
+      "sha256": "4cda7da9fb6600f8dd163effe5f21f75296dd5391ed947dfa3c9d1fc20b0b1e8"
+    },
+    "covid_spike_mono_query.csv": {
+      "bytes": 135173,
+      "sha256": "a7aecf5f2c2f79360cc5e98a0f42bd416487f11c36ce35fb80cef67a735e0134"
+    },
+    "mn_tuples_external_validation.csv": {
+      "bytes": 25,
+      "sha256": "34a756c28695008b530f0d744335e44a8118c03e89dbccddeda10419ddc39f4b"
+    },
+    "param_sets_external_validation.csv": {
+      "bytes": 543,
+      "sha256": "253c7b0c103642b8266441c6526a797562f166a354744dbb8160cbcd25c364fb"
+    },
+    "pdac_candidate_roster.csv": {
+      "bytes": 919553,
+      "sha256": "a24fba7d021c735e3addbe8f949dd97d201ca3a78b95c8915fcd4170c668d570"
+    },
+    "pdac_full_deduplicated_query.csv": {
+      "bytes": 262811,
+      "sha256": "f1b5d1abc9906cc45b0133be5d450b046c79110880d5633fbcb0aa33c615d3b3"
+    },
+    "pdac_full_longpep_mapping.csv": {
+      "bytes": 910470,
+      "sha256": "f3736a55f51cf32ab46a4aaa5d574873edd261b884485dc65680697debd0a463"
+    },
+    "pdac_full_mapping_noResponderFilter_noKdFilter_9to12mer.csv": {
+      "bytes": 129244,
+      "sha256": "cd4df34de2a2e3970f0800a57a49d3b50d6f77504daae1a27740a175da8c7309"
+    },
+    "pdac_full_mapping_noResponderFilter_noKdFilter_9to12mer_decisions.csv": {
+      "bytes": 36600,
+      "sha256": "eb7776d6cedd488c269ce9b85e429dfb136e03b71a27795234f389b523c55243"
+    },
+    "pdac_full_to_mono_env_crosswalk.csv": {
+      "bytes": 5132,
+      "sha256": "4916670bf097eb2608be5377642272ff3264346b7c7fa659e61b6cbad02d4c75"
+    },
+    "pdac_full_to_mono_observation_crosswalk.csv": {
+      "bytes": 279113,
+      "sha256": "0252f2d0775b8eb91440c8618f4519110adeb3c0e7605db7f87d164ba22b2e58"
+    },
+    "pdac_inputs_audit.json": {
+      "bytes": 3013,
+      "sha256": "063dcf171e5d2c4e9122cfd2c0120989650d2494624ab69abccd8633ee69f623"
+    },
+    "pdac_mono_hla_env_dict.csv": {
+      "bytes": 853,
+      "sha256": "07b6058b2ca70c4b38cd455bcfae0774aa710ba67feee8add48eefd5cdf197c6"
+    },
+    "pdac_mono_longpep_mapping.csv": {
+      "bytes": 919548,
+      "sha256": "82f1e51305c02160baef917bb08c5158085f883a4d3121d211e2d083663e6567"
+    },
+    "pdac_mono_query.csv": {
+      "bytes": 263895,
+      "sha256": "36aeb23c542023d46819752159914dface431f7351e846835d3df7c8c2ad372d"
+    }
+  },
+  "package_kind": "iris_external_validation_full_roster_inputs",
+  "passthrough_files": [
+    {
+      "output": "param_sets_external_validation.csv",
+      "source": {
+        "bytes": 543,
+        "path": "/Users/thomm15/Work_Data/IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer/param_sets_external_validation.csv",
+        "sha256": "253c7b0c103642b8266441c6526a797562f166a354744dbb8160cbcd25c364fb"
+      }
+    },
+    {
+      "output": "mn_tuples_external_validation.csv",
+      "source": {
+        "bytes": 25,
+        "path": "/Users/thomm15/Work_Data/IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer/mn_tuples_external_validation.csv",
+        "sha256": "34a756c28695008b530f0d744335e44a8118c03e89dbccddeda10419ddc39f4b"
+      }
+    }
+  ],
+  "provenance": [
+    {
+      "bytes": 42236,
+      "metadata": {
+        "apply_kd_filter": false,
+        "drop_no_data": true,
+        "drop_pool_ambiguous": true,
+        "nmer_lengths": [
+          9,
+          10,
+          11,
+          12
+        ],
+        "responders_only": false
+      },
+      "path": "/Users/thomm15/Work_Data/Jayon/Marcus_pre_processing/PDAC_eval_mapping/generate_PDAC_eval_mapping_file_MATCH_ROJAS_SETHNA_COHORT_FILTERING.py",
+      "role": "pdac_mapping_generator",
+      "sha256": "9e64b992d3272e331915a1f6935b0654ec47d2100c800d56ed27f679770c8b46"
+    },
+    {
+      "bytes": 50534,
+      "metadata": null,
+      "path": "/Users/thomm15/Work_Data/Jayon/PDAC_vax_clinical_trial/20230224 Neoantigen target list ML41081 with ELISpot.xlsx",
+      "role": "pdac_clinical_workbook",
+      "sha256": "4af5a60bfc8576dac4ea3f15b218458e7eed112e161d9a8c1cd8ef146203fd3a"
+    },
+    {
+      "bytes": 129244,
+      "copied_to": "pdac_full_mapping_noResponderFilter_noKdFilter_9to12mer.csv",
+      "metadata": null,
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer/pdac_full_mapping_noResponderFilter_noKdFilter_9to12mer.csv",
+      "role": "pdac_expanded_mapping",
+      "sha256": "cd4df34de2a2e3970f0800a57a49d3b50d6f77504daae1a27740a175da8c7309"
+    },
+    {
+      "bytes": 36600,
+      "copied_to": "pdac_full_mapping_noResponderFilter_noKdFilter_9to12mer_decisions.csv",
+      "metadata": null,
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer/pdac_full_mapping_noResponderFilter_noKdFilter_9to12mer_decisions.csv",
+      "role": "pdac_mapping_decisions",
+      "sha256": "eb7776d6cedd488c269ce9b85e429dfb136e03b71a27795234f389b523c55243"
+    }
+  ],
+  "schema_version": 1
+}

@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "datasets": [
+    {
+      "id": "PDAC",
+      "prefix": "pdac",
+      "query": "Jayon/processed_PDAC_neoepitope_data_9to12mer_kd10000_ap0.1_halflife0.2_pass_kd_and_ap_and_stability.csv",
+      "env_dict": "Jayon/hla_env_dict.csv",
+      "mapping": "IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer/pdac_full_mapping_noResponderFilter_noKdFilter_9to12mer.csv",
+      "config_template": "New_Approaches/MHC_competition_solver/src/binding_sim_updated_PDAC.toml",
+      "generated_mono_config": "binding_sim_updated_PDAC_Mono.toml",
+      "generated_full_deduplicated_config": "binding_sim_updated_PDAC_Full_Deduplicated.toml",
+      "response_column": "long_peptide_label",
+      "response_kind": "binary",
+      "endpoint_fields": ["patient_id", "long_peptide"],
+      "expected_source_sha256": {
+        "query": "780a0591e48de2f89cd25bde5ef36bcc94446ac871eeba0eb0691a90a4f2efb0",
+        "env_dict": "711fa1bb314ed9142ae68ac6d6c52081f6c04fdce344e4de4a07fb08faceb70a",
+        "mapping": "cd4df34de2a2e3970f0800a57a49d3b50d6f77504daae1a27740a175da8c7309",
+        "config_template": "eb7d25ebf530d08b599bd6fe5200c18bb7f1a727667e3a2a623771559828282c"
+      },
+      "expected": {
+        "unique_query_rows": 4182,
+        "mono_environments": 93,
+        "mapping_rows": 9315,
+        "scoreable_rows": 2309,
+        "floor_rows": 7006
+      }
+    },
+    {
+      "id": "COVID_NONSPIKE",
+      "prefix": "covid_nonspike",
+      "query": "Cansu_Covid_Nonspike/processed_cansu_covid_neoepitope_data_9to12mer_kd9000_ap0.3_halflife1.2.csv",
+      "env_dict": "Cansu_Covid_Nonspike/Marcus_preprocessing/atlas_hla_env_dict.csv",
+      "mapping": "Cansu_Covid_Nonspike/Marcus_preprocessing/atlas_patient_peptide_CD8_response_mapping.csv",
+      "config_template": "New_Approaches/MHC_competition_solver/src/binding_sim_updated_COVID_Nonspike.toml",
+      "generated_mono_config": "binding_sim_updated_COVID_Nonspike_Mono.toml",
+      "response_column": "cd8_TNFa_IFNg_dmso_adj",
+      "response_kind": "continuous",
+      "endpoint_fields": ["patient_id", "long_peptide"],
+      "expected_source_sha256": {
+        "query": "67ab6defce264ca49fd0e1e6808fc60a205036ef215fe9349f615d1570f4ab46",
+        "env_dict": "7d232adc1ce7cccff742b21ff3721ef2cbccee8f0ae3399b4e09889eb50cc53e",
+        "mapping": "947264b0134387b6d41124d4d4961047eafc11591dd035b880af703cedae3619",
+        "config_template": "04801a7bd2f1a2008ceffac58713c0b484becb2304b2d78bb5c079bcfa089226"
+      },
+      "expected": {
+        "unique_query_rows": 4242,
+        "mono_environments": 71,
+        "mapping_rows": 199124,
+        "scoreable_rows": 5553,
+        "floor_rows": 193571
+      }
+    },
+    {
+      "id": "COVID_SPIKE",
+      "prefix": "covid_spike",
+      "query": "Cansu_Covid_Spike/processed_cansu_covid_neoepitope_data_9to12mer_kd9000_ap0.3_halflife0.5.csv",
+      "env_dict": "Cansu_Covid_Spike/Marcus_preprocessing/covid_spike_hla_env_dict.csv",
+      "mapping": "Cansu_Covid_Spike/Marcus_preprocessing/spike_patient_peptide_CD8_response_mapping.csv",
+      "config_template": "New_Approaches/MHC_competition_solver/src/binding_sim_updated_COVID_Spike.toml",
+      "generated_mono_config": "binding_sim_updated_COVID_Spike_Mono.toml",
+      "response_column": "cd8_IFNg_dmso_adj",
+      "response_kind": "continuous",
+      "endpoint_fields": ["patient_id", "mutation", "long_peptide"],
+      "noise_ceiling_threshold": 0.53,
+      "expected_source_sha256": {
+        "query": "fd89cfbe684d1c2bdd867a627475fd680420964f5d1ef3fc4b4c426f2b247aef",
+        "env_dict": "42651c4f94775a8f4cadba1b986e641f763a5cddac88b6f507f8aafb68108bc5",
+        "mapping": "52ca3d073bb0a8e43abd6be5f2862eeafc4475bfbcc6d48e895a5d1de35eddda",
+        "config_template": "9d43622003a8a9ab9efd7a2a3ecf72d06063501936f9ad82e021fe310aed2543"
+      },
+      "expected": {
+        "unique_query_rows": 2866,
+        "mono_environments": 67,
+        "mapping_rows": 137175,
+        "scoreable_rows": 3658,
+        "floor_rows": 133517
+      }
+    }
+  ],
+  "provenance": [
+    {
+      "role": "pdac_mapping_generator",
+      "path": "Jayon/Marcus_pre_processing/PDAC_eval_mapping/generate_PDAC_eval_mapping_file_MATCH_ROJAS_SETHNA_COHORT_FILTERING.py",
+      "expected_sha256": "9e64b992d3272e331915a1f6935b0654ec47d2100c800d56ed27f679770c8b46",
+      "metadata": {
+        "apply_kd_filter": false,
+        "responders_only": false,
+        "drop_no_data": true,
+        "drop_pool_ambiguous": true,
+        "nmer_lengths": [9, 10, 11, 12]
+      }
+    },
+    {
+      "role": "pdac_clinical_workbook",
+      "path": "Jayon/PDAC_vax_clinical_trial/20230224 Neoantigen target list ML41081 with ELISpot.xlsx",
+      "expected_sha256": "4af5a60bfc8576dac4ea3f15b218458e7eed112e161d9a8c1cd8ef146203fd3a"
+    },
+    {
+      "role": "pdac_expanded_mapping",
+      "path": "IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer/pdac_full_mapping_noResponderFilter_noKdFilter_9to12mer.csv",
+      "expected_sha256": "cd4df34de2a2e3970f0800a57a49d3b50d6f77504daae1a27740a175da8c7309",
+      "copy_to_output": true
+    },
+    {
+      "role": "pdac_mapping_decisions",
+      "path": "IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer/pdac_full_mapping_noResponderFilter_noKdFilter_9to12mer_decisions.csv",
+      "expected_sha256": "eb7776d6cedd488c269ce9b85e429dfb136e03b71a27795234f389b523c55243",
+      "copy_to_output": true
+    }
+  ],
+  "passthrough_files": [
+    {
+      "path": "IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer/param_sets_external_validation.csv",
+      "expected_sha256": "253c7b0c103642b8266441c6526a797562f166a354744dbb8160cbcd25c364fb"
+    },
+    {
+      "path": "IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer/mn_tuples_external_validation.csv",
+      "expected_sha256": "34a756c28695008b530f0d744335e44a8118c03e89dbccddeda10419ddc39f4b"
+    }
+  ]
+}

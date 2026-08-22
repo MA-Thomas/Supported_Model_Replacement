@@ -361,16 +361,17 @@ pub fn validate_plan(plan: &TournamentPlan, bundle: &LoadedBundle) -> Result<()>
 pub fn write_plan(plan: &TournamentPlan, directory: &Path) -> Result<()> {
     fs::create_dir_all(directory).map_err(|error| crate::error::io(directory, error))?;
     let path = directory.join("plan.json");
+    let mut bytes = serde_json::to_vec_pretty(plan).map_err(|source| Error::Json {
+        path: path.clone(),
+        source,
+    })?;
+    bytes.push(b'\n');
     let mut file = OpenOptions::new()
         .write(true)
         .create_new(true)
         .open(&path)
         .map_err(|error| crate::error::io(&path, error))?;
-    serde_json::to_writer_pretty(&mut file, plan).map_err(|source| Error::Json {
-        path: path.clone(),
-        source,
-    })?;
-    file.write_all(b"\n")
+    file.write_all(&bytes)
         .map_err(|error| crate::error::io(&path, error))?;
     file.sync_all()
         .map_err(|error| crate::error::io(&path, error))

@@ -8,11 +8,15 @@ import csv
 import json
 import math
 import os
+import resource
+import shutil
 import statistics
+import subprocess
 from pathlib import Path
 import re
 import socket
 import sys
+import time
 from typing import Any
 
 
@@ -52,6 +56,30 @@ def prepare_config(args: argparse.Namespace) -> None:
             f"requested COVID SPIKE label set {args.label_set!r}, but config declares {actual!r}"
         )
     base = source.parent
+    if config.get("configuration_kind") == "prebuilt_bundles":
+        allowed = {
+            "schema_version",
+            "configuration_kind",
+            "prebuilt_bundle_root",
+            "covid_spike_label_specification",
+        }
+        unknown = set(config) - allowed
+        if unknown:
+            raise HelperError(f"prebuilt-bundle configuration has unknown fields: {sorted(unknown)}")
+        if config.get("schema_version") != 1:
+            raise HelperError("prebuilt-bundle configuration schema_version must be 1")
+        raw_root = config.get("prebuilt_bundle_root")
+        if not isinstance(raw_root, str) or not raw_root.strip():
+            raise HelperError("prebuilt_bundle_root must be a nonempty path")
+        root = Path(absolute_from(base, raw_root))
+        if not root.is_dir():
+            raise HelperError(f"prebuilt bundle root does not exist: {root}")
+        config["prebuilt_bundle_root"] = str(root)
+        config["organizer_binary"] = str(args.organizer.resolve())
+        write_json_once_or_equal(args.output.resolve(), config)
+        return
+    if config.get("configuration_kind") is not None:
+        raise HelperError(f"unsupported configuration_kind: {config['configuration_kind']!r}")
     config["organizer_binary"] = str(args.organizer.resolve())
     for key in ("transfer_root", "run_inputs_root"):
         config[key] = absolute_from(base, config[key])
@@ -61,6 +89,39 @@ def prepare_config(args: argparse.Namespace) -> None:
         for key in ("evaluation_dir", "mapping_source"):
             evaluation[key] = absolute_from(base, evaluation[key])
     write_json_once_or_equal(args.output.resolve(), config)
+
+
+def prebuilt_bundle_root(args: argparse.Namespace) -> None:
+    config = read_json(args.config.resolve())
+    if config.get("configuration_kind") == "prebuilt_bundles":
+        root = Path(config.get("prebuilt_bundle_root", ""))
+        if not root.is_absolute() or not root.is_dir():
+            raise HelperError(f"invalid prepared prebuilt bundle root: {root}")
+        print(root)
+    elif config.get("configuration_kind") is None:
+        print("")
+    else:
+        raise HelperError(f"unsupported configuration_kind: {config['configuration_kind']!r}")
+
+
+def install_prebuilt_bundle(args: argparse.Namespace) -> None:
+    source = args.source.resolve()
+    output = args.output.resolve()
+    if not source.is_dir():
+        raise HelperError(f"prebuilt bundle does not exist: {source}")
+    if output.exists():
+        raise HelperError(f"bundle output already exists: {output}")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    temporary = output.parent / f".{output.name}.copying.{os.getpid()}"
+    if temporary.exists():
+        raise HelperError(f"temporary bundle path already exists: {temporary}")
+    try:
+        shutil.copytree(source, temporary)
+        os.replace(temporary, output)
+    except Exception:
+        if temporary.exists():
+            shutil.rmtree(temporary)
+        raise
 
 
 def bundle_label(args: argparse.Namespace) -> None:
@@ -73,6 +134,59 @@ def bundle_label(args: argparse.Namespace) -> None:
         raise HelperError(
             f"bundle SPIKE label set {actual!r} does not match requested {args.label_set!r}: {args.bundle}"
         )
+
+
+def check_revision_bundle(args: argparse.Namespace) -> None:
+    spec = read_json(args.bundle / "tournament_spec.json")
+    if spec.get("evaluations") != [args.evaluation]:
+        raise HelperError(
+            f"revision bundle must contain exactly {args.evaluation!r}: {args.bundle}"
+        )
+    revision = spec.get("annotations", {}).get("context_revision", {})
+    if revision.get("revision_id") != args.revision_id:
+        raise HelperError(
+            f"bundle revision ID {revision.get('revision_id')!r} does not match "
+            f"{args.revision_id!r}: {args.bundle}"
+        )
+    if revision.get("replaced_evaluation") != args.evaluation:
+        raise HelperError(f"bundle does not declare replacement of {args.evaluation}: {args.bundle}")
+    registry = read_json(args.bundle / "systems.json")
+    if len(registry.get("systems", [])) != args.expected_systems:
+        raise HelperError(f"unexpected system count in revision bundle: {args.bundle}")
+    endpoint_path = args.bundle / "evaluations" / args.evaluation / "endpoints.csv"
+    with endpoint_path.open(newline="", encoding="utf-8") as stream:
+        rows = list(csv.DictReader(stream))
+    labels = [row.get("label") for row in rows]
+    if len(rows) != args.expected_endpoints or labels.count("1") != args.expected_positive:
+        raise HelperError(
+            f"revision endpoint roster differs from the declared contract: {args.bundle}"
+        )
+
+
+def bundle_dimensions(args: argparse.Namespace) -> None:
+    registry = read_json(args.bundle / "systems.json")
+    spec = read_json(args.bundle / "tournament_spec.json")
+    systems = registry.get("systems")
+    evaluations = spec.get("evaluations")
+    if not isinstance(systems, list) or len(systems) < 2:
+        raise HelperError(f"bundle must contain at least two systems: {args.bundle}")
+    if not isinstance(evaluations, list) or not evaluations:
+        raise HelperError(f"bundle must contain at least one evaluation: {args.bundle}")
+    system_ids = [system.get("system_id") for system in systems if isinstance(system, dict)]
+    score_columns = [system.get("score_column") for system in systems if isinstance(system, dict)]
+    if (
+        len(system_ids) != len(systems)
+        or len(set(system_ids)) != len(systems)
+        or None in system_ids
+        or len(score_columns) != len(systems)
+        or len(set(score_columns)) != len(systems)
+        or None in score_columns
+        or len(set(evaluations)) != len(evaluations)
+        or any(not isinstance(value, str) or not value for value in evaluations)
+    ):
+        raise HelperError(f"bundle has invalid system or evaluation identities: {args.bundle}")
+    expected_matches = len(evaluations) * len(systems) * (len(systems) - 1) // 2
+    print(f"{expected_matches}\t{len(evaluations)}\t{len(systems)}")
 
 
 def plan_info(args: argparse.Namespace) -> None:
@@ -104,10 +218,51 @@ def check_run_summary(args: argparse.Namespace) -> None:
         raise HelperError(f"organizer run summary is not successful: {args.path}")
 
 
+def run_measured(args: argparse.Namespace) -> int:
+    command = list(args.command)
+    if command and command[0] == "--":
+        command = command[1:]
+    if not command:
+        raise HelperError("run-measured requires a command after --")
+    args.stdout_file.parent.mkdir(parents=True, exist_ok=True)
+    args.time_file.parent.mkdir(parents=True, exist_ok=True)
+    started = time.monotonic()
+    with args.stdout_file.open("xb") as stdout:
+        completed = subprocess.run(command, stdout=stdout, check=False)
+    elapsed = time.monotonic() - started
+    usage = resource.getrusage(resource.RUSAGE_CHILDREN)
+    maximum_rss_kb = int(usage.ru_maxrss)
+    if sys.platform == "darwin":
+        maximum_rss_kb //= 1024
+    measurement = {
+        "schema_version": 1,
+        "elapsed_seconds": elapsed,
+        "maximum_resident_set_kb": maximum_rss_kb,
+        "exit_code": completed.returncode,
+    }
+    temporary = args.time_file.with_name(f".{args.time_file.name}.tmp.{os.getpid()}")
+    temporary.write_text(
+        json.dumps(measurement, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    os.replace(temporary, args.time_file)
+    return completed.returncode
+
+
 def parse_time_file(path: Path) -> tuple[float | None, int | None]:
     if not path.exists():
         return None, None
     text = path.read_text(encoding="utf-8", errors="replace")
+    try:
+        measurement = json.loads(text)
+    except json.JSONDecodeError:
+        measurement = None
+    if isinstance(measurement, dict):
+        elapsed = measurement.get("elapsed_seconds")
+        maximum_rss = measurement.get("maximum_resident_set_kb")
+        return (
+            float(elapsed) if isinstance(elapsed, (int, float)) else None,
+            int(maximum_rss) if isinstance(maximum_rss, int) else None,
+        )
     rss_match = re.search(r"Maximum resident set size \(kbytes\):\s*(\d+)", text)
     rss = int(rss_match.group(1)) if rss_match else None
     if rss is None:
@@ -247,10 +402,32 @@ def parser() -> argparse.ArgumentParser:
     config.add_argument("--label-set", required=True)
     config.set_defaults(function=prepare_config)
 
+    prebuilt = commands.add_parser("prebuilt-bundle-root")
+    prebuilt.add_argument("--config", type=Path, required=True)
+    prebuilt.set_defaults(function=prebuilt_bundle_root)
+
+    install = commands.add_parser("install-prebuilt-bundle")
+    install.add_argument("--source", type=Path, required=True)
+    install.add_argument("--output", type=Path, required=True)
+    install.set_defaults(function=install_prebuilt_bundle)
+
     bundle = commands.add_parser("check-bundle-label")
     bundle.add_argument("--bundle", type=Path, required=True)
     bundle.add_argument("--label-set", required=True)
     bundle.set_defaults(function=bundle_label)
+
+    revision_bundle = commands.add_parser("check-revision-bundle")
+    revision_bundle.add_argument("--bundle", type=Path, required=True)
+    revision_bundle.add_argument("--revision-id", required=True)
+    revision_bundle.add_argument("--evaluation", required=True)
+    revision_bundle.add_argument("--expected-systems", type=positive_int, required=True)
+    revision_bundle.add_argument("--expected-endpoints", type=positive_int, required=True)
+    revision_bundle.add_argument("--expected-positive", type=positive_int, required=True)
+    revision_bundle.set_defaults(function=check_revision_bundle)
+
+    dimensions = commands.add_parser("bundle-dimensions")
+    dimensions.add_argument("--bundle", type=Path, required=True)
+    dimensions.set_defaults(function=bundle_dimensions)
 
     plan = commands.add_parser("plan-info")
     plan.add_argument("--plan", type=Path, required=True)
@@ -261,6 +438,12 @@ def parser() -> argparse.ArgumentParser:
     run_summary = commands.add_parser("check-run-summary")
     run_summary.add_argument("--path", type=Path, required=True)
     run_summary.set_defaults(function=check_run_summary)
+
+    measured = commands.add_parser("run-measured")
+    measured.add_argument("--time-file", type=Path, required=True)
+    measured.add_argument("--stdout-file", type=Path, required=True)
+    measured.add_argument("command", nargs=argparse.REMAINDER)
+    measured.set_defaults(function=run_measured)
 
     summary = commands.add_parser("summarize-shard")
     summary.add_argument("--mode", choices=("pilot", "full"), required=True)
@@ -284,8 +467,8 @@ def parser() -> argparse.ArgumentParser:
 def main() -> int:
     try:
         args = parser().parse_args()
-        args.function(args)
-        return 0
+        result = args.function(args)
+        return result if isinstance(result, int) else 0
     except (HelperError, KeyError, OSError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 1

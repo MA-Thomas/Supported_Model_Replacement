@@ -336,6 +336,13 @@ retains the complete official reports, and normalizes each directed result to:
 Only `supported` creates an evidential edge. A scientific `unresolved` result
 is a completed match, distinct from operational failure.
 
+`run-shard --threads N` constructs one local Rayon pool with exactly `N`
+workers. Shard-level match scheduling and the independent computational
+evaluations exposed by `supported-ap` both use this pool. Nested Rayon work is
+therefore work-stealed within one execution budget rather than assigned a
+separate pool per match. Thread count and sharding are operational choices;
+they do not enter match identity, seed derivation, or scientific reduction.
+
 ## 9. Atomic publication and recovery
 
 Match artifacts are written to unique temporary files, flushed, reopened,
@@ -471,6 +478,8 @@ The implementation must test:
 - three-state conjunction;
 - SCCs, cycles, source components, and graph-maximal selection;
 - atomic restart and recovery;
+- seed-identical scientific results across one-thread and multithreaded Rayon
+  execution;
 - fail-closed completeness and reduction audits;
 - PR/CNAP and AUROC judge adapters; and
 - end-to-end provider bundles against the organizer's own validator.

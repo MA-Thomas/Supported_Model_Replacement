@@ -1,42 +1,55 @@
-# IRIS directed round-robin cluster runbook
+# IRIS 70-system round-robin runbook
 
-This runbook uses the following cluster locations:
+This workflow evaluates 70 systems for PR/CNAP and AUROC across PDAC, COVID
+SPIKE, and COVID NONSPIKE: 7,245 matches per metric and 14,490 total.
 
-```text
-Code:
-/data1/lukszam/Marcus/Supported_Model_Replacement
-
-Generated bundles, plans, match artifacts, logs, and reductions:
-/data1/lukszam/Marcus/Supported_Model_Replacement_Runs
-```
-
-Keep generated runs outside the source directory so that later source-code
-copies or updates cannot overwrite tournament artifacts.
-
-## 1. Copy the repository to the cluster
-
-Copy `Supported_Model_Replacement/` to:
+Use these cluster locations:
 
 ```text
+Code and immutable inputs:
 /data1/lukszam/Marcus/Supported_Model_Replacement
+
+Generated plans, match artifacts, logs, and reductions:
+/data1/lukszam/Marcus/Supported_Model_Replacement_Runs/full_roster_selfgated_dual_selection_v1
 ```
 
-The local `supported_ap_code/target/` directory may be omitted. It contains
-macOS build products, can be large, and cannot be executed on the Linux
-cluster. The organizer must be rebuilt on the cluster.
+## 1. Upload the cluster package
 
-For example, run `rsync` from the computer that contains the local directory,
-replacing `CLUSTER_HOST` with the SSH host name:
+Run this on the local Mac after replacing `CLUSTER_HOST`:
 
 ```bash
-rsync -av --exclude 'supported_ap_code/target/' \
-  /Users/thomm15/Documents/Supported_Model_Replacement/ \
-  CLUSTER_HOST:/data1/lukszam/Marcus/Supported_Model_Replacement/
+LOCAL_ROOT=/Users/thomm15/Documents/Supported_Model_Replacement
+CLUSTER_HOST=replace_with_iris_ssh_host
+CLUSTER_ROOT=/data1/lukszam/Marcus/Supported_Model_Replacement
+
+ssh "${CLUSTER_HOST}" \
+  "mkdir -p '${CLUSTER_ROOT}/IRIS_scripts' '${CLUSTER_ROOT}/cluster_inputs'"
+
+rsync -av --exclude 'target/' \
+  "${LOCAL_ROOT}/supported_ap_code/" \
+  "${CLUSTER_HOST}:${CLUSTER_ROOT}/supported_ap_code/"
+
+rsync -av \
+  "${LOCAL_ROOT}/IRIS_scripts/config.cluster.full_roster_selfgated_dual_selection_v1.json" \
+  "${LOCAL_ROOT}/IRIS_scripts/iris_score_provider.py" \
+  "${LOCAL_ROOT}/IRIS_scripts/slurm_round_robin_helper.py" \
+  "${LOCAL_ROOT}/IRIS_scripts/submit_directed_round_robin_slurm.sh" \
+  "${LOCAL_ROOT}/IRIS_scripts/run_directed_round_robin_array.slurm" \
+  "${LOCAL_ROOT}/IRIS_scripts/finalize_directed_round_robin_slurm.sh" \
+  "${CLUSTER_HOST}:${CLUSTER_ROOT}/IRIS_scripts/"
+
+rsync -av \
+  "${LOCAL_ROOT}/cluster_inputs/full_roster_selfgated_dual_selection_v1/" \
+  "${CLUSTER_HOST}:${CLUSTER_ROOT}/cluster_inputs/full_roster_selfgated_dual_selection_v1/"
 ```
 
-## 2. Build the organizer on the cluster
+No tensors, NCI summaries, transfer outputs, selection surfaces, local plans,
+or macOS build products are needed. The packaged bundles already contain all
+endpoint labels and aligned score vectors used by every match.
 
-Log in to the cluster and run:
+## 2. Build and validate on IRIS
+
+Log in to IRIS and run:
 
 ```bash
 cd /data1/lukszam/Marcus/Supported_Model_Replacement
@@ -45,199 +58,106 @@ cargo build --release \
   --manifest-path supported_ap_code/Cargo.toml \
   --package directed_round_robin_organizer \
   --bin directed_round_robin_organizer
+
+ORGANIZER=supported_ap_code/target/release/directed_round_robin_organizer
+BUNDLES=cluster_inputs/full_roster_selfgated_dual_selection_v1
+
+"${ORGANIZER}" validate-bundle --bundle "${BUNDLES}/pr"
+"${ORGANIZER}" validate-bundle --bundle "${BUNDLES}/roc"
 ```
 
-The resulting executable is:
+Validation must report 70 systems, three evaluations, and 7,245 matches for
+each metric. Expected bundle hashes:
 
 ```text
-/data1/lukszam/Marcus/Supported_Model_Replacement/supported_ap_code/target/release/directed_round_robin_organizer
+PR   f47d6ec1c15cfe7eacc9a98d3e01f345c26ca7b40d55dd9d3e043961a22a873a
+ROC  05a9906435467a1d80d195cf9acabc8ed45c8ae95025a8a060cb2a76a97b5433
 ```
 
-The Slurm launcher finds this executable automatically from its own repository
-location unless `--organizer` is supplied explicitly.
+Stop if either validation or hash differs.
 
-## 3. Create a cluster-specific provider configuration
+## 3. Prepare without submitting
 
-Copy the example rather than editing it in place:
+This validates and installs both bundles and creates cluster-native pilot
+plans without calling `sbatch`. The `-x` flag prints each preparation stage so
+the command does not appear silently stalled:
 
 ```bash
-cd /data1/lukszam/Marcus/Supported_Model_Replacement/IRIS_scripts
-cp config.example.json config.cluster.threshold_zero.json
+cd /data1/lukszam/Marcus/Supported_Model_Replacement/IRIS_scripts && bash -x ./submit_directed_round_robin_slurm.sh --mode pilot --config config.cluster.full_roster_selfgated_dual_selection_v1.json --run-root /data1/lukszam/Marcus/Supported_Model_Replacement_Runs/full_roster_selfgated_dual_selection_v1 --covid-spike-label-set threshold_zero --threads 8 --pilot-matches-per-shard 3 --max-concurrent 16 --mem 32G --time 04:00:00 --prepare-only
 ```
 
-Replace every local `/Users/thomm15/Work_Data/...` path with the corresponding
-cluster path. Check these configuration entries carefully:
+## 4. Run the timing pilot
 
-- `transfer_root`;
-- `run_inputs_root`;
-- every `models.*.nci_summary`;
-- every `evaluations.*.evaluation_dir`; and
-- every `evaluations.*.mapping_source`.
+Repeat the command from step 3 with only `--prepare-only` removed. The pilot
+runs six production-policy matches: one match from each evaluation for each
+metric. It does not reduce scientific replication or optimization settings.
 
-Every configured input must be readable from a Slurm compute node, not only
-from the login node. The launcher writes an effective, absolute-path copy of
-the configuration into the run root. It overrides `organizer_binary` with the
-release executable selected by the launcher.
-
-### COVID label choice
-
-The wrapper requires an explicit SPIKE label-set ID. For the historical
-threshold-zero definition, the configuration must contain:
-
-```json
-"covid_spike_label_specification": {
-  "id": "threshold_zero",
-  "description": "COVID SPIKE response is positive when cd8_IFNg_dmso_adj is strictly greater than 0.0.",
-  "threshold": 0.0,
-  "comparison_operator": ">",
-  "response_field": "cd8_IFNg_dmso_adj"
-}
-```
-
-The SPIKE evaluation entry must use the same response field, threshold, and
-operator. If the stored higher SPIKE definition is selected instead, use an
-explicit ID such as `higher_threshold_0p53` and set the SPIKE threshold to
-`0.53` with the strict `>` operator.
-
-The higher threshold applies to SPIKE only. COVID NONSPIKE remains fixed at:
-
-```text
-cd8_TNFa_IFNg_dmso_adj > 0
-```
-
-The provider rejects a configuration that applies the SPIKE `0.53` threshold
-to NONSPIKE.
-
-## 4. Validate preparation without submitting jobs
-
-The following command builds and validates the immutable PR and ROC bundles
-and creates the evaluation-stratified pilot plans, but does not call `sbatch`:
-
-```bash
-cd /data1/lukszam/Marcus/Supported_Model_Replacement/IRIS_scripts
-
-bash submit_directed_round_robin_slurm.sh \
-  --mode pilot \
-  --config config.cluster.threshold_zero.json \
-  --run-root /data1/lukszam/Marcus/Supported_Model_Replacement_Runs/threshold_zero \
-  --covid-spike-label-set threshold_zero \
-  --prepare-only
-```
-
-To print the intended `sbatch` command without submitting it, replace
-`--prepare-only` with `--dry-run`.
-
-## 5. Submit the reduced timing pilot
-
-```bash
-cd /data1/lukszam/Marcus/Supported_Model_Replacement/IRIS_scripts
-
-bash submit_directed_round_robin_slurm.sh \
-  --mode pilot \
-  --config config.cluster.threshold_zero.json \
-  --run-root /data1/lukszam/Marcus/Supported_Model_Replacement_Runs/threshold_zero \
-  --covid-spike-label-set threshold_zero
-```
-
-The default pilot runs three PR matches and three ROC matches. Each metric's
-pilot shard contains one deterministic match from each evaluation: SPIKE,
-NONSPIKE, and PDAC. The matches use the complete production scientific policy;
-the launcher does not reduce replications or optimization budgets.
-
-The launcher prints two job IDs:
-
-1. the PR/ROC Slurm array job; and
-2. an `afterok` finalizer job that aggregates resource measurements.
-
-Monitor them with standard Slurm commands, for example:
+The launcher prints the array job ID and its dependent finalizer job ID.
+Monitor them with:
 
 ```bash
 squeue -u "$USER"
 sacct -j ARRAY_JOB_ID --format=JobID,State,Elapsed,MaxRSS,AllocCPUS
 ```
 
-Pilot logs and resource reports are written below:
+Review the pilot resource report before choosing full-run threads, shard size,
+memory, wall time, and concurrency:
 
 ```text
-/data1/lukszam/Marcus/Supported_Model_Replacement_Runs/threshold_zero/pilot/logs/
-/data1/lukszam/Marcus/Supported_Model_Replacement_Runs/threshold_zero/pilot/resource_usage/
-/data1/lukszam/Marcus/Supported_Model_Replacement_Runs/threshold_zero/pilot/resource_report/
+/data1/lukszam/Marcus/Supported_Model_Replacement_Runs/full_roster_selfgated_dual_selection_v1/pilot/resource_report/
 ```
 
-The resource report records elapsed time, maximum resident memory, and exact
-match-artifact bytes. Review it before choosing the full-run thread count,
-matches per shard, memory, wall time, and maximum concurrent array tasks.
+For a more stable pilot, use `--pilot-matches-per-shard 12`, which runs four
+matches from each evaluation per metric. Use a new run root when changing the
+pilot shard size.
 
-For a more stable timing sample, add:
+## 5. Run all 14,490 matches
 
-```text
---pilot-matches-per-shard 12
-```
+The completed six-match pilot used at most 175 MiB per task. A 4 GiB request
+therefore leaves ample headroom when a full shard has up to twelve active
+matches, while avoiding the pilot's unnecessary 32 GiB reservation. A
+60-task concurrency cap permits at most 720 CPUs and 240 GiB across the
+running array. Slurm may run fewer tasks when resources or fair-share limits
+require it.
 
-That runs four matches from each evaluation per metric.
+Keep the 48-hour wall-time request. The eight-thread PR pilot took about 52
+minutes for three matches; simple linear scaling at eight threads gives roughly
+14.6 hours for an average 50-match PR shard. Twelve threads may shorten that
+time, while the larger limit protects against imperfect scaling and variation
+among comparisons.
 
-## 6. Submit the complete PR and ROC workloads
-
-The same run root can be used for full mode. Pilot and full plans and results
-are kept in separate subdirectories, while the immutable bundles are reused.
-
-For example:
+The following command uses 50 matches per shard, producing 145 PR shards and
+145 ROC shards:
 
 ```bash
-cd /data1/lukszam/Marcus/Supported_Model_Replacement/IRIS_scripts
-
-bash submit_directed_round_robin_slurm.sh \
-  --mode full \
-  --config config.cluster.threshold_zero.json \
-  --run-root /data1/lukszam/Marcus/Supported_Model_Replacement_Runs/threshold_zero \
-  --covid-spike-label-set threshold_zero \
-  --threads 8 \
-  --full-matches-per-shard 50 \
-  --max-concurrent 16 \
-  --mem 32G \
-  --time 2-00:00:00
+cd /data1/lukszam/Marcus/Supported_Model_Replacement/IRIS_scripts && bash -x ./submit_directed_round_robin_slurm.sh --mode full --config config.cluster.full_roster_selfgated_dual_selection_v1.json --run-root /data1/lukszam/Marcus/Supported_Model_Replacement_Runs/full_roster_selfgated_dual_selection_v1 --covid-spike-label-set threshold_zero --threads 12 --full-matches-per-shard 50 --max-concurrent 60 --mem 4G --time 2-00:00:00
 ```
 
-Full mode requires exactly 5,310 PR matches and 5,310 ROC matches. With 50
-matches per shard, each metric has 107 shards, for 214 array tasks in total.
-At most 16 array tasks run concurrently in the example above. Each task gets
-eight CPUs and runs at most eight matches concurrently.
+Each task receives twelve CPUs and runs at most twelve matches concurrently.
+After every shard succeeds, the finalizer checks completeness, audits and
+reduces both metrics, and creates the PDAC-only and all-context 65-system
+induced views.
 
-After every array task succeeds, the dependent finalizer:
+## 6. Resume and inspect results
 
-1. aggregates resource measurements;
-2. checks result status;
-3. audits completeness;
-4. performs the deterministic reduction for PR and ROC; and
-5. audits both reductions.
+A run is resumable. Repeat the exact full command with the same run root,
+configuration, threads, and sharding settings. Valid completed artifacts are
+reused; only missing matches are computed.
 
-The reductions are written below:
+Do not edit a bundle, plan, `run.env`, or completed match artifact. If any
+scientific or execution setting changes, use a new run root.
+
+Full-run outputs are under:
 
 ```text
-/data1/lukszam/Marcus/Supported_Model_Replacement_Runs/threshold_zero/full/reductions/pr/
-/data1/lukszam/Marcus/Supported_Model_Replacement_Runs/threshold_zero/full/reductions/roc/
+.../full/plans/
+.../full/results/
+.../full/logs/
+.../full/resource_report/
+.../full/reductions/pr/
+.../full/reductions/roc/
+.../full/induced_views/
 ```
 
-## 7. Resume an interrupted run
-
-Match artifacts are resumable. Re-run the same launcher command with the same
-mode, configuration, run root, label-set ID, sharding settings, and thread
-count. Existing artifacts are validated and reused; only missing matches are
-computed.
-
-Do not delete or edit `run.env`, a plan, a bundle, or completed match artifacts
-to force a retry. If scientific settings, label choice, or sharding settings
-change, use a new run root so that the two executions remain distinct and
-auditable.
-
-## 8. Important operational boundaries
-
-- Do not run the local macOS organizer executable on the cluster; always build
-  the Linux release executable there.
-- Do not put generated runs inside the copied source directory.
-- Set Slurm `--cpus-per-task` through `--threads`; the launcher keeps these
-  values equal.
-- The organizer owns match-level parallelism. Nested Rayon, OpenMP, MKL, and
-  OpenBLAS pools are set to one thread by the array worker.
-- The wrapper does not alter any configured source-data directory.
-- Use a distinct run root for each SPIKE label specification.
+Keep generated runs outside the copied source directory. Always build the
+Linux organizer on IRIS; do not upload or run the local macOS executable.

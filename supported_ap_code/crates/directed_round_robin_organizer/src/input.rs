@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use crate::identity::{
     canonical_label_hash, canonical_vector_hash, hash_serializable, sha256_file,
 };
-use crate::spec::{MetricKind, TournamentSpec};
+use crate::spec::{MetricKind, TournamentSpec, TournamentSpecIdentity};
 use crate::system::SystemRegistry;
 use crate::{Error, Result};
 
@@ -52,12 +52,12 @@ pub struct PortableEvaluationHashes {
     pub score_vector_hashes: BTreeMap<String, String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Serialize)]
 struct PortableBundleIdentity<'a> {
     schema_name: &'static str,
     schema_version: u32,
     metric: MetricKind,
-    tournament_spec: &'a TournamentSpec,
+    tournament_spec: TournamentSpecIdentity<'a>,
     systems: Vec<&'a crate::system::SystemRecord>,
     evaluations: Vec<&'a PortableEvaluationHashes>,
 }
@@ -75,7 +75,7 @@ pub fn compute_bundle_content_hash(
         schema_name: BUNDLE_SCHEMA_NAME,
         schema_version: BUNDLE_SCHEMA_VERSION,
         metric: spec.metric,
-        tournament_spec: spec,
+        tournament_spec: spec.identity_view(),
         systems,
         evaluations,
     })
@@ -238,7 +238,7 @@ fn load_bundle_internal(root: &Path, enforce_content_hash: bool) -> Result<Loade
             manifest.bundle_content_hash, computed_bundle_hash
         )));
     }
-    let policy_hash = hash_serializable(&spec)?;
+    let policy_hash = hash_serializable(&spec.identity_view())?;
     let mut manifest = manifest;
     if !enforce_content_hash {
         manifest.bundle_content_hash = computed_bundle_hash;

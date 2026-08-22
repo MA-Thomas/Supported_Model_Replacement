@@ -1,10 +1,9 @@
-use std::collections::VecDeque;
 use std::fs::{self, File, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::identity::{hash_serializable, sha256_bytes, sha256_file};
@@ -120,42 +119,39 @@ pub fn run_shard(
         .cloned()
         .collect();
     let assigned_count = assigned.len();
-    let queue = Arc::new(Mutex::new(VecDeque::from(assigned)));
-    let outcomes = Arc::new(Mutex::new(Vec::new()));
     let execution_build = capture_build_provenance()?;
-    let worker_count = threads.min(assigned_count.max(1));
-    std::thread::scope(|scope| {
-        for _ in 0..worker_count {
-            let queue = Arc::clone(&queue);
-            let outcomes = Arc::clone(&outcomes);
-            let execution_build = &execution_build;
-            scope.spawn(move || {
-                loop {
-                    let item = queue.lock().expect("work queue poisoned").pop_front();
-                    let Some(item) = item else { break };
-                    let outcome = execute_one(bundle, plan, &item, results_root, execution_build);
-                    if let Err(error) = &outcome {
-                        let _ = record_failure(results_root, plan, &item, error);
-                    }
-                    outcomes
-                        .lock()
-                        .expect("outcome queue poisoned")
-                        .push((item.match_id, outcome));
+    let judge_execution = format!("rayon_shared_pool:{threads}_threads");
+    let pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(threads)
+        .thread_name(|index| format!("directed-round-robin-{index}"))
+        .build()
+        .map_err(|error| Error::Judge(format!("could not create Rayon thread pool: {error}")))?;
+    let outcomes: Vec<_> = pool.install(|| {
+        assigned
+            .par_iter()
+            .map(|item| {
+                let outcome = execute_one(
+                    bundle,
+                    plan,
+                    item,
+                    results_root,
+                    &execution_build,
+                    &judge_execution,
+                );
+                if let Err(error) = &outcome {
+                    let _ = record_failure(results_root, plan, item, error);
                 }
-            });
-        }
+                (item.match_id.clone(), outcome)
+            })
+            .collect()
     });
-    let outcomes = Arc::try_unwrap(outcomes)
-        .expect("all scoped workers have exited")
-        .into_inner()
-        .expect("outcome queue poisoned");
     let mut summary = ShardRunSummary {
         shard_id,
         assigned: assigned_count,
         computed: 0,
         already_valid: 0,
         failed: 0,
-        worker_threads: worker_count,
+        worker_threads: threads,
     };
     let mut errors = Vec::new();
     for (match_id, outcome) in outcomes {
@@ -185,6 +181,7 @@ fn execute_one(
     item: &MatchPlan,
     results_root: &Path,
     execution_build: &BuildProvenance,
+    judge_execution: &str,
 ) -> Result<WorkOutcome> {
     let final_path = result_path(results_root, &item.match_id);
     if final_path.exists() {
@@ -229,7 +226,7 @@ fn execute_one(
         },
         plan_build: plan.organizer_build.clone(),
         execution_build: execution_build.clone(),
-        judge_execution: "sequential_with_match_level_parallelism".into(),
+        judge_execution: judge_execution.into(),
         started_unix_milliseconds,
         completed_unix_milliseconds,
         judged,
@@ -298,6 +295,35 @@ pub fn validate_artifact(
 pub fn read_artifact(path: &Path) -> Result<MatchArtifact> {
     let file = File::open(path).map_err(|error| crate::error::io(path, error))?;
     serde_json::from_reader(file).map_err(|source| Error::Json {
+        path: path.to_owned(),
+        source,
+    })
+}
+
+/// Reads, hashes, and deserializes an immutable match artifact in one pass.
+///
+/// Finalization previously deserialized the JSON and then reopened the same
+/// large file to validate its checksum. Keeping the bytes in memory long
+/// enough to perform both operations removes that duplicate filesystem read.
+pub fn read_artifact_with_checksum(path: &Path) -> Result<MatchArtifact> {
+    let bytes = fs::read(path).map_err(|error| crate::error::io(path, error))?;
+    let sidecar = checksum_path(path);
+    if !sidecar.is_file() {
+        return Err(Error::ArtifactConflict(format!(
+            "missing checksum sidecar for {}",
+            path.display()
+        )));
+    }
+    let declared =
+        fs::read_to_string(&sidecar).map_err(|error| crate::error::io(&sidecar, error))?;
+    let actual = sha256_bytes(&bytes);
+    if declared.trim() != actual {
+        return Err(Error::ArtifactConflict(format!(
+            "checksum mismatch for {}",
+            path.display()
+        )));
+    }
+    serde_json::from_slice(&bytes).map_err(|source| Error::Json {
         path: path.to_owned(),
         source,
     })
@@ -373,6 +399,48 @@ fn unique_temporary_path(final_path: &Path) -> Result<PathBuf> {
     Err(Error::ArtifactConflict(
         "could not allocate a unique temporary result path".into(),
     ))
+}
+
+pub(crate) fn create_staging_directory(final_path: &Path) -> Result<PathBuf> {
+    if final_path.exists() {
+        return Err(Error::ArtifactConflict(format!(
+            "output directory already exists: {}",
+            final_path.display()
+        )));
+    }
+    let parent = final_path
+        .parent()
+        .ok_or_else(|| Error::ArtifactConflict("output directory has no parent".into()))?;
+    fs::create_dir_all(parent).map_err(|error| crate::error::io(parent, error))?;
+    let name = final_path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .ok_or_else(|| Error::ArtifactConflict("output directory name is not UTF-8".into()))?;
+    for attempt in 0..1024_u32 {
+        let staging = parent.join(format!(
+            ".{name}.{}.{}.staging",
+            std::process::id(),
+            attempt
+        ));
+        match fs::create_dir(&staging) {
+            Ok(()) => return Ok(staging),
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+            Err(error) => return Err(crate::error::io(&staging, error)),
+        }
+    }
+    Err(Error::ArtifactConflict(
+        "could not allocate a staging output directory".into(),
+    ))
+}
+
+pub(crate) fn publish_staging_directory(staging: &Path, final_path: &Path) -> Result<()> {
+    if final_path.exists() {
+        return Err(Error::ArtifactConflict(format!(
+            "output directory appeared concurrently: {}",
+            final_path.display()
+        )));
+    }
+    fs::rename(staging, final_path).map_err(|error| crate::error::io(final_path, error))
 }
 
 fn publish_checksum(result_path: &Path, checksum: &str) -> Result<()> {

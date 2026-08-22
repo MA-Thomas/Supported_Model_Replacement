@@ -15,17 +15,16 @@ CONFIG=
 RUN_ROOT=
 COVID_SPIKE_LABEL_SET_ID=
 ORGANIZER="${REPOSITORY_ROOT}/supported_ap_code/target/release/directed_round_robin_organizer"
-THREADS=4
+THREADS=12
 PILOT_MATCHES_PER_SHARD=3
 FULL_MATCHES_PER_SHARD=50
-MAX_CONCURRENT=16
+MAX_CONCURRENT=200
 PARTITION=componc_cpu
 ACCOUNT=lukszam
-MEMORY=32G
+MEMORY=20G
 WALLTIME=
 PREPARE_ONLY=false
 DRY_RUN=false
-EXPECTED_MATCHES=5310
 
 usage() {
     cat <<'EOF'
@@ -41,17 +40,20 @@ Required scientific choice:
   --covid-spike-label-set must exactly match config.json's
   covid_spike_label_specification.id. It selects the SPIKE definition only.
   COVID NONSPIKE remains fixed at cd8_TNFa_IFNg_dmso_adj > 0.
+  The supplied config.cluster.full_roster_selfgated_dual_selection_v1.json
+  uses repository-level immutable bundles, so no upstream-data paths need to
+  be edited on the cluster.
 
 Modes:
   pilot  Runs shard 0 for PR and shard 0 for ROC. Each contains
          --pilot-matches-per-shard matches (default 3: one per evaluation).
          Records elapsed time, maximum RSS, and exact match-artifact bytes.
-  full   Runs every PR and ROC shard and requires exactly 5,310 matches in
-         each tournament. After success, audits and reduces both tournaments.
+  full   Runs every PR and ROC shard. The exact match count is derived from
+         each validated bundle. After success, audits and reduces both tournaments.
 
 Options:
   --organizer PATH                 Release organizer binary
-  --threads N                      Match workers and Slurm CPUs per task (default 4)
+  --threads N                      Shared Rayon pool and Slurm CPUs per task (default 4)
   --pilot-matches-per-shard N      Pilot shard size (default 3)
   --full-matches-per-shard N       Full shard target (default 50)
   --max-concurrent N               Slurm array concurrency cap (default 16)
@@ -65,12 +67,14 @@ Options:
 
 Examples:
   bash submit_directed_round_robin_slurm.sh --mode pilot \
-    --config config.threshold_zero.json --run-root /data1/.../round_robin \
+    --config config.cluster.full_roster_selfgated_dual_selection_v1.json \
+    --run-root /data1/.../full_roster_round_robin \
     --covid-spike-label-set threshold_zero
 
   bash submit_directed_round_robin_slurm.sh --mode full \
-    --config config.higher_threshold.json --run-root /data1/.../round_robin_high \
-    --covid-spike-label-set higher_threshold_0p53 --threads 8
+    --config config.cluster.full_roster_selfgated_dual_selection_v1.json \
+    --run-root /data1/.../full_roster_round_robin \
+    --covid-spike-label-set threshold_zero --threads 8
 EOF
 }
 
@@ -124,9 +128,12 @@ for path in "${PROVIDER}" "${HELPER}" "${WORKER}" "${FINALIZER}"; do
 done
 
 EFFECTIVE_CONFIG="${RUN_ROOT}/effective_config.${COVID_SPIKE_LABEL_SET_ID}.json"
+echo "Preparing effective configuration..."
 python3 "${HELPER}" prepare-config \
     --source "${CONFIG}" --output "${EFFECTIVE_CONFIG}" \
     --organizer "${ORGANIZER}" --label-set "${COVID_SPIKE_LABEL_SET_ID}"
+PREBUILT_BUNDLE_ROOT=$(python3 "${HELPER}" prebuilt-bundle-root \
+    --config "${EFFECTIVE_CONFIG}")
 
 mkdir -p "${RUN_ROOT}/bundles" "${RUN_ROOT}/${MODE}/plans" \
     "${RUN_ROOT}/${MODE}/results" "${RUN_ROOT}/${MODE}/resource_usage" \
@@ -135,13 +142,25 @@ mkdir -p "${RUN_ROOT}/bundles" "${RUN_ROOT}/${MODE}/plans" \
 for METRIC in pr roc; do
     BUNDLE="${RUN_ROOT}/bundles/${METRIC}"
     if [ -d "${BUNDLE}" ]; then
+        echo "Validating installed ${METRIC} bundle..."
+        "${ORGANIZER}" validate-bundle --bundle "${BUNDLE}" >/dev/null
+        python3 "${HELPER}" check-bundle-label \
+            --bundle "${BUNDLE}" --label-set "${COVID_SPIKE_LABEL_SET_ID}"
+    elif [ -n "${PREBUILT_BUNDLE_ROOT}" ]; then
+        echo "Installing and validating ${METRIC} bundle..."
+        python3 "${HELPER}" install-prebuilt-bundle \
+            --source "${PREBUILT_BUNDLE_ROOT}/${METRIC}" --output "${BUNDLE}"
         "${ORGANIZER}" validate-bundle --bundle "${BUNDLE}" >/dev/null
         python3 "${HELPER}" check-bundle-label \
             --bundle "${BUNDLE}" --label-set "${COVID_SPIKE_LABEL_SET_ID}"
     else
+        echo "Building ${METRIC} bundle..."
         python3 "${PROVIDER}" build \
             --config "${EFFECTIVE_CONFIG}" --metric "${METRIC}" --output "${BUNDLE}"
     fi
+    read -r EXPECTED_MATCHES EVALUATION_COUNT SYSTEM_COUNT < <(
+        python3 "${HELPER}" bundle-dimensions --bundle "${BUNDLE}"
+    )
 
     PLAN="${RUN_ROOT}/${MODE}/plans/${METRIC}"
     if [ "${MODE}" = pilot ]; then
@@ -150,8 +169,11 @@ for METRIC in pr roc; do
         MATCHES_PER_SHARD=${FULL_MATCHES_PER_SHARD}
     fi
     if [ ! -f "${PLAN}/plan.json" ]; then
+        echo "Generating ${METRIC} plan..."
         "${ORGANIZER}" plan --bundle "${BUNDLE}" --output "${PLAN}" \
             --matches-per-shard "${MATCHES_PER_SHARD}" >/dev/null
+    else
+        echo "Reusing existing ${METRIC} plan..."
     fi
     read -r SHARDS MATCHES < <(
         python3 "${HELPER}" plan-info --plan "${PLAN}" \
@@ -160,8 +182,10 @@ for METRIC in pr roc; do
     )
     if [ "${METRIC}" = pr ]; then
         PR_SHARDS=${SHARDS}; PR_MATCHES=${MATCHES}
+        PR_EVALUATIONS=${EVALUATION_COUNT}; PR_SYSTEMS=${SYSTEM_COUNT}
     else
         ROC_SHARDS=${SHARDS}; ROC_MATCHES=${MATCHES}
+        ROC_EVALUATIONS=${EVALUATION_COUNT}; ROC_SYSTEMS=${SYSTEM_COUNT}
     fi
 done
 
@@ -192,6 +216,10 @@ umask 077
     printf 'THREADS=%q\n' "${THREADS}"
     printf 'PR_SHARDS=%q\n' "${PR_SHARDS}"
     printf 'ROC_SHARDS=%q\n' "${ROC_SHARDS}"
+    printf 'PR_SYSTEMS=%q\n' "${PR_SYSTEMS}"
+    printf 'ROC_SYSTEMS=%q\n' "${ROC_SYSTEMS}"
+    printf 'PR_EVALUATIONS=%q\n' "${PR_EVALUATIONS}"
+    printf 'ROC_EVALUATIONS=%q\n' "${ROC_EVALUATIONS}"
 } > "${TEMP_RUN_ENV}"
 if [ -e "${RUN_ENV}" ]; then
     if ! cmp -s "${TEMP_RUN_ENV}" "${RUN_ENV}"; then
@@ -208,11 +236,16 @@ fi
 echo "Prepared ${MODE} run"
 echo "  SPIKE label set: ${COVID_SPIKE_LABEL_SET_ID}"
 echo "  NONSPIKE label:  cd8_TNFa_IFNg_dmso_adj > 0 (fixed)"
-echo "  PR:              ${PR_MATCHES} matches in ${PR_SHARDS} shards"
-echo "  ROC:             ${ROC_MATCHES} matches in ${ROC_SHARDS} shards"
+echo "  PR:              ${PR_SYSTEMS} systems x ${PR_EVALUATIONS} evaluations; ${PR_MATCHES} matches in ${PR_SHARDS} shards"
+echo "  ROC:             ${ROC_SYSTEMS} systems x ${ROC_EVALUATIONS} evaluations; ${ROC_MATCHES} matches in ${ROC_SHARDS} shards"
 echo "  Array:           0-${ARRAY_LAST}%${MAX_CONCURRENT}"
 echo "  Threads/task:    ${THREADS}"
 echo "  Run root:        ${RUN_ROOT}"
+if [ -n "${PREBUILT_BUNDLE_ROOT}" ]; then
+    echo "  Bundle source:   ${PREBUILT_BUNDLE_ROOT}"
+else
+    echo "  Bundle source:   generated by IRIS score provider"
+fi
 
 if [ "${PREPARE_ONLY}" = true ]; then
     exit 0

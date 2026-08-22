@@ -25,6 +25,28 @@ pub enum DirectedVerdict {
     Unresolved,
 }
 
+/// How the completed round robin is reduced to a selected set of systems.
+///
+/// Both strategies are pure, deterministic functions of the already-computed
+/// atomic directed verdicts; neither introduces new match mathematics. See the
+/// crate README ("Selection strategies") for the epistemic discussion.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum SelectionStrategy {
+    /// Conjunction-graph source-SCC maximality: an edge (a supported replacement
+    /// claim) requires the same direction to be supported in *every* evaluation,
+    /// and a system is removed only when a supported edge enters it. Conservative
+    /// about asserting replacements; returns broad admissible sets.
+    ReplacementConservative,
+    /// Per-evaluation source-SCC maximality intersected across evaluations: a
+    /// system is retained only if it is maximal in *every* evaluation separately,
+    /// so a single-context defeat is fatal. Conservative about retaining
+    /// candidates; the sharper, more eliminative rule, and the default. An empty
+    /// result is a valid, informative outcome (nothing is top-tier everywhere).
+    #[default]
+    CandidateConservative,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct EvidencePolicy {
@@ -81,6 +103,8 @@ pub struct TournamentSpec {
     pub conjunction_rule: String,
     pub graph_maximality_rule: String,
     pub selection_rule: String,
+    #[serde(default)]
+    pub selection_strategy: SelectionStrategy,
     pub pr_cnap: Option<PrCnapSpecification>,
     pub auroc: Option<AurocSpecification>,
     #[serde(default)]
@@ -89,7 +113,54 @@ pub struct TournamentSpec {
     pub operational_tie_break: Option<Vec<String>>,
 }
 
+/// Serialization-compatible view of a spec that OMITS `selection_strategy`.
+/// The selection strategy is a reduction-time choice and must not perturb the
+/// bundle content hash, policy hash, or any match/plan identity; hashing this
+/// view (identical bytes to a spec that never had the field) keeps existing
+/// bundles and completed matches valid across a strategy change.
+#[derive(Serialize)]
+pub(crate) struct TournamentSpecIdentity<'a> {
+    schema_version: u32,
+    metric: MetricKind,
+    verdict_field: &'a str,
+    evidence_policy: &'a EvidencePolicy,
+    computational_design: &'a ComputationalDesign,
+    reference_assessment: &'a ReferenceAssessment,
+    master_seed: u64,
+    seed_derivation_version: u32,
+    evaluations: &'a [String],
+    conjunction_rule: &'a str,
+    graph_maximality_rule: &'a str,
+    selection_rule: &'a str,
+    pr_cnap: &'a Option<PrCnapSpecification>,
+    auroc: &'a Option<AurocSpecification>,
+    annotations: &'a BTreeMap<String, serde_json::Value>,
+    operational_tie_break: &'a Option<Vec<String>>,
+}
+
 impl TournamentSpec {
+    /// The frozen-identity view used for all content/policy hashing.
+    pub(crate) fn identity_view(&self) -> TournamentSpecIdentity<'_> {
+        TournamentSpecIdentity {
+            schema_version: self.schema_version,
+            metric: self.metric,
+            verdict_field: &self.verdict_field,
+            evidence_policy: &self.evidence_policy,
+            computational_design: &self.computational_design,
+            reference_assessment: &self.reference_assessment,
+            master_seed: self.master_seed,
+            seed_derivation_version: self.seed_derivation_version,
+            evaluations: &self.evaluations,
+            conjunction_rule: &self.conjunction_rule,
+            graph_maximality_rule: &self.graph_maximality_rule,
+            selection_rule: &self.selection_rule,
+            pr_cnap: &self.pr_cnap,
+            auroc: &self.auroc,
+            annotations: &self.annotations,
+            operational_tie_break: &self.operational_tie_break,
+        }
+    }
+
     pub fn validate(&self) -> Result<()> {
         if self.schema_version != SPEC_SCHEMA_VERSION {
             return Err(Error::InvalidSpec(format!(

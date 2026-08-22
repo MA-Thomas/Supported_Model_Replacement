@@ -1,0 +1,74 @@
+{
+  "blank_hla_rows": 0,
+  "candidate_roster_rows": 9315,
+  "conflicting_binary_label_examples": [],
+  "dataset": "PDAC",
+  "duplicate_mono_compute_identities": 0,
+  "endpoint_key_fields": [
+    "patient_id",
+    "long_peptide"
+  ],
+  "endpoints_positive_label_noise_ceiling": null,
+  "endpoints_positive_label_thr0": 23,
+  "exact_duplicate_candidate_rows_removed": 0,
+  "exact_duplicate_query_rows_removed": 118,
+  "exact_duplicate_source_mapping_rows": 0,
+  "floor_candidate_rows": 7006,
+  "full_environment_rows": 22,
+  "full_only_biological_identities": 0,
+  "full_query_rows": 4300,
+  "generator": "external_validation_inputs",
+  "input_audit_status": "pass",
+  "label_zero_threshold": 0.0,
+  "mapping_endpoints": 213,
+  "mapping_endpoints_with_conflicting_binary_labels": 0,
+  "mapping_endpoints_with_conflicting_response_values": 0,
+  "mapping_source_rows": 1573,
+  "mapping_source_rows_outside_query_roster": 0,
+  "mapping_source_rows_with_query_support": 1573,
+  "materialized_label_columns": [],
+  "mono_environment_rows": 93,
+  "mono_only_biological_identities": 0,
+  "mono_query_rows": 4182,
+  "noise_ceiling_threshold": null,
+  "noncontained_scoreable_mapping_rows": 0,
+  "output_files": {
+    "canonical_mapping": "pdac_candidate_roster.csv",
+    "env_crosswalk": "pdac_full_to_mono_env_crosswalk.csv",
+    "env_dict": "pdac_mono_hla_env_dict.csv",
+    "full_deduplicated_config": "binding_sim_updated_PDAC_Full_Deduplicated.toml",
+    "full_deduplicated_query": "pdac_full_deduplicated_query.csv",
+    "full_mapping": "pdac_full_longpep_mapping.csv",
+    "mono_config": "binding_sim_updated_PDAC_Mono.toml",
+    "mono_mapping": "pdac_mono_longpep_mapping.csv",
+    "observation_crosswalk": "pdac_full_to_mono_observation_crosswalk.csv",
+    "query": "pdac_mono_query.csv"
+  },
+  "schema_version": 2,
+  "scoreable_candidate_rows": 2309,
+  "source_files": {
+    "config_template": {
+      "bytes": 2249,
+      "path": "/Users/thomm15/Work_Data/New_Approaches/MHC_competition_solver/src/binding_sim_updated_PDAC.toml",
+      "sha256": "eb7d25ebf530d08b599bd6fe5200c18bb7f1a727667e3a2a623771559828282c"
+    },
+    "env_dict": {
+      "bytes": 941,
+      "path": "/Users/thomm15/Work_Data/Jayon/hla_env_dict.csv",
+      "sha256": "711fa1bb314ed9142ae68ac6d6c52081f6c04fdce344e4de4a07fb08faceb70a"
+    },
+    "mapping": {
+      "bytes": 129244,
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer/pdac_full_mapping_noResponderFilter_noKdFilter_9to12mer.csv",
+      "sha256": "cd4df34de2a2e3970f0800a57a49d3b50d6f77504daae1a27740a175da8c7309"
+    },
+    "query": {
+      "bytes": 274655,
+      "path": "/Users/thomm15/Work_Data/Jayon/processed_PDAC_neoepitope_data_9to12mer_kd10000_ap0.1_halflife0.2_pass_kd_and_ap_and_stability.csv",
+      "sha256": "780a0591e48de2f89cd25bde5ef36bcc94446ac871eeba0eb0691a90a4f2efb0"
+    }
+  },
+  "suggested_production_env_chunks": 31,
+  "suggested_smoke_env_chunks": 93,
+  "unique_full_query_compute_rows": 4182
+}

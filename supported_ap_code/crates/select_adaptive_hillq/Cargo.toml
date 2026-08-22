@@ -1,0 +1,36 @@
+[package]
+name = "select_adaptive_hillq"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Self-gated adaptive Hill-q L2 aggregation with PDAC-only and all-context selection"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+csv = "1.3"
+flate2 = "1.0"
+directed_round_robin_organizer = { path = "../directed_round_robin_organizer" }
+iris_fullroster_pipeline = { path = "../iris_fullroster_pipeline" }
+rayon = "1.11"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+supported-ap = { path = "../.." }
+thiserror = "1"
+
+[dev-dependencies]
+tempfile = "3"
+
+[lib]
+name = "select_adaptive_hillq"
+path = "src/lib.rs"
+
+[[bin]]
+name = "select_adaptive_hillq"
+path = "src/main.rs"
+
+[[bin]]
+name = "select_adaptive_hillq_cluster"
+path = "src/bin/select_adaptive_hillq_cluster.rs"

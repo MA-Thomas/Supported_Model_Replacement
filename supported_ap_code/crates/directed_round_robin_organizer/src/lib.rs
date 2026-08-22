@@ -15,6 +15,7 @@ pub mod judge;
 pub mod plan;
 pub mod provenance;
 pub mod reduce;
+pub mod revision;
 pub mod spec;
 pub mod system;
 
@@ -24,5 +25,13 @@ pub use error::{Error, Result};
 pub use input::{LoadedBundle, load_bundle, load_bundle_for_hashing};
 pub use plan::{TournamentPlan, plan_with_match_target, plan_with_shard_count};
 pub use provenance::{BuildProvenance, capture_build_provenance};
-pub use reduce::{Reduction, reduce_tournament, write_reduction};
-pub use spec::{DirectedVerdict, MetricKind, TournamentSpec};
+pub use reduce::{
+    EvaluationMaximalSet, InducedReductionView, Reduction, induce_reduction_view,
+    load_reduction_for, reduce_tournament, write_induced_reduction_view, write_reduction,
+};
+pub use revision::{
+    RevisionComposition, TournamentReductionSource, TournamentSource,
+    audit_revision_composition_for, compose_revision, compose_revision_from_reductions,
+    write_revision_composition,
+};
+pub use spec::{DirectedVerdict, MetricKind, SelectionStrategy, TournamentSpec};

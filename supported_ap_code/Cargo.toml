@@ -8,7 +8,13 @@ license = "MIT"
 readme = "README.md"
 
 [workspace]
-members = [".", "crates/directed_round_robin_organizer"]
+members = [
+    ".",
+    "crates/directed_round_robin_organizer",
+    "crates/external_validation_inputs",
+    "crates/iris_fullroster_pipeline",
+    "crates/select_adaptive_hillq",
+]
 resolver = "3"
 
 [features]

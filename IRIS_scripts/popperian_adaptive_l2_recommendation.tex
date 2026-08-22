@@ -1,0 +1,760 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,array}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+
+\definecolor{irisblue}{HTML}{22577A}
+\definecolor{irisgray}{HTML}{4B5563}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=irisblue,
+  urlcolor=irisblue,
+  pdftitle={A Self-Gated Adaptive Hill-q Rule for Long-Peptide Aggregation},
+  pdfauthor={IRIS methodological development memo}
+}
+
+\titleformat{\section}{\Large\bfseries\color{irisblue}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\bfseries\color{irisgray}}{\thesubsection}{0.65em}{}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.65em}
+\setlist{itemsep=0.25em,topsep=0.35em}
+\renewcommand{\arraystretch}{1.16}
+
+\newcommand{\LSE}{\operatorname{LSE}}
+\newcommand{\sigmoid}{\operatorname{sigmoid}}
+
+\title{\textbf{A Self-Gated Adaptive Hill-$q$ Rule for\\Long-Peptide Aggregation}}
+\author{IRIS methodological development memo}
+\date{August 19, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+IRIS scores candidate minimal-epitope--HLA pairs, whereas the PDAC and
+SARS-CoV-2 assays label unresolved long peptides. A Level~2 rule must therefore
+combine a variable roster of candidate scores into one long-peptide score.
+Maximum aggregation represents one-candidate sufficiency but ignores
+corroboration. Log-sum-exp accumulates corroboration but can reward candidate
+opportunity. The proposed self-gated Hill-$q$ rule lies between these
+endpoints. It starts at the strongest candidate, forms a score-weighted
+corroboration offer from the roster, and admits only as much of that offer as
+the resulting aggregate still needs. The Hill order $q$ controls how candidate
+breadth is recognized. The parameters $(q,c,\kappa)$ may be calibrated for a
+component model and metric branch, but they remain fixed across the PDAC and
+SARS-CoV-2 contexts to which that scoring system is applied.
+\end{abstract}
+
+\section{Why a Level 2 aggregation rule is needed}
+
+\subsection{The experimental unit is a long peptide}
+
+For a candidate minimal epitope $e_i$ and restricting HLA allele $h_i$, IRIS
+produces a positive mechanistic score
+\begin{equation}
+s_i=F_i(e_i,h_i).
+\end{equation}
+The details of $F_i$ belong to Level~1. For Level~2, the important fact is
+that a long peptide $\ell$ can contain a roster
+\begin{equation}
+\mathcal C_\ell=\{(e_i,h_i):i=1,\ldots,K_\ell\}
+\end{equation}
+of several candidate minimal-epitope--HLA pairs.
+
+The observed PDAC and COVID response label belongs to $\ell$, not to an
+identified member of $\mathcal C_\ell$. Level~2 must therefore map all
+$K_\ell$ candidate scores to one long-peptide score $S_\ell$.
+
+Because the Level~1 score is positive and multiplicative, it is convenient to
+work on the log scale:
+\begin{equation}
+z_i=\log(s_i+\epsilon),
+\end{equation}
+where $\epsilon$ is the declared numerical floor. The transformation is
+computational; neither $s_i$ nor $\sigmoid(z_i)$ is a response probability.
+The Level~2 map developed below is therefore
+\begin{equation}
+S_\ell=S(z_1,\ldots,z_{K_\ell}).
+\end{equation}
+
+\subsection{The two biological limits}
+
+Two plausible configurations motivate the aggregation problem.
+
+\textbf{One-candidate sufficiency.}
+One candidate may be strong enough to explain the long-peptide response.
+Other roster members should not dilute it or automatically improve its score.
+
+\textbf{Multi-candidate corroboration.}
+Several candidates may jointly provide persuasive evidence even when no
+single candidate is decisive. Their magnitudes should be allowed to
+accumulate.
+
+Maximum aggregation represents the first configuration:
+\begin{equation}
+S_{\max}(z)=\max_i z_i.
+\end{equation}
+It preserves the strongest candidate but discards every other score.
+
+Log-sum-exp represents the second:
+\begin{equation}
+S_{\LSE}(z)=\log\sum_i e^{z_i}.
+\end{equation}
+It accumulates all candidates, but it can increase merely because a peptide
+offers more candidate opportunities. The adaptive rule is designed to move
+between these limits according to the score geometry of the individual
+roster.
+
+\subsection{What the original PDAC--COVID round robin showed}
+
+The motivating comparison crossed five component constructions with twelve
+fixed Level~2 aggregation rules, producing 60 complete systems. Its results
+did not identify one aggregation behavior that was adequate in every disease
+context.
+
+\begin{itemize}
+  \item In the threshold-zero COVID-only comparison, 11 systems were
+  graph-maximal under PR and two under AUROC. The two common systems paired
+  Mono-Q/full-PN with either full log-sum-exp or top-10 log-sum-exp. Within
+  that component family, those two accumulation rules were supported over
+  maximum, mean, median, log-mean-exp, the tested top-fraction means, and the
+  tested top-$k$ means in both COVID datasets and both metrics.
+
+  \item Original PDAC produced 14 PR-maximal and 13 AUROC-maximal systems,
+  with ten common to both metrics. That set did not contain the COVID
+  Mono-Q/full-PN log-sum-exp system and instead contained several
+  log-mean-exp, top-fraction, top-$k$ mean, and top-$k$ log-sum-exp
+  constructions.
+
+  \item When PDAC, COVID spike, and COVID non-spike were required jointly, the
+  formal frontier broadened to 44 PR-maximal and 42 AUROC-maximal systems,
+  with 41 in their descriptive overlap. No system was separately maximal in
+  all three contexts under either metric.
+\end{itemize}
+
+\paragraph{Assay geometry contextualizes the contrast.}
+The aggregation rules did not face comparable candidate-opportunity sets.
+COVID spike used 15-mers, and 1,564 of 1,607 COVID non-spike endpoints were
+also 15-mers. PDAC used predominantly 27-mers: 182 of 213 endpoints had length
+27, with a complete range of 15--49 amino acids. If candidate minimal epitopes
+have lengths 9--12, a peptide of length $L\geq12$ contains
+\begin{equation}
+W(L)=\sum_{r=9}^{12}(L-r+1)=4L-38
+\end{equation}
+sequence windows before HLA expansion and scoreability filtering. Thus a
+15-mer offers 22 windows and a 27-mer offers 70. The committed prediction
+artifacts show that this difference persisted after filtering
+(Table~\ref{tab:roster-geometry}). These are descriptive audits of the
+original tournament inputs, not additional selection criteria.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Long-peptide geometry and realized candidate rosters. $K$ counts
+unique scoreable minimal-epitope--HLA tuples. Potential windows refer to the
+predominant peptide length before HLA expansion and filtering; COVID labels
+use the threshold-zero definition.}
+\label{tab:roster-geometry}
+\begin{tabularx}{0.98\textwidth}{@{}>{\raggedright\arraybackslash}Xrrrrr@{}}
+\toprule
+Cohort & Length & Windows & Median (mean) $K$ & $K=0$ & Mean $K$, neg./pos. \\
+\midrule
+COVID spike & 15 & 22 & $1\;(2.07)$ & 36.0\% & $1.30/2.48$ \\
+COVID non-spike & mostly 15 & 22 & $3\;(3.46)$ & 32.7\% & $1.32/6.28$ \\
+PDAC & mostly 27 & 70 & $10\;(10.84)$ & 0\% & $10.63/12.57$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Sparse COVID rosters made accumulation selective.}
+Fewer than one percent of the 3,372 COVID endpoints contained more than ten
+candidates. Full and top-10 log-sum-exp therefore differed on only a small
+fraction of endpoints, so their joint survival supports soft accumulation over
+a generally sparse roster rather than a biologically distinguished cutoff at
+ten. Conversely, because no COVID roster contained more than 15 candidates,
+the tested 1\%, 2\%, and 5\% top-fraction means each selected one candidate and
+were exactly score-vector-identical to maximum. Their separate graph vertices
+do not represent distinct aggregation behavior. Candidate opportunity was
+also aligned with the threshold-zero labels: positive endpoints carried more
+candidates than negative endpoints, especially in non-spike, and
+zero-candidate endpoints were concentrated among negatives. Among nonempty
+rosters, the mean available LSE bonus $B$ was $0.517$ for non-spike positives
+and $0.285$ for negatives; the corresponding spike values were $0.355$ and
+$0.288$. Corroborative mass therefore tended to add more evidence to COVID
+positives than to negatives.
+
+\paragraph{Dense PDAC rosters made unrestricted accumulation less selective.}
+Every PDAC endpoint contained at least one candidate, and 46\% contained more
+than ten. The median available LSE bonus was $0.852$, compared with $0.325$ in
+COVID non-spike and $0.230$ in COVID spike, but substantial bonus mass was
+common to both PDAC classes: the mean was $0.910$ for positives and $0.791$
+for negatives. Full log-sum-exp could therefore reward the broad candidate
+opportunity supplied by a long peptide even when that breadth did not sharply
+distinguish response. Maximum removed the explicit accumulation bonus but also
+discarded potentially meaningful second- and third-ranked candidates; it does
+not by itself eliminate opportunity effects on the extreme score. The PDAC
+survival of top-fraction, top-$k$ mean, and top-$k$ log-sum-exp rules is
+consistent with a compromise that retains restricted upper-tail corroboration
+without accumulating the complete lower-scoring roster.
+
+This interpretation separates Level~2 geometry from Level~1 component choice.
+The Full-HLA and Mono-Q/full-PN constructions used the same candidate counts;
+changing the source of $Q$ changed score magnitudes and ordering, not roster
+size. Candidate density can therefore help explain why the cohorts favored
+different aggregation behavior, but it cannot by itself explain the COVID
+preference for Mono-Q/full-PN at a fixed aggregation rule. Nor do the observed
+differences establish peptide length as their cause: the cohorts also differ
+in disease, antigen source, immune history, assay design, HLA distribution,
+and label construction.
+
+The contrast nevertheless supplies the empirical motivation for an adaptive
+rule. COVID supports corroborative accumulation where realized breadth is
+sparse and response-associated, whereas PDAC prevents full log-sum-exp from
+serving as a universal answer when candidate opportunity is dense and nearly
+ubiquitous. Rather than choosing one fixed point between maximum and
+log-sum-exp for every peptide, the proposed rule responds to the realized
+leader, relative score mass, and candidate breadth of each roster. It also
+lets admitted corroboration close its own gate as the aggregate becomes
+stronger. This self-limitation addresses unrestricted accumulation without
+treating cohort identity or peptide length as an input. It does not, by
+itself, identify or remove every source of candidate-opportunity confounding.
+The formal design requirements are stated after the rule is constructed.
+
+\section{Constructing the adaptive rule}
+
+The rule can be summarized in one sentence:
+
+\begin{quote}
+Start with the strongest candidate, form a score-weighted corroboration offer
+from the roster, and admit only as much of that offer as the resulting
+aggregate still needs.
+\end{quote}
+
+\subsection{Step 1: identify the leader and the available LSE bonus}
+
+Let
+\begin{equation}
+m=\max_i z_i
+\end{equation}
+be the strongest candidate score. Express every candidate relative to that
+leader:
+\begin{equation}
+r_i=e^{z_i-m},
+\qquad
+R=\sum_i r_i.
+\end{equation}
+At least one $r_i$ equals one, and all others lie in $(0,1]$.
+
+The full bonus available between maximum and log-sum-exp is
+\begin{equation}
+B(z)=\log R.
+\end{equation}
+Indeed,
+\begin{equation}
+S_{\LSE}(z)=m+B(z).
+\end{equation}
+Thus $m$ is the maximum candidate score and $B$ is the available LSE bonus.
+
+\subsection{Step 2: measure candidate breadth at a declared Hill order}
+
+Normalize the relative strengths:
+\begin{equation}
+p_i=\frac{r_i}{R}.
+\end{equation}
+The $p_i$ sum to one and describe how the represented score mass is distributed
+across candidates. They are normalized weights, not response probabilities.
+
+For Hill order $q\in[0,\infty]$, define the effective candidate number
+\begin{equation}
+N_q(p)=
+\begin{cases}
+K, & q=0,\\[3pt]
+\displaystyle
+\exp\!\left(-\sum_i p_i\log p_i\right), & q=1,\\[7pt]
+\displaystyle
+\left(\sum_i p_i^q\right)^{1/(1-q)},
+& q\notin\{0,1,\infty\},\\[7pt]
+\displaystyle
+\frac{1}{\max_i p_i}, & q=\infty.
+\end{cases}
+\label{eq:hill-number}
+\end{equation}
+Map it to the bounded breadth coefficient
+\begin{equation}
+D_q(z)=1-\frac{1}{N_q(p)}.
+\label{eq:hill-breadth}
+\end{equation}
+For every order, $D_q=0$ for a singleton and $D_q=1-1/K$ when the
+$K$ candidates have equal weights. The orders differ only for uneven rosters.
+Hill numbers are nonincreasing in $q$: low orders recognize more of the roster
+as breadth, whereas high orders require corroborative mass to lie closer to
+the leader.
+
+\begin{center}
+\small
+\begin{tabularx}{0.92\textwidth}{@{}p{0.12\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Order & Breadth interpretation \\
+\midrule
+$q=0$ & Richness-sensitive: every unique candidate contributes to $D_q$. \\
+$q=1$ & Entropy-weighted: low-weight candidates contribute in proportion to
+their information mass. \\
+$q=2$ & Concentration-sensitive: $D_2=1-\sum_i p_i^2$. \\
+$q=\infty$ & Leader-share-sensitive: $D_\infty=1-\max_i p_i$. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+At $q=0$, the breadth coefficient depends on $K$, but the complete
+corroborative quantity below does not depend on count alone: the available
+bonus $B$ still weights candidates by their realized scores.
+
+\subsection{Step 3: form the corroboration offer}
+
+Define
+\begin{equation}
+C_q(z)=B(z)D_q(z).
+\label{eq:corroboration-offer}
+\end{equation}
+The available bonus $B$ asks how much relative score mass the roster contains.
+The coefficient $D_q$ asks how that mass should count as breadth at the
+declared Hill order. Their product $C_q$ is the corroboration offered before
+sufficiency gating.
+
+\subsection{Step 4: define an aggregate-sufficiency gate}
+
+For any provisional aggregate score $a$, define the decreasing gate
+\begin{equation}
+g_{c,\kappa}(a)
+=
+\sigmoid\!\left(\frac{c-a}{\kappa}\right)
+=
+\frac{1}{1+\exp[(a-c)/\kappa]},
+\qquad \kappa>0.
+\label{eq:aggregate-gate}
+\end{equation}
+The center $c$ is the aggregate score at which the gate equals one-half. The
+width $\kappa$ controls how gradual the transition is: the gate falls from
+$0.9$ to $0.1$ over an interval of length
+$2\log(9)\kappa\approx4.39\kappa$.
+
+A low aggregate leaves the gate open and permits corroboration. As admitted
+corroboration raises the aggregate, the same gate progressively closes. A
+strong leader starts the aggregate high and therefore makes the rule max-like
+from the outset.
+
+\subsection{Step 5: let the aggregate gate itself}
+
+The self-gated adaptive Hill-$q$ aggregate is the unique solution of
+\begin{equation}
+\boxed{
+S_\ell
+=
+\underbrace{m}_{\substack{\text{maximum}\\\text{candidate score}}}
++
+\underbrace{C_q(z)}_{\substack{\text{corroboration}\\\text{offer}}}
+\times
+\underbrace{g_{c,\kappa}\!\left(S_\ell\right)}_
+{\substack{\text{aggregate-sufficiency}\\\text{fraction}}}
+}.
+\label{eq:self-gated-aggregate}
+\end{equation}
+The equation is implicit by design. The gate is evaluated at the result after
+corroboration has been admitted, rather than at the pre-aggregation maximum
+candidate score $m$ before admission.
+The rule therefore admits corroboration only while the resulting aggregate
+still leaves room for it.
+
+\begin{center}
+\small
+\begin{tabularx}{0.92\textwidth}{@{}>{\raggedright\arraybackslash}p{0.16\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Quantity & Interpretation \\
+\midrule
+$m$ & \textbf{Maximum candidate score.}  This is the score of the single
+best candidate and therefore the evidence already available without invoking
+any corroboration.  Starting from $m$ guarantees that additional candidates
+can only add to, rather than dilute, the strongest signal; for a singleton,
+the aggregate reduces exactly to $m$. \\
+\addlinespace
+$B$ & \textbf{Available LSE bonus.} Because
+$B=S_{\LSE}-m=\log\sum_i e^{z_i-m}$, it is the entire gap between max pooling
+and log-sum-exp pooling.  Candidates near the leader contribute substantially
+to this offer, whereas candidates far below the leader contribute little.
+Crucially, $B$ is only the amount \emph{available}; the rule does not accept
+all of it automatically. \\
+\addlinespace
+$D_q$ & \textbf{Breadth fraction at Hill order $q$.} The order determines
+how strongly low-weight candidates count as breadth. At $q=0$, every unique
+candidate contributes to the coefficient; at larger $q$, consequential mass
+must be increasingly concentrated near the leader. \\
+\addlinespace
+$C_q$ & \textbf{Corroboration offer.} The product $BD_q$ combines realized
+relative score mass with the declared interpretation of breadth. It is the
+largest bonus available before the aggregate-sufficiency gate is applied. \\
+\addlinespace
+$g_{c,\kappa}(S_\ell)$ & \textbf{Fraction permitted by aggregate sufficiency.}
+This fraction is near one while the developing aggregate is low, equals
+one-half at $S_\ell=c$, and approaches zero as $S_\ell$ becomes high. A large offer
+therefore helps close its own gate rather than being accepted without limit. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Why the implicit definition is safe}
+
+Let $C=C_q(z)$ and define
+\begin{equation}
+H(a)=a-m-Cg_{c,\kappa}(a).
+\end{equation}
+If $C=0$, Equation~\eqref{eq:self-gated-aggregate} gives $S_\ell=m$. If $C>0$,
+then
+\begin{equation}
+H(m)=-Cg_{c,\kappa}(m)<0,
+\qquad
+H(m+C)=C\{1-g_{c,\kappa}(m+C)\}>0.
+\end{equation}
+Moreover, because the gate is strictly decreasing,
+\begin{equation}
+H'(a)=1-Cg'_{c,\kappa}(a)>0.
+\end{equation}
+There is therefore exactly one solution in $[m,m+C]$. It follows immediately
+that
+\begin{equation}
+m
+\leq
+S_\ell
+\leq
+m+C_q(z)
+\leq
+m+B(z)
+=
+S_{\LSE}(z).
+\label{eq:self-gated-bounds}
+\end{equation}
+The score always lies between maximum and log-sum-exp. Increasing the
+corroboration offer cannot lower the solution: implicit differentiation gives
+\begin{equation}
+\frac{\partial S_\ell}{\partial C}
+=
+\frac{g_{c,\kappa}(S_\ell)}{1-Cg'_{c,\kappa}(S_\ell)}
+>0.
+\end{equation}
+This monotonicity is one reason to prefer the self-consistent gate over the
+explicit shortcut $m+Cg_{c,\kappa}(m+C)$, whose accepted bonus can decrease
+when the offer becomes larger.
+
+The unique root can be computed deterministically by bisection on $[m,m+C]$.
+The interval is known in advance, the root is scalar, and no naive fixed-point
+iteration is required. Solver tolerance and iteration limits form part of the
+scoring specification.
+
+\subsection{Full design requirements and roster comparability}
+
+The construction separates three questions. The available bonus $B$ asks how
+much relative score mass is present. The Hill coefficient $D_q$ asks how the
+distribution of that mass should count as breadth. The self-gate $g(S_\ell)$ asks
+how much corroboration the resulting aggregate still needs. A complete
+adaptive Level~2 design must also state how it treats differences in roster
+construction without assuming that roster size is either automatically
+supportive or automatically suspect.
+
+It is useful to state the full design problem explicitly. An adaptive
+long-peptide aggregate should solve, or at least expose, each of the following
+problems.
+
+\begin{enumerate}[label=\textbf{P\arabic*.},leftmargin=*]
+  \item \textbf{Unresolved causation.}
+  The response belongs to a long peptide, but the causal minimal
+  epitope--HLA pair is not observed. The rule must aggregate the candidate
+  roster without pretending that it has identified which candidate caused the
+  response.
+
+  \item \textbf{One-candidate sufficiency.}
+  One strong candidate may be sufficient. Additional weak candidates should
+  neither dilute that leader nor automatically create appreciable evidence.
+
+  \item \textbf{Meaningful corroboration.}
+  Several consequential candidates may jointly support a response even when
+  no single candidate is decisive. A rule that always returns the maximum
+  discards this information.
+
+  \item \textbf{Dominance versus breadth.}
+  A roster containing one leader and many negligible candidates should be
+  distinguished from a roster in which several candidates carry comparable
+  score mass. The available bonus $B$ records total relative mass, while $D_q$
+  controls how its distribution is interpreted as breadth. At low $q$, more
+  of the roster contributes; at high $q$, breadth must be concentrated nearer
+  the leader. The rule should make this choice explicit rather than embedding
+  one privileged order without examination.
+
+  \item \textbf{Aggregate sufficiency.}
+  The same corroboration offer need not have the same meaning at every
+  absolute score level. A strong leader may need little help. A weak leader
+  may admit corroboration, but the admitted amount should diminish as the
+  resulting aggregate itself becomes strong. Gating only at the initial
+  leader cannot provide this feedback.
+
+  \item \textbf{Candidate-opportunity comparability.}
+  Candidate rosters may differ in size because of peptide length, HLA coverage,
+  or roster-construction choices. The role of roster richness must therefore
+  be declared. At $q=0$, every unique tuple contributes to the breadth
+  coefficient; at higher orders, low-weight tuples contribute less. In every
+  case, $B$ still controls their realized score mass and the self-gate limits
+  how far the offer moves the aggregate. The rule does not apply an additional
+  penalty based only on $K$, and it does not claim to eliminate every
+  opportunity effect caused by peptide length or enumeration depth.
+
+  \item \textbf{Exact-duplicate control.}
+  The aggregation operates on unique minimal-epitope--HLA tuples. If the same
+  tuple appears more than once---for example, because a patient is homozygous
+  for the HLA allele---it must enter the roster only once; otherwise repeated
+  representation would manufacture breadth. By contrast, the same minimal
+  epitope paired with different HLA alleles forms distinct tuples and remains
+  as distinct candidates. The adaptive aggregation does not collapse or
+  otherwise specially adjust those cross-HLA candidates.
+
+  \item \textbf{Symmetry and singleton coherence.}
+  Candidate order must not matter, tied candidates must be treated
+  symmetrically, and a roster containing one candidate must return that
+  candidate's Level~1 log score.
+
+  \item \textbf{Auditability and label blindness.}
+  Every adaptation term must be calculable from the candidate scores under the
+  prespecified roster convention. Endpoint response labels must not choose the
+  mixing behavior used for that endpoint.
+\end{enumerate}
+
+Problems P4 and P6 are especially easy to conflate. Hill breadth describes
+how a declared order reads one realized weight distribution. Candidate-
+opportunity comparability asks whether a difference in roster construction
+represents additional biological evidence, harmless enumeration, or
+duplicated evidence. The aggregation function exposes the first choice. It
+cannot settle the second question without assumptions about how candidate
+opportunities are generated.
+
+The recommended rule therefore does \emph{not} contain a separate roster-size
+penalty that lowers the aggregate as roster size increases. Such a penalty
+would assign a lower score to the same meaningful score geometry merely
+because more candidates were enumerated.
+That ordering would be defensible only under an explicit stochastic model in
+which additional candidate opportunities generate spurious favorable scores.
+Without such a model, the penalty could remove genuine biological signal and
+make the result depend on pipeline exhaustiveness.
+
+Candidate opportunity enters through both the realized score mass and the
+declared Hill order. If an additional candidate lies $d$ log-score units below
+the leader, its relative weight is $e^{-d}$. Given the previous
+relative-weight sum $R$, its increment to the available LSE bonus is
+\begin{equation}
+\log\!\left(R+e^{-d}\right)-\log R
+=
+\log\!\left(1+\frac{e^{-d}}{R}\right)
+\leq
+\frac{e^{-d}}{R}.
+\end{equation}
+Thus additional candidates have little effect through $B$ when their
+\emph{combined} relative score mass is negligible. At $q=0$, however, adding a
+new unique tuple also changes $D_0=1-1/K$; this richness sensitivity is an
+explicit modeling choice rather than an accidental invariance claim. Exact-
+duplicate control occurs before the score vector $z$ is formed: the roster is
+a set, rather than a multiset, of minimal-epitope--HLA tuples. A homozygous
+recurrence of the same tuple therefore contributes one candidate, whereas the
+same minimal epitope paired with two different HLA alleles contributes two
+distinct corroborative contributions. Overlapping but nonidentical minimal
+epitopes likewise remain distinct. The formula does not assert that these
+contributions are statistically independent.
+
+The recommended aggregate consequently remains
+$S_\ell$, with no separate roster-size penalty and no
+cohort-identity input. The self-gate limits accumulation according to the
+score the roster actually reaches; it should not be described as a complete
+correction for roster opportunity.
+
+\clearpage
+\section{How the rule behaves}
+
+\subsection{Limiting cases}
+
+Equation~\eqref{eq:self-gated-bounds} guarantees that the result always lies
+between maximum and log-sum-exp. The fixed point adds a second form of
+adaptation: a large corroboration offer raises the aggregate, and that increase
+progressively closes the same gate through which the offer is admitted.
+
+\begin{center}
+\small
+\begin{tabularx}{0.96\textwidth}{@{}>{\raggedright\arraybackslash}p{0.28\textwidth}>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Candidate pattern & Offer and gate & Result \\
+\midrule
+One candidate & $C_q=0$ & exactly maximum \\
+One dominant candidate & small $B$, hence small $C_q$ & approximately maximum \\
+Weak sparse corroboration & modest offer; gate initially open & substantial partial accumulation \\
+Weak dense corroboration & large offer closes its own gate & self-limited accumulation \\
+Strong leader & aggregate starts high; gate closed & max-like behavior \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Candidate order does not matter. A singleton returns its Level~1 log score
+exactly. Tied candidates are treated symmetrically. For an empty roster, the
+declared floor score is returned before Equation~\eqref{eq:self-gated-aggregate}
+is evaluated.
+
+When $\kappa$ approaches zero, the transition becomes nearly hard. Its
+behavior is then approximately
+\begin{equation}
+S_\ell
+\approx
+\begin{cases}
+m, & m\geq c,\\
+m+C_q, & m+C_q\leq c,\\
+c, & m<c<m+C_q.
+\end{cases}
+\label{eq:hard-gate-limit}
+\end{equation}
+Thus a strong leader receives essentially no bonus, a weak roster whose full
+offer remains below $c$ can receive nearly all of it, and an offer that would
+cross $c$ is admitted only until the developing aggregate reaches the gate's
+transition region. For finite $\kappa$, these cases join smoothly rather than
+forming a strict cap.
+
+\clearpage
+\subsection{Worked score geometries}
+
+The following examples use $q=2$, $c=-1$, and $\kappa=0.5$ only to illustrate
+the calculation. Equal-weight plateaus have the same Hill number at every
+order, so changing $q$ does not alter those rows.
+
+\begin{center}
+\centering
+\small
+\textbf{Four illustrative candidate-score geometries.}
+
+\begin{tabularx}{0.99\textwidth}{@{}>{\raggedright\arraybackslash}p{0.16\textwidth}>{\raggedright\arraybackslash}p{0.16\textwidth}rrrr>{\raggedright\arraybackslash}X@{}}
+\toprule
+Roster & $z$ & $D_2$ & $g(S_\ell)$ & Max & LSE & Self-gated result \\
+\midrule
+Isolated leader
+& $(0,-5,-5)$ & $0.026$ & $0.119$ & $0$ & $0.013$
+& $0.00004$: negligible corroboration \\
+Weak plateau
+& $(-2,-2,-2)$ & $0.667$ & $0.720$ & $-2$ & $-0.901$
+& $-1.473$: broad evidence receives a substantial bonus \\
+Strong plateau
+& $(0,0,0)$ & $0.667$ & $0.104$ & $0$ & $1.099$
+& $0.076$: the strong aggregate closes most accumulation \\
+Dense weak plateau
+& ten scores at $-2$ & $0.900$ & $0.491$ & $-2$ & $0.303$
+& $-0.982$: the large offer raises the score toward $c$ and closes its gate \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The two three-candidate plateaus have identical breadth and offers but
+different absolute score levels. The dense weak plateau has a much larger
+offer than the weak three-candidate plateau. Its aggregate nevertheless stops
+near the gate center because admitted corroboration progressively reduces
+$g(S_\ell)$. The calculation is endpoint-adaptive: no cohort label or peptide
+length enters the equation.
+
+\section{Parameter selection and evidential status}
+
+The functional form is shared, but its parameters need not be identical for
+Level~1 score constructions with different candidate-score geometries. Let
+$u$ index the component model and $b\in\{\mathrm{PR},\mathrm{ROC}\}$ index the
+metric branch. The recommended contract selects one triple
+\begin{equation}
+(q_{ub},c_{ub},\kappa_{ub})
+\end{equation}
+for each component--metric group. That triple is then fixed across original
+PDAC, threshold-zero COVID spike, and COVID non-spike. The aggregation rule
+therefore remains unaware of dataset identity: context adaptation occurs only
+through the endpoint's $m$, $B$, $D_q$, and self-consistent aggregate.
+
+Selection should evaluate one frozen joint Cartesian grid
+\begin{equation}
+\mathcal G=\mathcal Q\times\mathcal C\times\mathcal K
+\end{equation}
+for every component--metric group. Within each cohort, all triples are ranked
+jointly by the branch metric. Cohorts receive equal weight. The primary choice
+minimizes the equal-cohort mean fractional rank; declared tie-breaks minimize
+the worst-cohort fractional rank and then mean metric regret before applying
+deterministic numerical tie-breaks. PR selection uses ordinary empirical
+average precision with threshold-block tie handling. ROC selection uses AUROC
+with half credit for tied positive--negative pairs.
+
+The entire joint $(q,c,\kappa)$ grid $\mathcal G$ must be frozen before the
+surfaces are examined. Adding intermediate $q$, $c$, or $\kappa$ values after
+viewing a rank surface changes a rank-based objective through joint-grid
+density.
+The output should retain the complete surfaces, the selected triple, the
+number and composition of near-optimal triples, and whether $c$ or $\kappa$
+lies on a numerical boundary. An endpoint Hill order $q=0$ or $q=\infty$ is a
+scientifically interpretable member of the frozen candidate set, not an
+instruction to extend the order grid.
+
+Two diagnostics are especially important. First, report which Hill orders
+occur among triples within a declared tolerance of the optimum, rather than
+only the single lexicographic winner. Second, repeat the selection after
+leaving out each cohort in turn. These analyses distinguish a stable
+component--metric calibration from a triple whose apparent adequacy depends
+on one context or a narrow $\kappa$ transition.
+
+All endpoint adaptation is label blind once the triple is fixed. Response
+labels participate only in the model-development selection of
+$(q,c,\kappa)$; they never choose the gate or Hill order for an individual
+endpoint. If the same PDAC and COVID cohorts later supply a directed
+round-robin comparison of the selected scores, that evidence is conditional
+post-selection evidence rather than independent confirmation. The parameter
+selection, complete surfaces, solver contract, source checksums, and this
+evidential status should be recorded in the selection manifest.
+
+\section{Interpretive qualifications}
+
+\textbf{Gate threshold.}
+All candidates are represented on the shared Level~1 scale
+$z_i=\log(F_i+\epsilon)$. Accordingly, $c$ is the aggregate log-$F$ score at
+which the aggregate-sufficiency fraction equals one-half. It is no longer a
+threshold applied only to the maximum candidate. The definition of $F$, the
+logarithmic transformation, and $\epsilon$ must therefore remain fixed when
+$c$ and $\kappa$ are specified.
+
+\textbf{Hill order.}
+The order $q$ controls how the normalized candidate-weight distribution is
+translated into breadth. It is a calibration of the Level~2 rule, not a
+probability of candidate independence. A model--metric-specific $q$ remains
+fixed across cohorts after selection.
+
+\textbf{Candidate-opportunity comparability.}
+The rule contains no separate penalty based on roster size. Roster richness
+can nevertheless enter through $D_q$, especially at $q=0$, while $B$ records
+the candidates' combined relative score mass and the self-gate limits accepted
+accumulation. This is a declared treatment of candidate opportunity, not proof
+that peptide length or enumeration depth is harmless. Exact duplicate
+minimal-epitope--HLA tuples are removed before aggregation, including repeated
+occurrences caused by HLA homozygosity. Distinct overlapping epitopes and the
+same epitope associated with different HLA alleles remain separate
+corroborative contributions.
+
+\textbf{Numerical solution.}
+Equation~\eqref{eq:self-gated-aggregate} is solved as a scalar root on the
+certified interval $[m,m+C_q]$. The bisection tolerance, maximum iteration
+count, empty-roster floor, and behavior on any numerical failure must be fixed
+and audited. A naive fixed-point iteration is not part of the definition.
+
+\textbf{Scope of the revision.}
+The self-gate limits an offered bonus according to the aggregate it produces.
+It does not establish that the roster convention is biologically complete,
+that distinct tuples are statistically independent, or that the selected
+parameters will transfer to an unrepresented context. Those claims require
+additional evidence.
+
+\end{document}

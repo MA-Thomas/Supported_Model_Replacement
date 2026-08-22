@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "configuration_kind": "prebuilt_bundles",
+  "prebuilt_bundle_root": "prebuilt_bundles/adaptive_hill2_selected_v1",
+  "covid_spike_label_specification": {
+    "id": "threshold_zero",
+    "description": "COVID SPIKE response is positive when cd8_IFNg_dmso_adj is strictly greater than 0.0.",
+    "threshold": 0.0,
+    "comparison_operator": ">",
+    "response_field": "cd8_IFNg_dmso_adj"
+  }
+}

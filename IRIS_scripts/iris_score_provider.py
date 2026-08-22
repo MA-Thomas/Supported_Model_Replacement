@@ -356,7 +356,10 @@ def read_prediction_slice(
 
 
 def source_files_from_summary(summary: dict[str, Any]) -> list[Path]:
-    keys = ("tensor", "observations", "metadata", "mapping", "nci_summary", "target_tau_selection_table", "target_presentation_q_source_join")
+    keys = (
+        "tensor", "observations", "metadata", "mapping", "nci_summary", "e_vac",
+        "target_tau_selection_table", "target_presentation_q_source_join",
+    )
     paths: list[Path] = []
     for key in keys:
         value = summary.get(key)
