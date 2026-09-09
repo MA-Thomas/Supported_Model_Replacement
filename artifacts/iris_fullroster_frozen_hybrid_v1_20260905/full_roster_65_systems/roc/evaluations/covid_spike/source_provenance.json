@@ -1,0 +1,72 @@
+{
+  "accepted_measurement_error": {
+    "covid_spike": "Mutation-specific response disagreement remains in the observed labels."
+  },
+  "analysis_unit_fields": [
+    "patient_id",
+    "mutation",
+    "long_peptide"
+  ],
+  "covid_spike_label_specification": {
+    "comparison_operator": ">",
+    "description": "COVID SPIKE response is positive when cd8_IFNg_dmso_adj is strictly greater than 0.0.",
+    "id": "threshold_zero",
+    "response_field": "cd8_IFNg_dmso_adj",
+    "threshold": 0.0
+  },
+  "endpoint_identity_table": {
+    "path": "endpoint_identities.csv",
+    "sha256": "e59208215e211645925ae6922f84869400cf56055f1ff499f9ac2b5d4c8ac9b9"
+  },
+  "evaluation_id": "covid_spike",
+  "input_manifest_sha256": "b1e42d5427382f38a4df6de72820fa06fa194d3e350eba26f2c53b89b911fc38",
+  "label_contract": {
+    "comparison_operator": ">",
+    "label_field": null,
+    "response_field": "cd8_IFNg_dmso_adj",
+    "threshold": 0.0
+  },
+  "mapping": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/iris_fullroster_complete_f_20260904/full_roster_inputs/covid_spike_full_longpep_mapping.csv",
+  "mapping_sha256": "684c74d8d13c1b0afccb04fb16aaab8d773bf6c56165f08a240e187b7880d547",
+  "measurement_error_policy": "Preserve mutation-specific observations and their measured response labels.",
+  "schema_version": 3,
+  "tournament_label_authority": "Rust full-roster input package mapping",
+  "transfer_manifest_sha256": "a1a57ba38c99f99f584df50561bbde35e68f7e6e9961008ee6adc5212901f0e7",
+  "transfer_records": [
+    {
+      "model_id": "full_hla",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/full_hla/roc/long_peptide_predictions.csv",
+      "predictions_sha256": "30646d2c08e6778f5b6e8f7019bbd39a59b1dcb1dac2bf3fd443e3a9eee0cbc0",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/full_hla/roc/summary.json",
+      "summary_sha256": "059369166433a94312480fd430e4d7c62bba83c8d263810e7c889a10b760b648"
+    },
+    {
+      "model_id": "focal_hla",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/focal_hla/roc/long_peptide_predictions.csv",
+      "predictions_sha256": "aad8374082e9049c80b9a27f05b77b5bc44d01ddc13720d60020ccf6680372a6",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/focal_hla/roc/summary.json",
+      "summary_sha256": "915c51b94827b01096225b775874cc12538baa1f39dd4d846dd809bee42ee01e"
+    },
+    {
+      "model_id": "old_monoallelic",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/old_monoallelic/roc/long_peptide_predictions.csv",
+      "predictions_sha256": "498028156453756af6f1ce660f4864ef0f8b6ed1d72bccfe53662a2b43031699",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/old_monoallelic/roc/summary.json",
+      "summary_sha256": "707d5a7b0d4ee7d071fc7bcaf6011dd4c30f9fd59fac937bc1d27d582aa00896"
+    },
+    {
+      "model_id": "mono_q_full_pn",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/mono_q_full_pn/roc/long_peptide_predictions.csv",
+      "predictions_sha256": "5a584a70e4dbbf3b69fcd1c11a123fd54533b05531c93ac05692cda227772d80",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/mono_q_full_pn/roc/summary.json",
+      "summary_sha256": "6bc9272bcba0fd5ac720b2238c3dc823bbe33ffad42a35b5904c5b460ce1b898"
+    },
+    {
+      "model_id": "full_q_mono_pn",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/full_q_mono_pn/roc/long_peptide_predictions.csv",
+      "predictions_sha256": "2b82164413d504a64b16d41aae7e7fcad6a432df29747f2ed2e9cc6f9ea9158c",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/full_q_mono_pn/roc/summary.json",
+      "summary_sha256": "a5f4791cddeb65ae22fcd88dd2e7546382f6d06c3790c249c27069b6e3707ea5"
+    }
+  ]
+}

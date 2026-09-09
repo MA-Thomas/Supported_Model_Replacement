@@ -261,7 +261,7 @@ impl CnapContract {
             seed_derivation_version: u32,
         }
         seed_from_hash_material(&SeedMaterial {
-            domain: "select_adaptive_hillq_paired_cnap_vs_max_v1",
+            domain: "select_adaptive_power_hillq_complete_f_paired_cnap_vs_max_v2",
             master_seed: self.master_seed,
             cohort,
             seed_derivation_version: self.seed_derivation_version,

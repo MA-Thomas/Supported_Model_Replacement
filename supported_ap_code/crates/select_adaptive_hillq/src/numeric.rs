@@ -1,15 +1,14 @@
-//! Numeric core: Hill breadth, the self-gated adaptive aggregate, empirical
-//! average precision / AUROC with threshold-block tie handling, and average
-//! ranks. Every routine is a faithful port of the corresponding NumPy/SciPy
-//! code in `select_adaptive_hillq_parameters_deprecated.py` /
-//! `select_adaptive_hill2_parameters_deprecated.py`, computed in `f64` to match NumPy's
-//! default dtype.
+//! Numeric core: power-mean anchoring, Hill breadth, the self-gated adaptive
+//! aggregate, empirical average precision / AUROC with threshold-block tie
+//! handling, and average ranks. The power-anchor and floor-aware corroboration
+//! routines are the replacement contract; no deprecated scoring path remains.
 
 use crate::error::{Result, SelectionError};
 
-/// Shared finite score for an uncomputed observation or an empty candidate
-/// roster: `ln(1e-12)`. Keeping this finite is part of the analysis contract.
+/// Shared finite score for zero Level-1 signal or an empty candidate roster:
+/// `ln(1e-12)`. Omitted tensor observations are invalid inputs, not floors.
 pub const FLOOR: f64 = -27.631_021_115_928_547;
+pub const EPSILON: f64 = 1e-12;
 
 /// Numerically stable logistic sigmoid, matching `scipy.special.expit`.
 #[inline]
@@ -64,6 +63,91 @@ pub enum HillOrder {
     Infinity,
 }
 
+/// Power-mean order on the positive Level-1 scale. On the log scale,
+/// `alpha=0` is the arithmetic mean of `z`, `alpha=1` is log-mean-exp, and
+/// `alpha=inf` is maximum.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum PowerOrder {
+    Finite(f64),
+    Infinity,
+}
+
+impl PowerOrder {
+    pub fn parse(raw: &str) -> Result<Self> {
+        let token = raw.trim().to_ascii_lowercase();
+        if matches!(token.as_str(), "inf" | "infinity" | "+inf" | "+infinity") {
+            return Ok(Self::Infinity);
+        }
+        let value: f64 = token
+            .parse()
+            .map_err(|_| SelectionError::msg(format!("invalid power-mean order: {raw}")))?;
+        if !value.is_finite() || value < 0.0 {
+            return Err(SelectionError::msg(format!(
+                "power-mean orders must be finite and nonnegative or infinity: {raw}"
+            )));
+        }
+        Ok(Self::Finite(value))
+    }
+
+    pub fn value(self) -> f64 {
+        match self {
+            Self::Finite(value) => value,
+            Self::Infinity => f64::INFINITY,
+        }
+    }
+
+    pub fn id(self) -> String {
+        match self {
+            Self::Infinity => "ainf".to_string(),
+            Self::Finite(value) => {
+                let text = format!("{value}");
+                format!("a{}", text.replace('-', "m").replace('.', "p"))
+            }
+        }
+    }
+
+    pub fn json(self) -> serde_json::Value {
+        match self {
+            Self::Infinity => serde_json::Value::String("infinity".to_string()),
+            Self::Finite(value) => serde_json::json!(value),
+        }
+    }
+}
+
+/// Stable log of the generalized power mean of `exp(z)`.
+pub fn log_power_mean(values: &[f64], order: PowerOrder) -> Result<f64> {
+    if values.is_empty() {
+        return Ok(FLOOR);
+    }
+    if values.iter().any(|value| !value.is_finite()) {
+        return Err(SelectionError::msg(
+            "candidate roster contains a nonfinite score",
+        ));
+    }
+    match order {
+        PowerOrder::Infinity => Ok(max_of(values)),
+        PowerOrder::Finite(0.0) => Ok(neumaier_sum(values.iter().copied()) / values.len() as f64),
+        PowerOrder::Finite(alpha) if alpha < 1e-6 => {
+            let mean = neumaier_sum(values.iter().copied()) / values.len() as f64;
+            let centered_excess = neumaier_sum(
+                values
+                    .iter()
+                    .map(|&value| (alpha * (value - mean)).exp_m1()),
+            ) / values.len() as f64;
+            Ok(mean + centered_excess.ln_1p() / alpha)
+        }
+        PowerOrder::Finite(alpha) => {
+            let maximum = max_of(values);
+            let mean_relative = neumaier_sum(
+                values
+                    .iter()
+                    .map(|&value| (alpha * (value - maximum)).exp()),
+            ) / values.len() as f64;
+            Ok(maximum + mean_relative.ln() / alpha)
+        }
+    }
+}
+
 impl HillOrder {
     /// Parse a CLI token such as `"0"`, `"0.5"`, `"inf"`.
     pub fn parse(raw: &str) -> Result<Self> {
@@ -74,7 +158,7 @@ impl HillOrder {
         let value: f64 = token
             .parse()
             .map_err(|_| SelectionError::msg(format!("invalid Hill order: {raw}")))?;
-        if value.is_nan() || value < 0.0 {
+        if !value.is_finite() || value < 0.0 {
             return Err(SelectionError::msg(format!(
                 "Hill orders must be nonnegative or infinity: {raw}"
             )));
@@ -130,18 +214,21 @@ impl HillOrder {
     }
 }
 
-/// Port of `hill_components`: returns `(maxima, admitted_bonus)` where
-/// `admitted_bonus = B * (1 - 1/N_q)` per roster. `B = log sum exp(z - max)`.
-///
-/// Singletons and equal-weight plateaus are order-invariant; empty rosters
-/// return `(FLOOR, 0)`.
-pub fn hill_components(rosters: &[Vec<f64>], order: HillOrder) -> Result<(Vec<f64>, Vec<f64>)> {
-    let mut maxima = Vec::with_capacity(rosters.len());
-    let mut admitted = Vec::with_capacity(rosters.len());
+/// Return `(anchor, corroboration_offer)` for every roster. Hill weights and
+/// accumulation use `F_i = exp(z_i)-epsilon`, not `exp(z_i)`, so numerical
+/// floor mass cannot manufacture breadth. An all-zero roster returns the
+/// declared floor with no offer.
+pub fn adaptive_components(
+    rosters: &[Vec<f64>],
+    power: PowerOrder,
+    hill: HillOrder,
+) -> Result<(Vec<f64>, Vec<f64>)> {
+    let mut anchors = Vec::with_capacity(rosters.len());
+    let mut offers = Vec::with_capacity(rosters.len());
     for values in rosters {
         if values.is_empty() {
-            maxima.push(FLOOR);
-            admitted.push(0.0);
+            anchors.push(FLOOR);
+            offers.push(0.0);
             continue;
         }
         if values.iter().any(|v| !v.is_finite()) {
@@ -149,45 +236,63 @@ pub fn hill_components(rosters: &[Vec<f64>], order: HillOrder) -> Result<(Vec<f6
                 "candidate roster contains a nonfinite score",
             ));
         }
-        let m = max_of(values);
-        let relative: Vec<f64> = values.iter().map(|&v| (v - m).exp()).collect();
-        let total = neumaier_sum(relative.iter().copied());
-        let probabilities: Vec<f64> = relative.iter().map(|&r| r / total).collect();
-        let inverse_hill = order.inverse_hill(&probabilities, values.len());
+        if values.iter().any(|&value| value < FLOOR - 1e-12) {
+            return Err(SelectionError::msg(
+                "candidate score lies below the declared numerical floor",
+            ));
+        }
+        let signals: Vec<f64> = values
+            .iter()
+            .map(|&value| (EPSILON * (value - FLOOR).exp_m1()).max(0.0))
+            .collect();
+        let total_signal = neumaier_sum(signals.iter().copied());
+        if total_signal == 0.0 {
+            anchors.push(FLOOR);
+            offers.push(0.0);
+            continue;
+        }
+        let anchor = log_power_mean(values, power)?;
+        let probabilities: Vec<f64> = signals
+            .iter()
+            .map(|&signal| signal / total_signal)
+            .collect();
+        let active = signals.iter().filter(|&&signal| signal > 0.0).count();
+        let inverse_hill = hill.inverse_hill(&probabilities, active);
         let breadth = 1.0 - inverse_hill;
-        let bonus = total.ln();
-        maxima.push(m);
-        admitted.push(breadth * bonus);
+        let accumulation_ceiling = (EPSILON + total_signal).ln();
+        let available = (accumulation_ceiling - anchor).max(0.0);
+        anchors.push(anchor);
+        offers.push(breadth * available);
     }
-    if admitted.iter().any(|&x| x < -1e-13) {
+    if offers.iter().any(|&x| x < -1e-13) {
         return Err(SelectionError::msg(
-            "adaptive Hill admitted bonus became negative",
+            "adaptive corroboration offer became negative",
         ));
     }
-    for x in admitted.iter_mut() {
+    for x in offers.iter_mut() {
         if *x < 0.0 {
             *x = 0.0;
         }
     }
-    Ok((maxima, admitted))
+    Ok((anchors, offers))
 }
 
 /// Solve the authoritative self-gated equation
 ///
-/// `S = m + C_q * sigmoid((c - S) / kappa)`
+/// `S = A_alpha + C_{alpha,q} * sigmoid((c - S) / kappa)`
 ///
-/// by bisection on the certified interval `[m, m + C_q]`. The residual is
+/// by bisection on the certified interval `[A_alpha, A_alpha + C]`. The residual is
 /// strictly increasing, so this interval contains exactly one root whenever
 /// `C_q >= 0` and `kappa > 0`.
 pub fn self_gated_score(
-    maximum: f64,
+    anchor: f64,
     corroboration_offer: f64,
     c: f64,
     kappa: f64,
     absolute_tolerance: f64,
     max_iterations: usize,
 ) -> Result<f64> {
-    if !maximum.is_finite()
+    if !anchor.is_finite()
         || !corroboration_offer.is_finite()
         || corroboration_offer < 0.0
         || !c.is_finite()
@@ -200,17 +305,17 @@ pub fn self_gated_score(
         return Err(SelectionError::msg("invalid self-gated solver inputs"));
     }
     if corroboration_offer == 0.0 {
-        return Ok(maximum);
+        return Ok(anchor);
     }
 
-    let mut lower = maximum;
-    let mut upper = maximum + corroboration_offer;
+    let mut lower = anchor;
+    let mut upper = anchor + corroboration_offer;
     for _ in 0..max_iterations {
         if upper - lower <= absolute_tolerance {
             break;
         }
         let midpoint = lower + 0.5 * (upper - lower);
-        let residual = midpoint - maximum - corroboration_offer * expit((c - midpoint) / kappa);
+        let residual = midpoint - anchor - corroboration_offer * expit((c - midpoint) / kappa);
         if residual < 0.0 {
             lower = midpoint;
         } else {
@@ -223,8 +328,8 @@ pub fn self_gated_score(
         ));
     }
     let score = lower + 0.5 * (upper - lower);
-    if score < maximum - absolute_tolerance
-        || score > maximum + corroboration_offer + absolute_tolerance
+    if score < anchor - absolute_tolerance
+        || score > anchor + corroboration_offer + absolute_tolerance
     {
         return Err(SelectionError::msg(
             "self-gated score escaped its certified interval",
@@ -360,38 +465,15 @@ mod tests {
     }
 
     #[test]
-    fn hill_components_match_frozen_reference() {
-        // iso roster (0, -5, -5) across orders
+    fn adaptive_components_are_order_sensitive() {
         let rosters = vec![vec![0.0, -5.0, -5.0]];
-        let refs = [
-            (HillOrder::Finite(0.0), 0.008923934480965947),
-            (HillOrder::Finite(0.5), 0.0033760360309972696),
-            (HillOrder::Finite(1.0), 0.0010275437098013352),
-            (HillOrder::Finite(2.0), 0.00035242688794046424),
-            (HillOrder::Infinity, 0.00017798843932691072),
-        ];
-        for (order, expected) in refs {
-            let (m, ab) = hill_components(&rosters, order).unwrap();
-            assert!(close(m[0], 0.0, 0.0));
-            assert!(
-                close(ab[0], expected, 1e-12),
-                "order {order:?}: {} vs {expected}",
-                ab[0]
-            );
-        }
-        // uneven roster (0, -1, -2, -4)
-        let uneven = vec![vec![0.0, -1.0, -2.0, -4.0]];
-        let uneven_refs = [
-            (HillOrder::Finite(0.0), 0.3147874847365046),
-            (HillOrder::Finite(0.5), 0.27624148333614335),
-            (HillOrder::Finite(1.0), 0.2469336478444671),
-            (HillOrder::Finite(2.0), 0.210500291078002),
-            (HillOrder::Infinity, 0.14386500612466016),
-        ];
-        for (order, expected) in uneven_refs {
-            let (_, ab) = hill_components(&uneven, order).unwrap();
-            assert!(close(ab[0], expected, 1e-12), "uneven order {order:?}");
-        }
+        let (mean_anchor, low_q) =
+            adaptive_components(&rosters, PowerOrder::Finite(0.0), HillOrder::Finite(0.0)).unwrap();
+        let (_, high_q) =
+            adaptive_components(&rosters, PowerOrder::Finite(0.0), HillOrder::Infinity).unwrap();
+        assert!(close(mean_anchor[0], -10.0 / 3.0, 1e-12));
+        assert!(low_q[0] > high_q[0]);
+        assert!(high_q[0] > 0.0);
     }
 
     #[test]
@@ -404,14 +486,37 @@ mod tests {
             HillOrder::Finite(2.0),
             HillOrder::Infinity,
         ] {
-            let (m, ab) = hill_components(&rosters, order).unwrap();
-            assert_eq!(m[0], FLOOR);
-            assert_eq!(ab[0], 0.0); // empty
-            assert_eq!(m[1], -2.0);
-            assert_eq!(ab[1], 0.0); // singleton
-            assert!(close(ab[2], 0.7324081924454064, 1e-12)); // equal-weight plateau
-            assert!(close(ab[3], 2.0723265836946414, 1e-12)); // dense equal plateau
+            let (anchor, offer) =
+                adaptive_components(&rosters, PowerOrder::Infinity, order).unwrap();
+            assert_eq!(anchor[0], FLOOR);
+            assert_eq!(offer[0], 0.0); // empty
+            assert_eq!(anchor[1], -2.0);
+            assert_eq!(offer[1], 0.0); // singleton
+            assert!(close(offer[2], 0.7324081924454064, 1e-10));
+            assert!(close(offer[3], 2.0723265836946414, 1e-10));
         }
+    }
+
+    #[test]
+    fn power_orders_recover_mean_logmeanexp_and_maximum() {
+        let values = [-3.0, -1.0, 0.0];
+        let arithmetic_mean = -4.0 / 3.0;
+        assert!(close(
+            log_power_mean(&values, PowerOrder::Finite(0.0)).unwrap(),
+            arithmetic_mean,
+            1e-15
+        ));
+        assert!(close(
+            log_power_mean(&values, PowerOrder::Finite(1e-10)).unwrap(),
+            arithmetic_mean,
+            1e-9
+        ));
+        assert!(close(
+            log_power_mean(&values, PowerOrder::Finite(1.0)).unwrap(),
+            stable_lse(&values) - (values.len() as f64).ln(),
+            1e-15
+        ));
+        assert_eq!(log_power_mean(&values, PowerOrder::Infinity).unwrap(), 0.0);
     }
 
     #[test]
@@ -433,14 +538,16 @@ mod tests {
     }
 
     #[test]
-    fn nonempty_all_floor_roster_follows_authoritative_equation() {
+    fn all_zero_roster_cannot_manufacture_corroboration() {
         let rosters = vec![vec![FLOOR; 3]];
-        let (maxima, offer) = hill_components(&rosters, HillOrder::Finite(2.0)).unwrap();
-        assert_eq!(maxima[0], FLOOR);
-        assert!(offer[0] > 0.0);
-        let score = self_gated_score(maxima[0], offer[0], -12.0, 1.0, 1e-12, 64).unwrap();
-        assert!(score > FLOOR);
-        assert!(score <= FLOOR + offer[0]);
+        let (anchor, offer) =
+            adaptive_components(&rosters, PowerOrder::Finite(0.0), HillOrder::Finite(2.0)).unwrap();
+        assert_eq!(anchor[0], FLOOR);
+        assert_eq!(offer[0], 0.0);
+        assert_eq!(
+            self_gated_score(anchor[0], offer[0], -12.0, 1.0, 1e-12, 64).unwrap(),
+            FLOOR
+        );
     }
 
     #[test]
@@ -475,5 +582,9 @@ mod tests {
         assert_eq!(HillOrder::Infinity.id(), "qinf");
         assert_eq!(HillOrder::Infinity.json(), serde_json::json!("infinity"));
         assert_eq!(HillOrder::Finite(2.0).json(), serde_json::json!(2.0));
+        assert_eq!(PowerOrder::Finite(0.5).id(), "a0p5");
+        assert_eq!(PowerOrder::Infinity.id(), "ainf");
+        assert_eq!(PowerOrder::Infinity.json(), serde_json::json!("infinity"));
+        assert!(HillOrder::parse("1e999").is_err());
     }
 }

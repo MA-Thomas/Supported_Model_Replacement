@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "tournament_id": "3e8581f251fb5d9c8e5c6ac2cf74a6e5db5d8e8301a30c72722f5e2c87b5c19d",
+  "metric": "auroc",
+  "s0": [
+    "mono_q_full_pn__roc__regime_2625"
+  ],
+  "incoming_profiles": [
+    {
+      "candidate": "mono_q_full_pn__roc__regime_2625",
+      "descending_vector": [],
+      "binding_incoming": null,
+      "coordinates": []
+    }
+  ],
+  "t": [
+    "mono_q_full_pn__roc__regime_2625"
+  ],
+  "tertiary_rule_invoked": false,
+  "operational_prevalences": {
+    "kind": "closed_interval",
+    "lower": 0.01,
+    "upper": 0.3
+  },
+  "operational_search": {
+    "grid_points": 257,
+    "tolerance": 1e-8,
+    "max_iterations": 128
+  },
+  "operational_scope_statement": "The declared operational prevalence interval coincides exactly with the PR/CNAP assessment interval [0.01, 0.30]; it is also used for tertiary CNAP regret after an AUROC incoming-survival tie.",
+  "range_regret_profiles": [],
+  "s_op": [
+    "mono_q_full_pn__roc__regime_2625"
+  ],
+  "identical_complete_vectors_remain_tied": true
+}

@@ -1,40 +1,60 @@
 # select_adaptive_hillq
 
-Rust implementation of the authoritative self-gated adaptive Hill-q L2
-aggregation and parameter-selection workflow.
+Rust implementation of complete-F, self-gated power-mean-anchor Hill-q L2
+aggregation and cross-cohort parameter selection.
 
-For each endpoint it forms the complete 9--12-mer candidate roster, removes
-exact duplicates by endpoint + n-mer + normalized HLA, assigns
-`ln(1e-12)` to declared uncomputed candidates, and computes
+This crate replaces the former max-anchored selector. It does not implement a
+legacy mode. Its input contract requires a computed Level-1 score for every
+declared 9--12-mer/HLA tuple. A `mapping_status` other than `scoreable` is an
+error: an omitted tensor value is missing data, not evidence of non-presentation.
+
+## Aggregation rule
+
+For candidate log scores `z_i >= ln(1e-12)`, define the explicitly selected
+power-mean anchor
 
 ```text
-C_q = log(sum(exp(z - max(z)))) * (1 - 1/N_q)
-S   = max(z) + C_q * sigmoid((c - S) / kappa).
+A_alpha = (1/alpha) log(mean(exp(alpha*z_i)))  alpha > 0
+A_0     = mean(z_i)
+A_inf   = max(z_i).
 ```
 
-The implicit equation is solved by bisection on its certified interval. For
-the PR branch, every `(q, c, kappa)` candidate is compared directionally with
-the same component model's fixed-`max` reference using the complete staged
-CNAP procedure. The parameter-selection challenge inherits the validated PR
-tournament contract except for its separately declared finite roster of 200
-replications; the downstream 600-replication replacement tournament is not
-changed. The observed gate is evaluated first; only candidates that pass it
-receive the full staged projection challenge. Parameter triples are
-eligible only when CNAP supports adaptive-over-`max` in every cohort required
-by the selection policy. Exact duplicate score rankings (including tie blocks)
-share one cached assessment. The ROC branch retains its AUROC-based selection.
+Thus `alpha=0`, `alpha=1`, and `alpha=inf` recover mean, log-mean-exp, and max
+on the log-score scale. There is intentionally no default alpha grid.
 
-Two independent output policies are produced:
+The floor-aware Level-1 signal is `F_i = max(exp(z_i)-1e-12, 0)`. For positive
+total signal, normalize `p_i = F_i/sum(F)` and calculate the Hill number `N_q`.
+The corroboration offer is
 
-- `pdac_only`: PDAC determines the selected triple; SPIKE and NONSPIKE are
-  directional transport diagnostics.
-- `all_contexts_equal_weight`: PDAC, SPIKE, and NONSPIKE determine the selected
-  triple with equal cohort weight.
+```text
+U             = log(1e-12 + sum(F_i))
+D_q           = 1 - 1/N_q
+C_{alpha,q}   = D_q * max(U - A_alpha, 0)
+S             = A_alpha + C_{alpha,q} * sigmoid((c-S)/kappa).
+```
 
-The crate also writes leave-one-cohort-out diagnostics, endpoint scores,
-baseline reconstruction audits, compressed full surfaces, and a hashed
-selection manifest. Large surface CSVs are streamed into gzip rather than
-materialized as formatted strings.
+If all signals are zero, the endpoint score is exactly `ln(1e-12)` and the
+offer is zero. The implicit equation has one root on
+`[A_alpha, A_alpha + C_{alpha,q}]` and is solved by certified bisection.
+
+## Selection contract
+
+Every `(alpha, q, c, kappa)` tuple is evaluated jointly. The all-context policy
+minimizes worst-cohort fractional rank first, then mean fractional rank and mean
+metric regret. The PDAC-only policy uses the same ordering on PDAC alone; COVID
+is transport evidence for that policy.
+
+For PR, eligibility still requires staged paired-CNAP support over the same
+component model's fixed-max reference in every cohort used by the policy. The
+parameter-selection challenge uses its separately declared finite replication
+roster; the downstream candidate-conservative tournament remains a distinct
+test. ROC selection uses AUROC ranks with the same worst-cohort-first ordering.
+
+The current omission-floor full-roster results are not valid production inputs.
+Rerun the Level-1 F tensors for the complete COVID and PDAC tuple roster, rebuild
+the transfers, and re-diagnose the cohort preferences before freezing an alpha
+grid or selecting production parameters. The CLI requires `--alpha-values` to
+make that non-default explicit.
 
 ## Build and test
 
@@ -50,7 +70,7 @@ Rust 1.85+ is required.
 ## Inputs
 
 `--source-root` must be a validated Rust transfer package containing
-`manifest.json` and all 30 transfer tasks:
+`manifest.json` and the 30 selection-eligible primary tasks:
 
 ```text
 <pdac|covid_spike|covid_nonspike>/<model>/<pr|roc>/
@@ -59,76 +79,57 @@ Rust 1.85+ is required.
   summary.json
 ```
 
-Each `summary.json` names the corresponding full-roster mapping CSV. Mapping
-rows must use `mapping_status=scoreable|floor` and must retain HLA for both
-statuses. Scoreable rows must resolve exactly once to the tau table; floor rows
-must not resolve to it. Prediction files must use `l2_variant`.
+Each `summary.json` names the corresponding full-roster mapping CSV. After the
+9--12-mer length filter, every mapping row must have `mapping_status=scoreable`
+and must resolve exactly once to the tau table. Exact duplicate biological
+tuples are removed by endpoint + n-mer + normalized HLA; environment and
+observation identifiers are provenance, not multiplicity.
 
-`--bundle-root` supplies the authoritative endpoint identities, labels, COVID
-label contracts, exact model-matched fixed-`max` reference scores, and the
-validated PR tournament contract. Reconstructed fixed-`max` scores are checked
-against that reference before PR selection begins.
+`--bundle-root` supplies authoritative endpoint identities, labels, COVID label
+contracts, fixed-max reference scores, and the PR tournament contract.
+Reconstructed `max` and `logsumexp` baselines are audited before selection.
+Secondary transfer views are never added to the worst-cohort objective. After
+primary-only parameters are selected, the same frozen tuples are applied to
+every manifest-declared secondary view and written under
+`secondary_views/<view_id>/`. These files are conditional post-selection
+diagnostics and are not read by the production bundle builder.
 
 ## Cluster execution
 
-The dense PR grid is executed through an immutable, restartable lifecycle:
+The dense PR grid uses an immutable, restartable lifecycle:
 
 ```text
-select_adaptive_hillq_cluster plan
-select_adaptive_hillq_cluster run-shard
-select_adaptive_hillq_cluster status
-select_adaptive_hillq_cluster audit
-select_adaptive_hillq --cnap-plan ... --cnap-results ...
+select_adaptive_hillq_cluster plan --alpha-values <explicit orders> ...
+select_adaptive_hillq_cluster run-shard ...
+select_adaptive_hillq_cluster status ...
+select_adaptive_hillq_cluster audit ...
+select_adaptive_hillq --alpha-values <same orders> --cnap-plan ... --cnap-results ...
 ```
 
 Planning deduplicates exact score rankings and tie blocks within each
-model/cohort. Each result shard is bound to the plan, input hashes, selection
-contract, and planning executable. Existing valid shards are safely reused.
-The final selector audits the complete shard set before reconstructing the
-full surfaces and applying either selection policy.
+model/cohort. Result shards are bound to the plan, input hashes, selection
+contract, and executable. The final selector audits the complete shard set
+before reconstructing surfaces and applying the two policies.
 
-The production Slurm entry point is
-`IRIS_scripts/submit_adaptive_hillq_selection_slurm.sh`. It supports `pilot`
-and `full` modes, bounded sequential array batches, measured resource reports,
-and an `afterok` final audit/reduction.
-
-## Monolithic run
-
-This remains available for small grids and development checks. The production
-dense grid should use the cluster lifecycle.
-
-```bash
-cargo run -p select_adaptive_hillq --release -- \
-  --source-root /path/to/full_roster_transfers \
-  --bundle-root ../IRIS_scripts/prebuilt_bundles/full_roster_fixed_l2 \
-  --output ../IRIS_scripts/analysis_reports/adaptive_hillq_dual_selection_v3 \
-  --selection-replications 200 \
-  --q-values 0 0.5 1 1.5 2 3 4 inf
-```
-
-Important options:
-
-```text
---solver-absolute-tolerance 1e-10
---solver-max-iterations 64
---near-optimal-rank-tolerance 0.01
---selection-replications 200
---c-min/-max/-step
---kappa-min/-max/-points
---threads <N>
-```
-
-The output directory must not already exist. Selected `c` or `kappa` values on
-a grid boundary cause a fail-closed error requesting a wider grid.
+No alpha example here is designated as the production grid. Freeze it only
+after complete-F reruns and clean-data diagnostics.
 
 ## Principal outputs
 
+- `alpha_grid.csv`
+- `q_grid.csv`
 - `joint_parameter_grid.csv`
-- `selected_parameters.csv` (both policies, 20 rows)
-- `selected_parameters_pdac_only.csv` (10 rows)
-- `selected_parameters_all_contexts.csv` (10 rows)
+- `selected_parameters.csv`
+- `selected_parameters_pdac_only.csv`
+- `selected_parameters_all_contexts.csv`
 - `selected_endpoint_scores.csv`
 - `leave_one_cohort_out.csv`
 - `baseline_reproduction.csv`
 - `surfaces/<branch>__<model>/*.csv.gz`
 - `selection_manifest.json`
+- `secondary_views/<view_id>/selected_endpoint_scores.csv`
+- `secondary_views/<view_id>/metrics.csv`
+- `secondary_views/<view_id>/manifest.json`
+
+The output directory must not already exist. A selected `c` or `kappa` on a
+grid boundary fails closed and requests a wider grid.

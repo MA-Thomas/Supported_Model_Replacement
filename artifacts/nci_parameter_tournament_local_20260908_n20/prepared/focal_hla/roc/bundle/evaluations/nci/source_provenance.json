@@ -1,0 +1,32 @@
+{
+  "candidate_roster_sha256": "93dbbb21b08fd916dc402b36a8ebd41719d28599679cfaeef1167ed6d42e9a65",
+  "candidate_scan_sha256": "19d106427484e5a1d7193300aee4f41b722f53fa384afacb56786f8d4d797f8c",
+  "component_model_id": "focal_hla",
+  "config_sha256": "1027f08030e702c25015874fbbed57cfbbd2a609f78977e4ec048e93f1634d9e",
+  "endpoint_identities_sha256": "a3fffa03167335af708cb5064d359645f7d460a8a5fa2591105bdda7354377d2",
+  "evaluation_id": "nci",
+  "log_epsilon": 1e-12,
+  "metric_branch": "roc",
+  "metrics": {
+    "path": "/Users/thomm15/Work_Data/IRIS_scripts/python/outputs/nci_focal_20260808_per_observation_tau/tables/nci_fixed_regime_single_best_parameter_set_metrics.csv",
+    "sha256": "a3edd7cf7cbd4ace3dbfb18d3cdf20424702bd69128b8f69576b2018d3dd052a"
+  },
+  "primary": {
+    "metadata": {
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_focal_20260808/f_tensor.metadata.json",
+      "sha256": "5e1c7dd5021dfac249424561ff21f3e57fdd550f0fd54c83e9d4c27c2393bb3d"
+    },
+    "observations": {
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_focal_20260808/f_tensor.observations.parquet",
+      "sha256": "2b3baf7c34677146462c6647ce240f93f045379db70ad82d06dfe86aa4ea27d6"
+    },
+    "tensor": {
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_focal_20260808/f_tensor.parquet",
+      "sha256": "14f3c20a918c6ca5917c444b24d428285aed242b20036f6f61931bde2b6ba3a5"
+    }
+  },
+  "query_q": null,
+  "schema_version": 1,
+  "score_formula": "log(Q * P_pos * P_neg * pi + epsilon)",
+  "tau_policy": "per_observation_argmax_with_lowest_index_tie_rule"
+}

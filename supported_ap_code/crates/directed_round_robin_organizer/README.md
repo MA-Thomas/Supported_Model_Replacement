@@ -20,9 +20,9 @@ The crate provides:
 - two selection strategies — candidate-conservative (default) and
   replacement-conservative — both reported for every reduction (see
   "Selection strategies");
-- unique selection only when the selected set is a singleton; and
-- descriptive metric and score-vector comparisons that cannot affect
-  selection.
+- unique evidential selection only when the selected set is a singleton; and
+- descriptive metric and score-vector comparisons that cannot affect the
+  evidential selection.
 
 ## Domain boundary
 
@@ -32,18 +32,20 @@ not know about biological models, L3 aggregation, aggregation families, NCI
 regimes, COVID, mutation, or any other provider domain.
 
 Providers may retain domain details in opaque JSON `annotations` and source
-provenance. The organizer never uses annotations for validation grouping,
+provenance. The organizer never uses annotations for evaluation grouping,
 graph construction, or selection. Domain-specific grouped analyses belong in
 a separate reporting layer.
 
 ## Selection strategies
 
-The reduction reports **two** selections over the completed round robin, each a
-pure deterministic function of the atomic directed verdicts — no match is re-run
-and no new mathematics is introduced. `tournament_spec.json` declares which one
-is primary via `selection_strategy` (default `candidate_conservative`). The
-primary is written to `selection.json` and the other to
-`alternate_selection.json`, so a run always carries both.
+The reduction reports **two evidential selections** over the completed round
+robin, each a pure deterministic function of the atomic directed verdicts — no
+match is re-run and no new mathematics is introduced. `tournament_spec.json`
+declares which one is primary via `selection_strategy` (default
+`candidate_conservative`). The primary is written to `selection.json` and the
+other to `alternate_selection.json`, so a run always carries both. The
+operational winner strategy described below is a subsequent reduction of a
+plural evidential survivor set and does not change either selection.
 
 **`replacement_conservative`.** An edge A->B (a supported claim that A should
 replace B) is created only when the same direction is supported in *every*
@@ -77,8 +79,8 @@ The replacement-conservative rule *retains* A (neither B->A nor C->A is
 supported in every evaluation, so no eliminating edge forms). The
 candidate-conservative rule *removes* A (A is maximal in neither X nor Y).
 
-Prefer `candidate_conservative` when you want to drive toward a single best
-model: it subjects each candidate to an independent per-context test and
+Prefer `candidate_conservative` when you want to narrow the universally
+admissible set: it subjects each candidate to an independent per-context test and
 eliminates it on any failure, so it is the more falsificationist choice —
 survival requires passing every severe test, and it declines the immunizing move
 of shielding a candidate from single-context refutation. Prefer
@@ -109,6 +111,84 @@ plan, or completed match results — only the reduction is recomputed. `reduce` 
 default for a single invocation; because both selections are written regardless,
 the flag only chooses which one is primary. A reduction records its own strategy
 and re-audits against that, so an overridden reduction remains verifiable.
+
+## Operational choice from the survival-threshold profile
+
+The evidential reduction may intentionally return several admissible systems.
+When one system must nevertheless be chosen, a second, explicitly operational
+reduction can use the numerical survival quantities already produced by the
+pairwise assessments. This step does not revise the frozen survival requirement
+or turn a post-result threshold into a prespecified evidential policy. The
+primary output remains the fixed-policy survivor set; any single system chosen
+below is reported separately as an **operational winner**.
+
+The central distinction is between a measurement and its cutoff. For a directed
+claim A->B in evaluation `e`, the assessment supplies literal survival
+fractions, while `survival_requirement` supplies the threshold `gamma` that
+turns those fractions into a binary verdict. Two claims with survival 0.80 and
+0.20 are both unsupported at `gamma = 0.81`, but they are not equally close to
+producing an edge.
+
+Hold every other part of the assessment fixed. Define the **edge activation
+strength** as the breakpoint `w` for which the direction is supported exactly
+when `gamma < w` (equivalently, the supremum of the requirements that would
+support it).
+For a full two-stage assessment this is the smaller of the observed-gate and
+full-assessment survival fractions, provided that both magnitude requirements
+pass; if either magnitude requirement fails, the activation strength is zero.
+For a reduced observed-only assessment, use the observed survival fraction and
+its magnitude requirement. Thresholding activation strengths at any `gamma`
+reconstructs the corresponding directed support graph. The distinct attained
+strengths are its exact breakpoints: the graph is constant between consecutive
+breakpoints and changes immediately below one. These intervals form the
+**survival-threshold profile**; an arbitrary decimal grid is unnecessary.
+
+The threshold profile explains when arrows emerge as `gamma` is lowered, but it
+should not select a winner by stopping at the first singleton. Adding edges can
+create or merge strongly connected components, so graph-maximal membership need
+not change monotonically. The profile is therefore a diagnostic of the complete
+reduction path, not a replacement for a declared choice rule.
+
+For the operational choice, let the fixed-policy primary survivor set supply
+the eligible winners, but retain the full tournament roster as challengers. An
+excluded system may still expose an eligible system's weakness. For each
+eligible system B, collect every incoming activation strength A->B over all
+challengers and evaluations and sort them from largest to smallest. Compare
+eligible systems lexicographically, preferring the system with the smaller
+largest incoming strength, then the smaller second-largest strength if the
+largest values tie, and so on. The first comparison is a minimax rule: the
+strongest observed replacement claim against B controls, and favorable
+comparisons cannot compensate for it. The later comparisons resolve finite
+ties without averaging threats.
+
+Independent metrics remain separate tournaments. If they are declared to be
+independent opportunities to exclude a candidate, intersect their fixed-policy
+survivor sets to define the eligible systems, then form one descending incoming
+profile over metric, evaluation, and challenger; the strongest threat under
+either metric controls. A rule requiring the same replacement direction to
+survive every metric is different: first form the joint graph, using the
+smallest metric-specific activation strength for each direction, and let that
+graph's fixed-policy survivors define eligibility. Cross-metric choice therefore
+belongs in a reporting layer that can verify the intended joint claim, not in
+either single-metric reduction implicitly.
+
+Changing only `gamma` requires no new pairwise model comparison when the stored
+match reports contain every stage summary that can become eligible, as in the
+current one-empirical-evaluation-per-context design. Changing the survival
+floor, magnitude threshold, challenge order, condition set, resampling
+procedure, or metric defines a different assessment rather than a threshold
+profile.
+
+The current CLI does not compute this survival-profile rule. It can apply a
+user-declared `operational_tie_break` order after the evidential reduction;
+without that declaration, `operational_choice` is null. A future auditable
+implementation of the survival-profile layer should retain the evidential
+outcome unchanged, write the directed activation strengths and compressed
+threshold intervals, identify each finalist's binding incoming edge, and
+populate `operational_choice` with
+`operational_choice_is_non_evidential = true`. Suggested companion artifacts
+are `directed_edge_strengths.csv`, `survival_threshold_profile.json`, and
+`operational_selection.json`.
 
 ## Bundle layout
 
@@ -191,12 +271,16 @@ descriptive_metrics.csv
 score_vector_comparisons.csv
 ```
 
-`selection.json` holds the primary selection (the strategy named by
+`selection.json` holds the primary evidential selection (the strategy named by
 `selection_strategy`, default `candidate_conservative`) and
 `alternate_selection.json` the other strategy; `per_evaluation_maximal.json`
 records each evaluation's maximal set. Multiple survivors remain an unresolved
-candidate set and the organizer applies no domain-specific refinements. The two
-strategies are defined and contrasted in "Selection strategies" below.
+evidential candidate set. The organizer applies no domain-specific refinement;
+`operational_choice` remains null unless the specification supplies an
+`operational_tie_break` order. The two evidential strategies are defined and
+contrasted in "Selection strategies" above, and the proposed generic secondary
+reduction is described in "Operational choice from the survival-threshold
+profile."
 
 `induce-view` derives a smaller graph from one audited complete reduction. It
 filters the excluded vertices and their pairwise rows, then recomputes the

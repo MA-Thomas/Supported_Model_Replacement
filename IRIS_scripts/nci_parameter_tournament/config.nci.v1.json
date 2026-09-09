@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "provider_identity": "iris_nci_parameter_tournament_v1",
+  "candidate_count": 20,
+  "log_epsilon": 1e-12,
+  "models": {
+    "full_hla": {
+      "display_label": "Full HLA",
+      "metrics": {
+        "path": "/Users/thomm15/Work_Data/IRIS_scripts/python/outputs/nci_full_20260715_hlafix2_per_observation_tau/tables/nci_fixed_regime_single_best_parameter_set_metrics.csv",
+        "sha256": "a201654dbe94de803c29fd8d316640e27291ac8096987e3378f8e1896a7c5b88"
+      },
+      "primary": {
+        "tensor": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.parquet",
+          "sha256": "1df219eb36418b797de92aa5edeeabd08812a753b39908bbd76934c2dc74c19c"
+        },
+        "observations": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.observations.parquet",
+          "sha256": "2b3baf7c34677146462c6647ce240f93f045379db70ad82d06dfe86aa4ea27d6"
+        },
+        "metadata": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.metadata.json",
+          "sha256": "9256b836483819362be4bae2437da88df09f819c6e5489b38d5407d26b076651"
+        }
+      }
+    },
+    "focal_hla": {
+      "display_label": "Focal HLA",
+      "metrics": {
+        "path": "/Users/thomm15/Work_Data/IRIS_scripts/python/outputs/nci_focal_20260808_per_observation_tau/tables/nci_fixed_regime_single_best_parameter_set_metrics.csv",
+        "sha256": "a3edd7cf7cbd4ace3dbfb18d3cdf20424702bd69128b8f69576b2018d3dd052a"
+      },
+      "primary": {
+        "tensor": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_focal_20260808/f_tensor.parquet",
+          "sha256": "14f3c20a918c6ca5917c444b24d428285aed242b20036f6f61931bde2b6ba3a5"
+        },
+        "observations": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_focal_20260808/f_tensor.observations.parquet",
+          "sha256": "2b3baf7c34677146462c6647ce240f93f045379db70ad82d06dfe86aa4ea27d6"
+        },
+        "metadata": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_focal_20260808/f_tensor.metadata.json",
+          "sha256": "5e1c7dd5021dfac249424561ff21f3e57fdd550f0fd54c83e9d4c27c2393bb3d"
+        }
+      }
+    },
+    "old_monoallelic": {
+      "display_label": "Old monoallelic",
+      "metrics": {
+        "path": "/Users/thomm15/Work_Data/IRIS_scripts/python/outputs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC_per_observation_tau/tables/nci_fixed_regime_single_best_parameter_set_metrics.csv",
+        "sha256": "73206d902fdf462aa38793f5c2c46dd1c09944579023209061a9c50dbbfa5b23"
+      },
+      "primary": {
+        "tensor": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.parquet",
+          "sha256": "ccbf442425b77485d19882a649771be16c805fc8cbae89d5a0a4005359f5d84f"
+        },
+        "observations": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.observations.parquet",
+          "sha256": "8c2f19472efe969e7820f03ac79d0d9f73b38918666c1883a16a0311f087b4b0"
+        },
+        "metadata": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.metadata.json",
+          "sha256": "9256b836483819362be4bae2437da88df09f819c6e5489b38d5407d26b076651"
+        }
+      }
+    },
+    "mono_q_full_pn": {
+      "display_label": "Mono Q, full P/N",
+      "metrics": {
+        "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/outputs/nci_composite_mono_q_full_pn_supported_ap_auroc_story/discovery/tables/nci_fixed_regime_single_best_parameter_set_metrics.csv",
+        "sha256": "437990a17c2c4f8806a1049cf09ad17e130ca9c8c34d488c88ba6b30ec709f1c"
+      },
+      "primary": {
+        "tensor": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.parquet",
+          "sha256": "1df219eb36418b797de92aa5edeeabd08812a753b39908bbd76934c2dc74c19c"
+        },
+        "observations": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.observations.parquet",
+          "sha256": "2b3baf7c34677146462c6647ce240f93f045379db70ad82d06dfe86aa4ea27d6"
+        },
+        "metadata": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.metadata.json",
+          "sha256": "9256b836483819362be4bae2437da88df09f819c6e5489b38d5407d26b076651"
+        }
+      },
+      "query_q": {
+        "tensor": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.parquet",
+          "sha256": "ccbf442425b77485d19882a649771be16c805fc8cbae89d5a0a4005359f5d84f"
+        },
+        "observations": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.observations.parquet",
+          "sha256": "8c2f19472efe969e7820f03ac79d0d9f73b38918666c1883a16a0311f087b4b0"
+        },
+        "metadata": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.metadata.json",
+          "sha256": "9256b836483819362be4bae2437da88df09f819c6e5489b38d5407d26b076651"
+        }
+      }
+    },
+    "full_q_mono_pn": {
+      "display_label": "Full Q, mono P/N",
+      "metrics": {
+        "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/outputs/nci_composite_mono_q_full_pn_supported_ap_auroc_story/reciprocal_discovery/tables/nci_fixed_regime_single_best_parameter_set_metrics.csv",
+        "sha256": "ed4fc176ced7ba5c453ad67b01f653e64e98a40df15d79712956acee08983370"
+      },
+      "primary": {
+        "tensor": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.parquet",
+          "sha256": "ccbf442425b77485d19882a649771be16c805fc8cbae89d5a0a4005359f5d84f"
+        },
+        "observations": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.observations.parquet",
+          "sha256": "8c2f19472efe969e7820f03ac79d0d9f73b38918666c1883a16a0311f087b4b0"
+        },
+        "metadata": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.metadata.json",
+          "sha256": "9256b836483819362be4bae2437da88df09f819c6e5489b38d5407d26b076651"
+        }
+      },
+      "query_q": {
+        "tensor": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.parquet",
+          "sha256": "1df219eb36418b797de92aa5edeeabd08812a753b39908bbd76934c2dc74c19c"
+        },
+        "observations": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.observations.parquet",
+          "sha256": "2b3baf7c34677146462c6647ce240f93f045379db70ad82d06dfe86aa4ea27d6"
+        },
+        "metadata": {
+          "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.metadata.json",
+          "sha256": "9256b836483819362be4bae2437da88df09f819c6e5489b38d5407d26b076651"
+        }
+      }
+    }
+  },
+  "tournament": {
+    "selection_strategy": "candidate_conservative",
+    "shared": {
+      "evidence_policy": {
+        "magnitude_threshold": 0.0,
+        "survival_floor": 0.0,
+        "survival_requirement": 0.81
+      },
+      "computational_design": {
+        "replications": 600,
+        "computational_order": 2,
+        "replication_positive_count": null,
+        "replication_negative_count": null,
+        "resampling_unit": "independent_observation"
+      },
+      "reference_assessment": {
+        "status": "not_asserted",
+        "reason": "No exchangeable-label diagnostic reference law is asserted for the NCI evaluation."
+      },
+      "master_seed": 20260908
+    },
+    "pr": {
+      "target_prevalences": {
+        "kind": "closed_interval",
+        "lower": 0.01,
+        "upper": 0.3
+      },
+      "search": {
+        "grid_points": 257,
+        "tolerance": 1e-8,
+        "max_iterations": 128
+      },
+      "transport_justification": "Observed class-conditional paired NCI score rankings are held fixed while prevalence is standardized over the prespecified operational interval.",
+      "retain_replication_profiles": false
+    },
+    "roc": {
+      "optimization": {
+        "absolute_gap": 1e-6,
+        "relative_gap": 1e-8,
+        "time_limit_seconds": 2.0,
+        "solver_threads": 1,
+        "backend": "combinatorial",
+        "node_budget": 50000,
+        "restarts": 1
+      },
+      "concentration_search": {
+        "tolerance": 0.005,
+        "max_iterations": 64
+      }
+    },
+    "operational_prevalences": {
+      "kind": "closed_interval",
+      "lower": 0.01,
+      "upper": 0.3
+    },
+    "operational_search": {
+      "grid_points": 257,
+      "tolerance": 1e-8,
+      "max_iterations": 128
+    },
+    "operational_scope_statement": "The declared operational prevalence interval coincides exactly with the PR/CNAP assessment interval [0.01, 0.30]; it is also used for tertiary CNAP regret after an AUROC incoming-survival tie."
+  }
+}

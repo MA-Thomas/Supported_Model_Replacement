@@ -1,0 +1,133 @@
+{
+  "schema_version": 2,
+  "datasets": [
+    {
+      "id": "PDAC",
+      "prefix": "pdac",
+      "expression": "pancreatic adenocarcinoma",
+      "env_dict": "Jayon/hla_env_dict.csv",
+      "primary_view_id": "pdac_full",
+      "primary_mapping": "/Users/thomm15/Work_Data/Jayon/complete_f_endpoint_views/pdac_full_endpoint_mapping_9to12mer.csv",
+      "config_template": "New_Approaches/MHC_competition_solver/src/binding_sim_updated_PDAC.toml",
+      "generated_mono_config": "binding_sim_updated_PDAC_Mono.toml",
+      "generated_full_deduplicated_config": "binding_sim_updated_PDAC_Full_Deduplicated.toml",
+      "response_column": "long_peptide_label",
+      "response_kind": "binary",
+      "endpoint_fields": ["patient_id", "long_peptide"],
+      "views": [
+        {
+          "id": "pdac_rojas_sethna",
+          "role": "secondary",
+          "mapping": "/Users/thomm15/Work_Data/Jayon/complete_f_endpoint_views/pdac_rojas_sethna_endpoint_mapping.csv",
+          "require_subset_of": "pdac_full",
+          "selection_eligible": false,
+          "bundle_eligible": false,
+          "expected_sha256": "917045e32d80d37d5d8d07a831ebd79fb8ee5fc6e5f6abbfa550ec3f9d67ec8e",
+          "expected": {
+            "source_rows": 231,
+            "mapping_rows": 1386,
+            "endpoints": 76,
+            "compute_keys": 1368
+          }
+        }
+      ],
+      "expected_source_sha256": {
+        "env_dict": "711fa1bb314ed9142ae68ac6d6c52081f6c04fdce344e4de4a07fb08faceb70a",
+        "primary_mapping": "2ad9fac4c75d57ed947bbaaae9845b966b49f218a2921f28fdef912d6bce390a",
+        "config_template": "eb7d25ebf530d08b599bd6fe5200c18bb7f1a727667e3a2a623771559828282c"
+      },
+      "expected": {
+        "full_query_rows": 51756,
+        "mono_environments": 93,
+        "primary_source_rows": 9200,
+        "primary_mapping_rows": 52458,
+        "primary_endpoints": 221
+      }
+    },
+    {
+      "id": "COVID_NONSPIKE",
+      "prefix": "covid_nonspike",
+      "expression": "SARS-CoV-2",
+      "env_dict": "Cansu_Covid_Nonspike/Marcus_preprocessing/atlas_hla_env_dict.csv",
+      "primary_view_id": "covid_nonspike",
+      "primary_mapping": "Cansu_Covid_Nonspike/Marcus_preprocessing/atlas_patient_peptide_CD8_response_mapping.csv",
+      "config_template": "New_Approaches/MHC_competition_solver/src/binding_sim_updated_COVID_Nonspike.toml",
+      "generated_mono_config": "binding_sim_updated_COVID_Nonspike_Mono.toml",
+      "generated_full_deduplicated_config": "binding_sim_updated_COVID_Nonspike_Full_Deduplicated.toml",
+      "response_column": "cd8_TNFa_IFNg_dmso_adj",
+      "response_kind": "continuous",
+      "endpoint_fields": ["patient_id", "long_peptide"],
+      "views": [],
+      "expected_source_sha256": {
+        "env_dict": "7d232adc1ce7cccff742b21ff3721ef2cbccee8f0ae3399b4e09889eb50cc53e",
+        "primary_mapping": "947264b0134387b6d41124d4d4961047eafc11591dd035b880af703cedae3619",
+        "config_template": "04801a7bd2f1a2008ceffac58713c0b484becb2304b2d78bb5c079bcfa089226"
+      },
+      "expected": {
+        "full_query_rows": 167864,
+        "mono_environments": 71,
+        "primary_source_rows": 35446,
+        "primary_mapping_rows": 199124,
+        "primary_endpoints": 1607
+      }
+    },
+    {
+      "id": "COVID_SPIKE",
+      "prefix": "covid_spike",
+      "expression": "SARS-CoV-2",
+      "env_dict": "Cansu_Covid_Spike/Marcus_preprocessing/covid_spike_hla_env_dict.csv",
+      "primary_view_id": "covid_spike",
+      "primary_mapping": "Cansu_Covid_Spike/Marcus_preprocessing/spike_patient_peptide_CD8_response_mapping.csv",
+      "config_template": "New_Approaches/MHC_competition_solver/src/binding_sim_updated_COVID_Spike.toml",
+      "generated_mono_config": "binding_sim_updated_COVID_Spike_Mono.toml",
+      "generated_full_deduplicated_config": "binding_sim_updated_COVID_Spike_Full_Deduplicated.toml",
+      "response_column": "cd8_IFNg_dmso_adj",
+      "response_kind": "continuous",
+      "endpoint_fields": ["patient_id", "mutation", "long_peptide"],
+      "noise_ceiling_threshold": 0.53,
+      "views": [],
+      "expected_source_sha256": {
+        "env_dict": "42651c4f94775a8f4cadba1b986e641f763a5cddac88b6f507f8aafb68108bc5",
+        "primary_mapping": "52ca3d073bb0a8e43abd6be5f2862eeafc4475bfbcc6d48e895a5d1de35eddda",
+        "config_template": "9d43622003a8a9ab9efd7a2a3ecf72d06063501936f9ad82e021fe310aed2543"
+      },
+      "expected": {
+        "full_query_rows": 104815,
+        "mono_environments": 64,
+        "primary_source_rows": 25740,
+        "primary_mapping_rows": 137175,
+        "primary_endpoints": 1765
+      }
+    }
+  ],
+  "provenance": [
+    {
+      "role": "pdac_endpoint_view_generator",
+      "path": "/Users/thomm15/Work_Data/Jayon/Marcus_pre_processing/build_complete_f_endpoint_views.py",
+      "metadata": {
+        "apply_kd_filter": false,
+        "apply_ap_filter": false,
+        "apply_stability_filter": false,
+        "responders_only": false,
+        "drop_no_data": true,
+        "drop_pool_ambiguous": true,
+        "nmer_lengths": [9, 10, 11, 12]
+      }
+    },
+    {
+      "role": "pdac_endpoint_views_manifest",
+      "path": "/Users/thomm15/Work_Data/Jayon/complete_f_endpoint_views/pdac_endpoint_views_manifest.json",
+      "copy_to_output": true
+    }
+  ],
+  "passthrough_files": [
+    {
+      "path": "IRIS_scripts/complete_f_stage2/param_sets_external_validation.csv",
+      "expected_sha256": "253c7b0c103642b8266441c6526a797562f166a354744dbb8160cbcd25c364fb"
+    },
+    {
+      "path": "IRIS_scripts/complete_f_stage2/mn_tuples_external_validation.csv",
+      "expected_sha256": "34a756c28695008b530f0d744335e44a8118c03e89dbccddeda10419ddc39f4b"
+    }
+  ]
+}

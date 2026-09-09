@@ -1,0 +1,72 @@
+{
+  "accepted_measurement_error": {
+    "covid_spike": "Mutation-specific response disagreement remains in the observed labels."
+  },
+  "analysis_unit_fields": [
+    "patient_id",
+    "mutation",
+    "long_peptide"
+  ],
+  "covid_spike_label_specification": {
+    "comparison_operator": ">",
+    "description": "COVID SPIKE response is positive when cd8_IFNg_dmso_adj is strictly greater than 0.0.",
+    "id": "threshold_zero",
+    "response_field": "cd8_IFNg_dmso_adj",
+    "threshold": 0.0
+  },
+  "endpoint_identity_table": {
+    "path": "endpoint_identities.csv",
+    "sha256": "e59208215e211645925ae6922f84869400cf56055f1ff499f9ac2b5d4c8ac9b9"
+  },
+  "evaluation_id": "covid_spike",
+  "input_manifest_sha256": "b1e42d5427382f38a4df6de72820fa06fa194d3e350eba26f2c53b89b911fc38",
+  "label_contract": {
+    "comparison_operator": ">",
+    "label_field": null,
+    "response_field": "cd8_IFNg_dmso_adj",
+    "threshold": 0.0
+  },
+  "mapping": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/iris_fullroster_complete_f_20260904/full_roster_inputs/covid_spike_full_longpep_mapping.csv",
+  "mapping_sha256": "684c74d8d13c1b0afccb04fb16aaab8d773bf6c56165f08a240e187b7880d547",
+  "measurement_error_policy": "Preserve mutation-specific observations and their measured response labels.",
+  "schema_version": 3,
+  "tournament_label_authority": "Rust full-roster input package mapping",
+  "transfer_manifest_sha256": "a1a57ba38c99f99f584df50561bbde35e68f7e6e9961008ee6adc5212901f0e7",
+  "transfer_records": [
+    {
+      "model_id": "full_hla",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/full_hla/pr/long_peptide_predictions.csv",
+      "predictions_sha256": "1b1bf7f54a485fb381ee1ea5eccf5c912afde8a693e3c89fc8c0682be1aec338",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/full_hla/pr/summary.json",
+      "summary_sha256": "4edf1b5bfe423bc0f1a8720a69158c48b9adb41bc4bd192073747cb616504bd1"
+    },
+    {
+      "model_id": "focal_hla",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/focal_hla/pr/long_peptide_predictions.csv",
+      "predictions_sha256": "21db38bf1630c60297c7b5d98ff73692e662776d566a1840eb5747fdf01af847",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/focal_hla/pr/summary.json",
+      "summary_sha256": "0e084c5bc4c3456a48f88a36b5918459e76e96ba3b2e68aaa07ed68a73ab0a45"
+    },
+    {
+      "model_id": "old_monoallelic",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/old_monoallelic/pr/long_peptide_predictions.csv",
+      "predictions_sha256": "26aa428f456e60f6adffbd213a5f064a402ce6716b3dd7eeebdfa35b938dfff3",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/old_monoallelic/pr/summary.json",
+      "summary_sha256": "b6122e4a8c5d3f196e55426e0fdf10c13e7f7d9342901843b2a2659832cbf26e"
+    },
+    {
+      "model_id": "mono_q_full_pn",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/mono_q_full_pn/pr/long_peptide_predictions.csv",
+      "predictions_sha256": "55c9d022f84a3717bdc2a02645c10b18a98df9b397a9eb5c4ffc00bb8328aefa",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/mono_q_full_pn/pr/summary.json",
+      "summary_sha256": "a1be2bd0095d5e16f021a4b46e88944e137befb257c4af1adbe52a9b291311a2"
+    },
+    {
+      "model_id": "full_q_mono_pn",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/full_q_mono_pn/pr/long_peptide_predictions.csv",
+      "predictions_sha256": "38bf5bbd9ff8e07d39ef9957cb614a1cf23803498d6c01a0281cbf6abc2aa488",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_spike/full_q_mono_pn/pr/summary.json",
+      "summary_sha256": "deb1c100b0c7468f349feb7bc15e22ad68fd6409d6e8647977aad56973cf2c19"
+    }
+  ]
+}

@@ -8,7 +8,7 @@ use arrow::datatypes::{DataType, Field, Schema};
 use arrow::record_batch::RecordBatch;
 use directed_round_robin_organizer::load_bundle;
 use external_validation_inputs::build_bundle as build_input_bundle;
-use iris_fullroster_pipeline::bundle::{build_combined_bundles, build_fixed_bundles};
+use iris_fullroster_pipeline::bundle::build_tournament_bundles;
 use iris_fullroster_pipeline::io::sha256_file;
 use iris_fullroster_pipeline::transfer::{build_transfer_package, validate_transfer_package};
 use parquet::arrow::ArrowWriter;
@@ -16,15 +16,7 @@ use serde_json::{Value, json};
 use tempfile::TempDir;
 
 const COHORTS: [&str; 3] = ["pdac", "covid_spike", "covid_nonspike"];
-const MODELS: [&str; 5] = [
-    "full_hla",
-    "focal_hla",
-    "old_monoallelic",
-    "mono_q_full_pn",
-    "full_q_mono_pn",
-];
 const BRANCHES: [&str; 2] = ["pr", "roc"];
-const POLICIES: [&str; 2] = ["pdac_only", "all_contexts_equal_weight"];
 
 fn write(path: &Path, contents: &str) {
     if let Some(parent) = path.parent() {
@@ -126,9 +118,7 @@ struct Fixture {
     _temp: TempDir,
     pipeline_config: PathBuf,
     transfers: PathBuf,
-    fixed: PathBuf,
-    selection: PathBuf,
-    combined: PathBuf,
+    bundles: PathBuf,
 }
 
 fn fixture() -> Fixture {
@@ -136,15 +126,11 @@ fn fixture() -> Fixture {
     let root = temp.path().to_path_buf();
     let source = root.join("source");
     fs::create_dir(&source).unwrap();
-    let query = "peptide,HLA-RE,PatientID,TCGA_EXPR_TYPE,env_id,gene\n\
-        AAAAAAAAA,A0101,P1,TYPE,0,G1\n\
-        BBBBBBBBB,B0702,P2,TYPE,1,G2\n";
     let env = "env_id,allele_environment\n0,A0101\n1,B0702\n";
     let template =
         "hla_env_dict = \"old-env.csv\"\nquery_peptide_input_tuples_file = \"old-query.csv\"\n";
     let mut dataset_specs = Vec::new();
     for cohort in COHORTS {
-        write(&source.join(format!("{cohort}_query.csv")), query);
         write(&source.join(format!("{cohort}_env.csv")), env);
         write(&source.join(format!("{cohort}_template.toml")), template);
         let (mapping, response_column, response_kind, endpoint_fields, noise) = match cohort {
@@ -171,18 +157,39 @@ fn fixture() -> Fixture {
             ),
         };
         write(&source.join(format!("{cohort}_mapping.csv")), mapping);
+        if cohort == "pdac" {
+            write(&source.join("pdac_rojas_sethna_mapping.csv"), mapping);
+        }
+        let primary_view_id = if cohort == "pdac" {
+            "pdac_full"
+        } else {
+            cohort
+        };
         let mut spec = json!({
             "id": cohort.to_ascii_uppercase(),
             "prefix": cohort,
-            "query": format!("{cohort}_query.csv"),
+            "expression": "TYPE",
             "env_dict": format!("{cohort}_env.csv"),
-            "mapping": format!("{cohort}_mapping.csv"),
+            "primary_view_id": primary_view_id,
+            "primary_mapping": format!("{cohort}_mapping.csv"),
             "config_template": format!("{cohort}_template.toml"),
             "generated_mono_config": format!("{cohort}_mono.toml"),
+            "generated_full_deduplicated_config": format!("{cohort}_full.toml"),
             "response_column": response_column,
             "response_kind": response_kind,
-            "endpoint_fields": endpoint_fields
+            "endpoint_fields": endpoint_fields,
+            "views": []
         });
+        if cohort == "pdac" {
+            spec["views"] = json!([{
+                "id": "pdac_rojas_sethna",
+                "role": "secondary",
+                "mapping": "pdac_rojas_sethna_mapping.csv",
+                "require_subset_of": "pdac_full",
+                "selection_eligible": false,
+                "bundle_eligible": false
+            }]);
+        }
         if let Some(value) = noise {
             spec["noise_ceiling_threshold"] = json!(value);
         }
@@ -191,7 +198,7 @@ fn fixture() -> Fixture {
     let input_config = root.join("input_config.json");
     write_json(
         &input_config,
-        &json!({"schema_version": 1, "datasets": dataset_specs}),
+        &json!({"schema_version": 2, "datasets": dataset_specs}),
     );
     let input_bundle = root.join("input_bundle");
     build_input_bundle(&input_config, &source, &input_bundle).unwrap();
@@ -240,22 +247,28 @@ fn fixture() -> Fixture {
     });
     let cohorts = json!({
         "pdac": {
-            "dataset": "pdac", "input_prefix": "pdac", "tensors": cohort_tensor_contracts["pdac"],
+            "dataset": "pdac", "input_prefix": "pdac", "primary_view_id": "pdac_full", "tensors": cohort_tensor_contracts["pdac"],
             "endpoint_fields": ["patient_id", "long_peptide"], "response_field": null,
             "label_field": "long_peptide_label", "threshold": null, "comparison_operator": null,
-            "measurement_error_policy": "committed binary label"
+            "measurement_error_policy": "committed binary label",
+            "views": {
+                "pdac_rojas_sethna": {
+                    "input_view_id": "pdac_rojas_sethna", "role": "secondary",
+                    "selection_eligible": false, "bundle_eligible": false
+                }
+            }
         },
         "covid_spike": {
-            "dataset": "covid_spike", "input_prefix": "covid_spike", "tensors": cohort_tensor_contracts["covid_spike"],
+            "dataset": "covid_spike", "input_prefix": "covid_spike", "primary_view_id": "covid_spike", "tensors": cohort_tensor_contracts["covid_spike"],
             "endpoint_fields": ["patient_id", "mutation", "long_peptide"], "response_field": "cd8_IFNg_dmso_adj",
             "label_field": null, "threshold": 0.0, "comparison_operator": "greater_than",
-            "measurement_error_policy": "mutation-specific threshold-zero label"
+            "measurement_error_policy": "mutation-specific threshold-zero label", "views": {}
         },
         "covid_nonspike": {
-            "dataset": "covid_nonspike", "input_prefix": "covid_nonspike", "tensors": cohort_tensor_contracts["covid_nonspike"],
+            "dataset": "covid_nonspike", "input_prefix": "covid_nonspike", "primary_view_id": "covid_nonspike", "tensors": cohort_tensor_contracts["covid_nonspike"],
             "endpoint_fields": ["patient_id", "long_peptide"], "response_field": "cd8_TNFa_IFNg_dmso_adj",
             "label_field": null, "threshold": 0.0, "comparison_operator": "greater_than",
-            "measurement_error_policy": "threshold-zero label"
+            "measurement_error_policy": "threshold-zero label", "views": {}
         }
     });
     let fixed_l2 = json!([
@@ -271,7 +284,7 @@ fn fixture() -> Fixture {
     write_json(
         &pipeline_config,
         &json!({
-            "schema_version": 1,
+            "schema_version": 3,
             "provider_identity": "compact-rust-pipeline-test",
             "input_bundle": input_bundle,
             "input_manifest_sha256": sha256_file(&input_bundle.join("manifest.json")).unwrap(),
@@ -279,6 +292,17 @@ fn fixture() -> Fixture {
             "models": models,
             "cohorts": cohorts,
             "fixed_l2": fixed_l2,
+            "adaptive_l2": {
+                "method": "endpoint_local_epitope_second_hla_hybrid",
+                "epitope_gate_center": -2.2,
+                "epitope_gate_width": 0.13,
+                "second_hla_threshold": -6.45,
+                "second_hla_gate_width": 0.02,
+                "hla_bonus": 1.0,
+                "hla_weight": 0.12,
+                "solver_absolute_tolerance": 1e-10,
+                "solver_max_iterations": 64
+            },
             "tournament": {
                 "accepted_measurement_error": {},
                 "covid_spike_label_specification": {
@@ -307,193 +331,12 @@ fn fixture() -> Fixture {
         _temp: temp,
         pipeline_config,
         transfers: root.join("transfers"),
-        fixed: root.join("fixed"),
-        selection: root.join("selection"),
-        combined: root.join("combined"),
+        bundles: root.join("tournament_bundles"),
     }
-}
-
-fn read_csv(path: &Path) -> (csv::StringRecord, Vec<csv::StringRecord>) {
-    let mut reader = csv::Reader::from_path(path).unwrap();
-    let headers = reader.headers().unwrap().clone();
-    let rows = reader.records().map(|row| row.unwrap()).collect();
-    (headers, rows)
-}
-
-fn build_selection_fixture(fixture: &Fixture) {
-    fs::create_dir(&fixture.selection).unwrap();
-    let parameter_path = fixture.selection.join("selected_parameters.csv");
-    let mut parameters = csv::Writer::from_path(&parameter_path).unwrap();
-    parameters
-        .write_record([
-            "selection_policy",
-            "model",
-            "branch",
-            "selection_metric",
-            "q_id",
-            "q",
-            "c",
-            "kappa",
-            "c_at_boundary",
-            "kappa_at_boundary",
-            "reference_system_id",
-            "pdac_cnap_staged_supported",
-            "covid_spike_cnap_staged_supported",
-            "covid_nonspike_cnap_staged_supported",
-            "system_id",
-        ])
-        .unwrap();
-    for policy in POLICIES {
-        for branch in BRANCHES {
-            for model in MODELS {
-                let suffix = if policy == "pdac_only" {
-                    "self_gated_hillq_pdac_selected"
-                } else {
-                    "self_gated_hillq_all_contexts_selected"
-                };
-                let reference_system_id = if branch == "pr" {
-                    format!("{model}__max")
-                } else {
-                    String::new()
-                };
-                let system_id = format!("{model}__{suffix}");
-                parameters
-                    .write_record([
-                        policy,
-                        model,
-                        branch,
-                        if branch == "pr" {
-                            "paired_supported_cnap_vs_model_matched_max"
-                        } else {
-                            "auroc"
-                        },
-                        "q2",
-                        "2",
-                        "-1",
-                        "0.5",
-                        "False",
-                        "False",
-                        &reference_system_id,
-                        if branch == "pr" { "True" } else { "" },
-                        if branch == "pr" { "True" } else { "" },
-                        if branch == "pr" { "True" } else { "" },
-                        &system_id,
-                    ])
-                    .unwrap();
-            }
-        }
-    }
-    parameters.flush().unwrap();
-
-    let endpoint_score_path = fixture.selection.join("selected_endpoint_scores.csv");
-    let mut endpoint_scores = csv::Writer::from_path(&endpoint_score_path).unwrap();
-    endpoint_scores
-        .write_record([
-            "selection_policy",
-            "model",
-            "branch",
-            "cohort",
-            "endpoint_id",
-            "label",
-            "self_gated_hillq_score",
-        ])
-        .unwrap();
-    for branch in BRANCHES {
-        for cohort in COHORTS {
-            let evaluation = fixture.fixed.join(branch).join("evaluations").join(cohort);
-            let (_, endpoints) = read_csv(&evaluation.join("endpoints.csv"));
-            let (score_headers, score_rows) = read_csv(&evaluation.join("scores.csv"));
-            let endpoint_col = score_headers
-                .iter()
-                .position(|field| field == "endpoint_id")
-                .unwrap();
-            let score_by_endpoint: BTreeMap<_, _> = score_rows
-                .iter()
-                .map(|row| (row[endpoint_col].to_owned(), row.clone()))
-                .collect();
-            for policy in POLICIES {
-                for model in MODELS {
-                    let score_col = score_headers
-                        .iter()
-                        .position(|field| field == format!("score_{model}__max"))
-                        .unwrap();
-                    for endpoint in &endpoints {
-                        let row = &score_by_endpoint[&endpoint[0]];
-                        endpoint_scores
-                            .write_record([
-                                policy,
-                                model,
-                                branch,
-                                cohort,
-                                &endpoint[0],
-                                &endpoint[1],
-                                &row[score_col],
-                            ])
-                            .unwrap();
-                    }
-                }
-            }
-        }
-    }
-    endpoint_scores.flush().unwrap();
-
-    let transfer_manifest = fixture
-        .transfers
-        .join("manifest.json")
-        .canonicalize()
-        .unwrap();
-    let mut base_content = serde_json::Map::new();
-    let mut base_files = serde_json::Map::new();
-    for branch in BRANCHES {
-        let path = fixture
-            .fixed
-            .join(branch)
-            .join("bundle_manifest.json")
-            .canonicalize()
-            .unwrap();
-        let value: Value = serde_json::from_reader(File::open(&path).unwrap()).unwrap();
-        base_content.insert(branch.into(), value["bundle_content_hash"].clone());
-        base_files.insert(
-            path.display().to_string(),
-            json!(sha256_file(&path).unwrap()),
-        );
-    }
-    let generated = json!({
-        "selected_parameters.csv": sha256_file(&parameter_path).unwrap(),
-        "selected_endpoint_scores.csv": sha256_file(&endpoint_score_path).unwrap()
-    });
-    write_json(
-        &fixture.selection.join("selection_manifest.json"),
-        &json!({
-            "analysis":"component-metric-specific self-gated Hill-q L2 parameter selection",
-            "schema_version":4,
-            "status":"post_hoc_model_development",
-            "implementation":"rust_native",
-            "source_root": fixture.transfers.canonicalize().unwrap(),
-            "base_bundle_root": fixture.fixed.canonicalize().unwrap(),
-            "transfer_manifest_sha256": sha256_file(&transfer_manifest).unwrap(),
-            "base_bundle_content_hashes": base_content,
-            "formula": {
-                "score":"S solves S = m + C_q * sigmoid((c-S)/kappa)",
-                "floor_definition":"ln(1e-12)",
-                "empty_roster_score": (1e-12_f64).ln()
-            },
-            "selection":{
-                "pr_selection_computational_design": {
-                    "replications": 200,
-                    "computational_order": 2
-                }
-            }, "grid":{}, "label_contracts":{}, "selected_parameters":[],
-            "source_files": {transfer_manifest.display().to_string(): sha256_file(&transfer_manifest).unwrap()},
-            "software_versions":{}, "executable":{},
-            "base_bundle_files": base_files,
-            "generated_files": generated
-        }),
-    );
 }
 
 #[test]
-fn compact_rust_pipeline_reaches_seventy_system_bundles_and_plans_7245_matches() {
+fn compact_rust_pipeline_reaches_sixty_five_system_bundles_and_plans_6240_matches() {
     let fixture = fixture();
     let wrong_floor_config = fixture.pipeline_config.with_file_name("wrong_floor.json");
     let mut wrong_floor: Value =
@@ -506,6 +349,37 @@ fn compact_rust_pipeline_reaches_seventy_system_bundles_and_plans_7245_matches()
     assert!(!wrong_floor_output.exists());
 
     build_transfer_package(&fixture.pipeline_config, &fixture.transfers).unwrap();
+    let transfer_manifest: Value =
+        serde_json::from_reader(File::open(fixture.transfers.join("manifest.json")).unwrap())
+            .unwrap();
+    assert_eq!(transfer_manifest["jobs"].as_array().unwrap().len(), 40);
+    assert!(
+        fixture
+            .transfers
+            .join("secondary/pdac_rojas_sethna/full_hla/pr/summary.json")
+            .is_file()
+    );
+    assert!(
+        fixture
+            .transfers
+            .join("secondary/pdac_rojas_sethna/view_manifest.json")
+            .is_file()
+    );
+    assert!(
+        fixture
+            .transfers
+            .join("secondary/pdac_rojas_sethna/comparison_to_pdac_full.csv")
+            .is_file()
+    );
+    assert_eq!(
+        transfer_manifest["jobs"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|job| job["view_role"] == "secondary")
+            .count(),
+        10
+    );
     let pipeline: Value =
         serde_json::from_reader(File::open(&fixture.pipeline_config).unwrap()).unwrap();
     let input_bundle = PathBuf::from(pipeline["input_bundle"].as_str().unwrap());
@@ -526,57 +400,38 @@ fn compact_rust_pipeline_reaches_seventy_system_bundles_and_plans_7245_matches()
         serde_json::from_reader(File::open(&fixture.pipeline_config).unwrap()).unwrap();
     altered["provider_identity"] = json!("different-provider");
     write_json(&altered_config, &altered);
-    let mismatch = build_fixed_bundles(
+    let mismatch = build_tournament_bundles(
         &altered_config,
         &fixture.transfers,
-        &fixture.fixed.with_file_name("wrong_fixed"),
+        &fixture.bundles.with_file_name("wrong_bundles"),
     )
     .unwrap_err();
     assert!(mismatch.to_string().contains("configuration hash differs"));
 
-    build_fixed_bundles(&fixture.pipeline_config, &fixture.transfers, &fixture.fixed).unwrap();
-    for branch in BRANCHES {
-        assert_eq!(
-            load_bundle(&fixture.fixed.join(branch))
-                .unwrap()
-                .summary()
-                .system_count,
-            60
-        );
-    }
-    build_selection_fixture(&fixture);
-    let bad_selection = fixture.selection.with_file_name("bad_selection");
-    fs::create_dir(&bad_selection).unwrap();
-    for name in ["selected_parameters.csv", "selected_endpoint_scores.csv"] {
-        fs::copy(fixture.selection.join(name), bad_selection.join(name)).unwrap();
-    }
-    let mut bad_manifest: Value = serde_json::from_reader(
-        File::open(fixture.selection.join("selection_manifest.json")).unwrap(),
+    build_tournament_bundles(
+        &fixture.pipeline_config,
+        &fixture.transfers,
+        &fixture.bundles,
     )
     .unwrap();
-    bad_manifest["base_bundle_content_hashes"]["pr"] = json!("wrong-content-hash");
-    write_json(
-        &bad_selection.join("selection_manifest.json"),
-        &bad_manifest,
-    );
-    let bad_combined = fixture.combined.with_file_name("bad_combined");
-    let mismatch =
-        build_combined_bundles(&fixture.fixed, &bad_selection, &bad_combined).unwrap_err();
-    assert!(
-        mismatch
-            .to_string()
-            .contains("content hash does not resolve")
-    );
-    assert!(!bad_combined.exists());
-
-    build_combined_bundles(&fixture.fixed, &fixture.selection, &fixture.combined).unwrap();
     for branch in BRANCHES {
-        let bundle = load_bundle(&fixture.combined.join(branch)).unwrap();
+        let bundle = load_bundle(&fixture.bundles.join(branch)).unwrap();
         let summary = bundle.summary();
-        assert_eq!(summary.system_count, 70);
-        assert_eq!(summary.expected_match_count, 7_245);
+        assert_eq!(summary.system_count, 65);
+        assert_eq!(summary.expected_match_count, 6_240);
+        assert_eq!(
+            bundle
+                .registry
+                .systems
+                .iter()
+                .filter(|system| system
+                    .system_id
+                    .ends_with("__endpoint_local_epitope_second_hla_hybrid_v1"))
+                .count(),
+            5
+        );
         let plan = directed_round_robin_organizer::plan_with_shard_count(&bundle, 3).unwrap();
-        assert_eq!(plan.matches.len(), 7_245);
+        assert_eq!(plan.matches.len(), 6_240);
     }
 
     let pipeline: Value =

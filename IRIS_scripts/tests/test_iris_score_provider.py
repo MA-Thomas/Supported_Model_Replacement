@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 
-MODULE_PATH = Path(__file__).parents[1] / "iris_score_provider.py"
+MODULE_PATH = Path(__file__).parents[1] / "providers/iris_score_provider.py"
 SPEC = importlib.util.spec_from_file_location("iris_score_provider", MODULE_PATH)
 provider = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None

@@ -9,8 +9,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::io::{read_json, sha256_file};
 
-pub const CONFIG_SCHEMA_VERSION: u32 = 1;
-pub const TRANSFER_MANIFEST_SCHEMA_VERSION: u32 = 1;
+pub const CONFIG_SCHEMA_VERSION: u32 = 3;
+pub const TRANSFER_MANIFEST_SCHEMA_VERSION: u32 = 2;
 pub const LOCKED_LOG_EPSILON: f64 = 1e-12;
 pub const MODELS: [&str; 5] = [
     "full_hla",
@@ -33,6 +33,7 @@ pub struct PipelineConfig {
     pub models: BTreeMap<String, ModelConfig>,
     pub cohorts: BTreeMap<String, CohortConfig>,
     pub fixed_l2: Vec<L2Spec>,
+    pub adaptive_l2: AdaptiveL2Spec,
     pub tournament: TournamentConfig,
 }
 
@@ -52,6 +53,7 @@ pub struct ModelConfig {
 pub struct CohortConfig {
     pub dataset: Dataset,
     pub input_prefix: String,
+    pub primary_view_id: String,
     pub tensors: BTreeMap<Representation, TensorRun>,
     pub endpoint_fields: Vec<String>,
     #[serde(default)]
@@ -63,6 +65,23 @@ pub struct CohortConfig {
     #[serde(default)]
     pub comparison_operator: Option<ComparisonOperator>,
     pub measurement_error_policy: String,
+    #[serde(default)]
+    pub views: BTreeMap<String, CohortViewConfig>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct CohortViewConfig {
+    pub input_view_id: String,
+    pub role: CohortViewRole,
+    pub selection_eligible: bool,
+    pub bundle_eligible: bool,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "snake_case")]
+pub enum CohortViewRole {
+    Secondary,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -160,6 +179,60 @@ pub enum L2Method {
     TopKMean,
     TopFractionMean,
     TopKLogsumexp,
+}
+
+pub const FROZEN_ADAPTIVE_L2_ID: &str = "endpoint_local_epitope_second_hla_hybrid_v1";
+pub const FROZEN_ADAPTIVE_L2_FORMULA: &str = "m + (1-w)*(S_E-m) + w*B*sigmoid((M_(2)-t)/delta), where S_E solves S_E = m + C_E*sigmoid((c-S_E)/kappa)";
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct AdaptiveL2Spec {
+    pub method: AdaptiveL2Method,
+    pub epitope_gate_center: f64,
+    pub epitope_gate_width: f64,
+    pub second_hla_threshold: f64,
+    pub second_hla_gate_width: f64,
+    pub hla_bonus: f64,
+    pub hla_weight: f64,
+    pub solver_absolute_tolerance: f64,
+    pub solver_max_iterations: usize,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum AdaptiveL2Method {
+    EndpointLocalEpitopeSecondHlaHybrid,
+}
+
+impl AdaptiveL2Spec {
+    pub fn id(&self) -> &'static str {
+        FROZEN_ADAPTIVE_L2_ID
+    }
+
+    pub fn formula(&self) -> &'static str {
+        FROZEN_ADAPTIVE_L2_FORMULA
+    }
+
+    pub fn validate(&self) -> Result<()> {
+        let expected = Self {
+            method: AdaptiveL2Method::EndpointLocalEpitopeSecondHlaHybrid,
+            epitope_gate_center: -2.2,
+            epitope_gate_width: 0.13,
+            second_hla_threshold: -6.45,
+            second_hla_gate_width: 0.02,
+            hla_bonus: 1.0,
+            hla_weight: 0.12,
+            solver_absolute_tolerance: 1e-10,
+            solver_max_iterations: 64,
+        };
+        if self != &expected {
+            bail!(
+                "adaptive_l2 must exactly match the frozen {} contract",
+                FROZEN_ADAPTIVE_L2_ID
+            );
+        }
+        Ok(())
+    }
 }
 
 impl L2Spec {
@@ -295,6 +368,7 @@ impl PipelineConfig {
         }
         for (cohort_id, cohort) in &self.cohorts {
             if cohort.input_prefix.trim().is_empty()
+                || cohort.primary_view_id.trim().is_empty()
                 || cohort.endpoint_fields.is_empty()
                 || cohort.measurement_error_policy.trim().is_empty()
             {
@@ -340,6 +414,14 @@ impl PipelineConfig {
             {
                 bail!("cohort {cohort_id} has the wrong dataset or endpoint analysis unit");
             }
+            let expected_primary_view = if cohort_id == "pdac" {
+                "pdac_full"
+            } else {
+                cohort_id.as_str()
+            };
+            if cohort.primary_view_id != expected_primary_view {
+                bail!("cohort {cohort_id} must declare primary_view_id={expected_primary_view}");
+            }
             for representation in [
                 Representation::Full,
                 Representation::Focal,
@@ -348,6 +430,25 @@ impl PipelineConfig {
                 cohort.tensors.get(&representation).with_context(|| {
                     format!("cohort {cohort_id} lacks {representation:?} tensor run")
                 })?;
+            }
+            for (view_id, view) in &cohort.views {
+                if view_id.trim().is_empty() || view.input_view_id.trim().is_empty() {
+                    bail!("cohort {cohort_id} has a blank diagnostic-view identity");
+                }
+                if view_id != &view.input_view_id {
+                    bail!(
+                        "cohort {cohort_id} diagnostic-view key {view_id:?} must equal input_view_id {:?}",
+                        view.input_view_id
+                    );
+                }
+                if view.selection_eligible || view.bundle_eligible {
+                    bail!(
+                        "cohort {cohort_id} secondary view {view_id} cannot be selection- or bundle-eligible"
+                    );
+                }
+            }
+            if cohort_id != "pdac" && !cohort.views.is_empty() {
+                bail!("only PDAC may declare secondary endpoint views in schema v3");
             }
         }
         if self.fixed_l2.len() != 12 {
@@ -380,6 +481,7 @@ impl PipelineConfig {
         if ids != expected {
             bail!("fixed_l2 does not match the frozen twelve-operator roster");
         }
+        self.adaptive_l2.validate()?;
         let spike = &self.tournament.covid_spike_label_specification;
         let spike_cohort = &self.cohorts["covid_spike"];
         if spike["id"].as_str() != Some("threshold_zero")
@@ -494,12 +596,13 @@ mod tests {
     #[test]
     fn production_template_has_the_complete_typed_contract() {
         let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../../IRIS_scripts/iris_fullroster_pipeline.example.json");
+            .join("../../../IRIS_scripts/configs/pipeline/iris_fullroster_pipeline.example.json");
         let config: PipelineConfig = serde_json::from_reader(std::fs::File::open(path).unwrap())
             .expect("production template must deserialize through the Rust contract");
         assert_eq!(config.models.len(), 5);
         assert_eq!(config.cohorts.len(), 3);
         assert_eq!(config.fixed_l2.len(), 12);
+        assert_eq!(config.adaptive_l2.id(), FROZEN_ADAPTIVE_L2_ID);
         assert_eq!(config.log_epsilon.to_bits(), LOCKED_LOG_EPSILON.to_bits());
         let contracts = config.evaluation_label_contracts();
         assert_eq!(

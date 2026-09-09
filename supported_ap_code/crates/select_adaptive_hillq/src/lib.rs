@@ -1,6 +1,6 @@
-//! Authoritative self-gated adaptive Hill-q L2 aggregation and parameter
-//! selection. Complete joint-grid triples are selected separately for the
-//! PDAC-only and equal-weight all-context policies.
+//! Self-gated power-mean-anchor Hill-q L2 aggregation and complete-F parameter
+//! selection. Joint `(alpha, q, c, kappa)` tuples are selected separately for
+//! the PDAC-only and equal-weight all-context policies.
 
 pub mod cluster;
 pub mod cnap;

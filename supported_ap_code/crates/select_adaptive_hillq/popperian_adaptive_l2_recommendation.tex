@@ -1,0 +1,1279 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,array}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+
+\definecolor{irisblue}{HTML}{22577A}
+\definecolor{irisgray}{HTML}{4B5563}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=irisblue,
+  urlcolor=irisblue,
+  pdftitle={A Complete-F Self-Gated Power-Mean--Anchored Hill-q Rule},
+  pdfauthor={IRIS methodological development memo}
+}
+\titleformat{\section}{\Large\bfseries\color{irisblue}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\bfseries\color{irisgray}}{\thesubsection}{0.65em}{}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.65em}
+\setlist{itemsep=0.25em,topsep=0.35em}
+
+\newcommand{\sigmoid}{\operatorname{sigmoid}}
+\newcommand{\LSE}{\operatorname{LSE}}
+
+\title{\textbf{A Complete-$F$ Self-Gated Power-Mean--Anchored\\Hill-$q$ Rule for Long-Peptide Aggregation}}
+\author{IRIS methodological development memo}
+\date{August 24, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+IRIS assigns Level~1 scores to candidate minimal-epitope--HLA tuples, whereas
+the PDAC and SARS-CoV-2 assays label unresolved long peptides. The first
+self-gated Hill-$q$ proposal was anchored at the strongest candidate and could
+therefore express only scores between maximum and log-sum-exp. New full-roster
+tournament output suggested that COVID favors below-maximum averaging, but
+those outputs also exposed a more fundamental problem: candidates omitted from
+Level~1 computation had been represented by the numerical floor. The apparent
+preference therefore partly measures enumeration coverage rather than biology.
+This revision makes complete Level~1 tensors a prerequisite, replaces the
+maximum anchor by a generalized power-mean anchor, retains floor-aware Hill
+corroboration and the self-consistent gate, and makes worst-cohort rank the
+primary cross-context calibration objective. No production parameter grid is
+frozen here. The complete-$F$ rerun and clean-data diagnosis must occur first.
+\end{abstract}
+
+\section{Why Level~2 aggregation is needed}
+
+\subsection{The experimental unit is a long peptide}
+
+For a candidate minimal epitope $e_i$ and restricting HLA allele $h_i$, IRIS
+produces a nonnegative mechanistic score
+\begin{equation}
+F_i=F(e_i,h_i).
+\end{equation}
+The definition and calibration of $F$ belong to Level~1. The Level~2 problem
+arises because a measured long peptide $\ell$ generally contains a roster
+\begin{equation}
+\mathcal C_\ell=\{(e_i,h_i):i=1,\ldots,K_\ell\}
+\end{equation}
+of candidate minimal-epitope--HLA tuples, while the observed PDAC or COVID
+response label belongs to $\ell$. The experiment does not identify which
+member of $\mathcal C_\ell$, if any, caused the response. Level~2 must
+therefore map the complete candidate-score roster to one endpoint score:
+\begin{equation}
+S_\ell=S(F_1,\ldots,F_{K_\ell}).
+\end{equation}
+
+Because the Level~1 score is nonnegative and multiplicative, the computation
+uses the log scale
+\begin{equation}
+z_i=\log(F_i+\epsilon),\qquad \epsilon=10^{-12}.
+\end{equation}
+This transformation stabilizes products and makes score ratios additive.
+Neither $F_i$ nor $\sigmoid(z_i)$ is a response probability. The aggregate is
+a ranking score on the Level~1 scale, not a calibrated probability of
+immunogenicity.
+
+\subsection{Three aggregation questions}
+
+Three plausible biological configurations motivate the design.
+
+\textbf{One-candidate sufficiency.}
+One candidate may be strong enough to explain the long-peptide response. A
+rule should be able to protect such a leader from dilution by weak roster
+members.
+
+\textbf{Leader skepticism.}
+An isolated high score may be less persuasive when the rest of the roster is
+weak. A rule should also be able to average below the leader when the
+component/cohort geometry supports that behavior.
+
+\textbf{Multi-candidate corroboration.}
+Several consequential candidates may jointly provide persuasive evidence even
+when none is individually decisive. Their magnitudes should be allowed to
+accumulate, but not merely because more computational opportunities were
+enumerated.
+
+Three familiar fixed rules isolate these questions:
+\begin{align}
+S_{\max}(z)&=\max_i z_i,\\
+S_{\mathrm{mean}}(z)&=\frac{1}{K_\ell}\sum_i z_i,\\
+S_{\LSE}(z)&=\log\sum_i e^{z_i}.
+\end{align}
+Maximum protects a leader but discards all corroboration. Mean discounts an
+isolated leader but can be dominated by genuinely weak candidates.
+Log-sum-exp accumulates evidence but rises with candidate opportunity. The
+revised adaptive family first chooses an anchor on the mean-to-maximum axis,
+then offers corroboration toward a complete accumulation ceiling, and finally
+lets the developing aggregate gate that offer.
+
+\subsection{Roster geometry and why coverage matters}
+
+Candidate opportunity differs before any score is computed. A peptide of
+length $L\geq12$ contains
+\begin{equation}
+W(L)=\sum_{r=9}^{12}(L-r+1)=4L-38
+\end{equation}
+sequence windows of lengths 9--12 before HLA expansion. Thus a 15-mer offers
+22 sequence windows while a 27-mer offers 70. Pairing those windows with a
+patient's distinct HLA alleles expands the tuple roster further. Peptide
+length, HLA coverage, homozygosity, overlapping frames, and preprocessing
+decisions can therefore change the opportunity set seen by Level~2.
+
+This does not mean that roster size should automatically increase or decrease
+the score. It means that the roster convention must be explicit and that
+every declared tuple must be treated consistently. Exact duplicate biological
+tuples are removed; distinct minimal epitopes or distinct HLA restrictions
+remain distinct. The formula does not claim that the remaining contributions
+are statistically independent.
+
+\subsection{What the recent outputs do and do not establish}
+
+The newer full-roster tournament produced two useful warnings. First, under
+the candidate-conservative view, the max-anchored adaptive systems had no
+survivors, and COVID appeared to favor below-maximum averaging. Second, a
+large share of the purported full roster had never received a Level~1 tensor
+calculation and was assigned $\log\epsilon$ by omission.
+
+The second fact prevents the first observation from being interpreted
+directly. Mean and related operators were partly measuring how many windows
+the pipeline skipped. The apparent COVID preference, the zero-survivor result,
+and any component-specific magnitudes from that run are therefore provisional.
+They motivate a complete-$F$ rerun, not a production alpha grid.
+
+One structural conclusion survives this contamination: a family constrained
+to $[\max,\LSE]$ cannot express below-maximum behavior on \emph{any} dataset.
+Adding a power-mean anchor repairs that expressive limitation without fitting
+its parameter values to the contaminated outputs. Whether complete-$F$ COVID
+still prefers a low alpha is an empirical question deliberately left open.
+
+\section{Decision and sequencing}
+
+The current omission-floor full-roster results are not valid calibration data
+for a new Level~2 rule. A floor can be interpreted biologically only when the
+corresponding Level~1 calculation was actually performed. It cannot stand for
+an uncomputed value. Work therefore proceeds in this order:
+
+\begin{enumerate}
+  \item Freeze the existing Level~1 geometry, decision regime, exposure grid,
+  and NCI-selected settings. Do not reselect Level~1.
+  \item Compute the Level~1 $F$ tensor for every declared COVID and PDAC
+  9--12-mer--HLA tuple.
+  \item Deduplicate the roster as a set of
+  (endpoint, minimal epitope, normalized HLA) tuples.
+  \item Rebuild and audit the transfer package. Every retained mapping row must
+  resolve to one computed tensor score.
+  \item Re-diagnose component and Level~2 preferences on complete-$F$ data.
+  \item Only then freeze the $\alpha$ grid and jointly select
+  $(\alpha,q,c,\kappa)$.
+  \item Enter the frozen selected systems into the later
+  candidate-conservative tournament.
+\end{enumerate}
+
+The omission-floor run may be retained as a sensitivity analysis documenting
+coverage-by-omission. It must not supply production parameter choices or be
+described as if its inputs were complete.
+
+\section{What changed in the model}
+
+\subsection{Why the maximum anchor was insufficient}
+
+Let $z_i$ be the log-scale Level~1 score for candidate $i$. The former rule
+started at $m=\max_i z_i$ and admitted a nonnegative corroboration bonus. It
+was therefore bounded by
+\[
+m\leq S\leq \LSE(z).
+\]
+No choice of Hill order or gate parameters could reproduce mean behavior below
+$m$. That was a structural limitation independent of the data-contamination
+problem.
+
+The power-mean anchor introduces the missing downward degree of freedom while
+retaining the self-gated corroboration mechanism. On the log-score scale,
+$\alpha=0$, $\alpha=1$, and $\alpha=\infty$ recover the arithmetic mean,
+log-mean-exp, and maximum, respectively.
+
+\subsection{Complete-$F$ input contract}
+
+For a long peptide $\ell$, let
+\[
+\mathcal C_\ell=\{(e_i,h_i):i=1,\ldots,K_\ell\}
+\]
+be the set of unique minimal-epitope--HLA tuples after the 9--12-mer length
+restriction. Overlapping frames and different HLA restrictions remain distinct
+tuples; duplicate observations of the same tuple enter once.
+
+Let $F_i\geq0$ be the computed Level~1 signal and fix
+\[
+\epsilon=10^{-12}, \qquad z_i=\log(F_i+\epsilon).
+\]
+A value $z_i=\log\epsilon$ means that a completed Level~1 calculation produced
+zero signal. A missing calculation has no $z_i$ and makes the input package
+invalid. This distinction is enforced by the implementation.
+
+\section{Power-mean anchor}
+
+The anchor answers the first Level~2 question: how much should the strongest
+candidate dominate before corroboration is considered? It is defined on the
+positive scale and then reported on the log scale. For $\alpha>0$,
+\[
+e^{A_\alpha}
+=
+\left(\frac{1}{K_\ell}\sum_i(e^{z_i})^\alpha\right)^{1/\alpha}.
+\]
+Taking the logarithm gives the numerically convenient form below.
+
+For finite $\alpha>0$, define
+\begin{equation}
+A_\alpha(z)
+=
+\frac{1}{\alpha}
+\log\left(\frac{1}{K_\ell}\sum_{i=1}^{K_\ell}e^{\alpha z_i}\right).
+\label{eq:power-anchor}
+\end{equation}
+The continuous endpoint and maximum limit are
+\begin{align}
+A_0(z)&=\frac{1}{K_\ell}\sum_i z_i,\\
+A_\infty(z)&=\max_i z_i.
+\end{align}
+The family therefore includes
+\begin{align}
+A_0&=\operatorname{mean}(z),\\
+A_1&=\log\left(\frac{1}{K_\ell}\sum_i e^{z_i}\right)
+     =\operatorname{logmeanexp}(z),\\
+A_\infty&=\max(z).
+\end{align}
+
+The order is monotone:
+\[
+A_0\leq A_\alpha\leq A_\beta\leq A_\infty
+\qquad\text{whenever}\qquad 0\leq\alpha\leq\beta.
+\]
+Increasing alpha therefore gives progressively more authority to the upper
+tail. It does not change the candidate roster and it does not inspect an
+endpoint label.
+
+\begin{center}
+\small
+\begin{tabularx}{0.92\textwidth}{@{}p{0.16\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Anchor order & Interpretation on the log-score roster \\
+\midrule
+$\alpha=0$ & Arithmetic mean of $z$; an isolated leader can be strongly
+discounted by the remaining roster. \\
+$0<\alpha<1$ & Smooth interpolation between mean and log-mean-exp. \\
+$\alpha=1$ & Log-mean-exp; positive-scale arithmetic mean of $e^z$. \\
+$1<\alpha<\infty$ & Increasingly upper-tail-sensitive soft maximum. \\
+$\alpha=\infty$ & Exact maximum; reproduces the former anchor. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+This anchor is not yet the final aggregate. A low alpha permits descent below
+the strongest candidate, while the corroboration stage can still move the
+score upward when several completed Level~1 signals support that move. The
+roles of alpha and $q$ are therefore different: alpha controls the baseline
+attitude toward the leader; $q$ controls how the distribution of positive
+signal counts as corroborative breadth.
+
+Only nonnegative $\alpha$ is proposed for the first complete-$F$ evaluation.
+Negative orders would give increasing leverage to near-zero candidates and
+should not enter without separate scientific justification. The production
+set of nonnegative orders is intentionally not specified here.
+
+\section{Floor-aware Hill corroboration}
+
+\subsection{Signal weights}
+
+Recover the floor-free Level~1 signal by
+\begin{equation}
+x_i=\max(e^{z_i}-\epsilon,0).
+\end{equation}
+When $X=\sum_i x_i>0$, set $p_i=x_i/X$. Candidates whose completed Level~1
+signal is exactly zero carry no Hill mass. This prevents a collection of true
+numerical floors from manufacturing breadth.
+
+The $p_i$ sum to one and describe how the completed Level~1 signal is
+distributed across candidates. They are compositional weights, not response
+probabilities and not probabilities that a particular epitope is causal.
+
+\subsection{Hill effective number}
+
+For order $q\geq0$,
+\begin{equation}
+N_q(p)=
+\begin{cases}
+\left(\sum_{i:p_i>0}p_i^q\right)^{1/(1-q)}, & q\neq1,\\[3pt]
+\exp\left(-\sum_{i:p_i>0}p_i\log p_i\right), & q=1,
+\end{cases}
+\end{equation}
+with
+\[
+N_0=\#\{i:x_i>0\},\qquad
+N_\infty=\frac{1}{\max_i p_i}.
+\]
+Define
+\begin{equation}
+D_q=1-\frac{1}{N_q}.
+\label{eq:breadth}
+\end{equation}
+This breadth fraction is zero for a single positive-signal candidate.
+For $K_+$ equal positive signals it is $1-1/K_+$ at every order. The orders
+differ only when the roster is uneven. Hill numbers are nonincreasing in $q$:
+low orders recognize more of the positive roster as breadth, while high
+orders require mass to remain close to the leader.
+
+\begin{center}
+\small
+\begin{tabularx}{0.92\textwidth}{@{}p{0.16\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Hill order & Breadth interpretation \\
+\midrule
+$q=0$ & Richness-sensitive: every strictly positive completed signal counts,
+regardless of its magnitude. \\
+$q=1$ & Entropy-weighted: candidates contribute according to information
+mass. \\
+$q=2$ & Concentration-sensitive:
+$D_2=1-\sum_i p_i^2$. \\
+$q=\infty$ & Leader-share-sensitive:
+$D_\infty=1-\max_i p_i$. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+At $q=0$, adding a tiny but positive signal changes richness. That is an
+explicit modeling choice, not an invariance claim. Higher orders reduce this
+sensitivity, while exact zeros contribute at no order.
+
+\subsection{Available accumulation}
+
+The complete accumulated ceiling is
+\begin{equation}
+U=\log\left(\epsilon+\sum_i x_i\right).
+\label{eq:ceiling}
+\end{equation}
+For every nonempty roster and $\alpha\geq0$,
+\[
+A_\alpha\leq \max_i z_i\leq U.
+\]
+The offer available above the chosen anchor is
+\begin{equation}
+C_{\alpha,q}
+=D_q\,\max(U-A_\alpha,0).
+\label{eq:offer}
+\end{equation}
+Thus $\alpha$ chooses how skeptical the baseline is about an isolated leader,
+while $q$ chooses how concentrated the corroborating signal may be.
+
+The construction can be read in three stages:
+\begin{enumerate}
+  \item $U-A_\alpha$ asks how much complete accumulation is available above
+  the chosen anchor.
+  \item $D_q$ asks what fraction of that availability is justified by the
+  distribution of positive signal.
+  \item $C_{\alpha,q}$ is only an \emph{offer}; the gate below decides how
+  much enters the final score.
+\end{enumerate}
+
+For a singleton positive-signal roster, $N_q=1$, $D_q=0$, and the offer is
+zero. For an all-zero completed roster, the computation exits before
+normalization and returns the declared floor. These are different cases:
+the first has one informative candidate, while the second has a completed
+calculation but no positive Level~1 signal.
+
+\section{Self-consistent gate}
+
+For center $c\in\mathbb R$ and scale $\kappa>0$, define the aggregate as the
+solution of
+\begin{equation}
+\boxed{
+S
+=
+\underbrace{A_\alpha}_{\text{power-mean anchor}}
++
+\underbrace{C_{\alpha,q}}_{\text{corroboration offer}}\times
+\underbrace{\sigmoid\left(\frac{c-S}{\kappa}\right)}_
+{\text{fraction admitted}}
+}.
+\label{eq:self-gate}
+\end{equation}
+The gate admits more of the offer when the resulting score remains below the
+center and less when the result is already strong.
+
+For a provisional aggregate $a$, write
+\begin{equation}
+g_{c,\kappa}(a)
+=
+\sigmoid\left(\frac{c-a}{\kappa}\right)
+=
+\frac{1}{1+\exp[(a-c)/\kappa]}.
+\end{equation}
+The center $c$ is the aggregate score at which one-half of the offer is
+admitted. The positive width $\kappa$ controls how gradual the transition is:
+the gate falls from $0.9$ to $0.1$ over
+$2\log(9)\kappa\approx4.39\kappa$ score units.
+
+The definition is implicit by design. Evaluating the gate only at the anchor
+would ignore the score increase caused by admitted corroboration. Here a large
+offer raises $S$, and the increase in $S$ closes the same gate through which
+the offer enters. This negative feedback is the self-gating mechanism.
+
+\begin{center}
+\small
+\begin{tabularx}{0.94\textwidth}{@{}p{0.22\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Quantity & Question answered \\
+\midrule
+$A_\alpha$ & How much authority should the roster give its strongest
+candidate before corroboration? \\
+$U-A_\alpha$ & How much complete positive-scale accumulation is available
+above that anchor? \\
+$D_q$ & How should the concentration of positive signal count as effective
+breadth? \\
+$C_{\alpha,q}$ & How much corroboration is offered before sufficiency gating? \\
+$g_{c,\kappa}(S)$ & What fraction of the offer does the resulting aggregate
+still need? \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Let
+\[
+f(S)=S-A_\alpha-C_{\alpha,q}
+\sigmoid\left(\frac{c-S}{\kappa}\right).
+\]
+At the interval endpoints,
+\[
+f(A_\alpha)\leq0,\qquad
+f(A_\alpha+C_{\alpha,q})\geq0.
+\]
+Moreover,
+\[
+f'(S)
+=1+\frac{C_{\alpha,q}}{\kappa}
+\sigmoid\left(\frac{c-S}{\kappa}\right)
+\left[1-\sigmoid\left(\frac{c-S}{\kappa}\right)\right]
+>0.
+\]
+Therefore Equation~\eqref{eq:self-gate} has exactly one solution and certified
+bisection may be used on
+\begin{equation}
+A_\alpha\leq S\leq A_\alpha+C_{\alpha,q}\leq U.
+\label{eq:bounds}
+\end{equation}
+
+If $K_\ell=0$, or if every completed signal is zero, define
+\[
+S=\log\epsilon,\qquad C_{\alpha,q}=0.
+\]
+An empty biological roster is allowed; an incomplete tensor roster is not.
+
+\section{How the rule behaves}
+
+\subsection{Certified bounds and monotonicity}
+
+Equation~\eqref{eq:bounds} says more than that the solver is numerically safe.
+It locates the scientific behavior of the score:
+\[
+A_\alpha
+\leq S
+\leq A_\alpha+C_{\alpha,q}
+\leq U.
+\]
+The aggregate never falls below its declared power-mean anchor and never
+exceeds complete positive-scale accumulation. At $\alpha=\infty$, this becomes
+the former max-to-accumulation interval. At $\alpha=0$, the interval begins at
+the arithmetic mean of the log scores and therefore includes the missing
+below-maximum regime.
+
+For fixed anchor and gate parameters, increasing the offer cannot lower the
+solution. Implicit differentiation gives
+\begin{equation}
+\frac{\partial S}{\partial C}
+=
+\frac{g_{c,\kappa}(S)}
+{1-Cg'_{c,\kappa}(S)}
+>0.
+\end{equation}
+This property is one reason to gate at the solved score rather than evaluate
+an explicit shortcut at the fully accumulated endpoint. Alpha changes both
+the anchor and the available offer, however, so the final score need not be
+monotone in alpha for every roster and gate setting.
+
+\subsection{Limiting cases}
+
+\begin{center}
+\small
+\begin{tabularx}{0.96\textwidth}{@{}p{0.25\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Limit or roster & Consequence \\
+\midrule
+One positive candidate & $D_q=0$, so $S=A_\alpha=z_1$ for every alpha,
+$q$, $c$, and $\kappa$. \\
+All completed signals zero & $S=\log\epsilon$ and no Hill distribution is
+formed. \\
+$\alpha=0$ & The anchor is $\operatorname{mean}(z)$; the family can discount
+an isolated leader. \\
+$\alpha=1$ & The anchor is $\operatorname{logmeanexp}(z)$. \\
+$\alpha=\infty$ & The anchor is maximum; this recovers the expressive range
+of the former proposal, with corrected floor semantics. \\
+$c\rightarrow-\infty$ & The gate closes and $S\rightarrow A_\alpha$. \\
+$c\rightarrow+\infty$ & The gate opens and
+$S\rightarrow A_\alpha+C_{\alpha,q}$. \\
+$\kappa\rightarrow\infty$ & The gate tends to one-half and
+$S\rightarrow A_\alpha+C_{\alpha,q}/2$. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+As $\kappa$ approaches zero, the transition becomes nearly hard:
+\begin{equation}
+S
+\approx
+\begin{cases}
+A_\alpha, & A_\alpha\geq c,\\
+A_\alpha+C_{\alpha,q}, & A_\alpha+C_{\alpha,q}\leq c,\\
+c, & A_\alpha<c<A_\alpha+C_{\alpha,q}.
+\end{cases}
+\label{eq:hard-gate}
+\end{equation}
+A strong anchor therefore receives essentially no bonus; a weak roster whose
+full offer remains below $c$ can receive nearly all of it; and an offer that
+would cross $c$ is admitted only until the developing aggregate reaches the
+transition region. Finite $\kappa$ joins these cases smoothly.
+
+\subsection{Worked score geometries}
+
+The following examples use log scores far above the numerical floor so that
+$x_i\approx e^{z_i}$. They illustrate the decomposition before any production
+parameters are chosen.
+
+\begin{center}
+\small
+\begin{tabularx}{0.98\textwidth}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Roster & Key quantities & Interpretation \\
+\midrule
+Singleton $(-2)$
+& $A_\alpha=-2$; $D_q=0$
+& The score is exactly $-2$. A singleton is coherent under every setting. \\
+\addlinespace
+Three-way weak plateau $(-2,-2,-2)$
+& $A_\alpha=-2$; $U\approx-0.901$; $D_q=2/3$
+& Alpha and $q$ are irrelevant on an equal plateau. The offer is about
+$0.732$, so the gate selects a score in $[-2,-1.268]$. \\
+\addlinespace
+Isolated leader $(0,-5,-5)$
+& $A_0=-3.333$; $A_1\approx-1.085$; $A_\infty=0$;
+$U\approx0.013$
+& Alpha controls whether the leader is discounted. At $q=2$ the two weak
+signals provide little breadth; at $q=0$ their positive richness counts much
+more strongly. \\
+\addlinespace
+Three-way strong plateau $(0,0,0)$
+& $A_\alpha=0$; $U\approx1.099$; $D_q=2/3$
+& The offer is substantial, but a gate centered below zero can admit only a
+small fraction because the anchor is already strong. \\
+\addlinespace
+All-zero completed roster
+& $z_i=\log\epsilon$; $x_i=0$
+& The score remains exactly $\log\epsilon$. Repeated numerical floors cannot
+manufacture corroboration. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The isolated-leader example displays why both order parameters are needed.
+Alpha determines the starting point, while $q$ determines whether the weak
+positive tail constitutes breadth. Neither parameter alone spans both
+questions. The examples also show why complete-$F$ matters: replacing
+uncomputed entries by $\log\epsilon$ would change the low-alpha anchors and
+could turn a coverage pattern into an apparent biological geometry.
+
+\section{Calibration and evidence}
+
+\subsection{Joint parameter}
+
+The unit of calibration is the complete tuple
+\[
+(\alpha,q,c,\kappa).
+\]
+Parameters may be selected separately for each component model and metric
+branch, but each selected tuple is then fixed across every cohort in the
+policy. Component choice is not hidden inside the Level~2 fit.
+
+\subsection{Freeze one joint grid}
+
+Selection evaluates one declared Cartesian grid
+\begin{equation}
+\mathcal G
+=
+\mathcal A\times\mathcal Q\times\mathcal C\times\mathcal K
+\end{equation}
+for each component--metric group. Alpha is not screened in a preliminary
+stage and then held fixed while the remaining parameters are optimized; doing
+so would understate the selection search. Every tuple competes in the same
+cohort-specific ranking surface.
+
+The complete grid must be frozen before its empirical surfaces are examined.
+Adding intermediate alpha, $q$, $c$, or $\kappa$ values after viewing a
+rank-based objective changes that objective through grid density. The selector
+therefore has no default alpha list: a production invocation must name the
+preregistered values explicitly.
+
+Outputs should retain the complete surfaces, the selected tuple, the alpha
+and Hill orders represented among near-optimal tuples, and boundary flags for
+$c$ and $\kappa$. A selected endpoint order such as zero or infinity is a
+scientifically interpretable member of the frozen set, not an instruction to
+extend the grid after the fact.
+
+\subsection{Worst-cohort-first objective}
+
+For each cohort, rank every eligible tuple by the policy metric and convert to
+fractional rank. For the all-context policy, select by:
+
+\begin{enumerate}
+  \item minimum worst-cohort fractional rank;
+  \item minimum equal-cohort mean fractional rank;
+  \item minimum equal-cohort mean metric regret;
+  \item declared evidence and numerical tie-breaks.
+\end{enumerate}
+
+This maximin ordering matches the fact that the candidate-conservative
+criterion is defeated by a weak cohort, not rescued by an excellent average.
+For the PDAC-only policy the first two quantities reduce to PDAC rank; COVID
+remains a frozen transport assessment.
+
+For PR, a tuple remains eligible only when the staged paired-CNAP comparison
+supports it directionally over the same component model's fixed maximum in
+every policy cohort. ROC uses the same worst-cohort-first ordering on AUROC.
+These are parameter-selection rules, not a substitute for the later complete
+candidate-conservative tournament.
+
+\subsection{Transport gate}
+
+Leave-one-cohort-out results must be generated before production selection.
+The earlier memo treated them only descriptively. A quantitative transport
+failure threshold should be preregistered after the complete-$F$ diagnostic
+and before the production grid is evaluated. This memo does not invent that
+threshold from contaminated outputs.
+
+\subsection{Label blindness and evidential status}
+
+Once a tuple is selected, endpoint adaptation is label blind. The endpoint's
+candidate scores determine $A_\alpha$, $D_q$, $C_{\alpha,q}$, and the solved
+score. Neither the response label nor the cohort identity chooses a different
+alpha, Hill order, or gate for that endpoint.
+
+Labels do participate in model-development selection of
+$(\alpha,q,c,\kappa)$. If the same PDAC and COVID cohorts later supply the
+directed round robin, that tournament is conditional post-selection evidence,
+not independent external confirmation. The selection grid, complete surfaces,
+eligibility outcomes, solver contract, input checksums, and this evidential
+status belong in the manifest.
+
+\subsection{Component-level scope}
+
+Level~2 selection occurs within each component construction. It can change how
+that component's candidate scores are pooled, but it cannot transform a
+Full-HLA score geometry into a Mono-Q/full-PN geometry or vice versa. A
+component-level context reversal may therefore remain after the best Level~2
+rule is chosen. The production report should distinguish failure of the
+aggregator to transfer from failure of the underlying component family to
+transfer.
+
+\section{Design requirements}
+
+The equations are compact, but they answer only part of the design problem.
+The following requirements make the roster, numerical, and evidential
+assumptions explicit.
+
+\begin{description}[style=nextline,leftmargin=0pt]
+  \item[P1. Complete computation.]
+  Every declared roster tuple has a Level~1 tensor result. Missing values fail
+  closed.
+
+  \item[P2. Set semantics.]
+  The roster is a set of endpoint--minimal-epitope--HLA tuples. Exact
+  duplicates do not create breadth.
+
+  \item[P3. Downward and upward reach.]
+  The family contains mean, log-mean-exp, and maximum anchors and may admit
+  corroboration up to the complete accumulation ceiling.
+
+  \item[P4. One-candidate safety.]
+  A singleton positive-signal roster has $D_q=0$, so $S=A_\alpha=z_1$.
+
+  \item[P5. Zero-floor safety.]
+  Completed zero signals carry no Hill mass. An all-zero roster cannot
+  manufacture corroboration.
+
+  \item[P6. No implicit multiplicity claim.]
+  Distinct overlapping windows and HLA tuples may contribute, but the score
+  does not assert their biological independence.
+
+  \item[P7. Certified numerics.]
+  The unique root is solved only within Equation~\eqref{eq:bounds};
+  nonconvergence fails closed.
+
+  \item[P8. Robust calibration.]
+  Cross-context selection is worst-cohort-first, with the full tuple selected
+  jointly and fixed after selection.
+
+  \item[P9. Honest scope.]
+  Level~2 adaptivity cannot repair a component family that is structurally
+  wrong for a cohort. Component-level reversals are reported explicitly.
+\end{description}
+
+\subsection{Candidate-opportunity comparability}
+
+Roster richness is neither automatically supportive nor automatically
+suspect. It may arise from peptide length, HLA coverage, genuine biological
+breadth, or computational enumeration. The revised rule exposes rather than
+hides its sensitivity:
+
+\begin{itemize}
+  \item low alpha anchors respond to the complete roster, including weak
+  completed candidates;
+  \item $q=0$ treats every positive signal as richness;
+  \item higher $q$ values require more signal mass near the leader;
+  \item the accumulation gap and self-gate limit how far corroboration can
+  raise the anchor;
+  \item exact zero signals contribute no Hill mass.
+\end{itemize}
+
+Because the low-alpha anchor is intentionally roster-sensitive, complete
+enumeration is not merely a data-cleaning preference; it is an identification
+condition for the model. Two endpoints cannot be compared fairly if one
+received complete Level~1 calculations and the other had uncomputed candidates
+inserted at the floor.
+
+The rule does not add a separate penalty based only on $K_\ell$. Such a
+penalty would require a stochastic model specifying how extra candidate
+opportunities create spurious scores. Without that model it could erase
+genuine breadth. Instead, opportunity is handled through a complete declared
+roster, explicit alpha and $q$ choices, and sensitivity reporting.
+
+\subsection{Set rather than multiset}
+
+Exact duplicate control occurs before the score vector is formed. A repeated
+occurrence of the same endpoint--minimal-epitope--normalized-HLA tuple enters
+once, including recurrence caused by HLA homozygosity or duplicated source
+rows. The same minimal epitope paired with two distinct HLA alleles forms two
+tuples. Overlapping but nonidentical epitopes also remain distinct.
+
+This convention prevents literal duplication from manufacturing breadth. It
+does not assert independence among the distinct tuples. Correlated candidates
+can still move the aggregate together, and their biological dependence is an
+interpretive qualification rather than something the Hill number estimates.
+
+\section{Interpretive qualifications}
+
+\textbf{Anchor order.}
+Alpha controls the generalized power-mean baseline. It is not a posterior
+probability that the best candidate is causal. A component--metric-specific
+alpha remains fixed across policy cohorts after selection.
+
+\textbf{Hill order.}
+The order $q$ translates a normalized positive-signal distribution into
+effective breadth. It is not a probability of candidate independence and does
+not estimate the number of truly causal epitopes.
+
+\textbf{Gate parameters.}
+The center $c$ is the aggregate log-$F$ score at which the admitted fraction is
+one-half; it is not a response-probability threshold. Its meaning depends on
+the frozen definition of $F$, logarithmic transformation, and epsilon. The
+width $\kappa$ is a score-scale transition width, not a biological variance.
+
+\textbf{Numerical floor.}
+$\log(10^{-12})$ represents a completed Level~1 zero signal or the declared
+empty-roster output. It never represents an uncomputed observation in the
+replacement workflow.
+
+\textbf{Numerical solution.}
+Equation~\eqref{eq:self-gate} is solved as a scalar root on the certified
+interval in Equation~\eqref{eq:bounds}. Bisection tolerance, maximum
+iterations, and failure behavior are part of the scoring contract. Naive
+fixed-point iteration is not part of the definition.
+
+\textbf{Context and causation.}
+The aggregate does not use cohort identity or peptide length as inputs. That
+label blindness does not prove that its rankings are invariant to assay
+geometry, HLA distribution, disease context, or label construction. Transfer
+must be tested rather than inferred from the form of the equation.
+
+\textbf{Scope of adaptation.}
+The self-gate limits an offer according to the score it produces. It does not
+establish that the roster is biologically exhaustive, that distinct tuples are
+independent, or that a selected parameter tuple will transfer to an
+unrepresented context.
+
+\section{What is and is not frozen}
+
+This revision freezes:
+\begin{itemize}
+  \item complete-$F$ rather than omission-floor inputs;
+  \item exact tuple-set deduplication;
+  \item the power-mean anchor in Equation~\eqref{eq:power-anchor};
+  \item the floor-aware Hill offer in Equations~\eqref{eq:breadth}--\eqref{eq:offer};
+  \item the self-gated equation and certified solver;
+  \item joint $(\alpha,q,c,\kappa)$ evaluation;
+  \item worst-cohort-first cross-context selection.
+\end{itemize}
+
+It deliberately does not freeze:
+\begin{itemize}
+  \item the production $\alpha$ values;
+  \item any conclusion that COVID genuinely prefers mean after complete-$F$
+  rescoring;
+  \item the production transport-gate threshold;
+  \item a selected tuple for any component or metric;
+  \item the claim that Level~2 adaptation alone will produce a
+  candidate-conservative survivor.
+\end{itemize}
+
+\section{Implementation correspondence}
+
+The authoritative implementation is colocated with this memo in
+\path{supported_ap_code/crates/select_adaptive_hillq}. It has one
+complete-$F$ code path and no compatibility mode for the former max-anchored
+or omission-floor selector. Its manifests record the explicit alpha and Hill
+grids, the complete formula, the worst-cohort objective, input hashes, solver
+settings, and selected parameters.
+
+\section{Post-testing updates and extended formulation}
+\label{sec:post-testing-extension}
+
+\subsection{Status and purpose of this update}
+
+The preceding sections record the formulation proposed before complete-$F$
+testing. This section records the conclusions reached after that testing. It
+does not convert the resulting evidence into independent validation. Rather,
+it identifies which structural hypotheses survived, which failed, and how the
+retained self-gating mechanism was extended.
+
+The complete-$F$ results did not reject adaptive corroboration. They rejected
+the assumption that every short-peptide--HLA tuple should enter one
+undifferentiated breadth roster. The working extension retains the maximum as
+a sufficiency anchor, measures continuous breadth across distinct short
+peptides, and treats evidence through a second distinct HLA as a separate,
+bounded source of corroboration.
+
+\subsection{What complete-$F$ testing retained and rejected}
+
+The post-test findings can be summarized as follows:
+\begin{enumerate}
+  \item Complete Level~1 computation and floor-aware signal semantics remain
+  necessary. An uncomputed tensor entry may not be represented by the
+  numerical floor.
+  \item No common finite-$\alpha$ rule from the original family transported
+  across PDAC, SARS-CoV-2 SPIKE, and SARS-CoV-2 NONSPIKE. With the complete
+  roster, finite-$\alpha$ anchors were vulnerable to dilution.
+  \item Maximum remained a transportable sufficiency anchor. Useful
+  corroboration was present at $\alpha=\infty$, although the best absolute
+  gate center differed across the three datasets.
+  \item A cohort-relative gate was numerically successful but scientifically
+  inadmissible because changing the evaluation batch could change the score of
+  an endpoint already being scored.
+  \item Collapsing the roster to one maximum per distinct short-peptide
+  sequence nearly supplied a common rule. A small, separately represented cue
+  from the second-best distinct HLA supplied the remaining information.
+\end{enumerate}
+
+These findings narrow the three aggregation questions introduced earlier.
+One-candidate sufficiency survives through the maximum anchor. The proposed
+portable role for leader skepticism did not survive this complete-$F$ test,
+so the working rule fixes $\alpha=\infty$. Multi-candidate corroboration
+survives, but it must be decomposed into distinct-epitope breadth and
+distinct-HLA corroboration.
+
+\subsection{Two projections of the complete candidate roster}
+
+The complete tuple set remains the Level~1 input contract. For one long
+peptide, write its aligned scores as $z_{eh}$, where $e$ denotes a distinct
+short-peptide sequence and $h$ denotes a normalized HLA identity. Level~2
+constructs two endpoint-local projections of this same complete roster.
+
+The distinct-epitope projection is
+\begin{equation}
+u_e=\max_h z_{eh},
+\qquad
+\mathcal U=(u_e:e\in\mathcal E),
+\label{eq:posttest-epitope-projection}
+\end{equation}
+where $\mathcal E$ is the set of distinct short-peptide sequences. The
+distinct-HLA projection is
+\begin{equation}
+M_h=\max_e z_{eh},
+\qquad
+\mathcal M=(M_h:h\in\mathcal H),
+\label{eq:posttest-hla-projection}
+\end{equation}
+where $\mathcal H$ is the endpoint's set of distinct normalized HLAs. In both
+projections,
+\begin{equation}
+m=\max_e u_e=\max_h M_h=\max_{e,h}z_{eh}.
+\label{eq:posttest-common-anchor}
+\end{equation}
+
+This is projection-aware set semantics. The complete peptide--HLA tensor is
+still required, and exact duplicate biological tuples are still removed.
+The projections change only the units in which two different kinds of
+corroboration are measured. They do not assert statistical independence among
+peptides, among HLAs, or between the two projections.
+
+\subsection{Self-consistent distinct-epitope branch}
+
+Apply the floor-aware Hill construction to $\mathcal U$. Define
+\begin{align}
+x_e&=\max(e^{u_e}-\epsilon,0),
+&X_E&=\sum_e x_e,
+&p_e&=x_e/X_E,\\
+D_E&=1-\max_e p_e,
+&U_E&=\log(\epsilon+X_E),
+&C_E&=D_E\max(U_E-m,0).
+\end{align}
+As before, an all-zero roster exits before normalization. The working
+distinct-epitope branch score $S_E$ is the unique solution of
+\begin{equation}
+\boxed{
+S_E=m+C_E\sigmoid\left(\frac{c-S_E}{\kappa}\right),
+\qquad c=-2.2,\quad \kappa=0.13.
+}
+\label{eq:posttest-epitope-self-gate}
+\end{equation}
+
+This branch is an exact member of the original self-consistent family, with
+$\alpha=\infty$ and $q=\infty$, applied to the distinct-epitope projection.
+Its negative-feedback interpretation, uniqueness proof, certified bisection
+solution, and bounds are inherited unchanged:
+\begin{equation}
+m\leq S_E\leq m+C_E\leq U_E.
+\label{eq:posttest-epitope-bounds}
+\end{equation}
+
+\subsection{Second-HLA evidence-qualification branch}
+
+Let $m_2$ be the second-largest member of $\mathcal M$. Define
+\begin{equation}
+g_H(m_2)=\sigmoid\left(\frac{m_2-t}{\delta}\right),
+\qquad
+S_H=m+B g_H(m_2).
+\label{eq:posttest-hla-gate}
+\end{equation}
+For the representative working tuple,
+\begin{equation}
+t=-6.45,
+\qquad \delta=0.02,
+\qquad B=1.
+\end{equation}
+
+The two sigmoids answer different questions. The distinct-epitope branch
+controls a roster-dependent accumulation offer $C_E$. Because admitting that
+offer changes the score used to judge sufficiency, the gate is evaluated at
+the developing score $S_E$: as corroboration raises $S_E$, it closes the same
+gate through which it enters. The HLA branch instead asks whether the fixed
+evidence $m_2$ qualifies as a credible second presentation route. Adding its
+bounded bonus changes neither $m_2$ nor its credibility, so no
+self-consistency loop is needed. Making this gate depend on $S_H$ would ask
+whether the aggregate still needs HLA corroboration, rather than whether the
+second-HLA evidence is credible. Neither sigmoid is a response probability.
+
+\subsection{Extended common-anchor formulation}
+
+The final score is the convex combination
+\begin{equation}
+S_{\mathrm{hybrid}}=(1-w)S_E+wS_H,
+\qquad w=0.12.
+\label{eq:posttest-hybrid-convex}
+\end{equation}
+Using Equation~\eqref{eq:posttest-epitope-self-gate}, this can be written in
+anchor--offer--gate language as
+\begin{equation}
+\boxed{
+S_{\mathrm{hybrid}}
+=m
++(1-w)\underbrace{C_E
+  \sigmoid\left(\frac{c-S_E}{\kappa}\right)}_
+  {\text{admitted distinct-epitope corroboration}}
++w\underbrace{B
+  \sigmoid\left(\frac{m_2-t}{\delta}\right)}_
+  {\text{admitted second-HLA corroboration}}.
+}
+\label{eq:posttest-hybrid-expanded}
+\end{equation}
+
+The maximum $m$ is the common sufficiency anchor. The quantity $C_E$ is the
+distinct-epitope corroboration offer, and $B$ is the cap on the second-HLA
+offer. The two gates determine the fractions admitted for different reasons,
+while $w$ allocates authority between the two corroboration mechanisms. More
+precisely, the epitope-breadth uplift is attenuated by $1-w$, and the HLA
+mechanism can add at most $wB=0.12$ log-score units. This bound limits score
+movement; it does not guarantee that the HLA term cannot determine rankings
+among otherwise close endpoints.
+
+\subsection{A pedagogical interpretation and possible higher-HLA extension}
+
+Both branches begin with the strongest predicted short-peptide--HLA route
+$m$. They differ only in the biological direction from which they seek
+corroboration. In the simplest terms, they ask
+\begin{equation}
+\boxed{
+S_E:\quad \text{Are several distinct short peptides plausible?}
+}
+\end{equation}
+and
+\begin{equation}
+\boxed{
+S_H:\quad \text{Is there a second plausible HLA presentation route?}
+}
+\end{equation}
+The $S_E$ branch adds self-gated corroboration when Level~1 signal is
+distributed across multiple distinct short-peptide sequences. The $S_H$ branch
+adds bounded corroboration when a second distinct HLA has at least one
+sufficiently strong short-peptide candidate. Thus $S_E$ is the strongest route
+corroborated along the peptide axis, while $S_H$ is the same strongest route
+corroborated along the HLA axis.
+
+The two projections make this symmetry explicit:
+\begin{equation}
+u_e=\max_h z_{eh}
+\qquad\text{versus}\qquad
+M_h=\max_e z_{eh}.
+\end{equation}
+The peptide projection asks how broadly signal is distributed after each
+distinct peptide is represented by its strongest HLA. The HLA projection asks
+which distinct presentation routes remain credible after each HLA is
+represented by its strongest peptide. The second-HLA route may involve either
+the peptide attaining the overall maximum or a different peptide. It is not
+``the HLA after the one associated with $S_E$,'' because $S_E$ does not have one
+unique HLA identity.
+
+This also explains an asymmetry in the possible extensions. The $S_E$ branch
+already uses the entire distinct-peptide roster and therefore represents two,
+three, or many plausible peptides without separate second- or third-peptide
+branches. The present $S_H$ branch uses only the second-largest distinct-HLA
+maximum. Higher HLA order statistics therefore provide a natural conceptual
+extension. Write
+\begin{equation}
+M_{(1)}\geq M_{(2)}\geq\cdots\geq M_{(R)}
+\end{equation}
+for the ordered maxima from distinct normalized HLAs, and define, for
+$r\geq2$,
+\begin{equation}
+S_{H,r}
+=m+B_r\sigmoid\left(\frac{M_{(r)}-t_r}{\delta_r}\right).
+\label{eq:posttest-higher-hla-branch}
+\end{equation}
+Here $S_{H,2}$ asks whether a second HLA route is plausible, $S_{H,3}$ asks
+whether a third is plausible, and so on. A general multi-HLA extension could take the
+form
+\begin{equation}
+S_R=w_E S_E+\sum_{r=2}^{R}w_rS_{H,r},
+\qquad
+w_E+\sum_{r=2}^{R}w_r=1,
+\label{eq:posttest-multihla-convex}
+\end{equation}
+or, equivalently,
+\begin{equation}
+S_R
+=m+w_E(S_E-m)
++\sum_{r=2}^{R}w_rB_r
+\sigmoid\left(\frac{M_{(r)}-t_r}{\delta_r}\right).
+\label{eq:posttest-multihla-expanded}
+\end{equation}
+The present working rule is recovered with
+\begin{equation}
+R=2,
+\qquad w_E=0.88,
+\qquad w_2=0.12.
+\end{equation}
+
+This higher-HLA construction is a natural extension of the representation,
+not an empirical conclusion from the present tests. Evidence through a third
+HLA may be redundant with evidence through the second because HLA-specific
+predictions can be correlated. Any future extension should therefore be
+frozen before evaluation, define an unavailable higher-order HLA as zero
+incremental corroboration, and keep later contributions diminishing and the
+total HLA uplift bounded. Possible structural constraints are
+\begin{equation}
+w_{r+1}B_{r+1}\leq w_rB_r
+\end{equation}
+and
+\begin{equation}
+\sum_{r=2}^{R}w_rB_r\leq B_{\mathrm{HLA,max}}.
+\end{equation}
+These constraints express disciplined hypotheses, not parameter values
+supported by the current evidence. Peptide multiplicity is already summarized
+continuously by $S_E$; HLA multiplicity is currently truncated at the second
+route and therefore admits a natural, but as yet untested, higher-order
+extension.
+
+\subsection{Relation to the original self-consistent gate}
+
+The two-branch form is the preferred biological interpretation, but the final
+score also has an exact single-gate representation. Let
+\begin{equation}
+b=B g_H(m_2).
+\end{equation}
+Then Equation~\eqref{eq:posttest-hybrid-convex} is equivalent to
+\begin{equation}
+S_{\mathrm{hybrid}}
+=A_{\mathrm{eff}}
++C_{\mathrm{eff}}
+\sigmoid\left(
+  \frac{c_{\mathrm{eff}}-S_{\mathrm{hybrid}}}
+       {\kappa_{\mathrm{eff}}}
+\right),
+\label{eq:posttest-effective-self-gate}
+\end{equation}
+where
+\begin{align}
+A_{\mathrm{eff}}&=m+wb,\\
+C_{\mathrm{eff}}&=(1-w)C_E,\\
+c_{\mathrm{eff}}&=(1-w)c+w(m+b),\\
+\kappa_{\mathrm{eff}}&=(1-w)\kappa.
+\end{align}
+Because $0<w<1$ and $\kappa>0$, this transformed equation has the same
+strictly increasing residual and the same unique-root argument as the
+original self-consistent gate. The representation is useful for mathematical
+correspondence, but it is not preferred for interpretation: its effective
+center depends on the endpoint-local HLA evidence and hides the distinction
+between the two corroboration sources.
+
+\subsection{Inherited and revised guarantees}
+
+\begin{center}
+\small
+\begin{tabularx}{0.96\textwidth}{@{}p{0.31\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Property & Post-test status \\
+\midrule
+Complete-$F$ requirement
+& Retained. Every declared peptide--HLA tuple must have a completed Level~1
+calculation. \\
+Endpoint locality and label blindness
+& Retained. Both projections and both gates use only the endpoint's roster
+and globally frozen constants. \\
+Unique self-consistent solution
+& Retained for $S_E$ and inherited by the exact effective representation of the
+final score. \\
+Maximum lower bound
+& Retained: $S_{\mathrm{hybrid}}\geq m$. \\
+Complete-accumulation upper bound
+& Revised. The epitope branch is bounded by $U_E$, but the direct HLA bonus
+means the final hybrid need not be. \\
+One-candidate safety
+& Refined. One distinct peptide has no epitope-breadth offer, but it may
+receive a bounded bonus if it has credible support through a second distinct
+HLA. \\
+Set semantics
+& Refined into distinct-peptide and distinct-HLA projections of the complete
+tuple set. \\
+Joint frozen calibration
+& Expanded to include the projection rules and the HLA-branch parameters. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The direct certified bound for the final score is
+\begin{equation}
+m\leq S_{\mathrm{hybrid}}
+\leq m+(1-w)C_E+wB.
+\label{eq:posttest-hybrid-bounds}
+\end{equation}
+The upper bound is deliberately not identified with $U_E$. The bounded direct
+HLA offer was retained because a formulation restricted to the remaining
+distance below $U_E$ did not provide a common supported rule.
+
+The production contract must also define edge cases explicitly. An all-zero
+completed roster should short-circuit to $\log\epsilon$ before either gate is
+formed. If fewer than two distinct normalized HLAs are present, the HLA
+corroboration term should be defined by a frozen fallback rather than by an
+implicit implementation accident.
+
+\subsection{Post-selection evidence and the next frozen test}
+
+The representative working tuple is
+\begin{equation}
+(\alpha,q,c,\kappa,t,\delta,B,w)
+=(\infty,\infty,-2.2,0.13,-6.45,0.02,1,0.12),
+\label{eq:posttest-representative-tuple}
+\end{equation}
+with the projection rules in
+Equations~\eqref{eq:posttest-epitope-projection} and
+\eqref{eq:posttest-hla-projection} included as part of the model definition.
+Against the same Full-HLA fixed-maximum reference, the staged paired-CNAP
+assessment with 600 replications produced:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Dataset & Observed retained difference & Supported magnitude & Survival \\
+\midrule
+PDAC      & $+0.0003428$ & $+0.0001200$  & $0.9344$ \\
+SPIKE     & $+0.0000340$ & $+0.00000589$ & $0.9280$ \\
+NONSPIKE  & $+0.0007612$ & $+0.0001587$  & $0.9933$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A local $3^4$ neighborhood varied
+\begin{align*}
+t&\in\{-6.475,-6.45,-6.425\},
+&\delta&\in\{0.015,0.020,0.025\},\\
+w&\in\{0.08,0.10,0.12\},
+&B&\in\{0.50,0.75,1.00\}.
+\end{align*}
+Sixty-one of the 81 tuples passed in all three datasets, with passing tuples
+at every tested value of every parameter. This demonstrates local numerical
+robustness, not 61 independent confirmations. The functional form and its
+constants were developed after inspecting the complete-$F$ results, so these
+assessments remain post-selection evidence. The next scientific test should
+freeze Equation~\eqref{eq:posttest-representative-tuple} before evaluating it
+on genuinely held-out data or in any new tournament.
+
+The detailed development record, including unsuccessful endpoint-local forms,
+is given in
+\path{supported_ap_code/crates/select_adaptive_hillq/full_hla_endpoint_local_hybrid_memo.tex}.
+The representative and neighborhood outputs are stored in
+\path{artifacts/iris_fullroster_complete_f_20260904/adaptive_rule_exploration/}.
+
+\subsection{Updated implementation contract}
+
+The exploratory implementation is
+\path{supported_ap_code/crates/select_adaptive_hillq/src/bin/explore_full_hla_hybrid_breadth.rs}.
+It establishes correspondence with the post-test numerical results but has not
+replaced the production selector contract. Before the rule is admitted to a
+new evaluation, its production implementation should:
+\begin{enumerate}
+  \item expose a pure endpoint-scoring function with no cohort or batch input;
+  \item canonicalize short-peptide sequences and HLA identities before either
+  projection is constructed;
+  \item impose deterministic ordering before floating-point aggregation;
+  \item define empty, all-zero, and fewer-than-two-HLA behavior explicitly;
+  \item freeze the Level~1 score definition, logarithmic transformation,
+  numerical floor, gate constants, solver tolerance, and failure behavior;
+  \item include golden tests that connect the published equations to exact
+  implementation outputs; and
+  \item record source hashes, input hashes, constants, and model version in
+  the evaluation manifest.
+\end{enumerate}
+
+The extended rule should therefore be understood as a common-anchor,
+dual-corroboration aggregate: a self-consistent distinct-epitope breadth gate
+combined with a bounded second-HLA evidence-qualification gate. It preserves
+the anchor--offer--gate logic of the original proposal while assigning the two
+kinds of breadth to biologically legible units.
+
+\end{document}

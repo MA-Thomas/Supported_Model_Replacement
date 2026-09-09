@@ -1,0 +1,32 @@
+[package]
+name = "iris_nci_parameter_tournament"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "IRIS NCI parameter-roster construction and Version 2 operational reduction"
+license = "MIT"
+
+[dependencies]
+anyhow = "1"
+arrow = { version = "53", features = ["prettyprint"] }
+clap = { version = "4.5", features = ["derive"] }
+csv = "1.3"
+directed_round_robin_organizer = { path = "../directed_round_robin_organizer" }
+parquet = { version = "53", features = ["arrow"] }
+rayon = "1.11"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+supported-ap = { path = "../..", features = ["parallel"] }
+time = { version = "0.3", features = ["formatting"] }
+
+[dev-dependencies]
+tempfile = "3"
+
+[lib]
+name = "iris_nci_parameter_tournament"
+path = "src/lib.rs"
+
+[[bin]]
+name = "iris_nci_parameter_tournament"
+path = "src/main.rs"

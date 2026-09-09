@@ -1,185 +1,173 @@
-# IRIS tournament score provider
+# IRIS workflow entry points
 
-This directory contains the IRIS-side provider for
-`directed_round_robin_organizer`. The provider packages existing Rust transfer
-predictions into one portable, single-metric tournament bundle. It does not
-calculate AP, CNAP, AUROC, support, survival, or any verdict.
+This directory contains repository-side packaging, validation, selection, and
+cluster orchestration. Biological candidate enumeration is deliberately kept
+with the cohort source data under `/Users/thomm15/Work_Data`; this repository
+does not maintain a second copy of those generators.
 
-The provider validates four classes of inputs:
+## Directory map
 
-1. the `evaluation_COVID_SPIKE`, `evaluation_COVID_NONSPIKE`, and
-   `evaluation_PDAC` tensor/observation/metadata trees;
-2. mappings, crosswalks, manifests, and audits under
-   `Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer`;
-3. each model's metric-specific NCI summary; and
-4. existing Rust `long_peptide_predictions.csv` and `summary.json` transfer
-   artifacts for all five models, three evaluations, and the selected metric.
+| Directory | Responsibility |
+|---|---|
+| `configs/input_packaging/` | Inputs to `external_validation_inputs` |
+| `configs/pipeline/` | Complete-F downstream pipeline configuration |
+| `configs/tournament/` | Active provider and tournament examples |
+| `adaptive_selection/` | Adaptive L2 parameter-selection Slurm workflow |
+| `tournament/` | Generic directed round-robin Slurm workflow |
+| `providers/` | Generic IRIS tournament bundle provider |
+| `revisions/pdac/` | PDAC-only context revision |
+| `revisions/covid_spike/` | COVID-spike label revision |
+| `shared/` | Helpers shared by tournament and revision launchers |
+| `docs/` | Design and operating documentation |
+| `deprecated/` | Reproducibility-only assets excluded from new runs |
+| `tests/` | Repository-side unit tests |
 
-COVID SPIKE uses `(patient_id, mutation, long_peptide)` as its analysis-unit
-identity. Mutation-specific response disagreement is retained as accepted,
-irreducible measurement error. The provider neither collapses those records
-to `(patient_id, long_peptide)` nor chooses a replacement response. COVID
-NONSPIKE and PDAC use `(patient_id, long_peptide)`; PDAC has no mutation field
-in its scientific endpoint identity.
+Anything under `deprecated/`, and every file whose basename ends in
+`_deprecated`, is historical provenance. New commands and configurations must
+not depend on those paths.
 
-## Rust full-roster input builder
+## Repository versus Work_Data ownership
 
-Production mappings, mono inputs, crosswalks, generated TOMLs, audits, and the
-input manifest are built by the workspace crate `external_validation_inputs`.
-Its example configuration locks the authoritative source SHA-256 hashes and
-expected cohort counts:
+`/Users/thomm15/Work_Data/IRIS_scripts` owns the executable Stage-2 boundary:
 
 ```text
+submit_stage2_new.sh
+run_stage_2_new.sh
+stage2_run_contract.py
+validate_complete_f_stage2_inputs.py
+complete_f_stage2/
+```
+
+That code resolves cluster paths and consumes cohort-local data. The
+repository retains input-package construction, downstream transfer contracts,
+adaptive selection, tournament orchestration, providers, configs, tests, and
+scientific documentation. Duplicating those repository workflows under
+Work_Data would create two editable implementations and is intentionally
+avoided.
+
+## Cohort-native biological roster builders
+
+The active generators are:
+
+```text
+/Users/thomm15/Work_Data/Cansu_Covid_Nonspike/Marcus_preprocessing/
+  build_complete_f_candidate_table.py
+  build_complete_f_endpoint_mapping.py
+
+/Users/thomm15/Work_Data/Cansu_Covid_Spike/Marcus_preprocessing/
+  build_complete_f_candidate_table.py
+  build_complete_f_endpoint_mapping.py
+
+/Users/thomm15/Work_Data/Jayon/Marcus_pre_processing/
+  build_complete_f_endpoint_views.py
+```
+
+The COVID builders enumerate all eligible 9–12mer windows and attach measured
+endpoint responses. The PDAC builder emits both the primary `pdac_full` view
+and the nested `pdac_rojas_sethna` secondary view. None applies Kd,
+antigen-processing, or stability filtering.
+
+## Package and validate complete-F inputs
+
+From the repository root:
+
+```bash
 cargo run --release \
   --manifest-path supported_ap_code/Cargo.toml \
   --package external_validation_inputs -- \
   build \
-  --config IRIS_scripts/external_validation_inputs.example.json \
+  --config IRIS_scripts/configs/input_packaging/external_validation_inputs.example.json \
   --input-root /Users/thomm15/Work_Data \
-  --output /path/to/full_roster_inputs_v1
+  --output /Users/thomm15/Work_Data/IRIS_scripts/complete_f_input_package
+
+for DATASET in PDAC COVID_SPIKE COVID_NONSPIKE; do
+  python3 /Users/thomm15/Work_Data/IRIS_scripts/validate_complete_f_stage2_inputs.py \
+    validate \
+    --bundle /Users/thomm15/Work_Data/IRIS_scripts/complete_f_input_package \
+    --dataset "${DATASET}" \
+    --representation full
+  python3 /Users/thomm15/Work_Data/IRIS_scripts/validate_complete_f_stage2_inputs.py \
+    validate \
+    --bundle /Users/thomm15/Work_Data/IRIS_scripts/complete_f_input_package \
+    --dataset "${DATASET}" \
+    --representation mono
+done
 ```
 
-The output includes representation-neutral candidate rosters and separate
-full- and mono-environment mappings. The builder does not choose a numeric
-score for `floor` candidates; transfer scoring applies the frozen
-`log(1e-12)` policy.
+Then install each dataset's complete package directly into its established
+cohort root—without a run directory:
 
-## Provider commands
-
-Use `config.example.json` only when rebuilding bundles from upstream transfer
-outputs. All scientific choices, including the non-count aggregation menu and
-evidence policy, must be explicit. Aggregation families are not part of either
-the provider or organizer contract.
-
-The configuration also requires one named
-`covid_spike_label_specification`. The included example selects
-`cd8_IFNg_dmso_adj > 0`. To select the stored higher SPIKE definition, use an
-ID such as `higher_threshold_0p53`, set the SPIKE threshold to `0.53`, and keep
-the strict `>` operator. This choice affects SPIKE only. COVID NONSPIKE is
-fixed at `cd8_TNFa_IFNg_dmso_adj > 0`; the provider rejects a configuration
-that applies the SPIKE `0.53` threshold to NONSPIKE.
-
-Tournament labels are reconstructed from the configured authoritative mapping
-source. Labels embedded in older transfer prediction files are retained and
-audited as provenance but do not override the selected SPIKE definition. Score
-vectors remain the existing label-independent transfer scores.
-
-```text
-python3 iris_score_provider.py validate --config config.json --metric pr
-python3 iris_score_provider.py build --config config.json --metric pr --output /path/to/pr_bundle
-python3 iris_score_provider.py build --config config.json --metric roc --output /path/to/roc_bundle
+```bash
+for DATASET in PDAC COVID_SPIKE COVID_NONSPIKE; do
+  python3 /Users/thomm15/Work_Data/IRIS_scripts/validate_complete_f_stage2_inputs.py \
+    install \
+    --bundle /Users/thomm15/Work_Data/IRIS_scripts/complete_f_input_package \
+    --dataset "${DATASET}"
+done
 ```
 
-`build` creates a new directory and refuses to overwrite an existing path. It
-calls the configured organizer binary twice: first to compute the portable
-content hash, then to validate the finalized bundle. Absolute source paths are
-confined to `source_provenance.json`; every executable bundle path is relative.
+The validator binds each generated Stage-2 TOML and query to the package
+manifest. A declared-but-missing computation is an error; only a completed
+zero signal may become the numerical log floor.
 
-Run the provider tests with:
+## Downstream workflow
 
-```text
-python3 -m unittest discover -s tests -v
-```
+After complete tensors exist, start from
+`configs/pipeline/iris_fullroster_pipeline.example.json`. Adaptive selection is
+launched with:
 
-## Slurm pilot and full runs
-
-See `CLUSTER_RUNBOOK.md` for the complete cluster copy, configuration, build,
-pilot, full-run, monitoring, output-layout, and resumption instructions.
-
-For the current 70-system workload, use
-`config.cluster.full_roster_selfgated_dual_selection_v1.json`. It selects the
-immutable PR and ROC bundles under
-`../cluster_inputs/full_roster_selfgated_dual_selection_v1`; no configuration
-editing or upstream biological files are required on a compute node.
-
-`submit_directed_round_robin_slurm.sh` prepares immutable PR and ROC bundles,
-creates deterministic plans, and submits `run_directed_round_robin_array.slurm`.
-The required command-line label-set ID must match the configuration, preventing
-an accidental run with a different SPIKE definition.
-
-First build the organizer on the cluster:
-
-```text
-cargo build --release \
-  --manifest-path /path/to/Supported_Model_Replacement/supported_ap_code/Cargo.toml \
-  --package directed_round_robin_organizer \
-  --bin directed_round_robin_organizer
-```
-
-Run a timing pilot containing three PR matches and three ROC matches. With the
-organizer's evaluation-interleaved plan, each metric's pilot shard contains one
-SPIKE, one NONSPIKE, and one PDAC match:
-
-```text
-bash submit_directed_round_robin_slurm.sh \
+```bash
+bash IRIS_scripts/adaptive_selection/submit_adaptive_hillq_selection_slurm.sh \
   --mode pilot \
-  --config /path/to/config.json \
-  --run-root /data1/path/iris_round_robin \
+  --source-root /path/to/full_roster_transfers \
+  --bundle-root /path/to/fixed_l2_bundle \
+  --run-root /path/to/adaptive_selection_run \
+  --alpha-values "0.5 1 2 4 inf" \
+  --q-values "0.5 1 2 inf" \
+  --c-min -11.0 --c-max 3.2 --c-step 0.2 \
+  --kappa-min 0.02 --kappa-max 4.0 --kappa-points 6
+```
+
+These values are the current compact broad-budget recommendation from the
+complete-F label-blind diagnostics. Once chosen for a run, the launcher
+requires every grid axis explicitly and persists it in both the immutable
+planning and final-selection environments.
+
+The generic tournament launcher is:
+
+```bash
+bash IRIS_scripts/tournament/submit_directed_round_robin_slurm.sh \
+  --mode pilot \
+  --config /path/to/complete_f_tournament_config.json \
+  --run-root /path/to/tournament_run \
   --covid-spike-label-set threshold_zero
 ```
 
-This three-match default is the shortest evaluation-stratified timing check and
-uses the full production replications and optimization policy. Increase
-`--pilot-matches-per-shard` to `12` for four matches per evaluation and a more
-stable runtime sample. Reducing scientific replications would create a smoke
-test, not a valid estimate of production runtime, and is intentionally not
-done implicitly by the scheduler wrapper.
+The launchers resolve the repository root through Git, so moving them into
+subdirectories does not change binary paths. Worker/finalizer paths are
+resolved relative to their workflow directory; shared helpers are referenced
+explicitly through `../shared` or `../../shared`.
 
-Run the full bundle after using the pilot measurements to choose `--threads`,
-`--full-matches-per-shard`, memory, wall time, and array concurrency. The
-launcher derives the exact match count from the validated bundle; the current
-70-system bundle contains 7,245 matches per metric:
+## Detailed plans
 
-```text
-bash submit_directed_round_robin_slurm.sh \
-  --mode full \
-  --config /path/to/config.json \
-  --run-root /data1/path/iris_round_robin \
-  --covid-spike-label-set threshold_zero \
-  --threads 8 \
-  --full-matches-per-shard 50 \
-  --max-concurrent 16
+- [`../COMPLETE_F_FULL_ROSTER_REGENERATION_PLAN.md`](../COMPLETE_F_FULL_ROSTER_REGENERATION_PLAN.md)
+  is the production replacement runbook.
+- [`../COMPLETE_F_INPUT_ROSTERS_AND_PDAC_VIEWS_IMPLEMENTATION_PLAN.md`](../COMPLETE_F_INPUT_ROSTERS_AND_PDAC_VIEWS_IMPLEMENTATION_PLAN.md)
+  explains roster identity, deduplication, and PDAC view semantics.
+- [`docs/iris_fullroster_round_robin_plan.md`](docs/iris_fullroster_round_robin_plan.md)
+  documents the downstream model/tournament architecture.
+- [`docs/CLUSTER_RUNBOOK_deprecated.md`](docs/CLUSTER_RUNBOOK_deprecated.md)
+  preserves commands for the superseded filtered-roster tournament and must not
+  be used for complete-F regeneration.
+
+## Tests
+
+```bash
+python3 -m unittest discover -s IRIS_scripts/tests -p 'test_*.py' -v
+python3 -m unittest discover \
+  -s /Users/thomm15/Work_Data/IRIS_scripts/tests \
+  -p 'test_validate_complete_f_stage2_inputs.py' -v
+python3 -m unittest discover \
+  -s /Users/thomm15/Work_Data/Jayon/Marcus_pre_processing/tests \
+  -p 'test_build_complete_f_endpoint_views.py' -v
 ```
-
-`--threads` sets both Slurm `--cpus-per-task` and the size of the organizer's
-single shared Rayon pool. The pool schedules independent matches as well as
-parallel computational evaluations within a match. OpenMP, MKL, and OpenBLAS
-remain restricted to one thread.
-
-The pilot runs shard 0 for both metrics because their computational costs can
-differ. Each array task writes elapsed time, maximum resident memory, and exact
-match-artifact bytes under `<run-root>/<mode>/resource_usage/`. A dependent
-finalizer aggregates those records under `resource_report/`. In full mode it
-also uses the bounded Rayon pool to create or validate the PR and ROC
-reductions. Context-revision finalization composes from those compact audited
-reductions rather than reparsing the raw match reports.
-
-Two dedicated single-context workflows avoid rerunning unchanged comparisons:
-
-- `submit_pdac_revision_round_robin_slurm.sh` replaces only PDAC with
-  `pdac_no_splen_evac_grid4`.
-- `submit_covid_spike_revision_round_robin_slurm.sh` replaces only SPIKE with
-  the strict `cd8_IFNg_dmso_adj > 0.53` definition.
-
-The corresponding providers create one-evaluation bundles with 60 systems and
-1,770 matches per metric. Each finalizer composes its revised verdicts with the
-audited threshold-zero reductions. The SPIKE wrapper therefore retains the
-original PDAC context; it does not implicitly combine both revisions. See the
-cluster runbook for the exact contracts and commands.
-
-Use `--prepare-only` to build and validate the bundles and plans without
-submitting jobs, or `--dry-run` to print the array submission command. Slurm
-resources default to the `componc_cpu` partition and `lukszam` account seen in
-the existing IRIS scripts, but all relevant resource choices are command-line
-options. Neither wrapper writes to the configured source-data directories.
-
-## Historical selected adaptive Hill-2 tournament
-
-`adaptive_hill2_selected_parameters_v1.json` freezes one component-specific
-parameter pair for each model and metric branch. The packaged bundles under
-`prebuilt_bundles/adaptive_hill2_selected_v1/` preserve the original 60 systems
-and append five adaptive systems, giving 65 systems and 6,240 matches per
-metric across the original PDAC, threshold-zero SPIKE, and NONSPIKE contexts.
-
-This workflow is retained for provenance. Its historical prebuilt bundles are
-not required by the current 70-system tournament.

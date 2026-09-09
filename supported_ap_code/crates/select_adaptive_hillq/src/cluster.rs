@@ -18,15 +18,19 @@ use crate::data::{
     AuthEndpoint, Task, authoritative_endpoint_table, load_task, validate_task_labels,
 };
 use crate::error::{Result, SelectionError};
-use crate::grid::{BaseGrid, GridSpec, make_grid, parse_q_values};
+use crate::grid::{
+    AggregationOrder, BaseGrid, GridSpec, aggregation_orders, make_grid, parse_alpha_values,
+    parse_q_values,
+};
 use crate::manifest::sha256_file;
-use crate::numeric::{HillOrder, hill_components, self_gated_score};
+use crate::numeric::{HillOrder, PowerOrder, adaptive_components, self_gated_score};
 use crate::output::{fmt_f64, write_text};
 
-pub const CLUSTER_SCHEMA_VERSION: u32 = 1;
+pub const CLUSTER_SCHEMA_VERSION: u32 = 2;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct GridContract {
+    pub alpha_values: Vec<String>,
     pub q_values: Vec<String>,
     pub c_min: f64,
     pub c_max: f64,
@@ -40,13 +44,15 @@ pub struct GridContract {
 
 impl GridContract {
     pub fn new(
-        orders: &[HillOrder],
+        powers: &[PowerOrder],
+        hills: &[HillOrder],
         spec: &GridSpec,
         solver_absolute_tolerance: f64,
         solver_max_iterations: usize,
     ) -> Self {
         Self {
-            q_values: orders.iter().map(|order| fmt_f64(order.value())).collect(),
+            alpha_values: powers.iter().map(|order| fmt_f64(order.value())).collect(),
+            q_values: hills.iter().map(|order| fmt_f64(order.value())).collect(),
             c_min: spec.c_min,
             c_max: spec.c_max,
             c_step: spec.c_step,
@@ -58,8 +64,10 @@ impl GridContract {
         }
     }
 
-    pub fn orders(&self) -> Result<Vec<HillOrder>> {
-        parse_q_values(&self.q_values)
+    pub fn orders(&self) -> Result<Vec<AggregationOrder>> {
+        let powers = parse_alpha_values(&self.alpha_values)?;
+        let hills = parse_q_values(&self.q_values)?;
+        Ok(aggregation_orders(&powers, &hills))
     }
 
     pub fn grid_spec(&self) -> GridSpec {
@@ -133,6 +141,8 @@ pub struct PlannedMatch {
     pub global_index: usize,
     pub model: String,
     pub cohort: String,
+    pub aggregation_order: usize,
+    pub alpha_order: usize,
     pub q_order: usize,
     pub grid_index: usize,
     pub ranking_signature: String,
@@ -290,20 +300,20 @@ fn task_and_reference(
 }
 
 fn score_vector(
-    maxima: &[f64],
-    admitted_bonus: &[f64],
+    anchors: &[f64],
+    corroboration_offer: &[f64],
     base: &BaseGrid,
     grid_index: usize,
     tolerance: f64,
     iterations: usize,
 ) -> Result<Vec<f64>> {
-    maxima
+    anchors
         .iter()
-        .zip(admitted_bonus)
-        .map(|(&maximum, &bonus)| {
+        .zip(corroboration_offer)
+        .map(|(&anchor, &offer)| {
             self_gated_score(
-                maximum,
-                bonus,
+                anchor,
+                offer,
                 base.c[grid_index],
                 base.kappa[grid_index],
                 tolerance,
@@ -367,7 +377,7 @@ pub fn create_plan(options: &PlanOptions) -> Result<PlanManifest> {
     let executable_hash = current_executable_sha256()?;
     let identity = PlanIdentity {
         schema_version: CLUSTER_SCHEMA_VERSION,
-        analysis: "adaptive_hillq_paired_cnap_selection".to_string(),
+        analysis: "adaptive_power_hillq_complete_f_paired_cnap_selection".to_string(),
         source_manifest_sha256: source_hash.clone(),
         pr_bundle_manifest_sha256: bundle_hash.clone(),
         pr_tournament_spec_sha256: spec_hash.clone(),
@@ -419,14 +429,15 @@ pub fn create_plan(options: &PlanOptions) -> Result<PlanManifest> {
                     cohort,
                 )?;
                 let mut representatives: HashMap<[u8; 32], (usize, usize)> = HashMap::new();
-                for (q_order, order) in orders.iter().enumerate() {
-                    let (maxima, admitted_bonus) = hill_components(&task.raw_candidates, *order)?;
+                for (aggregation_order, order) in orders.iter().enumerate() {
+                    let (anchors, offers) =
+                        adaptive_components(&task.raw_candidates, order.power, order.hill)?;
                     let signatures: Result<Vec<[u8; 32]>> = (0..base.len())
                         .into_par_iter()
                         .map(|grid_index| {
                             let scores = score_vector(
-                                &maxima,
-                                &admitted_bonus,
+                                &anchors,
+                                &offers,
                                 &base,
                                 grid_index,
                                 options.grid.solver_absolute_tolerance,
@@ -438,7 +449,7 @@ pub fn create_plan(options: &PlanOptions) -> Result<PlanManifest> {
                     for (grid_index, signature) in signatures?.into_iter().enumerate() {
                         representatives
                             .entry(signature)
-                            .or_insert((q_order, grid_index));
+                            .or_insert((aggregation_order, grid_index));
                     }
                 }
                 let mut unique: Vec<([u8; 32], (usize, usize))> =
@@ -449,12 +460,15 @@ pub fn create_plan(options: &PlanOptions) -> Result<PlanManifest> {
                     "planned {model}/{cohort}: {} exact unique rankings",
                     unique.len()
                 );
-                for (signature, (q_order, grid_index)) in unique {
+                for (signature, (aggregation_order, grid_index)) in unique {
+                    let order = orders[aggregation_order];
                     pending.push(PlannedMatch {
                         global_index,
                         model: model.to_string(),
                         cohort: cohort.to_string(),
-                        q_order,
+                        aggregation_order,
+                        alpha_order: order.alpha_order,
+                        q_order: order.q_order,
                         grid_index,
                         ranking_signature: signature_hex(&signature),
                     });
@@ -684,8 +698,8 @@ fn validate_outcome(outcome: &CnapOutcome, path: &Path) -> Result<()> {
 }
 
 struct WorkerContext {
-    maxima: Vec<f64>,
-    admitted_bonus: Vec<f64>,
+    anchors: Vec<f64>,
+    corroboration_offer: Vec<f64>,
     labels: Vec<bool>,
     maximum_reference: Vec<f64>,
     selection_seed: u64,
@@ -735,14 +749,17 @@ pub fn run_shard(
         let key = (
             planned.model.clone(),
             planned.cohort.clone(),
-            planned.q_order,
+            planned.aggregation_order,
         );
         if contexts.contains_key(&key) {
             continue;
         }
-        let order = *orders
-            .get(planned.q_order)
-            .ok_or_else(|| SelectionError::msg(format!("invalid q order {}", planned.q_order)))?;
+        let order = *orders.get(planned.aggregation_order).ok_or_else(|| {
+            SelectionError::msg(format!(
+                "invalid aggregation order {}",
+                planned.aggregation_order
+            ))
+        })?;
         let (task, labels, maximum_reference) = task_and_reference(
             &source_root,
             &bundle_root,
@@ -751,12 +768,13 @@ pub fn run_shard(
             &planned.model,
             &planned.cohort,
         )?;
-        let (maxima, admitted_bonus) = hill_components(&task.raw_candidates, order)?;
+        let (anchors, corroboration_offer) =
+            adaptive_components(&task.raw_candidates, order.power, order.hill)?;
         contexts.insert(
             key,
             WorkerContext {
-                maxima,
-                admitted_bonus,
+                anchors,
+                corroboration_offer,
                 labels,
                 maximum_reference,
                 selection_seed: contract.selection_seed(&planned.cohort)?,
@@ -772,7 +790,7 @@ pub fn run_shard(
                 .get(&(
                     planned.model.clone(),
                     planned.cohort.clone(),
-                    planned.q_order,
+                    planned.aggregation_order,
                 ))
                 .ok_or_else(|| SelectionError::msg("missing worker context"))?;
             if planned.grid_index >= base.len() {
@@ -782,8 +800,8 @@ pub fn run_shard(
                 )));
             }
             let scores = score_vector(
-                &context.maxima,
-                &context.admitted_bonus,
+                &context.anchors,
+                &context.corroboration_offer,
                 &base,
                 planned.grid_index,
                 manifest.grid.solver_absolute_tolerance,
@@ -918,7 +936,8 @@ pub fn load_complete_cache(
     bundle_root: &Path,
     plan_root: &Path,
     results_root: &Path,
-    orders: &[HillOrder],
+    powers: &[PowerOrder],
+    hills: &[HillOrder],
     spec: &GridSpec,
     solver_absolute_tolerance: f64,
     solver_max_iterations: usize,
@@ -927,7 +946,8 @@ pub fn load_complete_cache(
     audit(source_root, bundle_root, plan_root, results_root)?;
     let plan = load_plan(plan_root)?;
     let expected_grid = GridContract::new(
-        orders,
+        powers,
+        hills,
         spec,
         solver_absolute_tolerance,
         solver_max_iterations,
@@ -972,7 +992,8 @@ mod tests {
 
     #[test]
     fn grid_contract_round_trips_infinity() {
-        let orders = parse_q_values(&["1".into(), "inf".into()]).unwrap();
+        let powers = parse_alpha_values(&["0".into(), "inf".into()]).unwrap();
+        let hills = parse_q_values(&["1".into(), "inf".into()]).unwrap();
         let spec = GridSpec {
             c_min: -1.0,
             c_max: 1.0,
@@ -981,8 +1002,11 @@ mod tests {
             kappa_max: 1.0,
             kappa_points: 2,
         };
-        let contract = GridContract::new(&orders, &spec, 1e-10, 64);
-        assert_eq!(contract.orders().unwrap(), orders);
+        let contract = GridContract::new(&powers, &hills, &spec, 1e-10, 64);
+        assert_eq!(
+            contract.orders().unwrap(),
+            aggregation_orders(&powers, &hills)
+        );
         assert_eq!(make_grid(&contract.grid_spec()).unwrap().len(), 6);
     }
 

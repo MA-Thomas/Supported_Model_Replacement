@@ -1,33 +1,56 @@
 # IRIS full-roster pipeline
 
-This crate owns the Rust-native production boundary from frozen Stage-2 tensors through the
-fixed and adaptive tournament input bundles. All commands fail if their output already exists
-and publish through an adjacent staging directory.
+This crate owns the Rust-native boundary from complete-F Level-1 tensors to
+the immutable directed-round-robin input bundles. It computes twelve fixed L2
+operators and one frozen adaptive L2 operator for each of five component
+models. All commands fail if their output already exists and publish through
+an adjacent staging directory.
 
 ```text
 iris_fullroster_pipeline validate-config --config CONFIG.json
 iris_fullroster_pipeline transfer-batch --config CONFIG.json --output TRANSFERS
 iris_fullroster_pipeline validate-transfers --package TRANSFERS
-iris_fullroster_pipeline build-fixed-bundles \
-  --config CONFIG.json --transfers TRANSFERS --output FIXED_BUNDLES
-select_adaptive_hillq \
-  --source-root TRANSFERS --bundle-root FIXED_BUNDLES --output SELECTION
-iris_fullroster_pipeline build-combined-bundles \
-  --base-bundles FIXED_BUNDLES --selection SELECTION --output COMBINED_BUNDLES
+iris_fullroster_pipeline build-tournament-bundles \
+  --config CONFIG.json --transfers TRANSFERS --output BUNDLES
 ```
 
-Start from `IRIS_scripts/iris_fullroster_pipeline.example.json`. Replace every
-path and SHA-256 placeholder before validation. The same immutable configuration
-must be supplied to `transfer-batch` and `build-fixed-bundles`; the latter
-rejects a transfer package produced by any other configuration.
+Start from
+`IRIS_scripts/configs/pipeline/iris_fullroster_pipeline.example.json` and
+replace every path and SHA-256 placeholder. The same immutable configuration
+must be supplied to both scoring commands; bundle construction rejects a
+transfer package produced by any other configuration.
 
-The configuration freezes the full, focal, and mono tensor files for every cohort, all five NCI
-summary files, the Rust full-roster input-package manifest, the exact twelve fixed L2 operators,
-and the tournament policy. The transfer package contains exactly 30 jobs (`3 x 5 x 2`) and is
-the direct input to `select_adaptive_hillq`; no legacy `transfers/` wrapper is required.
+## Frozen scientific contract
 
-Production artifacts use `l2_variant` and `l2_aggregation_*` terminology. The fixed bundles have
-60 systems and the combined bundles have 70 systems / 7,245 directed-round-robin matches across
-the three evaluations. Adaptive selection is accepted only when its recorded
-transfer-manifest and PR/ROC base-bundle content hashes match the supplied fixed
-bundles.
+The configuration schema is version 3. It freezes complete full, focal, and
+mono tensor files for every cohort, all five NCI summary files, the input
+package manifest, the twelve fixed operators, and this one adaptive operator:
+
+```text
+endpoint_local_epitope_second_hla_hybrid_v1
+```
+
+Its parameters are part of the validated schema: `c=-2.2`, `kappa=0.13`,
+`t=-6.45`, `delta=0.02`, `B=1`, and `w=0.12`. They were developed using the
+Full-HLA component model and are transported unchanged to all five component
+models. There is no tournament-time adaptive selection step.
+
+Each PR and ROC bundle therefore contains exactly 65 systems:
+
+```text
+5 component models x (12 fixed L2 operators + 1 frozen adaptive L2 operator)
+```
+
+Across the three primary evaluations this produces exactly
+`C(65,2) x 3 = 6,240` directed pair-evaluation matches per metric bundle.
+
+Primary analyses comprise 30 jobs (`3 cohorts x 5 models x 2 metric
+branches`). Configured secondary views add ten diagnostic jobs per view under
+`secondary/<view_id>/...`; their manifests record
+`selection_eligible=false` and `bundle_eligible=false`, so they cannot enter
+the primary bundles. The PDAC Rojas/Sethna mapping is such a secondary view.
+
+Production artifacts use `l2_variant` and `l2_aggregation_*` terminology.
+Coverage-by-omission mappings are rejected: every eligible mapping row must
+resolve to a completed tensor observation. Treat every recorded content hash
+as part of the scientific result and never edit a published output directory.

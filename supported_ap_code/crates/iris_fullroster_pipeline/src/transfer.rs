@@ -10,9 +10,10 @@ use serde::Serialize;
 use serde_json::{Value, json};
 
 use crate::contract::{
-    BRANCHES, COHORTS, Dataset, L2Spec, LOCKED_LOG_EPSILON, MODELS, PipelineConfig, Representation,
-    TRANSFER_MANIFEST_SCHEMA_VERSION,
+    AdaptiveL2Spec, BRANCHES, COHORTS, Dataset, L2Spec, LOCKED_LOG_EPSILON, MODELS, PipelineConfig,
+    Representation, TRANSFER_MANIFEST_SCHEMA_VERSION,
 };
+use crate::hybrid::aggregate_frozen_adaptive_l2;
 use crate::io::{FileRecord, output_file_records, read_json, sha256_file, stage_path, write_json};
 use crate::numeric::{aggregate, average_precision, log_score, roc_auc};
 
@@ -86,7 +87,9 @@ struct Endpoint {
 
 #[derive(Debug, Clone)]
 struct CandidateRef {
-    obs_idx: Option<usize>,
+    obs_idx: usize,
+    peptide: String,
+    hla: String,
 }
 
 #[derive(Debug)]
@@ -101,7 +104,8 @@ struct Coverage {
     n_mapping_rows_read: usize,
     n_candidate_rows_eligible: usize,
     n_scoreable_candidates: usize,
-    n_floor_candidates: usize,
+    n_completed_zero_candidates: usize,
+    n_missing_computations: usize,
     n_duplicate_candidates_removed: usize,
     n_endpoints_total: usize,
     n_positive_endpoints: usize,
@@ -137,6 +141,11 @@ impl TransferManifest {
 #[serde(deny_unknown_fields)]
 struct JobRecord {
     cohort: String,
+    parent_cohort: String,
+    input_view_id: String,
+    view_role: TransferViewRole,
+    selection_eligible: bool,
+    bundle_eligible: bool,
     model: String,
     branch: String,
     relative_directory: String,
@@ -147,6 +156,13 @@ struct JobRecord {
     nci_summary_sha256: String,
     endpoint_count: usize,
     positive_count: usize,
+}
+
+#[derive(Clone, Copy, Debug, serde::Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "snake_case")]
+enum TransferViewRole {
+    Primary,
+    Secondary,
 }
 
 pub fn build_transfer_package(config_path: &Path, output: &Path) -> Result<Value> {
@@ -183,65 +199,46 @@ fn build_transfer_inner(
     input_manifest: &Value,
     stage: &Path,
 ) -> Result<Value> {
-    let mut jobs = Vec::with_capacity(30);
+    let expected_jobs = expected_job_scopes(config).len();
+    let mut jobs = Vec::with_capacity(expected_jobs);
     for cohort_id in COHORTS {
         let cohort = &config.cohorts[cohort_id];
-        for model_id in MODELS {
-            let model = &config.models[model_id];
-            let primary = cohort
-                .tensors
-                .get(&model.primary)
-                .context("validated tensor representation disappeared")?;
-            let q_run = model.query_q.map(|representation| {
-                cohort
-                    .tensors
-                    .get(&representation)
-                    .expect("validated tensor representation disappeared")
-            });
-            let mapping_kind = model.primary.mapping_kind();
-            let mapping = input_mapping(
-                &config.input_bundle,
+        build_view_jobs(
+            config,
+            input_manifest,
+            config_sha256,
+            stage,
+            cohort_id,
+            cohort_id,
+            TransferViewRole::Primary,
+            true,
+            true,
+            None,
+            &mut jobs,
+        )?;
+        for (view_id, view) in &cohort.views {
+            build_view_jobs(
+                config,
                 input_manifest,
-                &cohort.input_prefix,
-                mapping_kind,
+                config_sha256,
+                stage,
+                cohort_id,
+                view_id,
+                TransferViewRole::Secondary,
+                view.selection_eligible,
+                view.bundle_eligible,
+                Some(&view.input_view_id),
+                &mut jobs,
             )?;
-            for branch in BRANCHES {
-                let relative = PathBuf::from(cohort_id).join(model_id).join(branch);
-                let directory = stage.join(&relative);
-                std::fs::create_dir_all(&directory)?;
-                let report = run_transfer_job(TransferJob {
-                    cohort_id,
-                    cohort,
-                    model_id,
-                    model,
-                    branch,
-                    primary,
-                    q_run,
-                    mapping: &mapping,
-                    l2_specs: &config.fixed_l2,
-                    input_manifest_sha256: &config.input_manifest_sha256,
-                    config_sha256,
-                    output: &directory,
-                })?;
-                jobs.push(JobRecord {
-                    cohort: cohort_id.to_owned(),
-                    model: model_id.to_owned(),
-                    branch: branch.to_owned(),
-                    relative_directory: relative.to_string_lossy().into_owned(),
-                    primary_representation: model.primary,
-                    query_q_representation: model.query_q,
-                    mapping_kind: mapping_kind.to_owned(),
-                    mapping_sha256: sha256_file(&mapping)?,
-                    nci_summary_sha256: model.nci_summary_sha256.clone(),
-                    endpoint_count: report.endpoint_count,
-                    positive_count: report.positive_count,
-                });
-            }
         }
     }
-    if jobs.len() != 30 {
-        bail!("transfer batch produced {} jobs instead of 30", jobs.len());
+    if jobs.len() != expected_jobs {
+        bail!(
+            "transfer batch produced {} jobs instead of {expected_jobs}",
+            jobs.len()
+        );
     }
+    write_secondary_transfer_reports(stage, config, &jobs)?;
     let output_files = output_file_records(stage)?;
     let manifest = TransferManifest {
         schema_version: TRANSFER_MANIFEST_SCHEMA_VERSION,
@@ -258,9 +255,278 @@ fn build_transfer_inner(
     validate_transfer_package(stage)?;
     Ok(json!({
         "output": stage,
-        "jobs": 30,
+        "jobs": expected_jobs,
         "manifest_sha256": sha256_file(&stage.join("manifest.json"))?,
     }))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn build_view_jobs(
+    config: &PipelineConfig,
+    input_manifest: &Value,
+    config_sha256: &str,
+    stage: &Path,
+    parent_cohort_id: &str,
+    view_id: &str,
+    view_role: TransferViewRole,
+    selection_eligible: bool,
+    bundle_eligible: bool,
+    input_view_id: Option<&str>,
+    jobs: &mut Vec<JobRecord>,
+) -> Result<()> {
+    let cohort = &config.cohorts[parent_cohort_id];
+    let input_view_identity = input_view_id.unwrap_or(&cohort.primary_view_id);
+    for model_id in MODELS {
+        let model = &config.models[model_id];
+        let primary = cohort
+            .tensors
+            .get(&model.primary)
+            .context("validated tensor representation disappeared")?;
+        let q_run = model.query_q.map(|representation| {
+            cohort
+                .tensors
+                .get(&representation)
+                .expect("validated tensor representation disappeared")
+        });
+        let mapping_kind = model.primary.mapping_kind();
+        let mapping = if let Some(input_view_id) = input_view_id {
+            input_view_mapping(
+                &config.input_bundle,
+                input_manifest,
+                &cohort.input_prefix,
+                input_view_id,
+                mapping_kind,
+            )?
+        } else {
+            input_mapping(
+                &config.input_bundle,
+                input_manifest,
+                &cohort.input_prefix,
+                &cohort.primary_view_id,
+                mapping_kind,
+            )?
+        };
+        for branch in BRANCHES {
+            let relative = match view_role {
+                TransferViewRole::Primary => PathBuf::from(view_id).join(model_id).join(branch),
+                TransferViewRole::Secondary => PathBuf::from("secondary")
+                    .join(view_id)
+                    .join(model_id)
+                    .join(branch),
+            };
+            let directory = stage.join(&relative);
+            std::fs::create_dir_all(&directory)?;
+            let report = run_transfer_job(TransferJob {
+                cohort_id: view_id,
+                parent_cohort_id,
+                input_view_id: input_view_identity,
+                view_role,
+                selection_eligible,
+                bundle_eligible,
+                cohort,
+                model_id,
+                model,
+                branch,
+                primary,
+                q_run,
+                mapping: &mapping,
+                l2_specs: &config.fixed_l2,
+                adaptive_l2: &config.adaptive_l2,
+                input_manifest_sha256: &config.input_manifest_sha256,
+                config_sha256,
+                output: &directory,
+            })?;
+            jobs.push(JobRecord {
+                cohort: view_id.to_owned(),
+                parent_cohort: parent_cohort_id.to_owned(),
+                input_view_id: input_view_identity.to_owned(),
+                view_role,
+                selection_eligible,
+                bundle_eligible,
+                model: model_id.to_owned(),
+                branch: branch.to_owned(),
+                relative_directory: relative.to_string_lossy().into_owned(),
+                primary_representation: model.primary,
+                query_q_representation: model.query_q,
+                mapping_kind: mapping_kind.to_owned(),
+                mapping_sha256: sha256_file(&mapping)?,
+                nci_summary_sha256: model.nci_summary_sha256.clone(),
+                endpoint_count: report.endpoint_count,
+                positive_count: report.positive_count,
+            });
+        }
+    }
+    Ok(())
+}
+
+fn transfer_metrics(path: &Path) -> Result<BTreeMap<String, (f64, f64)>> {
+    let mut reader = csv::Reader::from_path(path)?;
+    let headers = reader.headers()?.clone();
+    let variant = required_column(&headers, "l2_variant", path)?;
+    let roc = required_column(&headers, "roc_auc", path)?;
+    let ap = required_column(&headers, "average_precision", path)?;
+    let mut metrics = BTreeMap::new();
+    for record in reader.records() {
+        let record = record?;
+        let id = csv_field(&record, variant, path)?.to_owned();
+        let values = (
+            csv_field(&record, roc, path)?.parse::<f64>()?,
+            csv_field(&record, ap, path)?.parse::<f64>()?,
+        );
+        if metrics.insert(id.clone(), values).is_some() {
+            bail!("duplicate L2 metric {id} in {}", path.display());
+        }
+    }
+    Ok(metrics)
+}
+
+fn write_secondary_transfer_reports(
+    stage: &Path,
+    config: &PipelineConfig,
+    jobs: &[JobRecord],
+) -> Result<()> {
+    let by_scope: BTreeMap<_, _> = jobs
+        .iter()
+        .map(|job| {
+            (
+                (job.cohort.as_str(), job.model.as_str(), job.branch.as_str()),
+                job,
+            )
+        })
+        .collect();
+    for parent_cohort in COHORTS {
+        let cohort = &config.cohorts[parent_cohort];
+        for view_id in cohort.views.keys() {
+            let directory = stage.join("secondary").join(view_id);
+            let comparison_parent = cohort.primary_view_id.as_str();
+            let csv_path = directory.join(format!("comparison_to_{comparison_parent}.csv"));
+            let mut writer = csv::Writer::from_path(&csv_path)?;
+            writer.write_record([
+                "view_id",
+                "parent_cohort",
+                "model",
+                "branch",
+                "l2_variant",
+                "metric",
+                "view_value",
+                "parent_value",
+                "delta_from_parent",
+                "n_endpoints",
+                "n_positive",
+                "n_completed_zero_candidates",
+                "n_missing_computations",
+                "mapping_sha256",
+            ])?;
+            let mut job_audits = Vec::new();
+            for model in MODELS {
+                for branch in BRANCHES {
+                    let secondary = by_scope[&(view_id.as_str(), model, branch)];
+                    let primary = by_scope[&(parent_cohort, model, branch)];
+                    let secondary_metrics = transfer_metrics(
+                        &stage
+                            .join(&secondary.relative_directory)
+                            .join("transfer_metrics.csv"),
+                    )?;
+                    let primary_metrics = transfer_metrics(
+                        &stage
+                            .join(&primary.relative_directory)
+                            .join("transfer_metrics.csv"),
+                    )?;
+                    if secondary_metrics.keys().collect::<Vec<_>>()
+                        != primary_metrics.keys().collect::<Vec<_>>()
+                    {
+                        bail!("secondary and primary fixed-L2 metric rosters differ");
+                    }
+                    let summary: Value = read_json(
+                        &stage
+                            .join(&secondary.relative_directory)
+                            .join("summary.json"),
+                    )?;
+                    let completed = summary["coverage"]["n_completed_zero_candidates"]
+                        .as_u64()
+                        .context("secondary summary lacks completed-zero count")?;
+                    let missing = summary["coverage"]["n_missing_computations"]
+                        .as_u64()
+                        .context("secondary summary lacks missing-computation count")?;
+                    if missing != 0 {
+                        bail!("secondary view {view_id} contains missing computations");
+                    }
+                    for (variant, &(secondary_roc, secondary_ap)) in &secondary_metrics {
+                        let &(primary_roc, primary_ap) = &primary_metrics[variant];
+                        let (metric, view_value, parent_value) = if branch == "pr" {
+                            ("average_precision", secondary_ap, primary_ap)
+                        } else {
+                            ("roc_auc", secondary_roc, primary_roc)
+                        };
+                        writer.serialize((
+                            view_id,
+                            comparison_parent,
+                            model,
+                            branch,
+                            variant,
+                            metric,
+                            view_value,
+                            parent_value,
+                            view_value - parent_value,
+                            secondary.endpoint_count,
+                            secondary.positive_count,
+                            completed,
+                            missing,
+                            &secondary.mapping_sha256,
+                        ))?;
+                    }
+                    job_audits.push(json!({
+                        "model": model,
+                        "branch": branch,
+                        "endpoint_count": secondary.endpoint_count,
+                        "positive_count": secondary.positive_count,
+                        "mapping_kind": secondary.mapping_kind,
+                        "mapping_sha256": secondary.mapping_sha256,
+                        "n_completed_zero_candidates": completed,
+                        "n_missing_computations": missing,
+                    }));
+                }
+            }
+            writer.flush()?;
+            let json_path = directory.join(format!("comparison_to_{comparison_parent}.json"));
+            write_json(
+                &json_path,
+                &json!({
+                    "schema_version": 1,
+                    "view_id": view_id,
+                    "parent_cohort": comparison_parent,
+                    "role": "secondary",
+                    "selection_eligible": false,
+                    "bundle_eligible": false,
+                    "comparison_csv": csv_path.file_name().and_then(|name| name.to_str()),
+                    "comparison_csv_sha256": sha256_file(&csv_path)?,
+                    "tensor_hashes": cohort.tensors,
+                    "jobs": job_audits,
+                    "coverage_requirement": "100%; every candidate resolves to a completed tensor observation",
+                }),
+            )?;
+            write_json(
+                &directory.join("view_manifest.json"),
+                &json!({
+                    "schema_version": 1,
+                    "view_id": view_id,
+                    "parent_cohort": comparison_parent,
+                    "role": "secondary",
+                    "selection_eligible": false,
+                    "bundle_eligible": false,
+                    "mapping_hashes": jobs.iter()
+                        .filter(|job| job.cohort == *view_id)
+                        .map(|job| job.mapping_sha256.clone())
+                        .collect::<BTreeSet<_>>(),
+                    "tensor_hashes": cohort.tensors,
+                    "comparison_json": json_path.file_name().and_then(|name| name.to_str()),
+                    "comparison_json_sha256": sha256_file(&json_path)?,
+                    "n_missing_computations": 0,
+                }),
+            )?;
+        }
+    }
+    Ok(())
 }
 
 pub fn validate_transfer_package(package: &Path) -> Result<Value> {
@@ -337,15 +603,33 @@ fn resolve_relocated_bundle(
     bail!("transfer package input-manifest hash no longer resolves")
 }
 
+fn expected_job_scopes(config: &PipelineConfig) -> BTreeSet<(String, String, String)> {
+    let mut scopes = BTreeSet::new();
+    for cohort_id in COHORTS {
+        for model_id in MODELS {
+            for branch in BRANCHES {
+                scopes.insert((cohort_id.to_owned(), model_id.to_owned(), branch.to_owned()));
+            }
+        }
+        for view_id in config.cohorts[cohort_id].views.keys() {
+            for model_id in MODELS {
+                for branch in BRANCHES {
+                    scopes.insert((view_id.clone(), model_id.to_owned(), branch.to_owned()));
+                }
+            }
+        }
+    }
+    scopes
+}
+
 pub fn load_validated_transfer_manifest(package: &Path) -> Result<TransferManifest> {
     let manifest_path = package.join("manifest.json");
     let manifest: TransferManifest = read_json(&manifest_path)?;
     if manifest.schema_version != TRANSFER_MANIFEST_SCHEMA_VERSION
         || manifest.package_kind != "iris_fullroster_transfer_package"
         || manifest.log_epsilon.to_bits() != LOCKED_LOG_EPSILON.to_bits()
-        || manifest.jobs.len() != 30
     {
-        bail!("invalid transfer package identity or dimensions");
+        bail!("invalid transfer package identity");
     }
     let config_path = resolve_relocated_config(
         package,
@@ -359,22 +643,13 @@ pub fn load_validated_transfer_manifest(package: &Path) -> Result<TransferManife
         &manifest.input_manifest_sha256,
     )?;
     external_validation_inputs::validate_bundle(&input_bundle)?;
-    let expected_scopes: BTreeSet<_> = COHORTS
-        .into_iter()
-        .flat_map(|cohort| {
-            MODELS.into_iter().flat_map(move |model| {
-                BRANCHES
-                    .into_iter()
-                    .map(move |branch| (cohort, model, branch))
-            })
-        })
-        .collect();
-    let observed_scopes: BTreeSet<_> = manifest
+    let expected_scopes = expected_job_scopes(&config);
+    let observed_scopes: BTreeSet<(String, String, String)> = manifest
         .jobs
         .iter()
-        .map(|job| (job.cohort.as_str(), job.model.as_str(), job.branch.as_str()))
+        .map(|job| (job.cohort.clone(), job.model.clone(), job.branch.clone()))
         .collect();
-    if observed_scopes != expected_scopes {
+    if manifest.jobs.len() != expected_scopes.len() || observed_scopes != expected_scopes {
         bail!("transfer package job registry is incomplete or duplicated");
     }
     if output_file_records(package)? != manifest.output_files {
@@ -447,6 +722,7 @@ fn validate_manifest_against_config(
                 input_bundle,
                 &input_manifest,
                 &cohort.input_prefix,
+                &cohort.primary_view_id,
                 mapping_kind,
             )?;
             let mapping_sha256 = sha256_file(&mapping)?;
@@ -454,6 +730,11 @@ fn validate_manifest_against_config(
                 let job = jobs[&(cohort_id, model_id, branch)];
                 let expected_relative = PathBuf::from(cohort_id).join(model_id).join(branch);
                 if Path::new(&job.relative_directory) != expected_relative
+                    || job.parent_cohort != cohort_id
+                    || job.input_view_id != cohort.primary_view_id
+                    || job.view_role != TransferViewRole::Primary
+                    || !job.selection_eligible
+                    || !job.bundle_eligible
                     || job.primary_representation != model.primary
                     || job.query_q_representation != model.query_q
                     || job.mapping_kind != mapping_kind
@@ -481,6 +762,11 @@ fn validate_manifest_against_config(
                     || (summary_mapping.is_file()
                         && summary_mapping.canonicalize()? == mapping.canonicalize()?);
                 if summary["cohort_id"].as_str() != Some(cohort_id)
+                    || summary["parent_cohort_id"].as_str() != Some(cohort_id)
+                    || summary["input_view_id"].as_str() != Some(cohort.primary_view_id.as_str())
+                    || summary["view_role"].as_str() != Some("primary")
+                    || summary["selection_eligible"].as_bool() != Some(true)
+                    || summary["bundle_eligible"].as_bool() != Some(true)
                     || summary["model_id"].as_str() != Some(model_id)
                     || summary["branch"].as_str() != Some(branch)
                     || !mapping_identity_matches
@@ -496,6 +782,60 @@ fn validate_manifest_against_config(
                 }
             }
         }
+        for (view_id, view) in &cohort.views {
+            for model_id in MODELS {
+                let model = &config.models[model_id];
+                let mapping_kind = model.primary.mapping_kind();
+                let mapping = input_view_mapping(
+                    input_bundle,
+                    &input_manifest,
+                    &cohort.input_prefix,
+                    &view.input_view_id,
+                    mapping_kind,
+                )?;
+                let mapping_sha256 = sha256_file(&mapping)?;
+                for branch in BRANCHES {
+                    let job = jobs[&(view_id.as_str(), model_id, branch)];
+                    let expected_relative = PathBuf::from("secondary")
+                        .join(view_id)
+                        .join(model_id)
+                        .join(branch);
+                    if Path::new(&job.relative_directory) != expected_relative
+                        || job.parent_cohort != cohort_id
+                        || job.input_view_id != view.input_view_id
+                        || job.view_role != TransferViewRole::Secondary
+                        || job.selection_eligible != view.selection_eligible
+                        || job.bundle_eligible != view.bundle_eligible
+                        || job.primary_representation != model.primary
+                        || job.query_q_representation != model.query_q
+                        || job.mapping_kind != mapping_kind
+                        || job.mapping_sha256 != mapping_sha256
+                        || job.nci_summary_sha256 != model.nci_summary_sha256
+                    {
+                        bail!("transfer job contract mismatch for {view_id}/{model_id}/{branch}");
+                    }
+                    let summary: Value =
+                        read_json(&package.join(&job.relative_directory).join("summary.json"))?;
+                    if summary["cohort_id"].as_str() != Some(view_id)
+                        || summary["parent_cohort_id"].as_str() != Some(cohort_id)
+                        || summary["input_view_id"].as_str() != Some(view.input_view_id.as_str())
+                        || summary["view_role"].as_str() != Some("secondary")
+                        || summary["selection_eligible"].as_bool() != Some(view.selection_eligible)
+                        || summary["bundle_eligible"].as_bool() != Some(view.bundle_eligible)
+                        || summary["model_id"].as_str() != Some(model_id)
+                        || summary["branch"].as_str() != Some(branch)
+                        || summary["coverage"]["n_endpoints_total"].as_u64()
+                            != Some(job.endpoint_count as u64)
+                        || summary["coverage"]["n_positive_endpoints"].as_u64()
+                            != Some(job.positive_count as u64)
+                    {
+                        bail!(
+                            "transfer summary disagrees with job record for {view_id}/{model_id}/{branch}"
+                        );
+                    }
+                }
+            }
+        }
     }
     Ok(())
 }
@@ -504,6 +844,7 @@ pub(crate) fn input_mapping(
     input_bundle: &Path,
     manifest: &Value,
     prefix: &str,
+    primary_view_id: &str,
     kind: &str,
 ) -> Result<PathBuf> {
     let datasets = manifest["datasets"]
@@ -513,12 +854,16 @@ pub(crate) fn input_mapping(
     let mut matches = Vec::new();
     for audit in datasets.values() {
         let key = format!("{kind}_mapping");
-        if audit["output_files"][&key].as_str() == Some(expected_name.as_str()) {
+        if audit["primary_view_id"].as_str() == Some(primary_view_id)
+            && audit["output_files"][&key].as_str() == Some(expected_name.as_str())
+        {
             matches.push(expected_name.clone());
         }
     }
     if matches.len() != 1 {
-        bail!("input manifest did not resolve exactly one {prefix}/{kind} mapping");
+        bail!(
+            "input manifest did not resolve exactly one {prefix}/{primary_view_id}/{kind} mapping"
+        );
     }
     let path = input_bundle.join(&matches[0]);
     if !path.is_file() {
@@ -527,8 +872,53 @@ pub(crate) fn input_mapping(
     Ok(path)
 }
 
+fn input_view_mapping(
+    input_bundle: &Path,
+    manifest: &Value,
+    prefix: &str,
+    view_id: &str,
+    kind: &str,
+) -> Result<PathBuf> {
+    let datasets = manifest["datasets"]
+        .as_object()
+        .context("input manifest datasets is not an object")?;
+    let primary_name = format!("{prefix}_{kind}_longpep_mapping.csv");
+    let audits: Vec<_> = datasets
+        .values()
+        .filter(|audit| {
+            audit["output_files"][format!("{kind}_mapping")].as_str() == Some(primary_name.as_str())
+        })
+        .collect();
+    if audits.len() != 1 {
+        bail!("input manifest did not resolve exactly one primary dataset for {prefix}/{kind}");
+    }
+    let view = &audits[0]["views"][view_id];
+    if view["role"].as_str() != Some("secondary")
+        || view["parent_view_id"].as_str() != audits[0]["primary_view_id"].as_str()
+        || view["selection_eligible"].as_bool() != Some(false)
+        || view["bundle_eligible"].as_bool() != Some(false)
+        || view["subset_status"].as_str() != Some("pass")
+    {
+        bail!("input view {view_id} is absent or violates the secondary-view contract");
+    }
+    let key = format!("{kind}_mapping");
+    let filename = view["output_files"][&key]
+        .as_str()
+        .with_context(|| format!("input view {view_id} lacks {key}"))?;
+    let path = input_bundle.join(filename);
+    if !path.is_file() {
+        bail!("input view mapping is missing: {}", path.display());
+    }
+    Ok(path)
+}
+
 struct TransferJob<'a> {
     cohort_id: &'a str,
+    parent_cohort_id: &'a str,
+    input_view_id: &'a str,
+    view_role: TransferViewRole,
+    selection_eligible: bool,
+    bundle_eligible: bool,
     cohort: &'a crate::contract::CohortConfig,
     model_id: &'a str,
     model: &'a crate::contract::ModelConfig,
@@ -537,6 +927,7 @@ struct TransferJob<'a> {
     q_run: Option<&'a crate::contract::TensorRun>,
     mapping: &'a Path,
     l2_specs: &'a [L2Spec],
+    adaptive_l2: &'a AdaptiveL2Spec,
     input_manifest_sha256: &'a str,
     config_sha256: &'a str,
     output: &'a Path,
@@ -579,7 +970,7 @@ fn run_transfer_job(job: TransferJob<'_>) -> Result<TransferReport> {
         q_override.as_ref().map(|source| source.values.as_slice()),
     )?;
     let mappings = load_mapping(job.cohort, job.mapping)?;
-    let (endpoints, candidates, coverage) =
+    let (endpoints, candidates, mut coverage) =
         build_endpoint_candidates(&mappings, &observations, &row_counts)?;
     if endpoints.is_empty() {
         bail!("{} mapping produced no endpoints", job.cohort_id);
@@ -589,6 +980,12 @@ fn run_transfer_job(job: TransferJob<'_>) -> Result<TransferReport> {
     if positive_count == 0 || positive_count == labels.len() {
         bail!("{} mapping contains only one class", job.cohort_id);
     }
+    let floor = LOCKED_LOG_EPSILON.ln() as f32;
+    coverage.n_completed_zero_candidates = candidates
+        .iter()
+        .flatten()
+        .filter(|candidate| scores[candidate.obs_idx * selected.len()] <= floor)
+        .count();
     if let Some(source) = &q_override {
         write_q_source_join(
             &job.output.join("target_presentation_q_source_join.csv"),
@@ -610,9 +1007,14 @@ fn run_transfer_job(job: TransferJob<'_>) -> Result<TransferReport> {
     let endpoint_key = format!("({})", job.cohort.endpoint_fields.join(", "));
     let summary = json!({
         "analysis": "NCI-frozen full-roster transfer with per-observation tau and L2 aggregation",
-        "schema_version": 1,
+        "schema_version": 2,
         "dataset": job.cohort.dataset.transfer_name(),
         "cohort_id": job.cohort_id,
+        "parent_cohort_id": job.parent_cohort_id,
+        "input_view_id": job.input_view_id,
+        "view_role": job.view_role,
+        "selection_eligible": job.selection_eligible,
+        "bundle_eligible": job.bundle_eligible,
         "model_id": job.model_id,
         "branch": job.branch,
         "tensor": job.primary.tensor(),
@@ -637,8 +1039,9 @@ fn run_transfer_job(job: TransferJob<'_>) -> Result<TransferReport> {
         "tau_mode": "per_observation",
         "tau_values": metadata.tau_values,
         "log_epsilon": LOCKED_LOG_EPSILON,
-        "floor_definition": "ln(1e-12)",
+        "complete_f_contract": "every eligible mapping row must resolve to a scored tensor observation; omission floors are forbidden",
         "l2_specs": job.l2_specs,
+        "adaptive_l2": job.adaptive_l2,
         "endpoint_key": endpoint_key,
         "response_column": job.cohort.response_field,
         "label_column": job.cohort.label_field,
@@ -697,11 +1100,7 @@ fn write_predictions(
         for (endpoint_index, endpoint) in endpoints.iter().enumerate() {
             let values: Vec<f32> = candidates[endpoint_index]
                 .iter()
-                .map(|candidate| {
-                    candidate
-                        .obs_idx
-                        .map_or(floor, |idx| scores[idx * selected.len()])
-                })
+                .map(|candidate| scores[candidate.obs_idx * selected.len()])
                 .collect();
             let score = aggregate(&values, spec, floor)?;
             endpoint_scores.push(score);
@@ -730,6 +1129,53 @@ fn write_predictions(
             labels.iter().filter(|&&label| label == 1).count(),
         ))?;
     }
+    let mut endpoint_scores = Vec::with_capacity(endpoints.len());
+    for (endpoint_index, endpoint) in endpoints.iter().enumerate() {
+        let roster = &candidates[endpoint_index];
+        let values: Vec<f64> = roster
+            .iter()
+            .map(|candidate| scores[candidate.obs_idx * selected.len()] as f64)
+            .collect();
+        let peptides: Vec<String> = roster
+            .iter()
+            .map(|candidate| candidate.peptide.clone())
+            .collect();
+        let hlas: Vec<String> = roster
+            .iter()
+            .map(|candidate| candidate.hla.clone())
+            .collect();
+        let score = aggregate_frozen_adaptive_l2(
+            &values,
+            &peptides,
+            &hlas,
+            job.adaptive_l2,
+            LOCKED_LOG_EPSILON.ln(),
+        )?;
+        endpoint_scores.push(score as f32);
+        writer.serialize((
+            job.cohort.dataset.transfer_name(),
+            &selected[0].selector,
+            selected[0].decoded.regime_idx,
+            job.adaptive_l2.id(),
+            &endpoint.patient_id,
+            &endpoint.mutation,
+            &endpoint.long_peptide,
+            endpoint.label,
+            job.model_id,
+            score,
+            values.len(),
+        ))?;
+    }
+    metric_writer.serialize((
+        job.cohort.dataset.transfer_name(),
+        &selected[0].selector,
+        selected[0].decoded.regime_idx,
+        job.adaptive_l2.id(),
+        roc_auc(&endpoint_scores, labels),
+        average_precision(&endpoint_scores, labels),
+        labels.len(),
+        labels.iter().filter(|&&label| label == 1).count(),
+    ))?;
     writer.flush()?;
     metric_writer.flush()?;
     Ok(())
@@ -1289,7 +1735,7 @@ fn build_endpoint_candidates(
 
     let mut endpoint_labels = BTreeMap::<EndpointKey, u8>::new();
     let mut grouped = BTreeMap::<EndpointKey, Vec<CandidateRef>>::new();
-    let mut seen = BTreeMap::<(String, String, String, String, String), Option<usize>>::new();
+    let mut seen = BTreeMap::<(String, String, String, String, String), usize>::new();
     let mut coverage = Coverage {
         n_mapping_rows_read: mappings.len(),
         ..Coverage::default()
@@ -1303,8 +1749,11 @@ fn build_endpoint_candidates(
         if row.patient_id.is_empty() || row.long_peptide.is_empty() || row.hla.is_empty() {
             bail!("mapping contains a blank endpoint or HLA identity");
         }
-        if row.status != "scoreable" && row.status != "floor" {
-            bail!("unsupported mapping_status {:?}", row.status);
+        if row.status != "scoreable" {
+            bail!(
+                "complete-F transfer requires mapping_status=scoreable; observed {:?}",
+                row.status
+            );
         }
         let tensor_key = (
             row.patient_id.clone(),
@@ -1312,19 +1761,13 @@ fn build_endpoint_candidates(
             row.nmer.clone(),
             row.hla.clone(),
         );
-        let matched = tensor_lookup.get(&tensor_key).copied();
-        let obs_idx = match (row.status.as_str(), matched) {
-            ("scoreable", Some(index)) if row_counts[index] > 0 => Some(index),
-            ("scoreable", Some(_)) => {
-                bail!("scoreable mapping row resolves to an uncovered tensor observation")
-            }
-            ("scoreable", None) => bail!("scoreable mapping row lacks a tensor observation"),
-            ("floor", None) => None,
-            ("floor", Some(_)) => {
-                bail!("floor mapping row unexpectedly resolves to a tensor observation")
-            }
-            _ => unreachable!(),
-        };
+        let obs_idx = tensor_lookup
+            .get(&tensor_key)
+            .copied()
+            .context("complete-F mapping row lacks a tensor observation")?;
+        if row_counts[obs_idx] == 0 {
+            bail!("complete-F mapping row resolves to an uncovered tensor observation");
+        }
         let endpoint_key = (
             row.patient_id.clone(),
             row.mutation.clone(),
@@ -1350,15 +1793,12 @@ fn build_endpoint_candidates(
             continue;
         }
         seen.insert(candidate_key, obs_idx);
-        if row.status == "scoreable" {
-            coverage.n_scoreable_candidates += 1;
-        } else {
-            coverage.n_floor_candidates += 1;
-        }
-        grouped
-            .entry(endpoint_key)
-            .or_default()
-            .push(CandidateRef { obs_idx });
+        coverage.n_scoreable_candidates += 1;
+        grouped.entry(endpoint_key).or_default().push(CandidateRef {
+            obs_idx,
+            peptide: row.nmer.clone(),
+            hla: row.hla.clone(),
+        });
     }
 
     let mut endpoints = Vec::with_capacity(endpoint_labels.len());
@@ -1384,7 +1824,7 @@ fn build_endpoint_candidates(
     coverage.n_negative_endpoints = endpoints.len() - coverage.n_positive_endpoints;
     coverage.n_endpoints_with_tensor_supported_candidate = candidates
         .iter()
-        .filter(|roster| roster.iter().any(|candidate| candidate.obs_idx.is_some()))
+        .filter(|roster| !roster.is_empty())
         .count();
     Ok((endpoints, candidates, coverage))
 }
@@ -1517,19 +1957,17 @@ mod tests {
     }
 
     #[test]
-    fn full_roster_keeps_floor_and_removes_exact_duplicate() {
+    fn complete_f_roster_removes_exact_duplicate() {
         let observations = vec![observation(0, "AAAAAAAAA", "HLA-A*01:01", 7)];
         let mappings = vec![
             mapping("AAAAAAAAA", "A0101", 7, "scoreable"),
             mapping("AAAAAAAAA", "HLA-A*01:01", 7, "scoreable"),
-            mapping("BBBBBBBBB", "B0702", 99, "floor"),
         ];
         let (endpoints, candidates, audit) =
             build_endpoint_candidates(&mappings, &observations, &[1]).unwrap();
         assert_eq!(endpoints.len(), 1);
-        assert_eq!(candidates[0].len(), 2);
+        assert_eq!(candidates[0].len(), 1);
         assert_eq!(audit.n_scoreable_candidates, 1);
-        assert_eq!(audit.n_floor_candidates, 1);
         assert_eq!(audit.n_duplicate_candidates_removed, 1);
     }
 
@@ -1542,7 +1980,11 @@ mod tests {
             &[1],
         )
         .unwrap_err();
-        assert!(error.to_string().contains("floor mapping row unexpectedly"));
+        assert!(
+            error
+                .to_string()
+                .contains("complete-F transfer requires mapping_status=scoreable")
+        );
     }
 
     #[test]

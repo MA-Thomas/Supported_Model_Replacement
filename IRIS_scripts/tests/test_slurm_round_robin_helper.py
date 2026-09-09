@@ -8,7 +8,7 @@ import unittest
 from unittest import mock
 
 
-MODULE_PATH = Path(__file__).parents[1] / "slurm_round_robin_helper.py"
+MODULE_PATH = Path(__file__).parents[1] / "shared/slurm_round_robin_helper.py"
 SPEC = importlib.util.spec_from_file_location("slurm_round_robin_helper", MODULE_PATH)
 helper = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
@@ -16,6 +16,84 @@ SPEC.loader.exec_module(helper)
 
 
 class SlurmHelperTests(unittest.TestCase):
+    def test_frozen_hybrid_bundle_contract_requires_one_hybrid_per_model(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            bundle = Path(temporary)
+            models = [
+                "full_hla",
+                "focal_hla",
+                "old_monoallelic",
+                "mono_q_full_pn",
+                "full_q_mono_pn",
+            ]
+            fixed_suffixes = [
+                "max", "mean", "median", "logsumexp", "logmeanexp",
+                "top_frac_mean_frac0p01", "top_frac_mean_frac0p02",
+                "top_frac_mean_frac0p05", "top_k_mean_k2", "top_k_mean_k3",
+                "top_k_logsumexp_k2", "top_k_logsumexp_k10",
+            ]
+            systems = [
+                {
+                    "system_id": f"{model}__{suffix}",
+                    "score_column": f"score_{model}__{suffix}",
+                }
+                for model in models
+                for suffix in fixed_suffixes
+            ]
+            systems.extend(
+                {
+                    "system_id": f"{model}__endpoint_local_epitope_second_hla_hybrid_v1",
+                    "score_column": (
+                        f"score_{model}__endpoint_local_epitope_second_hla_hybrid_v1"
+                    ),
+                }
+                for model in models
+            )
+            (bundle / "systems.json").write_text(
+                json.dumps({"systems": systems}), encoding="utf-8"
+            )
+            (bundle / "bundle_manifest.json").write_text(
+                json.dumps(
+                    {
+                        "score_provider_identity":
+                            "iris-rust-fullroster-frozen-hybrid-provider-v1"
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (bundle / "tournament_spec.json").write_text(
+                json.dumps(
+                    {
+                        "evaluations": ["pdac", "covid_spike", "covid_nonspike"],
+                        "annotations": {
+                            "scientific_contract": {
+                                "systems_per_component_model": 13,
+                                "component_models": models,
+                                "frozen_adaptive_l2": {
+                                    "method": "endpoint_local_epitope_second_hla_hybrid",
+                                    "epitope_gate_center": -2.2,
+                                    "epitope_gate_width": 0.13,
+                                    "second_hla_threshold": -6.45,
+                                    "second_hla_gate_width": 0.02,
+                                    "hla_bonus": 1.0,
+                                    "hla_weight": 0.12,
+                                    "solver_absolute_tolerance": 1e-10,
+                                    "solver_max_iterations": 64,
+                                },
+                            }
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            helper.check_frozen_hybrid_bundle(SimpleNamespace(bundle=bundle))
+            systems.pop()
+            (bundle / "systems.json").write_text(
+                json.dumps({"systems": systems}), encoding="utf-8"
+            )
+            with self.assertRaisesRegex(helper.HelperError, "exactly 65 systems"):
+                helper.check_frozen_hybrid_bundle(SimpleNamespace(bundle=bundle))
+
     def test_bundle_dimensions_are_derived_from_registry_and_evaluations(self):
         with tempfile.TemporaryDirectory() as temporary:
             bundle = Path(temporary)

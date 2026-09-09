@@ -1,0 +1,45 @@
+{
+  "candidate_roster_sha256": "36220e66f8aac805ef0211f6bbe5e60ba75a19282347ef2fb699542e55139538",
+  "candidate_scan_sha256": "a993971fb1685b02a2a18352cbbdbb9f29ef2552e8efbf4efdac8e64177a5e8d",
+  "component_model_id": "full_q_mono_pn",
+  "config_sha256": "1027f08030e702c25015874fbbed57cfbbd2a609f78977e4ec048e93f1634d9e",
+  "endpoint_identities_sha256": "05aed78d8a3834ef820a653e5d9c1b06c8a5f09361f4ea0a4fe07f6c45cb1833",
+  "evaluation_id": "nci",
+  "log_epsilon": 1e-12,
+  "metric_branch": "roc",
+  "metrics": {
+    "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/outputs/nci_composite_mono_q_full_pn_supported_ap_auroc_story/reciprocal_discovery/tables/nci_fixed_regime_single_best_parameter_set_metrics.csv",
+    "sha256": "ed4fc176ced7ba5c453ad67b01f653e64e98a40df15d79712956acee08983370"
+  },
+  "primary": {
+    "metadata": {
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.metadata.json",
+      "sha256": "9256b836483819362be4bae2437da88df09f819c6e5489b38d5407d26b076651"
+    },
+    "observations": {
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.observations.parquet",
+      "sha256": "8c2f19472efe969e7820f03ac79d0d9f73b38918666c1883a16a0311f087b4b0"
+    },
+    "tensor": {
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC/f_tensor.parquet",
+      "sha256": "ccbf442425b77485d19882a649771be16c805fc8cbae89d5a0a4005359f5d84f"
+    }
+  },
+  "query_q": {
+    "metadata": {
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.metadata.json",
+      "sha256": "9256b836483819362be4bae2437da88df09f819c6e5489b38d5407d26b076651"
+    },
+    "observations": {
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.observations.parquet",
+      "sha256": "2b3baf7c34677146462c6647ce240f93f045379db70ad82d06dfe86aa4ea27d6"
+    },
+    "tensor": {
+      "path": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_NCI/runs/nci_full_20260715_hlafix2/f_tensor.parquet",
+      "sha256": "1df219eb36418b797de92aa5edeeabd08812a753b39908bbd76934c2dc74c19c"
+    }
+  },
+  "schema_version": 1,
+  "score_formula": "log(Q * P_pos * P_neg * pi + epsilon)",
+  "tau_policy": "per_observation_argmax_with_lowest_index_tie_rule"
+}

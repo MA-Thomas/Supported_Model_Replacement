@@ -1,6 +1,6 @@
 //! Joint-grid ranking and per-group selection policies.
 //!
-//! Every `(q, c, kappa)` triple is ranked jointly within each cohort. Selection
+//! Every `(alpha, q, c, kappa)` tuple is ranked jointly within each cohort. Selection
 //! is then performed independently for each component/metric group under two
 //! declared policies: PDAC-only and equal-weight PDAC/SPIKE/NONSPIKE.
 
@@ -9,8 +9,8 @@ use std::cmp::Ordering;
 use crate::cnap::CnapOutcome;
 use crate::config::{SELECTION_COHORTS, selection_metric};
 use crate::error::{Result, SelectionError};
-use crate::grid::BaseGrid;
-use crate::numeric::{HillOrder, fractional_rank_desc, max_of, rankdata_average};
+use crate::grid::{AggregationOrder, BaseGrid};
+use crate::numeric::{HillOrder, PowerOrder, fractional_rank_desc, max_of, rankdata_average};
 
 fn cmp_f64(a: f64, b: f64) -> Ordering {
     a.partial_cmp(&b).unwrap_or(Ordering::Equal)
@@ -137,8 +137,8 @@ fn selected_index(
         }
         let b = j % base_len;
         let best_b = best % base_len;
-        let order = cmp_f64(mean_rank[j], mean_rank[best])
-            .then_with(|| cmp_f64(worst_rank[j], worst_rank[best]))
+        let order = cmp_f64(worst_rank[j], worst_rank[best])
+            .then_with(|| cmp_f64(mean_rank[j], mean_rank[best]))
             .then_with(|| cmp_f64(mean_regret[j], mean_regret[best]))
             .then_with(|| cmp_f64(-survival_tie_break[j], -survival_tie_break[best]))
             .then_with(|| cmp_f64(-base.kappa[b], -base.kappa[best_b]))
@@ -165,6 +165,9 @@ pub struct SelectedRow {
     pub model: String,
     pub branch: String,
     pub selection_metric: String,
+    pub aggregation_order: usize,
+    pub alpha_order: usize,
+    pub power: PowerOrder,
     pub q_order: usize,
     pub hill: HillOrder,
     pub joint_grid_index: usize,
@@ -176,7 +179,9 @@ pub struct SelectedRow {
     pub worst_cohort_fractional_rank: f64,
     pub mean_metric_regret: f64,
     pub near_optimal_rank_tolerance: f64,
-    pub near_optimal_joint_triples: usize,
+    pub near_optimal_joint_tuples: usize,
+    pub near_optimal_alpha_count: usize,
+    pub near_optimal_alpha_ids: String,
     pub near_optimal_q_count: usize,
     pub near_optimal_q_ids: String,
     pub q_is_zero_or_infinity: bool,
@@ -196,7 +201,7 @@ pub fn select_group(
     branch: &str,
     ranking: &JointRanking,
     base: &BaseGrid,
-    orders: &[HillOrder],
+    orders: &[AggregationOrder],
     near_optimal_rank_tolerance: f64,
 ) -> SelectedRow {
     let eligible = vec![true; ranking.count];
@@ -216,7 +221,7 @@ pub fn select_group(
     .expect("an unconstrained nonempty grid always has a selected row")
 }
 
-/// Select only among triples that have already passed the declared staged
+/// Select only among tuples that have already passed the declared staged
 /// evidence eligibility rule. This is used by paired-CNAP selection; the ROC
 /// scalar path continues to use `select_group`.
 #[allow(clippy::too_many_arguments)]
@@ -226,7 +231,7 @@ pub fn select_group_eligible(
     branch: &str,
     ranking: &JointRanking,
     base: &BaseGrid,
-    orders: &[HillOrder],
+    orders: &[AggregationOrder],
     near_optimal_rank_tolerance: f64,
     eligible: &[bool],
     survival_tie_break: &[f64],
@@ -245,7 +250,7 @@ pub fn select_group_eligible(
     )
     .ok_or_else(|| {
         SelectionError::msg(format!(
-            "no staged-supported Hill-q parameter exists for {model}/{branch}/{}",
+            "no staged-supported power-anchor Hill-q parameter exists for {model}/{branch}/{}",
             policy.id()
         ))
     })
@@ -261,7 +266,7 @@ pub fn select_group_for_indices_eligible(
     branch: &str,
     ranking: &JointRanking,
     base: &BaseGrid,
-    orders: &[HillOrder],
+    orders: &[AggregationOrder],
     near_optimal_rank_tolerance: f64,
     eligible: &[bool],
     survival_tie_break: &[f64],
@@ -280,7 +285,7 @@ pub fn select_group_for_indices_eligible(
     )
     .ok_or_else(|| {
         SelectionError::msg(format!(
-            "no staged-supported Hill-q parameter exists for {model}/{branch}/{policy_id}"
+            "no staged-supported power-anchor Hill-q parameter exists for {model}/{branch}/{policy_id}"
         ))
     })
 }
@@ -293,7 +298,7 @@ fn select_group_for_cohorts(
     branch: &str,
     ranking: &JointRanking,
     base: &BaseGrid,
-    orders: &[HillOrder],
+    orders: &[AggregationOrder],
     near_optimal_rank_tolerance: f64,
     eligible: &[bool],
     survival_tie_break: &[f64],
@@ -301,19 +306,50 @@ fn select_group_for_cohorts(
     let (selected, mean_rank, worst_rank, mean_regret) =
         selected_index(ranking, base, cohorts, eligible, survival_tie_break)?;
     let base_len = base.len();
-    let q_order = selected / base_len;
+    let aggregation_order = selected / base_len;
     let grid_index = selected % base_len;
-    let hill = orders[q_order];
-    let cutoff = mean_rank[selected] + near_optimal_rank_tolerance;
+    let parameter_order = orders[aggregation_order];
+    let cutoff = worst_rank[selected] + near_optimal_rank_tolerance;
     let near: Vec<usize> = (0..ranking.count)
-        .filter(|&j| eligible[j] && mean_rank[j] <= cutoff)
+        .filter(|&j| eligible[j] && worst_rank[j] <= cutoff)
         .collect();
-    let mut near_q_orders: Vec<usize> = near.iter().map(|&j| j / base_len).collect();
+    let mut near_aggregation_orders: Vec<usize> = near.iter().map(|&j| j / base_len).collect();
+    near_aggregation_orders.sort_unstable();
+    near_aggregation_orders.dedup();
+    let mut near_alpha_orders: Vec<usize> = near_aggregation_orders
+        .iter()
+        .map(|&index| orders[index].alpha_order)
+        .collect();
+    near_alpha_orders.sort_unstable();
+    near_alpha_orders.dedup();
+    let near_alpha_ids = near_alpha_orders
+        .iter()
+        .map(|&alpha| {
+            orders
+                .iter()
+                .find(|order| order.alpha_order == alpha)
+                .expect("near alpha order exists")
+                .power
+                .id()
+        })
+        .collect::<Vec<_>>()
+        .join("|");
+    let mut near_q_orders: Vec<usize> = near_aggregation_orders
+        .iter()
+        .map(|&index| orders[index].q_order)
+        .collect();
     near_q_orders.sort_unstable();
     near_q_orders.dedup();
     let near_q_ids = near_q_orders
         .iter()
-        .map(|&q| orders[q].id())
+        .map(|&q| {
+            orders
+                .iter()
+                .find(|order| order.q_order == q)
+                .expect("near q order exists")
+                .hill
+                .id()
+        })
         .collect::<Vec<_>>()
         .join("|");
     let c = base.c[grid_index];
@@ -323,8 +359,11 @@ fn select_group_for_cohorts(
         model: model.to_string(),
         branch: branch.to_string(),
         selection_metric: selection_metric(branch).to_string(),
-        q_order,
-        hill,
+        aggregation_order,
+        alpha_order: parameter_order.alpha_order,
+        power: parameter_order.power,
+        q_order: parameter_order.q_order,
+        hill: parameter_order.hill,
         joint_grid_index: selected,
         grid_index,
         c,
@@ -334,10 +373,13 @@ fn select_group_for_cohorts(
         worst_cohort_fractional_rank: worst_rank[selected],
         mean_metric_regret: mean_regret[selected],
         near_optimal_rank_tolerance,
-        near_optimal_joint_triples: near.len(),
+        near_optimal_joint_tuples: near.len(),
+        near_optimal_alpha_count: near_alpha_orders.len(),
+        near_optimal_alpha_ids: near_alpha_ids,
         near_optimal_q_count: near_q_orders.len(),
         near_optimal_q_ids: near_q_ids,
-        q_is_zero_or_infinity: hill.value() == 0.0 || hill.value().is_infinite(),
+        q_is_zero_or_infinity: parameter_order.hill.value() == 0.0
+            || parameter_order.hill.value().is_infinite(),
         c_at_boundary: c == base.c_min() || c == base.c_max(),
         kappa_at_boundary: is_close(kappa, base.kappa_min()) || is_close(kappa, base.kappa_max()),
         cohort_metric: std::array::from_fn(|k| ranking.metric[k][selected]),
@@ -362,7 +404,7 @@ pub fn leave_one_cohort_out(
     branch: &str,
     ranking: &JointRanking,
     base: &BaseGrid,
-    orders: &[HillOrder],
+    orders: &[AggregationOrder],
     near_optimal_rank_tolerance: f64,
 ) -> Vec<LeaveOneOutRow> {
     let eligible = vec![true; ranking.count];
@@ -410,15 +452,29 @@ mod tests {
         }
     }
 
+    fn order(
+        power: PowerOrder,
+        hill: HillOrder,
+        alpha_order: usize,
+        q_order: usize,
+    ) -> AggregationOrder {
+        AggregationOrder {
+            alpha_order,
+            q_order,
+            power,
+            hill,
+        }
+    }
+
     #[test]
-    fn policies_can_select_different_joint_triples() {
+    fn policies_can_select_different_joint_tuples() {
         let ranking = JointRanking::build([
             vec![1.0, 0.9, 0.1, 0.0],
             vec![0.0, 0.1, 1.0, 0.9],
             vec![0.0, 0.1, 1.0, 0.9],
         ]);
         let grid = tiny_grid();
-        let orders = [HillOrder::Finite(1.0)];
+        let orders = [order(PowerOrder::Finite(0.0), HillOrder::Finite(1.0), 0, 0)];
         let pdac = select_group(
             SelectionPolicy::PdacOnly,
             "full_hla",
@@ -445,7 +501,10 @@ mod tests {
     fn exact_ties_prefer_larger_kappa_then_declared_q_order() {
         let ranking = JointRanking::build([vec![1.0; 8], vec![1.0; 8], vec![1.0; 8]]);
         let grid = tiny_grid();
-        let orders = [HillOrder::Finite(0.0), HillOrder::Infinity];
+        let orders = [
+            order(PowerOrder::Finite(0.0), HillOrder::Finite(0.0), 0, 0),
+            order(PowerOrder::Infinity, HillOrder::Infinity, 1, 1),
+        ];
         let selected = select_group(
             SelectionPolicy::AllContextsEqualWeight,
             "full_hla",
@@ -472,7 +531,7 @@ mod tests {
             "pr",
             &ranking,
             &tiny_grid(),
-            &[HillOrder::Finite(1.0)],
+            &[order(PowerOrder::Finite(0.0), HillOrder::Finite(1.0), 0, 0)],
             0.01,
             &[false, true, false, false],
             &[0.0, 0.9, 0.0, 0.0],
@@ -490,11 +549,30 @@ mod tests {
             "pr",
             &ranking,
             &tiny_grid(),
-            &[HillOrder::Finite(1.0)],
+            &[order(PowerOrder::Finite(0.0), HillOrder::Finite(1.0), 0, 0)],
             0.01,
             &[false; 4],
             &[0.0; 4],
         );
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn all_context_selection_is_worst_cohort_first() {
+        let ranking = JointRanking::build([
+            vec![1.0, 0.8, 0.7, 0.6],
+            vec![0.2, 0.8, 0.7, 0.6],
+            vec![0.2, 0.8, 0.7, 0.6],
+        ]);
+        let selected = select_group(
+            SelectionPolicy::AllContextsEqualWeight,
+            "full_hla",
+            "roc",
+            &ranking,
+            &tiny_grid(),
+            &[order(PowerOrder::Finite(0.0), HillOrder::Finite(1.0), 0, 0)],
+            0.01,
+        );
+        assert_eq!(selected.joint_grid_index, 1);
     }
 }

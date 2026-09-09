@@ -1,0 +1,91 @@
+{
+  "assembly_schema_version": "stage3_tensor_v1",
+  "common_fingerprint": "4c3347a81da080d18ee97bef143579979db8d0b01dd06063a87298a72ca860cc",
+  "dataset": "PDAC",
+  "geometry_params": [
+    [
+      13.890000343322754,
+      8.329999923706055,
+      0.5,
+      0.75
+    ],
+    [
+      15.0,
+      6.75,
+      0.5,
+      0.75
+    ],
+    [
+      15.0,
+      9.0,
+      0.5,
+      0.75
+    ]
+  ],
+  "geometry_params_str": [
+    [
+      "13.89",
+      "8.33",
+      "0.5",
+      "0.75"
+    ],
+    [
+      "15",
+      "6.75",
+      "0.5",
+      "0.75"
+    ],
+    [
+      "15",
+      "9",
+      "0.5",
+      "0.75"
+    ]
+  ],
+  "hla_environment_representation": "mono",
+  "mapping_file": "/data1/lukszam/Marcus/PDAC_vax_trial_epitopes/pdac_mono_longpep_mapping.csv",
+  "mapping_sha256": "b9ede99deba39e26de704f8960728430e863d87aaa626f28cdd44b3af7b1f366",
+  "max_num_ps_values": 16384,
+  "max_num_ps_values_log2": 14,
+  "mn_tuples": [
+    [
+      1,
+      1
+    ]
+  ],
+  "mn_tuples_file": "/home/thomm15/New_Approaches_Scripts/complete_f_stage2/mn_tuples_external_validation.csv",
+  "mn_tuples_file_sha256": "34a756c28695008b530f0d744335e44a8118c03e89dbccddeda10419ddc39f4b",
+  "n_geometry": 3,
+  "n_mn": 1,
+  "n_observations": 51756,
+  "n_params": 18,
+  "n_tau": 6,
+  "n_tensor_rows": 931608,
+  "parameter_file": "/home/thomm15/New_Approaches_Scripts/complete_f_stage2/param_sets_external_validation.csv",
+  "parameter_file_sha256": "253c7b0c103642b8266441c6526a797562f166a354744dbb8160cbcd25c364fb",
+  "pn_hla_scope": "all",
+  "pn_manifest": "/data1/lukszam/Marcus/New_Approaches/Runner/Outputs_PDAC/runs/complete_f_tensor_mono/pn_manifest.json",
+  "pn_mode_fingerprint": "b6ab114aaa17e6fef4822b2360304b3144589326e89cc828181a4aaa31c17cff",
+  "qpi_manifest": "/data1/lukszam/Marcus/New_Approaches/Runner/Outputs_PDAC/runs/complete_f_tensor_mono/qpi_manifest.json",
+  "qpi_mode_fingerprint": "007702dbcd718370a1e70a21fc4dee2c5a772340543c8d674c5f571d1c828346",
+  "query_input_file": "/data1/lukszam/Marcus/PDAC_vax_trial_epitopes/pdac_mono_query.csv",
+  "query_input_sha256": "df04882c352092002638d6d26e3ab7fa45956af092304ef713c7ef79276feee4",
+  "run_id": "complete_f_tensor_mono",
+  "run_manifest": "/data1/lukszam/Marcus/New_Approaches/Runner/Outputs_PDAC/runs/complete_f_tensor_mono/run_manifest.json",
+  "tau_values": [
+    1000.0,
+    50052.0,
+    91691.0,
+    120604.0,
+    156295.0,
+    200000.0
+  ],
+  "tau_values_str": [
+    "1000",
+    "50052",
+    "91691",
+    "120604",
+    "156295",
+    "200000"
+  ]
+}

@@ -939,6 +939,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "iris_nci_parameter_tournament"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "arrow",
+ "clap",
+ "csv",
+ "directed_round_robin_organizer",
+ "parquet",
+ "rayon",
+ "serde",
+ "serde_json",
+ "sha2",
+ "supported-ap",
+ "tempfile",
+ "time",
+]
+
+[[package]]
 name = "is_terminal_polyfill"
 version = "1.70.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

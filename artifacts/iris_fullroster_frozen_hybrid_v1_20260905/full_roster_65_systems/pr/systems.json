@@ -1,0 +1,1155 @@
+{
+  "schema_version": 2,
+  "systems": [
+    {
+      "system_id": "full_hla__max",
+      "display_label": "Full HLA / max",
+      "score_column": "score_full_hla__max",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "max",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "max"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__mean",
+      "display_label": "Full HLA / mean",
+      "score_column": "score_full_hla__mean",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "mean",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "mean"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__median",
+      "display_label": "Full HLA / median",
+      "score_column": "score_full_hla__median",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "median",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "median"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__logsumexp",
+      "display_label": "Full HLA / logsumexp",
+      "score_column": "score_full_hla__logsumexp",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "logsumexp",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "logsumexp"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__logmeanexp",
+      "display_label": "Full HLA / logmeanexp",
+      "score_column": "score_full_hla__logmeanexp",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "logmeanexp",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "logmeanexp"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__top_frac_mean_frac0p01",
+      "display_label": "Full HLA / top_frac_mean_frac0p01",
+      "score_column": "score_full_hla__top_frac_mean_frac0p01",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "top_frac_mean_frac0p01",
+        "l2_aggregation_spec": {
+          "fraction": 0.01,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__top_frac_mean_frac0p02",
+      "display_label": "Full HLA / top_frac_mean_frac0p02",
+      "score_column": "score_full_hla__top_frac_mean_frac0p02",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "top_frac_mean_frac0p02",
+        "l2_aggregation_spec": {
+          "fraction": 0.02,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__top_frac_mean_frac0p05",
+      "display_label": "Full HLA / top_frac_mean_frac0p05",
+      "score_column": "score_full_hla__top_frac_mean_frac0p05",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "top_frac_mean_frac0p05",
+        "l2_aggregation_spec": {
+          "fraction": 0.05,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__top_k_mean_k2",
+      "display_label": "Full HLA / top_k_mean_k2",
+      "score_column": "score_full_hla__top_k_mean_k2",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "top_k_mean_k2",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 2,
+          "method": "top_k_mean"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__top_k_mean_k3",
+      "display_label": "Full HLA / top_k_mean_k3",
+      "score_column": "score_full_hla__top_k_mean_k3",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "top_k_mean_k3",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 3,
+          "method": "top_k_mean"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__top_k_logsumexp_k2",
+      "display_label": "Full HLA / top_k_logsumexp_k2",
+      "score_column": "score_full_hla__top_k_logsumexp_k2",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "top_k_logsumexp_k2",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 2,
+          "method": "top_k_logsumexp"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__top_k_logsumexp_k10",
+      "display_label": "Full HLA / top_k_logsumexp_k10",
+      "score_column": "score_full_hla__top_k_logsumexp_k10",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "l2_aggregation_id": "top_k_logsumexp_k10",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 10,
+          "method": "top_k_logsumexp"
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_hla__endpoint_local_epitope_second_hla_hybrid_v1",
+      "display_label": "Full HLA / Frozen endpoint-local epitope + second-HLA hybrid",
+      "score_column": "score_full_hla__endpoint_local_epitope_second_hla_hybrid_v1",
+      "annotations": {
+        "component_model_id": "full_hla",
+        "development_scope": "parameters developed in full_hla; frozen unchanged for transport across all component models",
+        "l2_aggregation_family": "endpoint_local_epitope_second_hla_hybrid",
+        "l2_aggregation_formula": "m + (1-w)*(S_E-m) + w*B*sigmoid((M_(2)-t)/delta), where S_E solves S_E = m + C_E*sigmoid((c-S_E)/kappa)",
+        "l2_aggregation_id": "endpoint_local_epitope_second_hla_hybrid_v1",
+        "l2_aggregation_spec": {
+          "epitope_gate_center": -2.2,
+          "epitope_gate_width": 0.13,
+          "hla_bonus": 1.0,
+          "hla_weight": 0.12,
+          "method": "endpoint_local_epitope_second_hla_hybrid",
+          "second_hla_gate_width": 0.02,
+          "second_hla_threshold": -6.45,
+          "solver_absolute_tolerance": 1e-10,
+          "solver_max_iterations": 64
+        },
+        "metric_branch_id": "full_hla_pr_branch",
+        "nci_summary_sha256": "79bbce87dbbbcb235f9cd5e09e5547534b28897d470905c93177553f37199e8b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__max",
+      "display_label": "Focal HLA / max",
+      "score_column": "score_focal_hla__max",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "max",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "max"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__mean",
+      "display_label": "Focal HLA / mean",
+      "score_column": "score_focal_hla__mean",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "mean",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "mean"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__median",
+      "display_label": "Focal HLA / median",
+      "score_column": "score_focal_hla__median",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "median",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "median"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__logsumexp",
+      "display_label": "Focal HLA / logsumexp",
+      "score_column": "score_focal_hla__logsumexp",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "logsumexp",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "logsumexp"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__logmeanexp",
+      "display_label": "Focal HLA / logmeanexp",
+      "score_column": "score_focal_hla__logmeanexp",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "logmeanexp",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "logmeanexp"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__top_frac_mean_frac0p01",
+      "display_label": "Focal HLA / top_frac_mean_frac0p01",
+      "score_column": "score_focal_hla__top_frac_mean_frac0p01",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "top_frac_mean_frac0p01",
+        "l2_aggregation_spec": {
+          "fraction": 0.01,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__top_frac_mean_frac0p02",
+      "display_label": "Focal HLA / top_frac_mean_frac0p02",
+      "score_column": "score_focal_hla__top_frac_mean_frac0p02",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "top_frac_mean_frac0p02",
+        "l2_aggregation_spec": {
+          "fraction": 0.02,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__top_frac_mean_frac0p05",
+      "display_label": "Focal HLA / top_frac_mean_frac0p05",
+      "score_column": "score_focal_hla__top_frac_mean_frac0p05",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "top_frac_mean_frac0p05",
+        "l2_aggregation_spec": {
+          "fraction": 0.05,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__top_k_mean_k2",
+      "display_label": "Focal HLA / top_k_mean_k2",
+      "score_column": "score_focal_hla__top_k_mean_k2",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "top_k_mean_k2",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 2,
+          "method": "top_k_mean"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__top_k_mean_k3",
+      "display_label": "Focal HLA / top_k_mean_k3",
+      "score_column": "score_focal_hla__top_k_mean_k3",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "top_k_mean_k3",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 3,
+          "method": "top_k_mean"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__top_k_logsumexp_k2",
+      "display_label": "Focal HLA / top_k_logsumexp_k2",
+      "score_column": "score_focal_hla__top_k_logsumexp_k2",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "top_k_logsumexp_k2",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 2,
+          "method": "top_k_logsumexp"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__top_k_logsumexp_k10",
+      "display_label": "Focal HLA / top_k_logsumexp_k10",
+      "score_column": "score_focal_hla__top_k_logsumexp_k10",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "l2_aggregation_id": "top_k_logsumexp_k10",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 10,
+          "method": "top_k_logsumexp"
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "focal_hla__endpoint_local_epitope_second_hla_hybrid_v1",
+      "display_label": "Focal HLA / Frozen endpoint-local epitope + second-HLA hybrid",
+      "score_column": "score_focal_hla__endpoint_local_epitope_second_hla_hybrid_v1",
+      "annotations": {
+        "component_model_id": "focal_hla",
+        "development_scope": "parameters developed in full_hla; frozen unchanged for transport across all component models",
+        "l2_aggregation_family": "endpoint_local_epitope_second_hla_hybrid",
+        "l2_aggregation_formula": "m + (1-w)*(S_E-m) + w*B*sigmoid((M_(2)-t)/delta), where S_E solves S_E = m + C_E*sigmoid((c-S_E)/kappa)",
+        "l2_aggregation_id": "endpoint_local_epitope_second_hla_hybrid_v1",
+        "l2_aggregation_spec": {
+          "epitope_gate_center": -2.2,
+          "epitope_gate_width": 0.13,
+          "hla_bonus": 1.0,
+          "hla_weight": 0.12,
+          "method": "endpoint_local_epitope_second_hla_hybrid",
+          "second_hla_gate_width": 0.02,
+          "second_hla_threshold": -6.45,
+          "solver_absolute_tolerance": 1e-10,
+          "solver_max_iterations": 64
+        },
+        "metric_branch_id": "focal_hla_pr_branch",
+        "nci_summary_sha256": "1b28758949635f2a230a244cea58aa298acc850dfcc12a1c96bd228eb57ffb2d",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__max",
+      "display_label": "Old monoallelic / max",
+      "score_column": "score_old_monoallelic__max",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "max",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "max"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__mean",
+      "display_label": "Old monoallelic / mean",
+      "score_column": "score_old_monoallelic__mean",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "mean",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "mean"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__median",
+      "display_label": "Old monoallelic / median",
+      "score_column": "score_old_monoallelic__median",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "median",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "median"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__logsumexp",
+      "display_label": "Old monoallelic / logsumexp",
+      "score_column": "score_old_monoallelic__logsumexp",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "logsumexp",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "logsumexp"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__logmeanexp",
+      "display_label": "Old monoallelic / logmeanexp",
+      "score_column": "score_old_monoallelic__logmeanexp",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "logmeanexp",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "logmeanexp"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__top_frac_mean_frac0p01",
+      "display_label": "Old monoallelic / top_frac_mean_frac0p01",
+      "score_column": "score_old_monoallelic__top_frac_mean_frac0p01",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "top_frac_mean_frac0p01",
+        "l2_aggregation_spec": {
+          "fraction": 0.01,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__top_frac_mean_frac0p02",
+      "display_label": "Old monoallelic / top_frac_mean_frac0p02",
+      "score_column": "score_old_monoallelic__top_frac_mean_frac0p02",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "top_frac_mean_frac0p02",
+        "l2_aggregation_spec": {
+          "fraction": 0.02,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__top_frac_mean_frac0p05",
+      "display_label": "Old monoallelic / top_frac_mean_frac0p05",
+      "score_column": "score_old_monoallelic__top_frac_mean_frac0p05",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "top_frac_mean_frac0p05",
+        "l2_aggregation_spec": {
+          "fraction": 0.05,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__top_k_mean_k2",
+      "display_label": "Old monoallelic / top_k_mean_k2",
+      "score_column": "score_old_monoallelic__top_k_mean_k2",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "top_k_mean_k2",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 2,
+          "method": "top_k_mean"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__top_k_mean_k3",
+      "display_label": "Old monoallelic / top_k_mean_k3",
+      "score_column": "score_old_monoallelic__top_k_mean_k3",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "top_k_mean_k3",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 3,
+          "method": "top_k_mean"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__top_k_logsumexp_k2",
+      "display_label": "Old monoallelic / top_k_logsumexp_k2",
+      "score_column": "score_old_monoallelic__top_k_logsumexp_k2",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "top_k_logsumexp_k2",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 2,
+          "method": "top_k_logsumexp"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__top_k_logsumexp_k10",
+      "display_label": "Old monoallelic / top_k_logsumexp_k10",
+      "score_column": "score_old_monoallelic__top_k_logsumexp_k10",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "l2_aggregation_id": "top_k_logsumexp_k10",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 10,
+          "method": "top_k_logsumexp"
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "old_monoallelic__endpoint_local_epitope_second_hla_hybrid_v1",
+      "display_label": "Old monoallelic / Frozen endpoint-local epitope + second-HLA hybrid",
+      "score_column": "score_old_monoallelic__endpoint_local_epitope_second_hla_hybrid_v1",
+      "annotations": {
+        "component_model_id": "old_monoallelic",
+        "development_scope": "parameters developed in full_hla; frozen unchanged for transport across all component models",
+        "l2_aggregation_family": "endpoint_local_epitope_second_hla_hybrid",
+        "l2_aggregation_formula": "m + (1-w)*(S_E-m) + w*B*sigmoid((M_(2)-t)/delta), where S_E solves S_E = m + C_E*sigmoid((c-S_E)/kappa)",
+        "l2_aggregation_id": "endpoint_local_epitope_second_hla_hybrid_v1",
+        "l2_aggregation_spec": {
+          "epitope_gate_center": -2.2,
+          "epitope_gate_width": 0.13,
+          "hla_bonus": 1.0,
+          "hla_weight": 0.12,
+          "method": "endpoint_local_epitope_second_hla_hybrid",
+          "second_hla_gate_width": 0.02,
+          "second_hla_threshold": -6.45,
+          "solver_absolute_tolerance": 1e-10,
+          "solver_max_iterations": 64
+        },
+        "metric_branch_id": "old_monoallelic_pr_branch",
+        "nci_summary_sha256": "2dca2ca9979c885e844f10be9035c8da4fd1fb4eb67db7cfc8c6a70e978e780b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__max",
+      "display_label": "Mono-Q / full-PN / max",
+      "score_column": "score_mono_q_full_pn__max",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "max",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "max"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__mean",
+      "display_label": "Mono-Q / full-PN / mean",
+      "score_column": "score_mono_q_full_pn__mean",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "mean",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "mean"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__median",
+      "display_label": "Mono-Q / full-PN / median",
+      "score_column": "score_mono_q_full_pn__median",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "median",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "median"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__logsumexp",
+      "display_label": "Mono-Q / full-PN / logsumexp",
+      "score_column": "score_mono_q_full_pn__logsumexp",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "logsumexp",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "logsumexp"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__logmeanexp",
+      "display_label": "Mono-Q / full-PN / logmeanexp",
+      "score_column": "score_mono_q_full_pn__logmeanexp",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "logmeanexp",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "logmeanexp"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__top_frac_mean_frac0p01",
+      "display_label": "Mono-Q / full-PN / top_frac_mean_frac0p01",
+      "score_column": "score_mono_q_full_pn__top_frac_mean_frac0p01",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "top_frac_mean_frac0p01",
+        "l2_aggregation_spec": {
+          "fraction": 0.01,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__top_frac_mean_frac0p02",
+      "display_label": "Mono-Q / full-PN / top_frac_mean_frac0p02",
+      "score_column": "score_mono_q_full_pn__top_frac_mean_frac0p02",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "top_frac_mean_frac0p02",
+        "l2_aggregation_spec": {
+          "fraction": 0.02,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__top_frac_mean_frac0p05",
+      "display_label": "Mono-Q / full-PN / top_frac_mean_frac0p05",
+      "score_column": "score_mono_q_full_pn__top_frac_mean_frac0p05",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "top_frac_mean_frac0p05",
+        "l2_aggregation_spec": {
+          "fraction": 0.05,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__top_k_mean_k2",
+      "display_label": "Mono-Q / full-PN / top_k_mean_k2",
+      "score_column": "score_mono_q_full_pn__top_k_mean_k2",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "top_k_mean_k2",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 2,
+          "method": "top_k_mean"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__top_k_mean_k3",
+      "display_label": "Mono-Q / full-PN / top_k_mean_k3",
+      "score_column": "score_mono_q_full_pn__top_k_mean_k3",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "top_k_mean_k3",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 3,
+          "method": "top_k_mean"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__top_k_logsumexp_k2",
+      "display_label": "Mono-Q / full-PN / top_k_logsumexp_k2",
+      "score_column": "score_mono_q_full_pn__top_k_logsumexp_k2",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "top_k_logsumexp_k2",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 2,
+          "method": "top_k_logsumexp"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__top_k_logsumexp_k10",
+      "display_label": "Mono-Q / full-PN / top_k_logsumexp_k10",
+      "score_column": "score_mono_q_full_pn__top_k_logsumexp_k10",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "l2_aggregation_id": "top_k_logsumexp_k10",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 10,
+          "method": "top_k_logsumexp"
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "mono_q_full_pn__endpoint_local_epitope_second_hla_hybrid_v1",
+      "display_label": "Mono-Q / full-PN / Frozen endpoint-local epitope + second-HLA hybrid",
+      "score_column": "score_mono_q_full_pn__endpoint_local_epitope_second_hla_hybrid_v1",
+      "annotations": {
+        "component_model_id": "mono_q_full_pn",
+        "development_scope": "parameters developed in full_hla; frozen unchanged for transport across all component models",
+        "l2_aggregation_family": "endpoint_local_epitope_second_hla_hybrid",
+        "l2_aggregation_formula": "m + (1-w)*(S_E-m) + w*B*sigmoid((M_(2)-t)/delta), where S_E solves S_E = m + C_E*sigmoid((c-S_E)/kappa)",
+        "l2_aggregation_id": "endpoint_local_epitope_second_hla_hybrid_v1",
+        "l2_aggregation_spec": {
+          "epitope_gate_center": -2.2,
+          "epitope_gate_width": 0.13,
+          "hla_bonus": 1.0,
+          "hla_weight": 0.12,
+          "method": "endpoint_local_epitope_second_hla_hybrid",
+          "second_hla_gate_width": 0.02,
+          "second_hla_threshold": -6.45,
+          "solver_absolute_tolerance": 1e-10,
+          "solver_max_iterations": 64
+        },
+        "metric_branch_id": "mono_q_full_pn_pr_branch",
+        "nci_summary_sha256": "6c7d5d9361dd9d47941e950bf1f3b6c7035f13e09abf6688f60ef43c2ee2d95b",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__max",
+      "display_label": "Full-Q / mono-PN / max",
+      "score_column": "score_full_q_mono_pn__max",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "max",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "max"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__mean",
+      "display_label": "Full-Q / mono-PN / mean",
+      "score_column": "score_full_q_mono_pn__mean",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "mean",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "mean"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__median",
+      "display_label": "Full-Q / mono-PN / median",
+      "score_column": "score_full_q_mono_pn__median",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "median",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "median"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__logsumexp",
+      "display_label": "Full-Q / mono-PN / logsumexp",
+      "score_column": "score_full_q_mono_pn__logsumexp",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "logsumexp",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "logsumexp"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__logmeanexp",
+      "display_label": "Full-Q / mono-PN / logmeanexp",
+      "score_column": "score_full_q_mono_pn__logmeanexp",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "logmeanexp",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": null,
+          "method": "logmeanexp"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__top_frac_mean_frac0p01",
+      "display_label": "Full-Q / mono-PN / top_frac_mean_frac0p01",
+      "score_column": "score_full_q_mono_pn__top_frac_mean_frac0p01",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "top_frac_mean_frac0p01",
+        "l2_aggregation_spec": {
+          "fraction": 0.01,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__top_frac_mean_frac0p02",
+      "display_label": "Full-Q / mono-PN / top_frac_mean_frac0p02",
+      "score_column": "score_full_q_mono_pn__top_frac_mean_frac0p02",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "top_frac_mean_frac0p02",
+        "l2_aggregation_spec": {
+          "fraction": 0.02,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__top_frac_mean_frac0p05",
+      "display_label": "Full-Q / mono-PN / top_frac_mean_frac0p05",
+      "score_column": "score_full_q_mono_pn__top_frac_mean_frac0p05",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "top_frac_mean_frac0p05",
+        "l2_aggregation_spec": {
+          "fraction": 0.05,
+          "k": null,
+          "method": "top_fraction_mean"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__top_k_mean_k2",
+      "display_label": "Full-Q / mono-PN / top_k_mean_k2",
+      "score_column": "score_full_q_mono_pn__top_k_mean_k2",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "top_k_mean_k2",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 2,
+          "method": "top_k_mean"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__top_k_mean_k3",
+      "display_label": "Full-Q / mono-PN / top_k_mean_k3",
+      "score_column": "score_full_q_mono_pn__top_k_mean_k3",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "top_k_mean_k3",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 3,
+          "method": "top_k_mean"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__top_k_logsumexp_k2",
+      "display_label": "Full-Q / mono-PN / top_k_logsumexp_k2",
+      "score_column": "score_full_q_mono_pn__top_k_logsumexp_k2",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "top_k_logsumexp_k2",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 2,
+          "method": "top_k_logsumexp"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__top_k_logsumexp_k10",
+      "display_label": "Full-Q / mono-PN / top_k_logsumexp_k10",
+      "score_column": "score_full_q_mono_pn__top_k_logsumexp_k10",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "l2_aggregation_id": "top_k_logsumexp_k10",
+        "l2_aggregation_spec": {
+          "fraction": null,
+          "k": 10,
+          "method": "top_k_logsumexp"
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    },
+    {
+      "system_id": "full_q_mono_pn__endpoint_local_epitope_second_hla_hybrid_v1",
+      "display_label": "Full-Q / mono-PN / Frozen endpoint-local epitope + second-HLA hybrid",
+      "score_column": "score_full_q_mono_pn__endpoint_local_epitope_second_hla_hybrid_v1",
+      "annotations": {
+        "component_model_id": "full_q_mono_pn",
+        "development_scope": "parameters developed in full_hla; frozen unchanged for transport across all component models",
+        "l2_aggregation_family": "endpoint_local_epitope_second_hla_hybrid",
+        "l2_aggregation_formula": "m + (1-w)*(S_E-m) + w*B*sigmoid((M_(2)-t)/delta), where S_E solves S_E = m + C_E*sigmoid((c-S_E)/kappa)",
+        "l2_aggregation_id": "endpoint_local_epitope_second_hla_hybrid_v1",
+        "l2_aggregation_spec": {
+          "epitope_gate_center": -2.2,
+          "epitope_gate_width": 0.13,
+          "hla_bonus": 1.0,
+          "hla_weight": 0.12,
+          "method": "endpoint_local_epitope_second_hla_hybrid",
+          "second_hla_gate_width": 0.02,
+          "second_hla_threshold": -6.45,
+          "solver_absolute_tolerance": 1e-10,
+          "solver_max_iterations": 64
+        },
+        "metric_branch_id": "full_q_mono_pn_pr_branch",
+        "nci_summary_sha256": "ff2a03b24ccf87034883ce837a6431c48135e7ce1992e0d594103f1f006128b6",
+        "provider_domain": "IRIS"
+      }
+    }
+  ]
+}

@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::error::{InputError, Result};
 use crate::io::read_json;
 
-pub const CONFIG_SCHEMA_VERSION: u32 = 1;
+pub const CONFIG_SCHEMA_VERSION: u32 = 2;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -24,16 +24,18 @@ pub struct BuildConfig {
 pub struct DatasetConfig {
     pub id: String,
     pub prefix: String,
-    pub query: PathBuf,
+    pub expression: String,
     pub env_dict: PathBuf,
-    pub mapping: PathBuf,
+    pub primary_view_id: String,
+    pub primary_mapping: PathBuf,
     pub config_template: PathBuf,
     pub generated_mono_config: String,
+    pub generated_full_deduplicated_config: String,
     pub response_column: String,
     pub response_kind: ResponseKind,
     pub endpoint_fields: Vec<String>,
     #[serde(default)]
-    pub generated_full_deduplicated_config: Option<String>,
+    pub views: Vec<ViewConfig>,
     #[serde(default)]
     pub noise_ceiling_threshold: Option<f64>,
     #[serde(default)]
@@ -53,24 +55,59 @@ pub enum ResponseKind {
 #[serde(deny_unknown_fields)]
 pub struct ExpectedCounts {
     #[serde(default)]
-    pub unique_query_rows: Option<usize>,
+    pub full_query_rows: Option<usize>,
     #[serde(default)]
     pub mono_environments: Option<usize>,
     #[serde(default)]
-    pub mapping_rows: Option<usize>,
+    pub primary_source_rows: Option<usize>,
     #[serde(default)]
-    pub scoreable_rows: Option<usize>,
+    pub primary_mapping_rows: Option<usize>,
     #[serde(default)]
-    pub floor_rows: Option<usize>,
+    pub primary_endpoints: Option<usize>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ExpectedSourceHashes {
-    pub query: String,
     pub env_dict: String,
-    pub mapping: String,
+    pub primary_mapping: String,
     pub config_template: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct ViewConfig {
+    pub id: String,
+    pub role: ViewRole,
+    pub mapping: PathBuf,
+    pub require_subset_of: String,
+    #[serde(default)]
+    pub selection_eligible: bool,
+    #[serde(default)]
+    pub bundle_eligible: bool,
+    #[serde(default)]
+    pub expected: Option<ExpectedViewCounts>,
+    #[serde(default)]
+    pub expected_sha256: Option<String>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ViewRole {
+    Secondary,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct ExpectedViewCounts {
+    #[serde(default)]
+    pub source_rows: Option<usize>,
+    #[serde(default)]
+    pub mapping_rows: Option<usize>,
+    #[serde(default)]
+    pub endpoints: Option<usize>,
+    #[serde(default)]
+    pub compute_keys: Option<usize>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -118,9 +155,13 @@ impl BuildConfig {
         let mut ids = BTreeSet::new();
         let mut prefixes = BTreeSet::new();
         for dataset in &self.datasets {
-            if dataset.id.trim().is_empty() || dataset.prefix.trim().is_empty() {
+            if dataset.id.trim().is_empty()
+                || dataset.prefix.trim().is_empty()
+                || dataset.expression.trim().is_empty()
+                || dataset.primary_view_id.trim().is_empty()
+            {
                 return Err(InputError::contract(
-                    "dataset id and prefix must be nonempty",
+                    "dataset id, prefix, expression, and primary_view_id must be nonempty",
                 ));
             }
             if !ids.insert(dataset.id.clone()) {
@@ -148,6 +189,33 @@ impl BuildConfig {
                     "binary dataset {} cannot define noise_ceiling_threshold",
                     dataset.id
                 )));
+            }
+            let mut view_ids = BTreeSet::from([dataset.primary_view_id.clone()]);
+            for view in &dataset.views {
+                if view.id.trim().is_empty() {
+                    return Err(InputError::contract(format!(
+                        "dataset {} has a blank view id",
+                        dataset.id
+                    )));
+                }
+                if !view_ids.insert(view.id.clone()) {
+                    return Err(InputError::contract(format!(
+                        "dataset {} has duplicate view id {:?}",
+                        dataset.id, view.id
+                    )));
+                }
+                if view.require_subset_of != dataset.primary_view_id {
+                    return Err(InputError::contract(format!(
+                        "dataset {} secondary view {} must require_subset_of primary view {}",
+                        dataset.id, view.id, dataset.primary_view_id
+                    )));
+                }
+                if view.selection_eligible || view.bundle_eligible {
+                    return Err(InputError::contract(format!(
+                        "dataset {} secondary view {} cannot be selection- or bundle-eligible in schema v2",
+                        dataset.id, view.id
+                    )));
+                }
             }
         }
         Ok(())

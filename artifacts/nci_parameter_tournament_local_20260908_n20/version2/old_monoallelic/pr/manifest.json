@@ -1,0 +1,787 @@
+{
+  "bundle_content_hash": "4703ac7a71ff3104667cb1802e9ae3202e2eefd9ff8a1a7603cd2c644df69230",
+  "files": {
+    "selection.json": "9e3371f9d5366ca3670fcc99c58c3eabfc07b83a412f8144ff59978db14530f7"
+  },
+  "metric": "pr_cnap",
+  "schema_version": 1,
+  "source_files": [
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/IRIS_scripts/nci_parameter_tournament/config.nci.v1.json",
+      "sha256": "1027f08030e702c25015874fbbed57cfbbd2a609f78977e4ec048e93f1634d9e"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/plans/old_monoallelic/pr/plan.json",
+      "sha256": "70614c28592406b1924f7f86f41739465c80d109e502764c6f942059a108d03e"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/prepared/old_monoallelic/pr/bundle/bundle_manifest.json",
+      "sha256": "b30fba40860d634bc18a901de12699c4477140daa49d821a4c201f474a7d7e84"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/reductions/old_monoallelic/pr/reduction_manifest.json",
+      "sha256": "5306256052d5fedbb2786283dfa24ac482b0e53a10e237a97851d82d25d9e882"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/000d48a314e8e32ab213a0d10e89b68ca68b2e98502ff4ddba2e8abe993b2f32.json",
+      "sha256": "158d92b0e85c00d5b31eaefa43a2cc1ca5f49952000de9c19c7067038794702c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/029b454ec710e65abf2876d6e01d9188b997fe948f2323c6131fd28cb7eea609.json",
+      "sha256": "d14994b9cd613b39738f2532013f1b405dcbd867ae0244e2bebb5dde9b8750d6"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/02dcbdbd1e31af4aa3e6c81f218e6768556b87cf6181b4fef7a972eb47d8b418.json",
+      "sha256": "a771f68fae12288cce5c8b6b17ba05f625fa72af48c992dfd1d389a46f36734c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/037ca6f9336459fa7cd5918ef9f3ad7a6daca67b6c29fab61ca5e13dbb552526.json",
+      "sha256": "a2474b1fcf9076249b12a1af1cbff9965a88dba70e0abd4c275ea253d0bd1073"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/0395b9528aaf4f4b175e06fb7eb9ced763f21ddd9a2b61b8244480b6395c2bdc.json",
+      "sha256": "1754149b3104472cddff0f64065e7eae0a0f09f1cc40aa9a90b705c9c56cba4a"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/06cbf6c63266f708d4d991d02a5d27a84cbeeb04cd9b2f283e77ee0c10861f55.json",
+      "sha256": "55951d86c5b7198d269bfa35316dcc0c84476992f97d90e32de984e0cdc974e5"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/0725997fb55dfc24db6c48e9eae54154a6ebe9d00da3513baaec0a50626dd7c3.json",
+      "sha256": "a688309d32a135023515e36b7426e0b4bb02fdb3fdafb5d983a1c8e1b9b2bb1c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/07579e50b2a90e0b96f461c9940fcd087bc3fec5d51fcd0959a0b9e75b8f4247.json",
+      "sha256": "0235b337581ab883cf770619e43fd3f3a05e82cd8e59748543799a2ca0b9fe78"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/0e6f5f3ade65b70a08cb3fd5310c2fb7d2b92b891b615fd79812b481711779b0.json",
+      "sha256": "2c59aec3ff9e8cd1ec2f15964a4c893d16dfc93d3a28b0db405e123e719007cc"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/0f1580f444f52079d680c4c82e0f4c13dd50136d65c0ae424373a54c415f592e.json",
+      "sha256": "1e41fbd485e9e3583072d8e7190a99303da040121ddcc2d16091fef079d4b8a2"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/10db5b3ac4cbccc46dad3921e3b5055d697502fe76282dd4dddfe4677f457c02.json",
+      "sha256": "c12b7cfe8bcad622f53822fca291670b3d8f6cfe70d8bcdc8afaf33b0e40f315"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/11994211a609d7115a7cbbe099d2c479462b0cd13f2e3f5210d3ab223ecf5ae4.json",
+      "sha256": "7f347e3be1c543c0282bbbad7c429cfc5e3cac4b199593c669364705928ea7fc"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/12e553f7e123059a28d30522e0a36978a3ad5d7f8acde7042c4d897e51860dff.json",
+      "sha256": "2d637507801ba38c497bdd88d7a69af6d5efbf33c409d2c1e148c273a1a27810"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/13180711d474afe1053ba5267d5ebb28190defe80c6419e2baffbc249605f6ae.json",
+      "sha256": "575e61d213a55c5d8a040d56d877a9ecc2ef973aeca6126cf9119b6707cb3ad9"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/135d490ebffedb29dc635c04a679921803d251fb66eb5379dbd7d54348079558.json",
+      "sha256": "22552478b52c6e8c13afa8a7d4750e24efed4c8bc5a8585c86d45ed7225687ed"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/13c820312f9b9c9b71acec40deb33d9c56c8e8fbc1f5d0199073bc745e321a80.json",
+      "sha256": "95a78f140be56d52a7172a0dba484f0ab6baffeff68be70ebdcc3d7b344339a6"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/13e323dad75a4d424ae1fbaeb4b62cdc91b054b2e0bc5f69b6b1cb080de80426.json",
+      "sha256": "1bcaf02bd5e862f53dcf3c973b7d0c8cb8cf3317eddb8a3320320b4607278610"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/150bb60a1756e5c5f76859a098a9a4d0f3e3fdc4ddc264a2c4b7a6ab50533cbe.json",
+      "sha256": "80eac094e7f71ee5d901de3367d7ead5b0e0cfe1777163a0ae9f022db6217af0"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/1617eee78f7e042b056f8a0cd5a07e05e480740dbf21d97ac37bb57e1dbfd764.json",
+      "sha256": "789f758d49c034bee498b2e987ef7bc21fe29c406c86c63916d8ed75cdadf81d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/180b5b2bec6d8719e2f1c7ac7b841c23a453a613d445572482371fb25006c421.json",
+      "sha256": "a6622c3cacd958f764bad065aeccf3fd5ebce3db379d5970a6944ab57b67c77b"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/18d99ea0b7aeeb19cd2480fe524661bc14277230e37ecdfc6909fb2fe402dfb1.json",
+      "sha256": "8a1a763eb5d1e1099fb98d7e6d2f36c0f4aab93ba2b5bddc7d5703b15ea6d553"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/18ed47818d63e5cea9590253e406902bfe3eb2c1ca83fb8c7e1073b88e06970b.json",
+      "sha256": "505c99b65747a0a11b11231f0eb2f7f1ea0db00a8aa8461f6f5ca92de40276d9"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/1a0de192c5fef95a1764f6988afa7d63880dc5c893ed434760bc5db33fe14817.json",
+      "sha256": "8a5299eda7c06084f6f850759b48a785eef02112f1ef48b43b9c76fa7a8a3ea9"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/1b2188e4ee76b5da818fe25ee7b35bc2f837893fbf0f1dee64608de566bb4ef5.json",
+      "sha256": "84589d77563d109dc844976b3d34b9722b4c0daf8c097c4d8185b80dc343ac69"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/1b8c56c5010c802a7e97028e51b7da27f66cb897731732f33de77c329df3c0fc.json",
+      "sha256": "e7fb25b6292aecb92ce508cafe71afec0e830b4d3782edf098975a0f4f226837"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/1b9b3842bc692475d764131119d56b4646dadfb17543768c2f5706472c10287e.json",
+      "sha256": "e2c10b45dc123493da4f9d8cede9770895b72b44d2da1bdd09341823a4fb0c19"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/1cacdb0a735b67192a7777da193d673a9c616e4778b62aa3e0bb03293a198dc7.json",
+      "sha256": "2c2fb34cabb1d0906e1c0341a5745d3453bbdee6bdf0921c5c5e06213dd992c4"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/1ef955a6cd3a3887c26595d842a511c2856355f8eac46a0d4307352296e2801e.json",
+      "sha256": "f7dcb36de3925b5783a7815d0c46a7962f3be406aa7f5968b07020a1bdc667d4"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/1f94454bb7fe9c90165d8269e4a37d7a535f1a83cd2768a2b3f3eaa7e8a900cb.json",
+      "sha256": "e73addc4533ecb4dbd66fcf0ff02b106c5bb6d61cccb2009dfd827f7add0af07"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/1fe0860287b113725a24d019404d5b5197dd27bb76583b0c31bb57500542a208.json",
+      "sha256": "b1a42d2e424856dfcf8752bc05cc5963e2331439948ee9288d6e7e42bb55c79c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/2100840a74c3fef4749f04d77a70a3a9be3454032e350b9bfc4c2fae50157ab9.json",
+      "sha256": "a5602a6959580ecc3d19661b78e13a3c1fdb9b575e15f1be4f307f0c513caa5c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/21f8db4da32f2af3251d27404cd0cd8ff5c00944b1ace6ed0b4e3ff90251329f.json",
+      "sha256": "9121366c19b8e014631cbb7375dfa60302a3ce096c4c6b669801b32737c9d1d7"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/22bfd926d45b2ec2f70370dd6c85211887796c7b993dac655df983f6246a59f1.json",
+      "sha256": "0ac519200e4652657b1e9c9a3070068c8859019e783252add0fdf19162a9f57f"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/24c68b0b9437d44a3f225868542a77d724369fd886b542190233ab9f8172f624.json",
+      "sha256": "6312f608b3b436d77cbeddb5e0c2daaa9bcd96138e0dfc7bb6634b3803699b2f"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/24c6cf923ff18eb1b4228712d4b1fd488ec4a97eb2f92d61e4c3d7ad4f7941f0.json",
+      "sha256": "6f1817f8c98750f40a1371dab9dc39a63b2bf1ad84a8ecc24593366142f56ed3"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/2595cf90c805d3d86491a87f466c721f2018999893ea2ec5fa3c87aba3ac8606.json",
+      "sha256": "696d185e0746577368a39f9cc7c5119024c38ed87f05f54e5be3b7673565af5b"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/26a4952f3d21d5dae0b736a6a1ae80fdb0a6b2ff298677c8e85c94a14467cf2c.json",
+      "sha256": "c7e1351a3b6135f9b68a561e1642c56ccbab7a6397c9bf149c3415f03f0b536e"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/27f146c8226eab2a5e22508474caf4611345fa5f2c06f470cc6b505a86ffc630.json",
+      "sha256": "93628ffe60f44dc3a93e393fe97236acca9c9d4e41abb4101037db64bfeddbcb"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/2e03617ee71e935a531dd4e41fc47d630235eaf876e4bfe1ebfebf548f4e631c.json",
+      "sha256": "4e37f1433665dc11aa5d9f3c7cd51fb894d44a3aa4bccef6ee855c466bc8b2bf"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/2e3551db0f642571e54d8c0c2daf3002928d7daaefafbd4c15c2ff9be16816ec.json",
+      "sha256": "265c7f94135450dd952ba39cc82d60e3c332b3bbdabafedbd3b1f7c1860113a7"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/2f4b8c05d72b7db272eace43f8b8e7328e120c6f2c593de5f2c25cb727607abf.json",
+      "sha256": "ae2bf34cd29c6c5c6a8cfe75da6473948263f45d10c59f0babda9dc3085bd09a"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/2fbd09eaf271b37dfcc2cd39fcb2f810fe93b10e51a4210f540c6b451caed83d.json",
+      "sha256": "654983b797cf7bde8b5415e7e5961dcc694468dabc7c947a8362ddecf468189f"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/2fbd8b3793548e35f235ab18e0c94ddb649b78f908150cc2df1b319f2de598b3.json",
+      "sha256": "e55b5dbd14126fd6f206763138871151733d75cc31c6aebde3890eb737df7e0d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/30a090d5cdce47bf6ee17fbefebefd3994848aa6afd6dafc98386a249898a20d.json",
+      "sha256": "88ff018b2fd054ccbaa959265684dfa5caa34fce169063c1343ad262fb15f014"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/32316e24256291cb34f05291ce2f412b312bdee37023eaa1fa879cd2f3c6831b.json",
+      "sha256": "b8591113d9b1e039de26918bdcb293692c4a9cff9ae6ac9095dfc19d2da4df3d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/32a25e7268697b9966373f6208533bcb24f0f4613bac83badd6ad1675810f41d.json",
+      "sha256": "352f62e65f6406104a50dba88c061a6d0c931ef7ec6724b5fe57baa6e6dd4cef"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/32fac8b32aaec3056405a8034be8d9a2f06683df66b0694262a04a11713ed701.json",
+      "sha256": "22cdd28a75ac893682232606023619a4518a09266ef0b67401234e3098ef653d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/353e1ca90a3ebe184d37250c9e3de0a8fa659d90f051354839989b3844eb7cc3.json",
+      "sha256": "840336b1dcfe41df8c9493a6a330ca9e92117394b6b89ed37ecdf10de8e55390"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/362755e5693ad3acf3bb40a8b7bd95227f52a0d91496c6aff6f1e852e501af85.json",
+      "sha256": "c26b4eb4f57f17177950705dc711a69492eceb3edb92e4c8d2451e72d8dee425"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/3751efcc6e463b9dbfba4906cc0295d8c2839ed7d547be0e46fa4b8b3ec0d4ef.json",
+      "sha256": "f8c51cf639a18b3a42f7e0f14998268ff90cfd7662b0d044932f41cd2a5832b5"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/38fc8bd78ae269866901991576470832cd0e913de0f1c5b285dbc9954ddd70b1.json",
+      "sha256": "20128b5183966270e6c6b80a56cc7cfcda937fe28c91415db42f1ea585704cd6"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/3ade49563d9f1a1ae517d26be5cde2353cdf9d346ba2c728a81476258562cf75.json",
+      "sha256": "cefa39d5dff624699cec26ac619540e4a2f8eb856dcdfd9f48ad14a45a060fa3"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/3c1250625194da9c7ec02b57409d026229db3b29f711ac6ded1f6c6cb65e704d.json",
+      "sha256": "4991e5052a33d9f7b2280d528dcd0adea214bec218b2705f506bacfec0d91cc1"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/3c4cc10899264d674fbe37dff1768d65b7f1963b0fdd44bfa053419606c111c8.json",
+      "sha256": "5a5623ef6861eaef277d03acedfe2c6c95221bfd6e14defcda1c65f561e0365e"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/3d5556c214731ec71f99144d88171a8a5f81d8cc11f859cce807e0c87739638a.json",
+      "sha256": "9aa54bde85cef155a46c1dd2d6a841bafd6b6ee2e9b8b083f219f12e73313fa5"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/3e8ef9893e4bae34fd901277b62850f66d3bc7ccd550ea580764c219b1879b28.json",
+      "sha256": "4b40dca53d9bca7639818a147ab3dac0103362c71beb2cadcf49d7bc12eebe2d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/3fe5903d20c43028018f333dbc4600bc31dddbdc0b05fa18cc21b351c7927d72.json",
+      "sha256": "959d0857541eb0b4f012dd15bd62b4602511b4bc080c070d54a6e61e9fe07f3a"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/4151e1df285ed17b93213261d0d378e5bf3bbb91e3f8501bd260c6693ab5d291.json",
+      "sha256": "1d28ad2e58e6fcb5a88c1f8e8935501241fd93d98e3c96daaa1359690a25b473"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/42927e3136b78dcd3bd26f7529a047ca0956311c85d661543e0777d34615e347.json",
+      "sha256": "e6e073cb553ae64cc3e88ff793f259f4801c86cd8bbff445a8ff10edbb23b20d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/4298f9dde4c32a27c30f2bfffb42164814262b690cf832f5f031be0cb9e84b19.json",
+      "sha256": "d1c14f7ea360bb0520d6e1a630b14b760358e54a253a3b43b21288689d8d1a21"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/42c864dbcaf0985885ce79853e168e4125f4d4472426400fb1a70be053dd7598.json",
+      "sha256": "8c046d182c32993143f3589cde5ffff36daa7b43db143f64ed3522c3ad10c851"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/43e2c47baec84a1b091e41d319712be081f3b5666d0d6ecefb96d8fe6f628071.json",
+      "sha256": "d93f4f9cabc4d1d621143d382bf2042294212f6d4e8b91f4c697accf600f9328"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/47eb869010526833214f818505528b02be612a8eb9d0caf48ba8002f01264839.json",
+      "sha256": "8c2f71a3a2d41750557394adc746c77df5c09621ceb1d9af90839b9f242a59e2"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/4b4db21bc70fe00293115856f0dab79adc15bfc7cc900a1664255a15b2ecf680.json",
+      "sha256": "f081db92ef3ec0e4f802fb6e9ff0821c77bd8f81740ca400a7c8fbbcc1d4026b"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/4d8753afd3dc6d9dcf73a161da8241d98670afe44b4bfad5409c3287b2dd7287.json",
+      "sha256": "98f6d76fa4716766303ec40ac14050315e7fe0d5f1a6b10737b6a89289c49a45"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/4d8a103ffbbd884fefd2f8e897e8fc5c37116ec2274c8c470e89b51ffa28a339.json",
+      "sha256": "7acf1e1ee2e5eb702be8565fd5d674453a201f96000339977e58016647acdd8c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/4e20f47f4603d073b0126fbd738b2821a0e133ff265119b57e0d8bb913517ede.json",
+      "sha256": "7c33a8699bfa870b3c5c62cd4737173f4a02a583cf6399cbe43de21ccfc66c16"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/5217e0c4ebbe9e29691eb190c9e632db4e3e7738865f3f3e13fb6de78ef6597f.json",
+      "sha256": "1c0626ed750095e804d861bab14190257b3e2d1256a717e22c639b164931026b"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/541b89acc250dc18403ca1558143a02b5529de60ea19eb248d5a8da4fd919e24.json",
+      "sha256": "01637b7e63fca59bcbb3c4e7de172199a9d7b020354f5f6c4f17d1f6b83b4d36"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/55235ffd6c06a905fac94e1b9e910437987ef26a0602b27adf7bedaf6c940606.json",
+      "sha256": "fb3d8e01f39ae9cb03fe742af5554a9907a93b88229cb34fffe49447deafb492"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/57ef66a0b0a9de50fb6b84397a428d0d5792b3b0949e2e91024894bf34cc9152.json",
+      "sha256": "7b2cc31b977d440c6d1a88b571a3eda69bf14c22ba3a5eba758dbb0349fd8d8d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/58a854ba97e796cfa087316b64b64e18e1fcd1db72cab57685b3a5105fb55ed5.json",
+      "sha256": "d7ccc8c3943187f5d977d7e39097fd873e7d9f726de8c5ef687d4ba7320124b8"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/5a44bb909e1a80e4a4ac960884012c6210a6ed978b9a725676865a0b0dc3d71b.json",
+      "sha256": "faf49e8e90253d990edbbef3fbbf3420cad602c33e8bb3c1f2e80f77b2ea8266"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/5a4c2d6d8776b9242b157b9f4323d40ffd684a59a67d5d38243fd22630f76cb6.json",
+      "sha256": "bf786866b600f7f5b56f44d48f1bbb59887b1179d36aff77d5e3a6f4414d5ded"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/5b314d48da1278db10313d22304ceb024d72bf72ce3f939e59152fbc68aa9986.json",
+      "sha256": "50c3c2fc80627d788aba26518b5a9e7ecd7ae316e113d24b3909e604b0b4dc1b"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/5c4c253ba3aa21f587bc04c59777b2d66063eeae617bc09d26cd54e2d11e197f.json",
+      "sha256": "ddf0f3375401013021825fc50be145d6aaa70b86695f895eb3d21a4559cb583e"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/5cb9c3d1e98f03e89f48bc4f0e9bcd7e1e69b60b97f39bb7f23e985d3b2bf5b2.json",
+      "sha256": "6108b7093713e730eb65b802ef841c9bf7b3bc248fef186608cf74e0997c7895"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/5e63c08c9391ead0c3935e634c2b9278df65749463c9923f0acda05126b5ff16.json",
+      "sha256": "44689d099134d08c188604cb2c212b67e54cf1e37aba5b9e5759c7d5b7da2c50"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/5fb087f4983675479f0a979f8fa92b9520134c08b28df862a311077c9a7ce3c6.json",
+      "sha256": "3e3866fd4d5ac0e17e6806c9dcabdc4907d945380241bc125eaa50ad4071df02"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/63884c73c8914092e41924cf66498afc82ce522a9eae5c0b538687d9f21ad5b8.json",
+      "sha256": "b6ae7a69e6d817bc28b488489a14778c967b4bd2142fa84eff75b4ac5381c717"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/64066fa622661d3b46d8f39f913269d463bde0bfa99bbab413cf6094f9617f94.json",
+      "sha256": "cefa933a06dc87824c93e75154466ee3aba32b2dc00a13d66921aa103fe04153"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/6456e427657cf782819751271426487accf912c3ec03ce82e937ededb626449e.json",
+      "sha256": "32e56a2ea01167fd7b11009d9134a8049516c829100aec10afe1d9bf0a06ca5a"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/6502850557091125b19e7f35b11f9b0b94ea1bffc80517a3b021c7d44464fb0b.json",
+      "sha256": "f02b742b73a36551a034e347d4009466c4e4d87d0c5d2a5f4f90d98d63a6dedf"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/6568ca7048ad997ecbeafcad480fe5e6cd61f36a976e8468eb649fdde897c8e9.json",
+      "sha256": "ae20bd78ed1bfc012358480810b0df994d24f68f33e3ff098b4888ec798956d1"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/66726bc3ebf6556c4406e2779089a7774ec94332a23552ed1c16dd56476a3599.json",
+      "sha256": "bae670a0bfcf879f09ff79ac831ee11b891b557eb20e8b727673c1e09a2b85fc"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/66f59195edb17ae4c949447683cf4672cc11a5c849a85f950d55c356e3506246.json",
+      "sha256": "a03aa9f34b316706ed2558ff310e21d0372278f315a8c2bfce99113dfca93c1a"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/67ede08c7e5f3153190cb8f2df524a12da787b7f47419b7c89f9d60c9b04df52.json",
+      "sha256": "fc024e85d0f926843650731faa549a467ad2544ef3be3a9195e972fe2ce35bd9"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/6a0a29c1c33638afe6b46be80ce3af5a4d04ba52d5b13161e38233ae809a766a.json",
+      "sha256": "2909e7a7f03fbc3c9a2052d12c81748f338e7c7e97b066dd953c6c87f721f786"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/6d0a8709814c0fff1f5178c7a28ba4cda15eed2ddff261a897ca616f9ec47fa7.json",
+      "sha256": "11d498efae9f077f0e21e4e76d542218a0c6219bb062adca4409bdcefd34b82b"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/6dfda96c6f77531a1f9450d3b8f6e8ca48526c20e2ebcbceecb94524e217f40f.json",
+      "sha256": "70739e2fef9177124e35ae1bbf2fb7fc1c61d24107042cfeb145b131d6c03d66"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/6e75b9d49c4f89e63f93a93a6131b37620156f684422aba79af0e039cbbbf001.json",
+      "sha256": "56fc03ff32a9b0e383ee6ffb1285941d772e6f207653f5afe053182d9c14eea5"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/70810d950e7ddd532260a69eaa3f8dd6af33de7f485ba3aa4a429dc7798b80db.json",
+      "sha256": "626ca3f79d16726b2a445c91e4df136e02c1a0390aa7f081f076ddb0fb5118f2"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/708d0226cbe9277ce9eddc1a4b09bd410d57dbfb0fb7ec3fd861661a606b4407.json",
+      "sha256": "4e920b6e74280b25d9e55b759d1747ce6bdc74adc93e851d98bc9a9133477762"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/710c43405337bd8b8e575edb8338fd99c16d9aab7873d442b3556a31038584d1.json",
+      "sha256": "aa97ac239c7a55d562aa2e2c2820d3378e43c0a28121781124e073d56f8f16a8"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/73eeeab1fd6d037a52627f3049c37d601a2ee962d4d01ead31b46780c39a51a7.json",
+      "sha256": "1b5c496ad8d583701b820ff30a40d1ee8eebb23642e30072e60d1b6f8bc115de"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/7bd6fd98749ae90a7650d873260fd7f94ca14c957b0207ca6872446c244a5803.json",
+      "sha256": "bbaa2776f011ff9cabe955be38904e3fabdba94ff3784c1d0be0525301c05c09"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/7e279a8653b2a1208ccbc8f40c3e1a2ce05fd10bcc8517b8de411334531314ad.json",
+      "sha256": "c017ac6dd61f412a1d45094fd7f86889967be7149ce4e970b35b625278fe36a1"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/7f316e5f1819be7b0afbfe9b276e74f9c8224404d10ec330e6504b500c72905c.json",
+      "sha256": "b61bbc27b1340150336677a16d88180e49d06ce3a1c80aa032f99b4e2b284cf5"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/841e06cb57e6f698eddcc9712b7b06d01b2261205d76a9fda181eeeb4dc1fe83.json",
+      "sha256": "9d8060cd55b2471ff6bd1b7132f2ad062d8b5eebeee7768d54d964c361985a9f"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/8514b2d02b13f924f3a681e8ed01a1ffaea47f256fd3aece4f6456c656806fcc.json",
+      "sha256": "543c519182ef97f5771396e378162da4bb4c4018fc2bb95ba3ebddbf990b24e4"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/85b39242dd00f4e7e205a69f30603c5ac0482ca472a3d99100ebb5f7ef1e9d02.json",
+      "sha256": "a74d3df8b625a78efe3b174309ac5d5afc85b15b8323c02b37744ed4ea324e2e"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/870fabff5777d0f04f25d0a73ea89ec96744961d7e5976dab206a9397102c546.json",
+      "sha256": "d4de88f9707f7d02f9d5a090b63090287a48afbdb6d8b161b554fec9dcae289b"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/88710504aec39de2dbc2115789ed7fe5dc1d6f23fc4b193df9ebd8ef1cace9b9.json",
+      "sha256": "6619fdd16b2031ad00ab14e0be86d97905b2c156f573707e1ccfbf2df43c2a6d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/89154dfb8ff7cd831a76f3a8c5294f612fae5aa2715ff88735f5db9715e1dfc6.json",
+      "sha256": "ad3624f1548e775fb5fd2410f62c2f281c26f4c66157b81afa34f40e5bdc6240"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/894ea6bd20938799a6224deed4b44dd9a15143b6c1069bed12b7e788416a9933.json",
+      "sha256": "6a8e8ca98db1f55d2f4da73810e3d5e2e63a7d89b764ff888f77cad31242bf90"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/89f971404a68a30da9a7a674d92656fae817292bcbde1a03736ae0e73eea463c.json",
+      "sha256": "924d845a9dd980d6ae9b04460d689c40f52fd0c1292a9cf5028e367c2163658d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/8a88614b5a81772c0d810a6e4d420e5887a15bbb750cbcae2789b5b9b13a9ae3.json",
+      "sha256": "c09b1670967eae99451c3d08387db0875f9446ce01299833f698008aba56a22d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/8aa0ef9aaab6ec94910c42509360efa7c2b40b0bd19dd7351ad04ebc37aa52af.json",
+      "sha256": "0b6f82ab64a0b561b4fe9922fdf45ad197bcf0f91b0beb8f40ed3b1c6e0a6115"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/8d0510e970320ab655429c4861f30eacecdec348f91a787799c809e65f7998af.json",
+      "sha256": "f7a57c4ba43d0016b0f648c24b2e08356848eadcb4943b6c57e01a0486c45850"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/8e133b36dd543e75f6909353d48be52b03b5b401788b27392c36fafef625257b.json",
+      "sha256": "644afe8b4b89d7b428a78342aceea7beb1855be48a00b5fa8f1a0b49923a7d51"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/8ff74c38daec1fb4f885cdc990fab68f0c42f71d9ac6294a134e977874185384.json",
+      "sha256": "d336e94f636f503565205c6f35f40547e8d3cbdca57a465dc5b98f29f771ea2d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/901e01dd1fb5d02d6d2d86003227374300529850b9e64e39584fc0a539f7f65c.json",
+      "sha256": "0834e9343c4c7f8f5d49f425662e5ddf8e1a84e685268ce0e357bb27ddd5913a"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/90b1f09f0502de68f2c117df4b172c852355f80e5290f27059b331d7d589e881.json",
+      "sha256": "508851099898f78b0f477cce060aa4676884f2035d4896e1533169af588c41a5"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/93c827c2973e89f4f6857ec8d78e65e17415468698ca7245657d6e8ec2764f83.json",
+      "sha256": "2668bf9753a152f4ec2df9d4acee0bfb6cfd309c4d1c2e63deaf6c7059a0a890"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/940d13a0ca6f5173d3c98341e0ed232f6741a9625c84f5622401d37ace389432.json",
+      "sha256": "27b0dcf4b3d05da8cb5887e3d7a373a61575b08ed4e0969d360b7bce737413ec"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/94e09b9ad19093f2989c43d1181491a64f32dc3e6dac36f188dc815df7c33836.json",
+      "sha256": "f87ad6b3768ee6a4b4d8c734d72f9fd416465630d8c17f2d48e9b84596547913"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/96c337c00af4c4c5bed88f7866388573d17aeb0fbf9da7acf92c866a668ae87d.json",
+      "sha256": "9ebd835e1172bf02ce9bded18e90eebd05a7805d54ae3aff7d97bbc4eaa02e78"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/9c090fa1d989a41c881b08fc3bff749a70ba8c98feecbf85106be5d35b0418b7.json",
+      "sha256": "22fdafd399a71fa6737b3793f212756825a0d2d912fa26ed31a340a905c3b885"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/a06cf1fa1866d1642b92b275abba003af1ad07c3e3986e43a17082b7119aea73.json",
+      "sha256": "a3e263a6fc9e22e493ebd52c667363b3bd5e0aebad5453052ddae53cb5b57d0c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/a07515d87545105257ead21ceb3ff7a709e6e3670be2619747502e4da9b18097.json",
+      "sha256": "f4579e3a1818ae40fd1415e304cf319ffacaf0318980291f53d106fe894cca0f"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/a1f627327ca4a1f1b6b33c1f39cfce3205702b686075df9143f18574244716c5.json",
+      "sha256": "aa73378a4f1a20cc397038596ca17e37d05ce9a4627c5cf5d41dda0e464575bc"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/a25bafe12390c8feca927f605c670d750b3f52b39effe7da3117159e22944ace.json",
+      "sha256": "4adf8f3cb5b9773d82aef949588389c07d1230ee941b289042d64a32c9aa73a3"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/a3e91dd2294ca0f620ca95278a35150a966d6e37695d1ba205c6aefb9cee391b.json",
+      "sha256": "1fb470507a05e264cf44631c860847ce430b2d26b74fba7fff648d0acbab67b2"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/a62b6a17dd4612e474050428fc94fd358f8f51196aaf199579256c9955ddb119.json",
+      "sha256": "c1bb13001a054403469c4fa178e929c08df9ca3f148f433666e61637e3088d05"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/a64b18a2e68d77781d2c9e1dd41b866c12581cb562adbfb57bf93e3c739a0c97.json",
+      "sha256": "3947588a7063fa1a1a90fb48caaaaae50c60a87ccc6f371ddf6122af43b96b56"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/a65c200a9498b779b7d960c0c8f7c7ebc62d227108fe2b6c76af8f19c86bfaaa.json",
+      "sha256": "b3e233c07b9a221007fde69cc71f90d93f6d69aca76a6ffdd9b7f107ca30c202"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/a78fea64b3d93c77ed24dcd60d30d6607cd1ddf9c8a97e6fe27a4e76d682f1d1.json",
+      "sha256": "9b1a5bedcd72ba5c872095195474ebe95ef6ba2f2e6f105d75dd6926f5359687"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/a7c2418e2e47deab9edeba6f2a8e95d300c67e457f8aaaa3a6e03a53ac50e18a.json",
+      "sha256": "d7c693615c7d175a77764cb86036d66152c79ef8eb9005e8215f1e0692678e24"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/a96a387aafff437d0716c6db4e99e402bcf6ccebe14437338ed4c0a8ea4d33dc.json",
+      "sha256": "0f1c608a1fee0622f1df17eee5b60becf72b976613823e6a6a47e88703987b5b"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/ab228dd70fae2943c879da728120b2ab69b8c931517b9b0ff2957bb5b538c438.json",
+      "sha256": "4e1c06c69a030de4ae2e14df70a8108e38150763fdd1678a991d60bb027ded7a"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/af2697779114b11830188462561898a429ae61abe99e401d52fba5f36c8bb187.json",
+      "sha256": "712cc00a78dd2c3c1d12762ff3240dd9556436cf575232007a2a18f2b133789c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/af95d61a735b2f3ca66201e0988a5430a4f5832dd5d2cb410af7f56131157adf.json",
+      "sha256": "3470a9425aa76949b64f185041ebec62d8f58567e4d2fbc30ed2baa8642d8f97"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/b16d562d8234eb45d01b2456fa2fff2058cc3c87ec24c015dcac5040110d36a4.json",
+      "sha256": "c918be9cd2b2ec6a5b33d8ede5bc13ce26a50774a4f3e5ae06ac226a51893ad9"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/b2f4c3e9a0995fc951392cd1db09f45da912004505357c8829c8e60082925ea7.json",
+      "sha256": "8eb0e46d1e1bcf1f6a27ff34a274be645a59fd0456ba9d5f0e8feaa94cc3b897"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/b35bb373f85ae8870d00783202221141a6b64d993b33ebbc1476421a1401633a.json",
+      "sha256": "fdb364d12aab3ce541788052a175699c7bb6b9d2f29cf758c91350f1df53d948"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/b5954c9f1bcf1dc8422a0781f225614c765e592c73a17d29a17e6f4ff8b0c1c6.json",
+      "sha256": "cba7452a91f4b2f48a364a6d2623607499577199fab2d7a510c0a6fb7c792fa8"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/b62f7f8b892b4d2b3cfbc340994b0a096e565c0f978863d470a5ccee6e779a1e.json",
+      "sha256": "66602f03f2aef51fae9554691eb4b277b7cc0b99e441a418bdcec6651f7c0a24"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/b92e1b8f976e1671988dbf4fe954193f719be462ed21d4273676bade962eba94.json",
+      "sha256": "d6a4f339530c7fc62c29e3208aac8850a35b2cea1c7dd83970783f4f5d97e966"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/b9ab6145ef964c21abb2540978dfbe5dd443172d23a07fed8641ae102f55a886.json",
+      "sha256": "10632632d684249583bb32495c037446b923d07b86b0ec55c28dbe5ad449cda1"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/bb1b362575c3b84e6cc8d5fee221d3e41f33bbf1b907a26a8d7581fa2a68f575.json",
+      "sha256": "5d382b256afb872884dc8b7c872796db1fb4f67b5398ce5684cb7c11dab5df96"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/bc6af51f7b52a2ed032928c88748a2e9ceaf86c1508e3fa52e6c4208ac7621bf.json",
+      "sha256": "a2a81827b5821af913651656e1eab594254083ece12c9baa5e24af2ca8efdb47"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/bebf522e24f840249d4e42902221910d0f611cd7e744e5b9ba77cac4d2a7dc23.json",
+      "sha256": "d4a462eb3dcdd9c14feb2c8b5c6f2f351aea48e8597bce5757010f386dd666ce"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/c07b3604923f7ba5a31e2d20d492ebbb156b6e87c93127c75ac02d6d6dd5b393.json",
+      "sha256": "def926fdfaf42e3d942aea89f7bc3201eaaa2d8f2892e43924ddf18e7c2e8c54"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/c1c0f85ad3ffdbc346ebb1fb35002b2b1476601239cfb1f9ca08842d073ed8eb.json",
+      "sha256": "a7213f4fe19c1a9118a98c55e5f074305631d83d2c3140b35ef7ab37728e5b6d"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/c2340fb6426cb6b115f1198d5d2ece7aeea3b37cc0b04641c9b8fe95e7edbe4f.json",
+      "sha256": "3ecf2374309a750982b060b9076c3a42c7872f9b1bb2b0c672e03fbf313eb57a"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/c4cc23f15a48551e4bbefbfcf46a5b89f556d9040c686e313be46ec006dafefd.json",
+      "sha256": "a83f0c98996c377facd1a58e456a224cc2fa1e5b1dd456bfebed5397fc55b62a"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/c5c49bafbb1cbdea09697e825e81b1633135144d7130e7e506897cd72f61ce74.json",
+      "sha256": "ad76e1d736219663e278f74bcee59a6d99b653f445e462a973be34c56bdaa444"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/c71ccbe40378b2f4805de632ef828d0cd99944159e2c1067a68d0758771c9e31.json",
+      "sha256": "9be7479c6ab6eb968910e13307dd4dfee2e9c90d6df999fab416e3ed18823489"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/c81a9c5ca714feaee3e8d4bc96f4f4879127de916477d06473422638d9792e2b.json",
+      "sha256": "3ed3071a4e06eb33e8cb67c57be91097085e6c2792e9655d480d15dcf6950e08"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/cb1fa2aa224daa1376bb25cf767872526149f8d351f3a2da48f441731c8bc965.json",
+      "sha256": "41612fb9d0e940977fedec4e7a1cfe5231113059c16fc32f22798271153b3a8e"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/cb3d920adea67c3a6d23f16e16587873eb6198797b32dc8a143a730eca488c37.json",
+      "sha256": "f53c3333d6aaeabe34d44a24a593ad245f81e24a754cc11eb33b35733251eb8a"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/cbd221cd1acedc86d5a7258c03749ad12f961e6c2b70f07571af07ac7122a937.json",
+      "sha256": "9627b13bd76477e5add139d30c561b56dae49dab6edba5b715ecdb7d25d8f065"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/cc689feb6025e9480575fc0586b25e4d610b114174a6ea2be6a1ff4d15f58db9.json",
+      "sha256": "ac98afb19699185bcc59c3ca0ab5ce0f63bbd2fadd540fee155ada1a3079da68"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/ccd8d044cc5c88f501abb1b749176f2a1a47eb9619169a5ee7ba5a719bddf400.json",
+      "sha256": "4277064d3e2490821b48b12bb436363fda33a692b7e6370489eddcc425c53cea"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/cd030639e34df3518fe697e9578bbd4a8b5046cc10b23a2b12bc0c295ec3ba50.json",
+      "sha256": "2537e00b932a631d676dd4ea82cb16fbb209929c64807bf42bb9170b1bbfbb27"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/cdbdee542f534b5c5a6000ee713a20ac240ce2f63ade95908b6d41ffd05f9afe.json",
+      "sha256": "2a3a431b1acd19789439344cc78d454694f024504b74769e03f6f99f63951a4e"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/cf1f68a79bfc53d40a0e91b649218beee0bfe460db1e6776d391ec782f452eea.json",
+      "sha256": "1b3a5e88be3172830d01ce86f735a3ac0325b57c2a6da38e4ba4484460c1904e"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/cf7438a3383c1e2c1b9ad859616b382078e32311394af356b8afe2e1d115b0a5.json",
+      "sha256": "ed5d35a5d730ed1b8d139c1c9fcb367dc82a756a451dd210c4a11da0877e071a"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/cfda16fdb5a4d39f9eafe18e4a40da9bb15638b8e8b368121d59be12c21d4d16.json",
+      "sha256": "3899b12b90f2bab6c4088dc232603f7db62830084a76014b9f94c93234ce7bd5"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/d0e26eb0c3a8ef92bab990be3f6d30ba6f54a182a2bf3b7dbc55955602510c37.json",
+      "sha256": "519ece60daad87262b44ec2ac15cdec3cc6c3f5a514c7879308f23ed2cd0b0a0"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/d2ad470d189b0067c2340776031ec243ae20097df54d0d8ef14250693a7be14e.json",
+      "sha256": "f0e83cd59743b610eb4903bc79bb8f1e3b25dfe28575afecf97d14a0c68c0ba6"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/d47644811e9fdf0dca4cc6c433618efb10909955970061e846b732d0c1053e98.json",
+      "sha256": "ae5b9e70500b90d1abe30b22cfc7f7e7a2ff668cc5d5cfc60289eb19fabf2428"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/d6446bbd6612d9a297eaf70ea483b86af0def9c9a7de91f1455b0b291c0c7414.json",
+      "sha256": "f306c2b83087989495a13ce845e69aabdc971fb948e095d4f6ee161f334c05d9"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/d7f50f23fbac5607a2cdfdb780bef6192b14dea2e1e43eaf658547ece815c4fe.json",
+      "sha256": "e50ae4496ef7e15bd18db65a74864540b6228cee0c3624340dab54a92f0cfd07"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/d85483e2ec54dca133aa5c95faffe60b82667b38ca8902323e23fa34bc5e2781.json",
+      "sha256": "65f0104405a39f636088bff9f16156723a342df5cc193f1addf2212c95ab9386"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/d8f296e00a1f8c7769fa9cbd2ee4ea8bdb1932f1193bb840f6ce481f3a6f99fe.json",
+      "sha256": "e74ae9fc9cf98e081e1f20cc36c2253a87b9660499eae5eee044e1bd561e0505"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/df6a0b9817219f27eda4755b1d9a1066c5adb6506aff67c877f3d355bc87216a.json",
+      "sha256": "26f580702519196f052d98d4da1a342a16e28913e352f8f5a7e298d2babef641"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/e170a89307e9a0f76b169ddbade2273e9a08a0daa8a2634466cda97d0d0ed150.json",
+      "sha256": "b60bc9f09306b19aa87b0fca01e55f540238acc2c3a6b2d35ccfc9c757cc4feb"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/e275b565f0c0f9b1993d196be6cf249ac6896f316ae5c07b0543aa37d58e5b34.json",
+      "sha256": "c19c9379cdeb1f97a5d7163e894f3fa5e3b51124fa00abae312fc86aa8bce62e"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/e546e71463e1019bca728e0bfad92b73122763a8ac680e67fd50c74081495296.json",
+      "sha256": "2b77ae19cf7f5db594ba4383d520f8173e34ce8da3ab220598a250349ece991b"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/e6281d1eec816e93d74df50835d204dc433d1213f905763b30fa61c36301fea0.json",
+      "sha256": "4ca523186571846b9664f171ad98b3376b089553477b602cf780a742cea03aa5"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/e892f4cbee7476dce46f0d6fac3aa924fd7c9f713475ccdbc867001878feda75.json",
+      "sha256": "e5fed3c5278429c6ce92b105521b2da8cc9e8f7a8fb820583433b7c23b998a3c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/e8ff7aecdfe1f7edff899b83f87a7cf9e3834f2d924f3fd8e0b768942135aebb.json",
+      "sha256": "3888b78afda3bdce75c2c3603f7debc84017c4bd5d481226187f67f86e134830"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/e9b9e905e028ccf46d1bf3bd515b1b24e496f2db6958979024e8516214fd3d0b.json",
+      "sha256": "d3793812571e6662150bc05a046eeec9208407d2ea65c77aee2672206d6f727b"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/ef8f4aa305f0b4143b592b07683c71678bc728f55d9fcd721576df0920179d1b.json",
+      "sha256": "e45d0aff23908def36b9ddf79135122b94c0c94c22ae6ad2375cc327ba67baa0"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/f21de1e8cae77c4adac8441d8d7111b17b017a8208e8140d14ffe6414ad56bb5.json",
+      "sha256": "cede07f1e1fd5380ae426971e647acc1111fce9c2f144f476b8e6ba094eefc3e"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/f3c0ff373ae3371635c1e8640d5084d016913da0feb5b9267b04a56fe774f96c.json",
+      "sha256": "d922402995e4cb91e51114a6aac5128791d21110920c0e4f188ef7645e3ce9ea"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/f667ccd4095002fde6dd4bd56d30b1764812a745b4a7123b27b18990f3bdb0aa.json",
+      "sha256": "a037bc67e803b41128bf5bfb837ffcfc3d1f95e3b584f0ee9876820bcc96cceb"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/f7756723ab0d496182481b19c94c2c39e7341128363fadb6670756260740b25d.json",
+      "sha256": "4c7d0f0fab4743fcbd956e7d9c2cb024475798a18ba9e2d41931d29c2217e627"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/f7d98fbe0c7a997c17250aafbcae6081750ec54e69ef9d44d17888a56e33d433.json",
+      "sha256": "dd3b4995d389df51343d58ec99b7882a2668d0ea0658c68bd62f201d4c2e94cd"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/f9b1683177555c1628dd862ad7e0e413e4de1ace9cc5465ed30f920f559674e1.json",
+      "sha256": "d0617cfc2bf2928eea5faefb685e3587443a14bedd3bf717d14689714241661c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/fa9b467e08a18a8f856b9783ee8ccde135550d5e43d0540df87093643c3b838a.json",
+      "sha256": "f7d17c2bcbde66d8cfbeddb98dac93d7bb64c9cc72f8feb1aa6d1f22818f566c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/fbc18bce53bd6622e6e7d3cb8e3674a51e0188d15ba86537c8f93d54a140f569.json",
+      "sha256": "5fc9977d8082868e799fe5720cd816f2a5a63183a5a512ed984188e3c0022cf2"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/fc132cd4fe84a786e9ffea17994ce81b4c84e019b6a930f9fe2703804dc46ea7.json",
+      "sha256": "82a10e0c11b466821ebb2099cfc342c0049f3edf64641a176cf1ffe2a2ca04b6"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/fc9703bbca89e2903effc121cbaa4c3a9da9f1970afba32fe26ea660bffd06d5.json",
+      "sha256": "0f9d62280c1ab513eed17381acca5943d4d198493ca76240b32cbc7d9fbb3f01"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/fcf042ecca6bc9b523f2e5aed6b2b8199f8fd926d6e9bfa0bbb47aa4d436ae8b.json",
+      "sha256": "3c15b959106727d204ca5bdc624401aaf843efdae8001a6af64c905b0850884c"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/fd5a5eaa26ac1c5a350c26c778055811cfb0c1a0d889f62b9f1772010a5613d5.json",
+      "sha256": "ca5525ca087195960f91614e471da0b4dbb34041bac91bb70f540749f0941fa1"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/fe2a733cd061561ef8cff655c799bc1f4fd0167217791a5d58838cdf4858299a.json",
+      "sha256": "e91039b50a472bd2e1f287bb7241b04c77743bc74ad8b9e1f2bf1753297611ae"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/fe789c34a83a50d6f1028ec16ca15788670869e0fbd7e457e960eabf5f89e0c3.json",
+      "sha256": "6d4522485543acd0977e066066437557ca3492917cfe0fa0f532e2d48ec4e6a0"
+    },
+    {
+      "path": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/nci_parameter_tournament_local_20260908_n20/results/old_monoallelic/pr/matches/ffae8a21dce37306f836b78cedbe66624fa2f4cae8a313efca7f2b60545e38d4.json",
+      "sha256": "d74093a2d68d20af221beb849af258437ca2a6859fed1e21ee2f7e42b11f52fb"
+    }
+  ],
+  "tournament_id": "bea6ed5df57e4abf0363df7bb0f461a850605e215e14698c1523e765034bee08"
+}

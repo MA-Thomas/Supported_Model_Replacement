@@ -1,0 +1,141 @@
+{
+  "schema_version": 3,
+  "provider_identity": "iris-score-provider-python-v2",
+  "organizer_binary": "../supported_ap_code/target/debug/directed_round_robin_organizer",
+  "transfer_root": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/outputs/external_validation_five_model_supported_ap_auroc_story/transfers",
+  "run_inputs_root": "/Users/thomm15/Work_Data/IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer_deprecated",
+  "models": {
+    "full_hla": {
+      "label": "Full HLA",
+      "nci_summary": "/Users/thomm15/Work_Data/IRIS_scripts/python/outputs/nci_full_20260715_hlafix2_per_observation_tau/summary.json"
+    },
+    "focal_hla": {
+      "label": "Focal HLA",
+      "nci_summary": "/Users/thomm15/Work_Data/IRIS_scripts/python/outputs/nci_focal_20260808_per_observation_tau/summary.json"
+    },
+    "old_monoallelic": {
+      "label": "Old monoallelic",
+      "nci_summary": "/Users/thomm15/Work_Data/IRIS_scripts/python/outputs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC_per_observation_tau/summary.json"
+    },
+    "mono_q_full_pn": {
+      "label": "Mono-Q / full-PN",
+      "nci_summary": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/outputs/nci_composite_mono_q_full_pn_supported_ap_auroc_story/discovery/summary.json"
+    },
+    "full_q_mono_pn": {
+      "label": "Full-Q / mono-PN",
+      "nci_summary": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/outputs/nci_composite_mono_q_full_pn_supported_ap_auroc_story/reciprocal_discovery/summary.json"
+    }
+  },
+  "evaluations": {
+    "covid_spike": {
+      "transfer_name": "covid_spike",
+      "evaluation_dir": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_COVID_SPIKE/runs",
+      "run_prefix": "xval_nci_shapes_20260811_covid_spike",
+      "mapping_source": "/Users/thomm15/Work_Data/IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer_deprecated/covid_spike_mono_longpep_mapping.csv",
+      "endpoint_fields": ["patient_id", "mutation", "long_peptide"],
+      "response_field": "cd8_IFNg_dmso_adj",
+      "label_field": null,
+      "threshold": 0.53,
+      "comparison_operator": ">",
+      "measurement_error_policy": "Preserve mutation-specific observations and their measured response labels. Response disagreement after collapsing mutation is accepted irreducible measurement error; do not collapse, reconcile, select, or aggregate it."
+    },
+    "covid_nonspike": {
+      "transfer_name": "covid_nonspike",
+      "evaluation_dir": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_COVID_NONSPIKE/runs",
+      "run_prefix": "xval_nci_shapes_20260811_covid_nonspike",
+      "mapping_source": "/Users/thomm15/Work_Data/IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer_deprecated/covid_nonspike_mono_longpep_mapping.csv",
+      "endpoint_fields": ["patient_id", "long_peptide"],
+      "response_field": "cd8_TNFa_IFNg_dmso_adj",
+      "label_field": null,
+      "threshold": 0.0,
+      "comparison_operator": ">",
+      "measurement_error_policy": "Use the committed endpoint-level measured response without imputation."
+    },
+    "pdac": {
+      "transfer_name": "pdac",
+      "evaluation_dir": "/Users/thomm15/Work_Data/IRIS_scripts/Single_Parameter_Set_Evaluation/downstream_analyses_and_plots/evaluation_PDAC/runs",
+      "run_prefix": "xval_nci_shapes_20260811_pdac",
+      "mapping_source": "/Users/thomm15/Work_Data/IRIS_scripts/Run_Scripts_Selected_ParamSets_for_PDAC_COVID_Transfer_deprecated/pdac_mono_longpep_mapping.csv",
+      "endpoint_fields": ["patient_id", "long_peptide"],
+      "response_field": null,
+      "label_field": "long_peptide_label",
+      "threshold": null,
+      "comparison_operator": null,
+      "measurement_error_policy": "Use the committed PDAC long_peptide_label without imputation."
+    }
+  },
+  "aggregations": [
+    "max",
+    "mean",
+    "median",
+    "logsumexp",
+    "logmeanexp",
+    "top_frac_mean_frac0p01",
+    "top_frac_mean_frac0p02",
+    "top_frac_mean_frac0p05",
+    "top_k_mean_k2",
+    "top_k_mean_k3",
+    "top_k_logsumexp_k2",
+    "top_k_logsumexp_k10"
+  ],
+  "accepted_measurement_error": {
+    "covid_spike": "Mutation-specific response disagreement is irreducible measurement error. It remains in the observed labels and may affect metric values; this is accepted."
+  },
+  "covid_spike_label_specification": {
+    "id": "higher_threshold_0p53",
+    "description": "COVID SPIKE response is positive when cd8_IFNg_dmso_adj is strictly greater than 0.53.",
+    "threshold": 0.53,
+    "comparison_operator": ">",
+    "response_field": "cd8_IFNg_dmso_adj"
+  },
+  "policies": {
+    "shared": {
+      "evidence_policy": {
+        "magnitude_threshold": 0.0,
+        "survival_floor": 0.0,
+        "survival_requirement": 0.81
+      },
+      "computational_design": {
+        "replications": 600,
+        "computational_order": 2,
+        "replication_positive_count": null,
+        "replication_negative_count": null,
+        "resampling_unit": "independent_observation"
+      },
+      "reference_assessment": {
+        "status": "not_asserted",
+        "reason": "No exchangeable-label diagnostic reference law is asserted for these external-cohort evaluations."
+      },
+      "master_seed": 20260812
+    },
+    "pr": {
+      "target_prevalences": {
+        "kind": "closed_interval",
+        "lower": 0.01,
+        "upper": 0.30
+      },
+      "search": {
+        "grid_points": 257,
+        "tolerance": 1e-8,
+        "max_iterations": 128
+      },
+      "transport_justification": "Observed class-conditional paired endpoint-score rankings are held fixed while prevalence is standardized over the prespecified 1%-30% interval.",
+      "retain_replication_profiles": false
+    },
+    "roc": {
+      "optimization": {
+        "absolute_gap": 1e-6,
+        "relative_gap": 1e-8,
+        "time_limit_seconds": 2.0,
+        "solver_threads": 1,
+        "backend": "combinatorial",
+        "node_budget": 50000,
+        "restarts": 1
+      },
+      "concentration_search": {
+        "tolerance": 0.005,
+        "max_iterations": 64
+      }
+    }
+  }
+}

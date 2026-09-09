@@ -1,0 +1,5260 @@
+{
+  "schema_version": 1,
+  "plan_id": "027885be5c7aefd8baa0bb7571fe240ab72ee1abd1662382b9ade6790cbb35d6",
+  "plan_shard_sha256": "f174b071ad9ea888029dce32f8622b8757515864efd14d04e7cac80247e2fa63",
+  "shard_id": 1260,
+  "selection_replications": 200,
+  "cluster_executable_sha256": "bff04c59a7c7c580636e8efc9a42bc05f36386be93404fc36398e82d1f0f2faf",
+  "outcomes": [
+    {
+      "planned": {
+        "global_index": 315000,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23563,
+        "ranking_signature": "f33c9ceee71221927d4f052871bbadffa3329fbb56551bcdb9a68c55f4ebb1b7"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008910267080526526,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032411047461625435,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005103282153303602,
+        "adaptive_empirical_ap": 0.5743479102184325,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315001,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23564,
+        "ranking_signature": "68728e20f29cd8053944dedf04c35441421d066281020cfbef55c2cd780c4ae7"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008906071837999126,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003236677735162091,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005098803960636463,
+        "adaptive_empirical_ap": 0.5743420032739346,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315002,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23565,
+        "ranking_signature": "233a2c54259bf1ad2ee9f11c8d35a68c8e220b00178b864dfd57aeecb3dd6978"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008903411845766485,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003233651325902912,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005095924008718893,
+        "adaptive_empirical_ap": 0.5743389626214219,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315003,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23566,
+        "ranking_signature": "f8fddc02b84d6bc0c1148dd7449c5d5403aeb383b0f700d321cf8b5f4c2754e9"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008895310215744183,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003226483066619075,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005088598198553243,
+        "adaptive_empirical_ap": 0.5743265429899911,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315004,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23567,
+        "ranking_signature": "1170d2f78014d3fcd4ecf29ebec3ef3758bde5ee3b722f3872314dcdd0203100"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008895614735245552,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032266265979709167,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005089052044149648,
+        "adaptive_empirical_ap": 0.5743279116260261,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315005,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23568,
+        "ranking_signature": "86b1a6d27e21f100f500409a6e9519f90989bffebd23af08eab43a05db53d0d5"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008880653411100035,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003211709692962022,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000507405665072654,
+        "adaptive_empirical_ap": 0.5743070961578647,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315006,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23569,
+        "ranking_signature": "0e5519fc24772be9b276d257b417c3faf0b407d3a006790d20fcb338ec871353"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008880577537420248,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003212328120046891,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005074408406206139,
+        "adaptive_empirical_ap": 0.5743071661643342,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315007,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23570,
+        "ranking_signature": "13177c3ff7f2564b8f675558dd09607bc89d1d19c2c0cb66b9f21825f0ab7349"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008868041860930799,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032004956046629033,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005062213670307525,
+        "adaptive_empirical_ap": 0.5742887901841035,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315008,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23571,
+        "ranking_signature": "681ffa87c97cd0bc2ac5965c80f6d55f58914842fd276de29d440ca14db70e51"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008864036972097682,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00031945612272471903,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005056839266054173,
+        "adaptive_empirical_ap": 0.5742834649567494,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315009,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23572,
+        "ranking_signature": "26b2a78353687e5094d53ab141f60f89f8d2aeda3fb4aaa23241117a79a04ba5"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008861601668240151,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00031928002810773827,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005055012992897832,
+        "adaptive_empirical_ap": 0.5742803410914015,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315010,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23573,
+        "ranking_signature": "22bbc72d5ece49da813bbead8edbe2b6f35e450c9f95310ab9302b737c5ddba9"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008865051056777679,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00031959125373084746,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005058193689519082,
+        "adaptive_empirical_ap": 0.5742861929467132,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315011,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23574,
+        "ranking_signature": "88efdcadcdca3276ce718eb71c29fe919a976bf363019bc69a69db087fb24bcf"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008865295911124893,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003195353926246047,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005057969829629167,
+        "adaptive_empirical_ap": 0.5742870299882787,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315012,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23575,
+        "ranking_signature": "202b67998388f687868fa24ceecd13c5c3da63885cf3091a5a4472e0f58a1936"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008872490840223408,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003201358038675046,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005064185030240257,
+        "adaptive_empirical_ap": 0.5742979758651438,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315013,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23576,
+        "ranking_signature": "3d2c8cd6ed8e44c711c5fc3efa18a3bdec90bac89f77bbb054872809cbe64b67"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.000887096079291742,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032002715941644203,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005062875310658386,
+        "adaptive_empirical_ap": 0.5742958315673644,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315014,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23577,
+        "ranking_signature": "66a491cc15c167b9dfb2374583528ec61d986c43d584883684e2d18f671000ba"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008861511563389244,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003192845648384716,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005054718167391228,
+        "adaptive_empirical_ap": 0.574283068739371,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315015,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23578,
+        "ranking_signature": "8ac83abf383b853e14642a6679e2e2c8338578c0729427a2150b20e8d8cfa181"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008858917799135849,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00031906260253573995,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005052276569870559,
+        "adaptive_empirical_ap": 0.5742814246530882,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315016,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23579,
+        "ranking_signature": "fbd7f7125b6eaefe9d40818e7c483247b4d5df33b0e4ba4bab0cad6ff947ee8e"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008864218479772389,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003197386411307968,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005058664392435947,
+        "adaptive_empirical_ap": 0.5742929267785648,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315017,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23580,
+        "ranking_signature": "dad1324ddf7a61ce72319d70ed059445a9b7f917b1af1adbcc5e0160fc76d3ee"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008871468673778173,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032023555019669505,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005064336001871114,
+        "adaptive_empirical_ap": 0.5743039937422155,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315018,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23581,
+        "ranking_signature": "838b3bd5ca38df9dc474f0fb38e6040d8fb4c772fc02b7e88ba763e3b85d8fbd"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008872950195986853,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003204287394806367,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005066025748559453,
+        "adaptive_empirical_ap": 0.5743072238222792,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315019,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23582,
+        "ranking_signature": "271a75a51a2b9f8ce596d4582fb4ca25a5414491937679a7f86411125ce4e383"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008917346743700198,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.000325849399913672,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005117830588569698,
+        "adaptive_empirical_ap": 0.5743756559426916,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315020,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23583,
+        "ranking_signature": "1f2c4d77453ce3a00509f2ae477dea39f28ffcb8af37f1efd9df113060265ad7"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.000896283428734549,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003309809618459929,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000516754128967756,
+        "adaptive_empirical_ap": 0.5744453460462275,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315021,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23584,
+        "ranking_signature": "7cd61ea783ded39db85a10209a19a60f2f26f23b2debed85ba2a031bb7a22ad2"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009028851875994733,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003382340690116099,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005238528465895668,
+        "adaptive_empirical_ap": 0.5745523726115376,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315022,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23585,
+        "ranking_signature": "e7997420b9320bf01866fc28748dff5ea4aaef939b141f517a0345d38268c43a"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009071668047940882,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00034148805267238347,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005274906993484943,
+        "adaptive_empirical_ap": 0.5746278036817977,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315023,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23586,
+        "ranking_signature": "eac3d0e86bfcac5a4fec23ddad6b35bb396115b2478d6838193428ae5a554374"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009146628340120366,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003498870591446882,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000535703176833938,
+        "adaptive_empirical_ap": 0.5747429678345118,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315024,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23587,
+        "ranking_signature": "706bf9d3df86acf75c2c9836b402ba311851073eecef1c18bbc9a642b86687d9"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009249659004453709,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00036121353883254156,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005468908372781196,
+        "adaptive_empirical_ap": 0.5748995483044544,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315025,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23588,
+        "ranking_signature": "2dfbb5dcb86dd7c144b722f68e871a2390c0bb62cd4d49abc2f35a495350f6a8"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009300580329168976,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003665828148764923,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000552261746939908,
+        "adaptive_empirical_ap": 0.5749713118842443,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315026,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23589,
+        "ranking_signature": "4882650dacf5775a35170201729bd967aebb306ae04d77e966fe79ea73a251be"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009387341730158465,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00037473386574935917,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005606422900541549,
+        "adaptive_empirical_ap": 0.5751148354731559,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315027,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23590,
+        "ranking_signature": "0d17af9d8b12f47eeef7dce85faf7a7b3b84497ff372af3c64b0d0d40ed8b252"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004940677332191876,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5745050521421493,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315028,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23591,
+        "ranking_signature": "18a454c90c86e9cae6c351bf2e396b04593ca4add4f84ac0100e9b49e3cd3c75"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004930439369470029,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5745351583838388,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315029,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23592,
+        "ranking_signature": "320d8e81664a416197487accc312959eb6ba7adfc43886294463be1cc56b6808"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004885982599540442,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5746197258375055,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315030,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23593,
+        "ranking_signature": "dee8196775ab53507edf9d8f30f5d3e4a5d11de96a68b2bb184b84a99cb3c2b1"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00048313750829924104,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5746960450185408,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315031,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23594,
+        "ranking_signature": "669936b20261a130c7e154c9fc5d67c09afff41aea2e7156535f0452f159ad64"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00045750505811907767,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5750737913650554,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315032,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23595,
+        "ranking_signature": "bd14b368af37066c4d8395f463276ab48460abd5d1a5c9dfdf1cae701ee6d4e6"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004526675364283292,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5751617059541405,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315033,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23596,
+        "ranking_signature": "4008ea7b63c40ba8e0dbfc9c0ebf5e98048dcc697ab7b523b189f05fc2cd10a4"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004412763661124242,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5753568363802081,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315034,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23597,
+        "ranking_signature": "fd6c06881376aad3d5c50561fcbd45282538d180107c01f1a373c42dc165a034"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004202279587603077,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5756554282542932,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315035,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23598,
+        "ranking_signature": "770872ed0c4f5177dce1b7e457c62136f1e12f83caa2ae2f816f7dcc766b7817"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.000413563122899141,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5757589062894158,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315036,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23599,
+        "ranking_signature": "1ca23e8008b0525d86ecbcb450d3d985eef880eeb5d9d667f21b23523201db27"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00040727209501941787,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5758461524079185,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315037,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23600,
+        "ranking_signature": "d70514ca1f61dd5d545e9c42796299a1f97d459ba747277ebcb1d0e827a84338"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003884926423557266,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5761217124317595,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315038,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23601,
+        "ranking_signature": "15156fe1ee1fa3b9758ccdf0a9167d8452341ac0ccb10dd05d9320a7731db68e"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.000405424912666574,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5759044566673147,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315039,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23602,
+        "ranking_signature": "54bfb0dd63ae6d65ed845ad42114d559163f71e53bba5377c504fd748a2216b3"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003913623046887856,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5761229674952465,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315040,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23603,
+        "ranking_signature": "22a491ea32448d8f9bad6c0a058a9796e56a289e63819fd02a0083d020848d5d"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003918722968103902,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5761183492333768,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315041,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23604,
+        "ranking_signature": "ef62151d1ed08d9b19dab8e020cabd14663c136b700250b7c4f18f9a5cd27f0a"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003806984415126186,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5762893987771319,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315042,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23605,
+        "ranking_signature": "0cee256af4039941cd0c999c6e281e4361c333c89b663d974444baa006c1fb3c"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00037734851245284536,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5763608081137037,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315043,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23606,
+        "ranking_signature": "992c3bd007f9255f56ea7444169b937de4ca98790b785c3d613c2bd41797346e"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003688374497885505,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5764990553333669,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315044,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23607,
+        "ranking_signature": "10c5844030ef431f1d7f83ee84d6af0d61b2920718b6dbce7069515da14ce874"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003686693816641242,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5765229269902028,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315045,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23608,
+        "ranking_signature": "bd66a5afb624a8e16fa3f72a6582ea38110f9e07f108fa0833aca79503445a7d"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003663555479808886,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5765722785770387,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315046,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23609,
+        "ranking_signature": "942269c0af7898f58aa01ab4a4075ea5753d2f4243086a1ef9699d470b55e6f4"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003664014079667703,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5765894586828587,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315047,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23610,
+        "ranking_signature": "7f4d1de1e003e37cb9b117866f302e49a8ac5661b1b7594c8313c44ad95db298"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00036781120136243975,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.576577816765991,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315048,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23611,
+        "ranking_signature": "56c84ab2a0bf494a99d935e6217d1b5a1f8b69537dcdc84f85aefe0a8eb9fc5d"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003641468335878282,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766338489008038,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315049,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23612,
+        "ranking_signature": "6bec6b63622376899dc9e7d7e792bb41de132f5801a9a716035d3b343504bcc8"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00036835416034529216,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5765733131644111,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315050,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23613,
+        "ranking_signature": "6684f31259d9c67e5edf597c28c70086cb3d456cd9e911d0cad556aaa79f5d39"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003671393362491837,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766002273638301,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315051,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23614,
+        "ranking_signature": "17bae424623021a01fe1bba2f5abdf81890a80132a5231859efecc9aa2a4356b"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00036362009217404644,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766553308745893,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315052,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23615,
+        "ranking_signature": "1e8d9b2518aa48f9dcaf903fcae604668292c4d9f606e6df837602f5612c2c3e"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003671872591415812,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766125820545309,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315053,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23616,
+        "ranking_signature": "14de93d635673324e9d1f97fe07650c322bcff332a46a14cebf5a38ded63e1c7"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00036847273133757547,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766005499346327,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315054,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23617,
+        "ranking_signature": "ed2ae65eb97dfe41f17378f937f6695b2ea715a91400e7801180204d55dfa73b"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008927270122740683,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032627356674540974,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000512372070104787,
+        "adaptive_empirical_ap": 0.57437192283159,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315055,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23619,
+        "ranking_signature": "99e74546e82b62271c491a8977a5d2d25316e218616aaa5e25916a1030f282da"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008928426616120737,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032637193264484845,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005124728356983938,
+        "adaptive_empirical_ap": 0.5743736112055315,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315056,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23621,
+        "ranking_signature": "db9e4382e9272b1f5ad021aa236098e92516f2c74f82331a913d7d535c99dd2b"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008928426616120737,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032637193264484845,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005124728356983938,
+        "adaptive_empirical_ap": 0.5743736112055315,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315057,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23623,
+        "ranking_signature": "f5eea133f85214c3aa8d0f20cca59e7d69181fa68afb257e2dd4a6ea7f5225b8"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008928426616120737,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032637193264484845,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005124728356983938,
+        "adaptive_empirical_ap": 0.5743736112055315,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315058,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23626,
+        "ranking_signature": "980a1ffd23810aa4a5668be57f643e8598071601983b267e46753e34c47a9399"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008928426616120737,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032637193264484845,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005124728356983938,
+        "adaptive_empirical_ap": 0.5743736112055315,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315059,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23627,
+        "ranking_signature": "e8e3a199612f01feed40b8881307fcb777bbabac67b5d03a6340ecfcf7adf2d6"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008928426616120737,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032637193264484845,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005124728356983938,
+        "adaptive_empirical_ap": 0.5743736112055315,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315060,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23628,
+        "ranking_signature": "b2a617eefdc9c47abd16a910cfe48d46a427d6340100f5046ddc791f79df0b56"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008929577396965503,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032647505080225347,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005125770557253019,
+        "adaptive_empirical_ap": 0.574375309771521,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315061,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23631,
+        "ranking_signature": "dfc0fc89e2718a13f548d194b8e2f7fc1d6b182c8ce50a44556076a549cfb0b4"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008929577396965503,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032647505080225347,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005125770557253019,
+        "adaptive_empirical_ap": 0.574375309771521,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315062,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23633,
+        "ranking_signature": "8977f20912bf230d22e04d757350a6fd15b4892a7a4f587c504e7e06283becb0"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008929577396965503,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032647505080225347,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005125770557253019,
+        "adaptive_empirical_ap": 0.574375309771521,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315063,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23634,
+        "ranking_signature": "c03483b95e0a67c759683432b7a642c95e7012c23d3dd5f0e8a37299ce738d86"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008930737997373938,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003265860526809795,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005126868611247683,
+        "adaptive_empirical_ap": 0.5743769973503179,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315064,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23635,
+        "ranking_signature": "dd0a8ce76c2b15fcff5cc4cb08696dbaa430618e3bafb1ce71b2bb5d270cac4f"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008931878701752844,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032669621491571827,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005128019128067111,
+        "adaptive_empirical_ap": 0.5743787069197674,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315065,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23637,
+        "ranking_signature": "358b83624f8ebc1b2b2d34a34508caf47398eaee29f797dcaddce7dc81333f73"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008933023599155855,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003267949022819051,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005129027999676885,
+        "adaptive_empirical_ap": 0.5743804157333724,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315066,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23638,
+        "ranking_signature": "c9d6aa2f65956b0643c3eb733c728dbfffa711eb7f6c14d522d85509ca4c6cc9"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008934178389131547,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032688008502923305,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005129991989053708,
+        "adaptive_empirical_ap": 0.5743821793881214,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315067,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23639,
+        "ranking_signature": "227c1757237ea5e05d721cbac6049672778f93f105630adae966caf2c5d737a3"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008934178389131547,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032688008502923305,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005129991989053708,
+        "adaptive_empirical_ap": 0.5743821793881214,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315068,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23641,
+        "ranking_signature": "2cc1953bc09f5f99bc8acf991ee98d8fcb11eddb417779dde5a5b64931e08156"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008935325697654074,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032698294840623334,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005131040117273992,
+        "adaptive_empirical_ap": 0.5743838969978695,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315069,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23643,
+        "ranking_signature": "0d35625a77c38083377ff74330b2dcfa6fd5007e9d280d8685357b71cb32d767"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008935325697654074,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032698294840623334,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005131040117273992,
+        "adaptive_empirical_ap": 0.5743838969978695,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315070,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23644,
+        "ranking_signature": "caa504e4081e41f4b1d0e0413cb71cba61d912c4bb0ce9b33cb5ca6d9f7a5a41"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008935325697654074,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032698294840623334,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005131040117273992,
+        "adaptive_empirical_ap": 0.5743838969978695,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315071,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23646,
+        "ranking_signature": "60c14f10ae7a231162891f9a8f0b7d4679253df798c3e0ff0d92415ec147f913"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008934167725028804,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003268645370758043,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005129829634029177,
+        "adaptive_empirical_ap": 0.5743822179566077,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315072,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23647,
+        "ranking_signature": "199e7c83fa109c6cc3a1733706b362911e5e444c7c98a5387e7e5233b54c822f"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008934167725028804,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003268645370758043,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005129829634029177,
+        "adaptive_empirical_ap": 0.5743822179566077,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315073,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23649,
+        "ranking_signature": "dbbef27e2f907139d0156508151c09c229760d5e86f0180b66a18b5f80d53c6f"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008933013819967511,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003267296735120537,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005128518869322884,
+        "adaptive_empirical_ap": 0.5743805381222467,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315074,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23651,
+        "ranking_signature": "4326b7c38e4f2d619df9c679ea5e43dd10f0baa480109fd4bef3345a134c21bc"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008933013819967511,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003267296735120537,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005128518869322884,
+        "adaptive_empirical_ap": 0.5743805381222467,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315075,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23652,
+        "ranking_signature": "f241d29efecbd7a7a19344cd0fe3045d83bdd13c9b80665520155a34e45e27ca"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008933013819967511,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003267296735120537,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005128518869322884,
+        "adaptive_empirical_ap": 0.5743805381222467,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315076,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23653,
+        "ranking_signature": "4e749be50d175e00454577dc4affe0f3ec29b96c1e1ae92248adf6bd0270ef8a"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.000893416290932909,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003268458913335783,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005129678257522254,
+        "adaptive_empirical_ap": 0.5743822461711351,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315077,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23654,
+        "ranking_signature": "e5e7baa2f291f4eaa39e66a7416e0c0061344ebc083f81def3d13729b561e4ce"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.000893416290932909,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003268458913335783,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005129678257522254,
+        "adaptive_empirical_ap": 0.5743822461711351,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315078,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23655,
+        "ranking_signature": "45b0bb13fb7c2ce06c2087bc1e5df75887e579633397bcd9ca7ce759dadb0ef7"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.000893416290932909,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003268458913335783,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005129678257522255,
+        "adaptive_empirical_ap": 0.5743822461711351,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315079,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23658,
+        "ranking_signature": "6486cec5f881a38c52c288d6e14f3a06ab0bd34ac952315d5a6f4fafbc6882cc"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008935338359426972,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032695995397534554,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005130843781423036,
+        "adaptive_empirical_ap": 0.5743840357879401,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315080,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23659,
+        "ranking_signature": "1a31586fa7dc1cf67cf51f6f83734933cbefecc983b4bd08bfc901bc32fd39d1"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008936497599726229,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003270677346882784,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005132030345330614,
+        "adaptive_empirical_ap": 0.5743857986859877,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315081,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23660,
+        "ranking_signature": "551e86de68956d5b45285f31c035720647b6b9f44ae9ac6e3fd5346d9002bd76"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008934202365685866,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032687697641364507,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005129958887909584,
+        "adaptive_empirical_ap": 0.5743824225676448,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315082,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23661,
+        "ranking_signature": "67a5937888c37a7d9244451cd3b6c435f49fe506f1cded4a2ce00ae022ccc371"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008934209631310183,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003268807911253963,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005130006920910109,
+        "adaptive_empirical_ap": 0.574382514929407,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315083,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23662,
+        "ranking_signature": "c3b335b24941a36cf7fe48b9c49f8ad6c566a85672f8a996dbfa338d3a763225"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008934209631310183,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003268807911253963,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005130006920910109,
+        "adaptive_empirical_ap": 0.574382514929407,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315084,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23663,
+        "ranking_signature": "66b393d4df4f6f506680148041209cc376ff7394a820ff248ace29ed2e963352"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008935390677376857,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032696103293023896,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005130971218332912,
+        "adaptive_empirical_ap": 0.5743843398481145,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315085,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23664,
+        "ranking_signature": "a94beee7dde8c9328e51306e5bca0085d10681229148527814a6967662beb54a"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008935390677376857,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032696103293023896,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005130971218332912,
+        "adaptive_empirical_ap": 0.5743843398481145,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315086,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23665,
+        "ranking_signature": "e1da2ee90d71c2fddaf87dba8c9bab41c55169a074bb4b396174aed0e9d44b5d"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008937713415298077,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003272018044481682,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000513341036071067,
+        "adaptive_empirical_ap": 0.5743879120022392,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315087,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23666,
+        "ranking_signature": "7c08fa70ece35cb79219013dbe1b4acc76614b3e54fe2b4d7846aabb7d431bb8"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008937689242390894,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003272134553193921,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005133518819355492,
+        "adaptive_empirical_ap": 0.5743878854610369,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315088,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23667,
+        "ranking_signature": "1624611db1cfe79de708ecbb081f6ba5ffb4dc5ab8d87039dcaf102ced97d867"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008935288185172949,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003269792936478364,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005131103750825851,
+        "adaptive_empirical_ap": 0.5743842763649734,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315089,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23668,
+        "ranking_signature": "c7868c7dfa696eb2768b31d5c18620511a4a0151eeeae24392077abf30646002"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008936761500341495,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032711081510036527,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005132717516762773,
+        "adaptive_empirical_ap": 0.5743865324917883,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315090,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23669,
+        "ranking_signature": "f28ad8edefd7ba3a809e4a4fc92217ac328128b356d30b11d3e00260bafe7637"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.000893566426011903,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032697464964611707,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005131351224862276,
+        "adaptive_empirical_ap": 0.5743849129214346,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315091,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23670,
+        "ranking_signature": "4b3835f752fe21887c706571316075ea1cb69d0ce322fcfe80bf603e4ab623ac"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008934490285068299,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032686702063755465,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005130369993168201,
+        "adaptive_empirical_ap": 0.5743831670350222,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315092,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23671,
+        "ranking_signature": "f5aa6b68672aeb61c25fe1e89015f8529686c06f44bc10115befef3c7b8f2461"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008935663307902755,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003269716686771983,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005131475378605225,
+        "adaptive_empirical_ap": 0.574384947136901,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315093,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23672,
+        "ranking_signature": "35747c3423c709442a19bfddd2856f6747c75af37083f1719616344f4290ecb5"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008932232812546466,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032669601444943955,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005128479369014228,
+        "adaptive_empirical_ap": 0.57437974279627,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315094,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23673,
+        "ranking_signature": "4c181ef0dddfa0416eb07af2b6395e1991fb1d759ebce898eb515e573f2fe33c"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008933426608702874,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003267999977746205,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005129661785951828,
+        "adaptive_empirical_ap": 0.5743814980337708,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315095,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23674,
+        "ranking_signature": "dda4ec689cf288fb6511c10e3956b7278d8b8ba1204d4458fdc02166b26026fb"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008934913556716707,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003270525434182526,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005131934371346555,
+        "adaptive_empirical_ap": 0.574383726181266,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315096,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23675,
+        "ranking_signature": "2f5a6afeb1182f89017d97299f5f116f3fd76324793b8b4f36706e88efff57c8"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008937368958522995,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003272963063141373,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005134478628440106,
+        "adaptive_empirical_ap": 0.574387481990403,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315097,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23676,
+        "ranking_signature": "2b7b61327f2d4eb9cb814ced30a98417ecfac6d9df88b7670037d751ec98a698"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008937578706063789,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032740496015606376,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005135301993055651,
+        "adaptive_empirical_ap": 0.5743879635798461,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315098,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23677,
+        "ranking_signature": "cf5667d736fcdc0e7fd1f9427da491fa64928cfc5fcc3ea84c98badb0c8ec34c"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008941328073399472,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032780628247089545,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005139197483562419,
+        "adaptive_empirical_ap": 0.5743935151094492,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315099,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23678,
+        "ranking_signature": "543b1c8ca06d92734f79958e768a547041c12641ce9efa900f65572365b2d0ee"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008938215509941647,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032746952338402426,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005135936806546044,
+        "adaptive_empirical_ap": 0.5743896808029172,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315100,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23679,
+        "ranking_signature": "40e475c5eaabdaef26b9f9760c6f0e89c73f8351ef218181031d15fd06acd45d"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.000893584752459313,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032722949569013906,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005133714174951068,
+        "adaptive_empirical_ap": 0.5743864647213872,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315101,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23680,
+        "ranking_signature": "e4256ebad8f6420bf4a2dcb78ecb128dcce283548d215213e505c7e728737dc7"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008929359976735159,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003264690836397736,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000512634392739643,
+        "adaptive_empirical_ap": 0.5743778557820199,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315102,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23681,
+        "ranking_signature": "2dbe60056f524157f070eb02a47c9cf61ac3367a429181fc57826d28d469cb43"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008923614826818402,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.000325924999721616,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005120805287402547,
+        "adaptive_empirical_ap": 0.5743702155642738,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315103,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23682,
+        "ranking_signature": "f3b64841427757705bdf4e7bcb9404679165e0998b37aaebce11cc63669ab9ac"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008927461686831489,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032631334566000984,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005124647712788378,
+        "adaptive_empirical_ap": 0.5743761496374524,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315104,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23683,
+        "ranking_signature": "dc636e92dfd192094c1e91e73a82b022907c2d189c11fee0e6e3cc4400fda0c8"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008926992957991892,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003262584806669625,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005124184587348709,
+        "adaptive_empirical_ap": 0.5743759065918707,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315105,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23684,
+        "ranking_signature": "8242c19c775086e4db517b2a72cbf18f4195850a499ee2b327b54c618cf1bf02"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008932607565280779,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.000326930208083949,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005130455403447652,
+        "adaptive_empirical_ap": 0.5743849031442454,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315106,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23685,
+        "ranking_signature": "42049dd559eca50d53ae288df7718aaea4d3b3c29c549b1d703a003da1207cd5"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008935837196824628,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.000327221997772806,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005133386523528059,
+        "adaptive_empirical_ap": 0.5743899735310906,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315107,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23686,
+        "ranking_signature": "c181f1ee91a03a09cffdbb7aceb460f29aa7e8499fd7a0b866347ca7c731a683"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008946267910465034,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003283367105573084,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005144322326769797,
+        "adaptive_empirical_ap": 0.5744058179674746,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315108,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23687,
+        "ranking_signature": "e13b3356fa2a782ef25b731c7f14179679f6147815b757c37e1955284ba81573"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008938882215056929,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032754771281422635,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005136503501542003,
+        "adaptive_empirical_ap": 0.5743953397441544,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315109,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23688,
+        "ranking_signature": "8ab0e537077c246ff928dfb78486ca7a2a0e357e4dd06f69da6d6105d1257653"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008921815636841156,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003258838061286324,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005119556879250418,
+        "adaptive_empirical_ap": 0.5743702981688894,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315110,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23689,
+        "ranking_signature": "de49605d81e0c701ff86b2de55bb074c72fa47407e3268a41bac1866a93162d1"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008934457908803782,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032706252813308455,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005131819545133176,
+        "adaptive_empirical_ap": 0.574390800969977,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315111,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23690,
+        "ranking_signature": "62b28b9fde2db1b022d1d99b7aac39ef069ee5a7effa1011b05d54aa37984742"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008935049704668907,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003269601958087851,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005131189060363467,
+        "adaptive_empirical_ap": 0.5743931629844938,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315112,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23691,
+        "ranking_signature": "3ef4d57abaefb1b554d09313addd781e9c61d85c1d93e007a7b9d519e0f54af7"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008949344806797304,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003283581184614806,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005145709324422134,
+        "adaptive_empirical_ap": 0.5744180412206296,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315113,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23692,
+        "ranking_signature": "16ab76c9dd7ddcded2ba08258fd3d0c85fd61eb9776a758847ff9941b8807124"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008941671787855102,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.000327526708848703,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005137387159711754,
+        "adaptive_empirical_ap": 0.5744071761613975,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315114,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23693,
+        "ranking_signature": "fc229543f4abbc33c995822fca73d06810b482e05cbc0ac2da3ffd651f01bd75"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008937535723179523,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003272229644662298,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000513422146393608,
+        "adaptive_empirical_ap": 0.574401214569041,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315115,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23694,
+        "ranking_signature": "044f3f68f0df24f4095c1835f86afe43d7af463ed7bb713467f7af003b20b287"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008954618051495288,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00032916059518893584,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005152801103695929,
+        "adaptive_empirical_ap": 0.5744309203861686,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315116,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23695,
+        "ranking_signature": "73b3fa79b146554db32733aa419f8c08cf9d612fb2e131f7d32bfc98dbb61723"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009022386972325058,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003370683388401972,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005229404691734918,
+        "adaptive_empirical_ap": 0.5745325016426251,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315117,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23696,
+        "ranking_signature": "7848b07ab6d43a8efc72ff58f8e18a316ef8f466c1707713493df43a44b02a16"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.000904484015144964,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033961376489429867,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005254151095140239,
+        "adaptive_empirical_ap": 0.5745720771153706,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315118,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23697,
+        "ranking_signature": "4d0ff8f0cdf808fa7663fbe0add55b439a0c7df78dedf9de32ef322cb32386cc"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009121174059681415,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003475209906946094,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005332534001856104,
+        "adaptive_empirical_ap": 0.5746944254047935,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315119,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23698,
+        "ranking_signature": "36ade97b811cc9ebbab077d66aa7627a0d1effa2fd8ba79b6bf5b2c92fa1c9ba"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009196144571084509,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003547765694298812,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005406635556586479,
+        "adaptive_empirical_ap": 0.5748188872882338,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315120,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23699,
+        "ranking_signature": "b34db2891cc4467fedc994d1b8637544f3ea252e0bffea4ceb3b6c74c20b801e"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009244051130745893,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003599398406539585,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005458616588683568,
+        "adaptive_empirical_ap": 0.5748912029283315,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315121,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23700,
+        "ranking_signature": "fe8b281c0e611890a7364de9fc8871eda9b50e1de6c96826ad7f271af56eb376"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009287781495265612,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00036566356364122415,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000551091813819881,
+        "adaptive_empirical_ap": 0.5749605905761419,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315122,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23701,
+        "ranking_signature": "055fd8730a3943f6fee2d5a0e0d9708c47d4c02f15caa605ca9fc1831ec922e5"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009431402083737248,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003803753914111212,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000565885955236154,
+        "adaptive_empirical_ap": 0.5751765750335063,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315123,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23702,
+        "ranking_signature": "a6fa85f3d84d2dfaccbd4b808724a7c85366018e66599834f7d68b567851cd1c"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009455188579331024,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003804890884400445,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.00056694218842617,
+        "adaptive_empirical_ap": 0.5752202120817859,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315124,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23703,
+        "ranking_signature": "fe47550a9f501d09b561b7ba627b73d1daf321eb7964d603bc0bdd96dce5ae31"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00048710338750858166,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5746219816397733,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315125,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23704,
+        "ranking_signature": "2a2ed9e3819c190fbd4e2a83a77355203a0926fd9cbda069285e976de13a7b8b"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00048520096489496935,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5746679596624553,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315126,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23705,
+        "ranking_signature": "4ba610a83bf004a6a7710c4841bea394125f4ec8c5ba6349d614c47e3091e184"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004840194895722877,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5746892912376192,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315127,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23706,
+        "ranking_signature": "e5d94854e92664e169af7680b1990587ebc87353ceb1b9a96bd8a5de2b78d643"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004701102638279171,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5748926385434922,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315128,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23707,
+        "ranking_signature": "dec88d1adee24c6f1baa87eddf520af1c68b99dc34dd6d226323b552a3bd4edc"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00045171347778033555,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5751719094987933,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315129,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23708,
+        "ranking_signature": "e1800059b9abdb7504121edd4f95608eeb4bac86853e836e50a70cd3ba94bacb"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004291603181492496,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5755014435432957,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315130,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23709,
+        "ranking_signature": "6dff10fce60bd29bd2e89015c3d29d4966e180064ce8ab60e46d996236fcd0b9"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004303732184691069,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5755216043276469,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315131,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23710,
+        "ranking_signature": "f2abdeb680cc1ef7aa91d54f164083870318134755dbe315353142b600d28acb"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00040780243775431074,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5758330461304677,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315132,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23711,
+        "ranking_signature": "b0574c0490232b1f2f53c7cfb267b835de3d7a466d510a2c7970f0c76289ad56"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00041347064001495334,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5757791379396924,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315133,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23712,
+        "ranking_signature": "a81076671bac09b2f9942b964051b6d5fdea389b075700512e442abfb4d72ec6"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00040628954091697506,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5758640391158866,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315134,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23713,
+        "ranking_signature": "fba12a533fdd148056f1a9d8b139622aaf448a88d6d004609afdb68507162816"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003954667709582145,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5760324617154984,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315135,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23714,
+        "ranking_signature": "9ed2660de69b5b0b64274ebc6441102b30a0272feaae80d42fdef80f915a5812"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00039634153302976066,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5760456407964347,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315136,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23715,
+        "ranking_signature": "39942a45f4fa475549de08eb979413979236a417a53191f11f660a1ca6d155c8"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003904568472567031,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5761419915768712,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315137,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23716,
+        "ranking_signature": "ca73bf1ca660568be1604d269728656979983e250f3bd46be5dd1815f47f8056"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00037933225604634344,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5763040917126373,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315138,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23717,
+        "ranking_signature": "5196591455f7031a384a5f8403c849a54b4c7d6396d26feae8083ea890fcb8d5"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00037394384426570407,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5763945528196944,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315139,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23718,
+        "ranking_signature": "f5e6e88f0e318dc9cc1dcdc6073517523b12faf0d9980d1b72da43194aad11d1"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00036959860335346664,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5764795308315406,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315140,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23719,
+        "ranking_signature": "3c15074e578fd79de0e85eb6d8e1e8eb9ffa642479b48540d341f654873e1d7d"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00036216388992391275,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766070100646469,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315141,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23720,
+        "ranking_signature": "091bd7d4a71c6888a229ea0af998fb28baa9e141f237956bdea66bcbef8c3017"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00036760439078786095,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5765440650571069,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315142,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23721,
+        "ranking_signature": "5d28cd288331ba49ec8bcdef8a4eb3ceb96e9563671af121569493f6ecf60d4c"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00036287352195421736,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766245970176173,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315143,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23722,
+        "ranking_signature": "36edb3dd5a6fd8df598638aa2ac5c2399fb4c4afa2fb480c4ed0a148d88e448e"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003622160450607193,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.57665005317817,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315144,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23723,
+        "ranking_signature": "aca74f04b4aed10c8755a9b334d5c863d4309c4a5cb3caa771328b787f88dc73"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003591168966490428,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5767001215930435,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315145,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23724,
+        "ranking_signature": "401e72caba00b0658d5b4e99f1c5f8836f9c6a436b728cb4a84d6cc01980a581"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003630168724732038,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766474447703924,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315146,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23725,
+        "ranking_signature": "4e723be3c9bd1c13f18aba7a44b299c2add33afefd438fd98c3110821c2a15e3"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00036504901321580616,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766216462118785,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315147,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23726,
+        "ranking_signature": "da6cbe9508ad5e56df705a4062b7e4ffe56cacaf2450dc32d409a7316dbe011f"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003619789481837006,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.576665749508203,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315148,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23727,
+        "ranking_signature": "04b4815e12c6e7b5a6db7b6f8cbb9c89b0c748fe5b81d85b3336e5a29b25a79c"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00036196382034129823,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766830910829361,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315149,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23728,
+        "ranking_signature": "6422b0b0a51d6950868c85f69dd0893ffa30f36543c80d14fe5cc7434f6bbb36"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003606827689864901,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5767044768177276,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315150,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23729,
+        "ranking_signature": "24970764b6feb21a84724b6f16c636613ffec5959ac7870b2afce75db7e5cd6d"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003674855213750706,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766168286776486,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315151,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23730,
+        "ranking_signature": "1e1b184e453f1db6810bf3c69a8cfc2b714884d9eadbfdef7024fc664e6b6aa1"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009009271988889202,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033463168193481304,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005207909205894968,
+        "adaptive_empirical_ap": 0.5744946160229725,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315152,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23744,
+        "ranking_signature": "4a4f50ed6a8aa4d50cb79fca7b601c8d6cb0c6b67139eabaa459c918d4f997b9"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009008060688008336,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033452012155528416,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005206768656315365,
+        "adaptive_empirical_ap": 0.5744927918397777,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315153,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23746,
+        "ranking_signature": "990c2c6338622adbc76b14ebb130694c77af8c598120b8f85067ce26833a2acf"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009005656242164206,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033430278216298404,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005204510593927431,
+        "adaptive_empirical_ap": 0.5744891558351409,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315154,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23750,
+        "ranking_signature": "c46be6728ee31f3832ad5747947c1aa1ae1b718d6f0e2170a52ab9a1eb520d9f"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009004452099435328,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033421788692742635,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005203512607385812,
+        "adaptive_empirical_ap": 0.5744873303994603,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315155,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23751,
+        "ranking_signature": "23d981a39a9abb83a2d20398b756bd3d44ab1dae63724b41bff7da2efe03b1cf"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009004452099435328,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033421788692742635,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005203512607385812,
+        "adaptive_empirical_ap": 0.5744873303994603,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315156,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23752,
+        "ranking_signature": "824980556b5088ac0943aefca6e323c671bbfa799faf1ecdbf4dc613f0a9f49f"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009005656242164206,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033431074377842496,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005204584604047264,
+        "adaptive_empirical_ap": 0.5744891558351409,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315157,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23753,
+        "ranking_signature": "b46dfd2ec8fb9a27bcf8e3eba3c539cb96f436c912000857c71cfac45fda12fd"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009006855446906555,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003344249298742268,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005205732839270105,
+        "adaptive_empirical_ap": 0.5744909717734272,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315158,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23754,
+        "ranking_signature": "b56ce18f7881fceabb2eef2694a0a69d2aab4850c53082ca67ef002f26eff112"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009005662413873999,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003342925667163614,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005204488962813524,
+        "adaptive_empirical_ap": 0.574489205130149,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315159,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23757,
+        "ranking_signature": "7d80507c6cdb99f7307018c0d736c993564feaf08c6e0d57c7d30a42b831d5e1"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009006871329135351,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003344013293281872,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005205677103218523,
+        "adaptive_empirical_ap": 0.5744910297345748,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315160,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23758,
+        "ranking_signature": "bfb3179185099e57da71a2bf9ee188012686aed9c101cab3f60fef2409771e40"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009006871329135351,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003344013293281872,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005205677103218523,
+        "adaptive_empirical_ap": 0.5744910297345748,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315161,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23759,
+        "ranking_signature": "58b6f4d91b816c25c03e11fcad07eefb4750f401436a07a47205719ef57814e8"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009006871329135351,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003344013293281872,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005205677103218523,
+        "adaptive_empirical_ap": 0.5744910297345748,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315162,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23762,
+        "ranking_signature": "b6385750dae95302237ec16589206cfafb31084af6c65d9ed3b100ab1c335f75"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009006871329135351,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003344013293281872,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005205677103218523,
+        "adaptive_empirical_ap": 0.5744910297345748,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315163,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23763,
+        "ranking_signature": "5ed856852095aa2f8ff3be3d9a03e661d1d88f1994820768a3c83f03e70a282e"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009011687235195576,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033485418629406437,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005210337157889867,
+        "adaptive_empirical_ap": 0.5744982455577501,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315164,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23764,
+        "ranking_signature": "0cdbb3745e6da55ddfc943082efec887d4f61c459eb9cae33bb1863467a59179"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009012907557809403,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033499441115668354,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005211821684777656,
+        "adaptive_empirical_ap": 0.5745000472755125,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315165,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23765,
+        "ranking_signature": "038021af19ae943f76b140f738fbb818e0e1e15b6c09e00aeb086a08a023ad66"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009012907557809403,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033499441115668354,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005211821684777656,
+        "adaptive_empirical_ap": 0.5745000472755125,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315166,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23766,
+        "ranking_signature": "1c1867870f930d3bbb86bf6205ce815758af33bc3ebb178de4a1ad471a3db08b"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009014123290308779,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003351062622115569,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005213000697505149,
+        "adaptive_empirical_ap": 0.5745018602779289,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315167,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23768,
+        "ranking_signature": "bd5000749ce095d5146ba3c6f57011b460d6e8e6fba44982c79914b555200743"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009015348899088799,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003352187292117596,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005214158394575841,
+        "adaptive_empirical_ap": 0.574503681884538,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315168,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23769,
+        "ranking_signature": "c504a668b350fca6c1ef89cd4d19b2229a105109ca285aca6cb3f228b333c6ba"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.00090153626435336,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003352686750373826,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005214547490634231,
+        "adaptive_empirical_ap": 0.5745036585787697,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315169,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23770,
+        "ranking_signature": "0fe8765a994baa811641d8fb9c467b7303e9900856ec850d91ee60931afbb312"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009014182000598153,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003351349780135481,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005213283433930775,
+        "adaptive_empirical_ap": 0.5745019188065189,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315170,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23772,
+        "ranking_signature": "7533c99de3e12304472739ccf5b78412ffc6a92d69b8c49a9ce38e388d9f769d"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009013051009895152,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003350609699002681,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005212364442992702,
+        "adaptive_empirical_ap": 0.5745002599103458,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315171,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23773,
+        "ranking_signature": "107d588fe5e9a29f32dcbe2fc63e5e313a6ba9c0898bf8b5c3aa4a7b3a6be6a8"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009010652068585766,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003348450857913753,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005210148982029055,
+        "adaptive_empirical_ap": 0.5744965865740715,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315172,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23774,
+        "ranking_signature": "51d8381285e8859c02e5ad1d9c9e266b5001e5fb448b30f8b2350431adc53829"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009008250522356855,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003346004742237794,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005207693537124169,
+        "adaptive_empirical_ap": 0.5744930159060968,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315173,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23775,
+        "ranking_signature": "dbb51dac8e1279de2fa8bff3681fabdea47047567f2af5250e2f92369dde601e"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009005939386421014,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003343909332394128,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005205445634739909,
+        "adaptive_empirical_ap": 0.5744896558889581,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315174,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23776,
+        "ranking_signature": "1930102852a0fb4e83dbb29be5fc0f64bc6ed0a9f5aef3290d0fe2874fb48c21"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009005936884717274,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033446706907281113,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005205947421916073,
+        "adaptive_empirical_ap": 0.5744896457772325,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315175,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23777,
+        "ranking_signature": "ea9d6b11d7e6aa73b7997d8daedc3b6cdbeb61af426304593231a98a47a4df4b"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009003656408250946,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003342434079400825,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005203729403740006,
+        "adaptive_empirical_ap": 0.5744863456294529,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315176,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23778,
+        "ranking_signature": "1780d5e5b556ff7a464a0295118307aeb9ce1b3279ac303776c5075a710fbd06"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009003908382066491,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033427570899804775,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005204022051772374,
+        "adaptive_empirical_ap": 0.5744866921080931,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315177,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23779,
+        "ranking_signature": "af30a0d35e530052df33dd339f5b906d49279ebaff289617262c831e9f4ccfa9"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009005258620042398,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003343415078950045,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005204907445691331,
+        "adaptive_empirical_ap": 0.5744888228162789,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315178,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23780,
+        "ranking_signature": "4f19b63ccc581f05759d6d067e2a5452097237cb1a1f25ef1ee4527ff3982eb1"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009002944357715519,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033417268196481983,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005203037339579714,
+        "adaptive_empirical_ap": 0.5744853606440223,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315179,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23781,
+        "ranking_signature": "2329a1c530aed20ec1ee059270524b7c43d1330ecb5f6af5b9b29f1f3ce657ae"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009004619322496576,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003343722097907085,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005204960839933873,
+        "adaptive_empirical_ap": 0.5744879405712147,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315180,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23782,
+        "ranking_signature": "0d8768c1556c56beb1d9693a98cad045c0a0579f4b3f83db49981323bce117bc"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008996087771481164,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.000333512352260364,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005196214466222177,
+        "adaptive_empirical_ap": 0.5744751933673389,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315181,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23783,
+        "ranking_signature": "5c629da30fbd8b76f7aa6a92bae89bfe4a05262dd9e885cf8ce9734f8120e740"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008994104708245684,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033324761156060305,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005193738578600758,
+        "adaptive_empirical_ap": 0.5744722940087704,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315182,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23784,
+        "ranking_signature": "98a00083240303fc172128ea29676bc5e1e5d22ba4f87eaae9f23944f0e861f0"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008990411221287166,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033298799301054405,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005190790867413644,
+        "adaptive_empirical_ap": 0.5744667775009844,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315183,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23785,
+        "ranking_signature": "63a017a69276c57e61e524dd33f0215ff8f327dcb8afafcabe2e32ebbdce6715"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008986971003086264,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003327311525614339,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005187913857411706,
+        "adaptive_empirical_ap": 0.5744617239009686,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315184,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23786,
+        "ranking_signature": "0806b343351b93dc867a3e5e582a97f6e6fea962fa6ceab08fa087cacbe1401a"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008981386824761933,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033219994731673665,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005182548810104405,
+        "adaptive_empirical_ap": 0.5744534267624617,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315185,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23787,
+        "ranking_signature": "5ec52250394698bbef8673849054d986bf7cf5f19e1fc4c55ff33190e1029f4a"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008984957803675111,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033251339141999255,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005185747415803725,
+        "adaptive_empirical_ap": 0.5744588876371276,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315186,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23788,
+        "ranking_signature": "40b0e10cd380427949e05d24f31a18294b86f7949d76876d0d5bae77b5af47c9"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008985486052269735,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033255750255966476,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005186140668181123,
+        "adaptive_empirical_ap": 0.5744596244346856,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315187,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23789,
+        "ranking_signature": "7c201b9abdc5c052464178a88ac364eb429848d084fc89b6bb508ea7e969a92d"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008985245909907662,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003324629043508573,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005185424615796489,
+        "adaptive_empirical_ap": 0.5744594376885732,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315188,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23790,
+        "ranking_signature": "d9c4bf78b480d25d39b82d92a7a269d9aaa06bb5c12a8e5525f9400079f7fff1"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008980975937391486,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033209154296872734,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005181491862581722,
+        "adaptive_empirical_ap": 0.5744537304349494,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315189,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23791,
+        "ranking_signature": "8d0421d9dfb4ecd4e109f151e2cfaf24996543298d0e32577ecd746938cde56c"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.000898108386264404,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003321173230209784,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005181896981345528,
+        "adaptive_empirical_ap": 0.574453536907387,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315190,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23792,
+        "ranking_signature": "e79621daea3e17a69f03c3d8011b2001f1a501101ea2781c76b7baed8967a191"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008979527301215089,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033188393907812895,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005179651848932063,
+        "adaptive_empirical_ap": 0.5744522402130602,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315191,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23793,
+        "ranking_signature": "4a251ff77835044fb901b86eb56fc289f1501b5ac4a3779eeaa94b4d29e422a5"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008969351585462922,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033094923438390435,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005170243842190542,
+        "adaptive_empirical_ap": 0.5744379624041078,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315192,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23794,
+        "ranking_signature": "44083a3a99478915537e2d43c7d0a1b814bae3cebe8137dc4ccd543e19ad04c0"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008981377424577951,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003321911309324336,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005182594752430598,
+        "adaptive_empirical_ap": 0.574456166955954,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315193,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23795,
+        "ranking_signature": "db1063d429ca3e56bae255105e03b7ad9c2ce8fdf882e1d3990ef5437a386e35"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008978495110813466,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033186835872196785,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005179377008712214,
+        "adaptive_empirical_ap": 0.5744520361681695,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315194,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23796,
+        "ranking_signature": "c963373a5d32b717f2db859d6033a913ccd3bd7394218f7c1eb35cbe3055180e"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008981929738525376,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033220673494742734,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005182937789057343,
+        "adaptive_empirical_ap": 0.5744572645592688,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315195,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23797,
+        "ranking_signature": "0fc413d5325c3a339e2acc397277adc2093232cf31ba47b7bb73f654c6259e43"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.000898429774596152,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003323080941739066,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005184219659380927,
+        "adaptive_empirical_ap": 0.5744611265003922,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315196,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23798,
+        "ranking_signature": "b2cde2bd16aa462e8ea1ebb7bc99f3134f871b0c15c5697453e442d71dcf192e"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008984698084033866,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033226926161229113,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005184193033581619,
+        "adaptive_empirical_ap": 0.5744618173290508,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315197,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23799,
+        "ranking_signature": "5f46d3ce953cf0fd1a24180ea7ea6d21ba8c6628b61b67b11a2271cb1b9e237a"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008979135678053012,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033175379620711224,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005178944308932442,
+        "adaptive_empirical_ap": 0.5744537447495032,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315198,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23800,
+        "ranking_signature": "93b0d8af819da62dc69d858f56b7b6fc1b9a964817d104dc8c506beba6bb0e26"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008974084837233311,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033118637904801864,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005173503366231013,
+        "adaptive_empirical_ap": 0.5744462707527018,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315199,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23801,
+        "ranking_signature": "0e29c94c2074b1393d65f8bd44a2c5e7ddcbd00e52ec70fe320231e7d99e5df6"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008977130029153776,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003316014217997398,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005177207180584935,
+        "adaptive_empirical_ap": 0.5744520073777758,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315200,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23802,
+        "ranking_signature": "7024fec8b095aec9198681c8bbddb71c7aed9f5e8a7277d588070d71efdb13d2"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008980096764975957,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033197416152663594,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005180822591468325,
+        "adaptive_empirical_ap": 0.5744579402102756,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315201,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23803,
+        "ranking_signature": "64b53bb661aed7583fbb57deb618fdf0d96c41cef064855dd712b4531a4f5354"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008999513147499999,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033380778067791086,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005199699245878567,
+        "adaptive_empirical_ap": 0.5744903763169302,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315202,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23804,
+        "ranking_signature": "c745dd083312cf68242fc8ab4eeea61e263e1c154de4f66551d8d85e5d0ad169"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008995962789235049,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033351238822951635,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005196590223283347,
+        "adaptive_empirical_ap": 0.5744862151915737,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315203,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23805,
+        "ranking_signature": "a58906bf932eb623f6d9f720e51651ee09b36e4c4d95698ffe86ab231f8c09ed"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0008999830640051693,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00033370539962673503,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005199011778157867,
+        "adaptive_empirical_ap": 0.574492387356279,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315204,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23806,
+        "ranking_signature": "4cf81a8af4f181a77c98aafcd5e6553ba2fc9d28becc6a6fded0549dbe405b7c"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009007826041809684,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003349636442638239,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005210174014704281,
+        "adaptive_empirical_ap": 0.574506942307833,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315205,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23807,
+        "ranking_signature": "9edbc32137723a2eeeab28ea93fe1f643d7edc7acadfe5ff960f4d56cda96f4a"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009058136835644898,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00034093235247524794,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000526806205830653,
+        "adaptive_empirical_ap": 0.5745851999781258,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315206,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23808,
+        "ranking_signature": "14d53b142f173ed268c08529c925e030fc8a78f6fcddabbaf61abcf400c1df59"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009068423584206176,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003424015612468026,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005282225104898981,
+        "adaptive_empirical_ap": 0.5746029377927203,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315207,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23809,
+        "ranking_signature": "e655f9ddbfde3f51f8599331600752c58e5d414a8a4ef093a4a0d8686f7f0568"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009174851988750475,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003533205923137579,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005390084505333703,
+        "adaptive_empirical_ap": 0.5747715630900421,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315208,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23810,
+        "ranking_signature": "869dda972cc1edc96ea0000262bd301c8877e76ff77f6391ac5aaed033a53bcf"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009207927042703123,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00035562279140821256,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005416876196812426,
+        "adaptive_empirical_ap": 0.5748353992952869,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315209,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23811,
+        "ranking_signature": "9fff5a00878337a27d978040917776d700bdcf57bb8ed07c411ca093406c2b01"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009281696938052593,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00036386150923122174,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005497741951784746,
+        "adaptive_empirical_ap": 0.5749485624925619,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315210,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23812,
+        "ranking_signature": "992ba1af4bb8e28f0bb028dc2e5ced717daa84428ac849ad697bfcb0285075e6"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009351316749045702,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003724957673524277,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005580130828146871,
+        "adaptive_empirical_ap": 0.5750498001253425,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315211,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23813,
+        "ranking_signature": "18d73d3162d7547c6d3ff0ef982a25b23ff5291cb27982e8c992324582dc6eb4"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009457201696958205,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003830413319639361,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000568688998178363,
+        "adaptive_empirical_ap": 0.5752144706298945,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315212,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23814,
+        "ranking_signature": "e252844857b8913bc47893fa2bfe7cfcbce5b89834cb057128d495c9d3a07c1f"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009497788642799255,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003854588809447009,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005717219038294374,
+        "adaptive_empirical_ap": 0.5752852888615536,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315213,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23815,
+        "ranking_signature": "88d4936114369c14cafda031f29712d6e8d9db0eff6b5a56bc477c6b2d7e68f7"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009556636869682208,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00039036050411877035,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005774347181603228,
+        "adaptive_empirical_ap": 0.5753730294610687,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315214,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23816,
+        "ranking_signature": "fe4bd3a8faeb2791cfcc87c32717249af0c0de4b73bea8146f7504a070cac4d2"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00048032317047240307,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5747356627306891,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315215,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23817,
+        "ranking_signature": "a7c1c42f7c4c9c4d51cf201de7a63e06acab39593e0b4d1b166d038cd6b0415f"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004784277595783863,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5747728852368601,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315216,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23818,
+        "ranking_signature": "f847f28d49bfa06336e0ebee01c72deee0a8b59aec86ca1192eee9e47f2ae29e"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004738296601831931,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5748400992257799,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315217,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23819,
+        "ranking_signature": "7ec6c88d4dcd4e66dc5bcaad1e454c2de44756fd486dfdf413ac495a63a10718"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00044606996435950924,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5752480983681174,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315218,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23820,
+        "ranking_signature": "6b9670688e20a166a364d466c2fac7272664c3abe6aa5134516517ba248c8590"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00044592240940662976,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5752589144796623,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315219,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23821,
+        "ranking_signature": "8c7736d5fb890411189ec855280ac5b92de6ebbb2b9de37ea327c0b7601e7ec8"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.000424087681476339,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5755730350742881,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315220,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23822,
+        "ranking_signature": "f4924b0b8aacfac0c55601ef493f7467b18aaf7ff8d6bb43c07a20e96591e697"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00041413774154293835,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5757514034007459,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315221,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23823,
+        "ranking_signature": "951bdd5a19b7bf8fc6274e56d36a40d0177edebb52775fa5378c1fd750c58ae9"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00041072519246933975,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5758080577735092,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315222,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23824,
+        "ranking_signature": "2213fe5c1a27b8ba8c2d337fd0c5f8b22f241306c218d9386af4a6eb185afcf3"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0004077032974669284,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5758608989521757,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315223,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23825,
+        "ranking_signature": "f1560ac57d452f2bcce3291119aba6414ec5bdd68a2e2f26fa374ce656b86675"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00038994959913852406,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5761154318897285,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315224,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23826,
+        "ranking_signature": "c3294d35dd23729a4c7b1735191814d6837e09bd4a479c8cd042aef0e9dae5c5"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00039693715722053,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5760309560141628,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315225,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23827,
+        "ranking_signature": "406d92263280f1a76e090ae542cfc78dd19fea388993a5b2b0163ed0229bdc02"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003864167182476286,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.576195690790807,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315226,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23828,
+        "ranking_signature": "d3ef3ac8ed93be6e7de7fc4cff2381c3df8d2c91a10da7e0e6af30776064ac10"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.00038053326172222783,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5762835156625717,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315227,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23829,
+        "ranking_signature": "ccdd8ed681dd74d5031ea33fc85be17129437cdf245b617f3fbcd19a93c66888"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003738584884739691,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.576386192297974,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315228,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23830,
+        "ranking_signature": "e5199614b1997ae0636ce331062bf9bc5b5dcc553c2ac37dbd13f5818f995fc9"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003684232096873609,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5764836963015733,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315229,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23831,
+        "ranking_signature": "1114df8fc91fdc317c735756991dbcfe2a8c93c2940544786680f29126e8ca88"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003601213293949416,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.576620587459226,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315230,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23832,
+        "ranking_signature": "150ed940dffbdee2bed641076f6380f93a98da463831b6ff4bf3f662f55e80c0"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.000359237018446484,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766534595775762,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315231,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23833,
+        "ranking_signature": "fb927c9fa5e9c1b90cba6679b270ac7060d4d8f073ba028302a8259eafab298d"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003556132289362357,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5767189963717915,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315232,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23834,
+        "ranking_signature": "a99af55d8b8dda54b91d9fed0faa8767f584906ab1866d5f431b8ee840df2d6b"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003573440895339435,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5767132266867109,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315233,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23835,
+        "ranking_signature": "a3fd8a6aea25fdc16c1d311a3bccf9e98833617df7d9038f1895ab8bbdf5e255"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003617016650974466,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766550776728996,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315234,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23836,
+        "ranking_signature": "65628712dbd85161c09071ce38a2fe10640a8d7b6ac3ca461c7faf66d9d00476"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003612875170458888,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766756378108665,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315235,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23837,
+        "ranking_signature": "8dd17b04304d985f49b2775483effda7577f5bbe51705cf5156f107c926dd9ae"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003613225698224764,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766653742277922,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315236,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23838,
+        "ranking_signature": "553eef214ef9261f2a60df5bfc26b6bb83b7f8bec76e3b99ea04992c86c1dfaa"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.000361418641392431,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766755235643032,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315237,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23839,
+        "ranking_signature": "120ae8aaec5b4eab00bbdbee0bdf6e7260fd1e0f5cd95e7f0144cb1e18d6e609"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003593208031108623,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5767041986307625,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315238,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23840,
+        "ranking_signature": "088da70fab005e750302fac215d81f0fddfb9ad3655f77943eea81cc6410c965"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003587221491385736,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5767257981490608,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315239,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23841,
+        "ranking_signature": "592560c3d6b5158ebe0e1dba341160315c667b712f634c137c42ac7a09bc524b"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003626424876957395,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766732958785276,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315240,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23842,
+        "ranking_signature": "15e79e75d6483dcb27b61e54a0b4ae7654a21dc215c926d51583893d2abe51ee"
+      },
+      "outcome": {
+        "observed_retained_difference": -0.0003634195823031122,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": false,
+        "staged_supported": false,
+        "supported_magnitude": null,
+        "survival_subset_fraction": null,
+        "mean_retained_effect": null,
+        "adaptive_empirical_ap": 0.5766758821712729,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315241,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23843,
+        "ranking_signature": "b7aabebadf819f8d9e68d454d4c4ffc6c055d7d47524f8df3be9ce8c28aab891"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009162101348822987,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.000350092364327323,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005363792083843107,
+        "adaptive_empirical_ap": 0.574720764794756,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315242,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23847,
+        "ranking_signature": "8b6cacd59d2656ccdd3a5eafab8e9e1b448240a8ea10044d743d9a26063bf15e"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009163375308051357,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003501853423160182,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005364814048236256,
+        "adaptive_empirical_ap": 0.5747226762635885,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315243,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23851,
+        "ranking_signature": "af4971c2d9c4a65379f302d47527eba26a9baba7d06a5d1436f76d6956545492"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009163375308051357,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003501853423160182,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005364814048236256,
+        "adaptive_empirical_ap": 0.5747226762635885,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315244,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23854,
+        "ranking_signature": "5e947a4fc2921041bacb38d4d4ef1254896428e68706cc08aaf3c1d47b422094"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009164641124077364,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.00035029164956776023,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005365970035634093,
+        "adaptive_empirical_ap": 0.5747245777782771,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315245,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23855,
+        "ranking_signature": "265c5470bf334d53428a4bd881c3980db50aed54dbb0139c05d542c4a6dcd30a"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009165920324215072,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.000350409546527351,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005367207203959366,
+        "adaptive_empirical_ap": 0.5747264883048837,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315246,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23856,
+        "ranking_signature": "5b9260287c9654529b35dfd1bcd55ffca8ab7da927089881f213df6534f57cd3"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009165920324215072,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.000350409546527351,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005367207203959366,
+        "adaptive_empirical_ap": 0.5747264883048837,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315247,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23859,
+        "ranking_signature": "9ffddde4bec14f192ec3fb8e3a021abf446372aafa9b659b8385c547e28fea1b"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009164621556781057,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003502488449203787,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005365721971014046,
+        "adaptive_empirical_ap": 0.5747246378800612,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315248,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23862,
+        "ranking_signature": "074708e6324c245d36991d3f19563c4a0f862e01e944cf92d308730bbac4fae7"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.0009164598747042531,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003502595133515044,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.0005365798604979516,
+        "adaptive_empirical_ap": 0.5747246870338618,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    },
+    {
+      "planned": {
+        "global_index": 315249,
+        "model": "full_hla",
+        "cohort": "covid_nonspike",
+        "q_order": 7,
+        "grid_index": 23863,
+        "ranking_signature": "b72a491b3a8b6a0d8d2217a6de6f3f974a713f65115ac92b358cc7e46cdfa471"
+      },
+      "outcome": {
+        "observed_retained_difference": 0.000916455094771557,
+        "limiting_prevalence": 0.01,
+        "observed_gate_supported": true,
+        "staged_supported": true,
+        "supported_magnitude": 0.0003502577037315568,
+        "survival_subset_fraction": 1.0,
+        "mean_retained_effect": 0.000536580436373268,
+        "adaptive_empirical_ap": 0.574724637370751,
+        "maximum_empirical_ap": 0.5722362731719962
+      }
+    }
+  ]
+}

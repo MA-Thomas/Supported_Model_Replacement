@@ -17,6 +17,8 @@ fn cli_rejects_a_source_root_without_a_rust_transfer_manifest() {
             bundle.to_str().unwrap(),
             "--output",
             output.to_str().unwrap(),
+            "--alpha-values",
+            "0",
         ])
         .output()
         .unwrap();

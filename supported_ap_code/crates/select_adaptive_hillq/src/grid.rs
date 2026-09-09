@@ -1,11 +1,19 @@
 //! The frozen selection grid: a dense uniform `c` axis crossed with a
 //! log-uniform `kappa` axis, and the fixed list of Hill orders. The joint
-//! `(q, c, kappa)` lattice is represented implicitly as
-//! `j = q_block * base_len + base_index`, with blocks concatenated in declared
-//! q order and each block in base-grid order.
+//! `(alpha, q, c, kappa)` lattice is represented implicitly as one declared
+//! aggregation-order block per `(alpha, q)` pair followed by the base-grid
+//! index.
 
 use crate::error::{Result, SelectionError};
-use crate::numeric::HillOrder;
+use crate::numeric::{HillOrder, PowerOrder};
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct AggregationOrder {
+    pub alpha_order: usize,
+    pub q_order: usize,
+    pub power: PowerOrder,
+    pub hill: HillOrder,
+}
 
 /// Ranges and resolution for the `(c, kappa)` base grid.
 #[derive(Debug, Clone)]
@@ -132,6 +140,50 @@ pub fn parse_q_values(tokens: &[String]) -> Result<Vec<HillOrder>> {
     Ok(parsed)
 }
 
+/// Parse and de-duplicate nonnegative power-mean orders. No default is
+/// provided: the alpha grid must be declared explicitly for every run.
+pub fn parse_alpha_values(tokens: &[String]) -> Result<Vec<PowerOrder>> {
+    let mut parsed = Vec::new();
+    for raw in tokens {
+        let order = PowerOrder::parse(raw)?;
+        let duplicate = parsed.iter().any(|existing| match (existing, order) {
+            (PowerOrder::Infinity, PowerOrder::Infinity) => true,
+            (PowerOrder::Finite(a), PowerOrder::Finite(b)) => *a == b,
+            _ => false,
+        });
+        if duplicate {
+            return Err(SelectionError::msg(format!(
+                "duplicate power-mean order: {raw}"
+            )));
+        }
+        parsed.push(order);
+    }
+    if parsed.is_empty() {
+        return Err(SelectionError::msg(
+            "at least one explicit power-mean order is required",
+        ));
+    }
+    Ok(parsed)
+}
+
+pub fn aggregation_orders(powers: &[PowerOrder], hills: &[HillOrder]) -> Vec<AggregationOrder> {
+    powers
+        .iter()
+        .enumerate()
+        .flat_map(|(alpha_order, &power)| {
+            hills
+                .iter()
+                .enumerate()
+                .map(move |(q_order, &hill)| AggregationOrder {
+                    alpha_order,
+                    q_order,
+                    power,
+                    hill,
+                })
+        })
+        .collect()
+}
+
 /// Default frozen order set: `0, 0.5, 1, 1.5, 2, 3, 4, inf`.
 pub fn default_q_tokens() -> Vec<String> {
     ["0", "0.5", "1", "1.5", "2", "3", "4", "inf"]
@@ -176,5 +228,18 @@ mod tests {
         assert_eq!(q[7], HillOrder::Infinity);
         assert!(parse_q_values(&["1".into(), "1.0".into()]).is_err());
         assert!(parse_q_values(&["-0.5".into()]).is_err());
+    }
+
+    #[test]
+    fn alpha_values_are_explicit_and_form_a_cartesian_order() {
+        assert!(parse_alpha_values(&[]).is_err());
+        assert!(parse_alpha_values(&["0".into(), "0.0".into()]).is_err());
+        let powers = parse_alpha_values(&["0".into(), "1".into(), "inf".into()]).unwrap();
+        let hills = parse_q_values(&["0".into(), "2".into()]).unwrap();
+        let orders = aggregation_orders(&powers, &hills);
+        assert_eq!(orders.len(), 6);
+        assert_eq!(orders[0].power, PowerOrder::Finite(0.0));
+        assert_eq!(orders[1].hill, HillOrder::Finite(2.0));
+        assert_eq!(orders[4].power, PowerOrder::Infinity);
     }
 }

@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 
-HELPER_PATH = Path(__file__).resolve().parents[1] / "slurm_round_robin_helper.py"
+HELPER_PATH = Path(__file__).resolve().parents[1] / "shared/slurm_round_robin_helper.py"
 SPEC = importlib.util.spec_from_file_location("slurm_round_robin_helper", HELPER_PATH)
 helper = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None

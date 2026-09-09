@@ -2,8 +2,9 @@
 //! validation.
 //!
 //! Each task reconstructs the exact 9--12-mer `(nmer, normalized HLA)` roster.
-//! Scoreable rows must resolve to the tau table, floor rows must not resolve,
-//! and exact duplicate biological candidates are removed before aggregation.
+//! Every full-roster row must resolve to the complete-F tau table, and exact
+//! duplicate biological candidates are removed before aggregation. Omission
+//! floors are rejected rather than silently treated as biological zeros.
 //!
 //! The Rust-native transfer package is consumed directly and its package
 //! manifest is validated by the CLI before any task is loaded.
@@ -43,6 +44,15 @@ pub struct Task {
     pub branch: String,
     pub endpoints: Vec<Endpoint>,
     pub raw_candidates: Vec<Vec<f64>>,
+    /// Candidate 9--12-mer sequence aligned one-to-one with
+    /// `raw_candidates`. Kept for endpoint-local diagnostic aggregators that
+    /// need to distinguish support for the same epitope from support for
+    /// different epitopes.
+    pub raw_candidate_peptides: Vec<Vec<String>>,
+    /// Normalized restricting HLA for each raw candidate, aligned one-to-one
+    /// with `raw_candidates`. This preserves endpoint-local HLA structure for
+    /// diagnostic aggregators without changing the production score path.
+    pub raw_candidate_hlas: Vec<Vec<String>>,
     pub source_files: Vec<PathBuf>,
     pub variant_column: String,
 }
@@ -66,7 +76,7 @@ pub struct Audit {
     pub n_patients: usize,
     pub n_unique_candidates: usize,
     pub n_scoreable_candidates: usize,
-    pub n_floor_candidates: usize,
+    pub n_zero_signal_candidates: usize,
     pub n_exact_duplicates_removed: usize,
     pub max_reconstruction_max_abs_error: f64,
     pub logsumexp_reconstruction_max_abs_error: f64,
@@ -350,7 +360,7 @@ pub fn load_task(
         }
     }
 
-    // --- mapping: complete scoreable/floor 9..=12-mer candidate roster ---
+    // --- mapping: complete computed 9..=12-mer candidate roster ---
     let (map_headers, map_records) = read_records(&mapping_path)?;
     let m_patient = column(&map_headers, "patient_id", &mapping_path)?;
     let m_mutation = optional_column(&map_headers, "mutation");
@@ -362,7 +372,6 @@ pub fn load_task(
 
     #[derive(Clone)]
     struct CandidateValue {
-        status: String,
         score: f64,
     }
     // Exact biological identity: endpoint + nmer + normalized HLA. Environment
@@ -370,8 +379,10 @@ pub fn load_task(
     let mut seen: HashMap<(String, String, String, String, String), CandidateValue> =
         HashMap::new();
     let mut grouped: HashMap<(String, String, String), Vec<f64>> = HashMap::new();
+    let mut grouped_peptides: HashMap<(String, String, String), Vec<String>> = HashMap::new();
+    let mut grouped_hlas: HashMap<(String, String, String), Vec<String>> = HashMap::new();
     let mut n_scoreable = 0usize;
-    let mut n_floor = 0usize;
+    let mut n_zero_signal = 0usize;
     let mut n_duplicates = 0usize;
     for record in &map_records {
         let nmer = field(record, m_nmer);
@@ -380,9 +391,9 @@ pub fn load_task(
             continue;
         }
         let status = field(record, m_status).trim().to_ascii_lowercase();
-        if status != "scoreable" && status != "floor" {
+        if status != "scoreable" {
             return Err(SelectionError::msg(format!(
-                "unsupported mapping_status '{status}' in {}; expected scoreable or floor",
+                "complete-F selection requires every mapping row to be scoreable; found '{status}' in {}",
                 mapping_path.display()
             )));
         }
@@ -409,14 +420,6 @@ pub fn load_task(
                     join_key
                 )));
             }
-            ("floor", None) => FLOOR,
-            ("floor", Some(_)) => {
-                return Err(SelectionError::msg(format!(
-                    "floor mapping row unexpectedly resolves to a tau score in {}: {:?}",
-                    mapping_path.display(),
-                    join_key
-                )));
-            }
             _ => unreachable!(),
         };
         let patient = field(record, m_patient).to_string();
@@ -430,6 +433,7 @@ pub fn load_task(
                 endpoint_key
             )));
         }
+        let dedup_hla = hla.clone();
         let dedup_key = (
             patient.clone(),
             mutation.clone(),
@@ -438,11 +442,10 @@ pub fn load_task(
             hla,
         );
         let value = CandidateValue {
-            status: status.clone(),
             score: candidate_score,
         };
         if let Some(previous) = seen.get(&dedup_key) {
-            if previous.status != value.status || previous.score != value.score {
+            if previous.score != value.score {
                 return Err(SelectionError::msg(format!(
                     "conflicting duplicate biological candidate in {}: {:?}",
                     mapping_path.display(),
@@ -453,26 +456,48 @@ pub fn load_task(
             continue;
         }
         seen.insert(dedup_key, value);
-        if status == "scoreable" {
-            n_scoreable += 1;
-        } else {
-            n_floor += 1;
+        n_scoreable += 1;
+        if (candidate_score - FLOOR).abs() <= 1e-12 {
+            n_zero_signal += 1;
         }
         grouped
-            .entry(endpoint_key)
+            .entry(endpoint_key.clone())
             .or_default()
             .push(candidate_score);
+        grouped_peptides
+            .entry(endpoint_key.clone())
+            .or_default()
+            .push(nmer.to_string());
+        grouped_hlas
+            .entry(endpoint_key)
+            .or_default()
+            .push(dedup_hla);
     }
 
     // --- reconstruct rosters in endpoint order + baseline audit ---
     let empty: Vec<f64> = Vec::new();
     let mut raw_candidates: Vec<Vec<f64>> = Vec::with_capacity(endpoint_frame.len());
+    let mut raw_candidate_peptides: Vec<Vec<String>> = Vec::with_capacity(endpoint_frame.len());
+    let mut raw_candidate_hlas: Vec<Vec<String>> = Vec::with_capacity(endpoint_frame.len());
     let mut max_error = 0.0_f64;
     let mut lse_error = 0.0_f64;
     let committed_max = &baseline_scores["max"];
     let committed_lse = &baseline_scores["logsumexp"];
     for (i, endpoint) in endpoint_frame.iter().enumerate() {
         let raw = grouped.get(&endpoint.key()).unwrap_or(&empty).clone();
+        let peptides = grouped_peptides
+            .get(&endpoint.key())
+            .cloned()
+            .unwrap_or_default();
+        let hlas = grouped_hlas
+            .get(&endpoint.key())
+            .cloned()
+            .unwrap_or_default();
+        if raw.len() != peptides.len() || raw.len() != hlas.len() {
+            return Err(SelectionError::msg(
+                "internal candidate/peptide/HLA alignment failure",
+            ));
+        }
         let reconstructed_max = if raw.is_empty() {
             FLOOR
         } else {
@@ -482,6 +507,8 @@ pub fn load_task(
         max_error = max_error.max((reconstructed_max - committed_max[i]).abs());
         lse_error = lse_error.max((reconstructed_lse - committed_lse[i]).abs());
         raw_candidates.push(raw);
+        raw_candidate_peptides.push(peptides);
+        raw_candidate_hlas.push(hlas);
     }
     if max_error > 3e-5 || lse_error > 3e-5 {
         return Err(SelectionError::msg(format!(
@@ -503,6 +530,8 @@ pub fn load_task(
         branch: branch.to_string(),
         endpoints: endpoint_frame.clone(),
         raw_candidates,
+        raw_candidate_peptides,
+        raw_candidate_hlas,
         source_files: vec![prediction_path, tau_path, summary_path, mapping_path],
         variant_column: variant_name.to_string(),
     };
@@ -512,9 +541,9 @@ pub fn load_task(
         n_endpoints: endpoint_frame.len(),
         n_positive,
         n_patients: patients.len(),
-        n_unique_candidates: n_scoreable + n_floor,
+        n_unique_candidates: n_scoreable,
         n_scoreable_candidates: n_scoreable,
-        n_floor_candidates: n_floor,
+        n_zero_signal_candidates: n_zero_signal,
         n_exact_duplicates_removed: n_duplicates,
         max_reconstruction_max_abs_error: max_error,
         logsumexp_reconstruction_max_abs_error: lse_error,

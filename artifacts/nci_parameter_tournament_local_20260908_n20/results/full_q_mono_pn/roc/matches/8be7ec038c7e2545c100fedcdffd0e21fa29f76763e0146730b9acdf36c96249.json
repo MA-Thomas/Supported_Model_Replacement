@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "complete": true,
+  "tournament_id": "e4cca7b65390f257c6dabf19a6323c6c122d8de10e5fdb0e6bdfa17c789348f8",
+  "bundle_content_hash": "85940bdb5f74a72c68da6707da4e53dfcd39b6a8c6bb38dbd720daf65910c0e9",
+  "plan_id": "96bf07a88cb96aeb36a7d08039465ae600dbd4da044050db22dd83c234912bc5",
+  "match_id": "8be7ec038c7e2545c100fedcdffd0e21fa29f76763e0146730b9acdf36c96249",
+  "metric": "auroc",
+  "evaluation_id": "nci",
+  "system_low": "full_q_mono_pn__roc__regime_2279",
+  "system_high": "full_q_mono_pn__roc__regime_2625",
+  "endpoint_count": 4430,
+  "positive_count": 250,
+  "negative_count": 4180,
+  "label_vector_hash": "19a28ec7c88de1fee6e864753f3b116d60cf11e93edddcb1e14cfc54aec90a7f",
+  "score_hash_low": "07f34c70bd7aaba83a68cff7d832c96e26d5a18e02378f474deddc7e42fdeebb",
+  "score_hash_high": "c2f10c69ee49eda5a966937486b7b1607f5f6364df817a8b864d3e5c2af8ca91",
+  "assessment_policy_hash": "0d5a855607f742f6500f460ceca0bb6ec5fa9e4134499c88fa90baa4bb99d8a0",
+  "seed": 17158391028091800324,
+  "seed_derivation_version": 1,
+  "supported_ap": {
+    "package": "supported-ap",
+    "version": "0.2.0",
+    "scientific_schema": "v17"
+  },
+  "organizer": {
+    "package": "directed_round_robin_organizer",
+    "version": "0.1.0",
+    "scientific_schema": "match-v1"
+  },
+  "plan_build": {
+    "repository_git_commit": "537af2f0a73c20663ee98499ae1feb53b99bf5bb",
+    "repository_dirty": true,
+    "cargo_lock_sha256": "82bd7cd78f9f7c3acdd7db7b6b5a6973674cff8c8c872d5ee4137381730a40d0",
+    "rustc_version": "rustc 1.91.0 (f8297e351 2025-10-28)",
+    "compilation_target": "aarch64-macos",
+    "enabled_features": [
+      "supported-ap/parallel"
+    ],
+    "executable_sha256": "1a1cf4c563022e6aecd894aacfbdc5e156da2475a5710aaa1558331721e19b59",
+    "host": null
+  },
+  "execution_build": {
+    "repository_git_commit": "537af2f0a73c20663ee98499ae1feb53b99bf5bb",
+    "repository_dirty": true,
+    "cargo_lock_sha256": "82bd7cd78f9f7c3acdd7db7b6b5a6973674cff8c8c872d5ee4137381730a40d0",
+    "rustc_version": "rustc 1.91.0 (f8297e351 2025-10-28)",
+    "compilation_target": "aarch64-macos",
+    "enabled_features": [
+      "supported-ap/parallel"
+    ],
+    "executable_sha256": "1a1cf4c563022e6aecd894aacfbdc5e156da2475a5710aaa1558331721e19b59",
+    "host": null
+  },
+  "judge_execution": "rayon_shared_pool:10_threads",
+  "started_unix_milliseconds": 1788903916596,
+  "completed_unix_milliseconds": 1788903930252,
+  "judged": {
+    "report": {
+      "metric": "auroc",
+      "low_over_high_assessment": {
+        "resampling": {
+          "replications": 600,
+          "computational_order": 2,
+          "replication_counts": {
+            "positive": 250,
+            "negative": 4180
+          },
+          "seed": 17158391028091800324,
+          "execution": "parallel",
+          "resampling_unit": "independent_observation"
+        },
+        "optimization": {
+          "absolute_gap": 1e-6,
+          "relative_gap": 1e-8,
+          "time_limit_seconds": 2.0,
+          "solver_threads": 1,
+          "backend": "combinatorial",
+          "node_budget": 50000,
+          "restarts": 1
+        },
+        "concentration_search": {
+          "tolerance": 0.005,
+          "max_iterations": 64
+        },
+        "reference_assessment": {
+          "status": "not_asserted",
+          "reason": "No exchangeable-label diagnostic reference law is asserted for the NCI evaluation."
+        }
+      },
+      "low_over_high_result": {
+        "evidence": "projected",
+        "breakdown": {
+          "kind": "observed_gate_failure",
+          "first_failure": "both"
+        },
+        "policy": {
+          "magnitude_threshold": 0.0,
+          "survival_floor": 0.0,
+          "survival_requirement": 0.81
+        },
+        "empirical_order": 1,
+        "computational_order": 2,
+        "reference_assessment": {
+          "status": "not_asserted",
+          "reason": "No exchangeable-label diagnostic reference law is asserted for the NCI evaluation."
+        },
+        "evaluation_counts": [
+          {
+            "positive": 250,
+            "negative": 4180
+          }
+        ],
+        "observed_gate": {
+          "concentration_factor": 1.0,
+          "supported_magnitude": -0.002250717703349282,
+          "supported_magnitude_lower": -0.002250717703349282,
+          "supported_magnitude_upper": -0.002250717703349282,
+          "literal_survival_fraction": 0.0,
+          "literal_survival_lower": 0.0,
+          "literal_survival_upper": 0.0,
+          "survivor_count": 0,
+          "list_length": 1,
+          "maximum_optimization_gap": 0.0,
+          "branch_nodes": 0,
+          "magnitude_requirement_met": false,
+          "survival_requirement_met": false,
+          "verdict": "verified_failure"
+        },
+        "baseline": {
+          "concentration_factor": 1.0,
+          "supported_magnitude": -0.002250717703349282,
+          "supported_magnitude_lower": -0.002250717703349282,
+          "supported_magnitude_upper": -0.002250717703349282,
+          "literal_survival_fraction": 0.0,
+          "literal_survival_lower": 0.0,
+          "literal_survival_upper": 0.0,
+          "survivor_count": 0,
+          "list_length": 1,
+          "maximum_optimization_gap": 0.0,
+          "branch_nodes": 0,
+          "magnitude_requirement_met": false,
+          "survival_requirement_met": false,
+          "verdict": "verified_failure"
+        },
+        "boundary": {
+          "concentration_factor": 1.0,
+          "supported_magnitude": -0.002250717703349282,
+          "supported_magnitude_lower": -0.002250717703349282,
+          "supported_magnitude_upper": -0.002250717703349282,
+          "literal_survival_fraction": 0.0,
+          "literal_survival_lower": 0.0,
+          "literal_survival_upper": 0.0,
+          "survivor_count": 0,
+          "list_length": 1,
+          "maximum_optimization_gap": 0.0,
+          "branch_nodes": 0,
+          "magnitude_requirement_met": false,
+          "survival_requirement_met": false,
+          "verdict": "verified_failure"
+        },
+        "evaluated_profile": [
+          {
+            "concentration_factor": 1.0,
+            "supported_magnitude": -0.002250717703349282,
+            "supported_magnitude_lower": -0.002250717703349282,
+            "supported_magnitude_upper": -0.002250717703349282,
+            "literal_survival_fraction": 0.0,
+            "literal_survival_lower": 0.0,
+            "literal_survival_upper": 0.0,
+            "survivor_count": 0,
+            "list_length": 1,
+            "maximum_optimization_gap": 0.0,
+            "branch_nodes": 0,
+            "magnitude_requirement_met": false,
+            "survival_requirement_met": false,
+            "verdict": "verified_failure"
+          }
+        ]
+      },
+      "high_over_low_assessment": {
+        "resampling": {
+          "replications": 600,
+          "computational_order": 2,
+          "replication_counts": {
+            "positive": 250,
+            "negative": 4180
+          },
+          "seed": 17158391028091800324,
+          "execution": "parallel",
+          "resampling_unit": "independent_observation"
+        },
+        "optimization": {
+          "absolute_gap": 1e-6,
+          "relative_gap": 1e-8,
+          "time_limit_seconds": 2.0,
+          "solver_threads": 1,
+          "backend": "combinatorial",
+          "node_budget": 50000,
+          "restarts": 1
+        },
+        "concentration_search": {
+          "tolerance": 0.005,
+          "max_iterations": 64
+        },
+        "reference_assessment": {
+          "status": "not_asserted",
+          "reason": "No exchangeable-label diagnostic reference law is asserted for the NCI evaluation."
+        }
+      },
+      "high_over_low_result": {
+        "evidence": "projected",
+        "breakdown": {
+          "kind": "finite",
+          "last_passing": 1.0,
+          "first_failing": 1.005,
+          "first_failure": "both",
+          "unresolved_interior": false
+        },
+        "policy": {
+          "magnitude_threshold": 0.0,
+          "survival_floor": 0.0,
+          "survival_requirement": 0.81
+        },
+        "empirical_order": 1,
+        "computational_order": 2,
+        "reference_assessment": {
+          "status": "not_asserted",
+          "reason": "No exchangeable-label diagnostic reference law is asserted for the NCI evaluation."
+        },
+        "evaluation_counts": [
+          {
+            "positive": 250,
+            "negative": 4180
+          }
+        ],
+        "observed_gate": {
+          "concentration_factor": 1.0,
+          "supported_magnitude": 0.002250717703349282,
+          "supported_magnitude_lower": 0.002250717703349282,
+          "supported_magnitude_upper": 0.002250717703349282,
+          "literal_survival_fraction": 1.0,
+          "literal_survival_lower": 1.0,
+          "literal_survival_upper": 1.0,
+          "survivor_count": 1,
+          "list_length": 1,
+          "maximum_optimization_gap": 0.0,
+          "branch_nodes": 0,
+          "magnitude_requirement_met": true,
+          "survival_requirement_met": true,
+          "verdict": "verified_pass"
+        },
+        "baseline": {
+          "concentration_factor": 1.0,
+          "supported_magnitude": 0.0016983669805870003,
+          "supported_magnitude_lower": 0.0016983669805870003,
+          "supported_magnitude_upper": 0.0016983669805870003,
+          "literal_survival_fraction": 0.9933388981636061,
+          "literal_survival_lower": 0.9933388981636061,
+          "literal_survival_upper": 0.9933388981636061,
+          "survivor_count": 598,
+          "list_length": 600,
+          "maximum_optimization_gap": 0.0,
+          "branch_nodes": 0,
+          "magnitude_requirement_met": true,
+          "survival_requirement_met": true,
+          "verdict": "verified_pass"
+        },
+        "boundary": {
+          "concentration_factor": 1.005,
+          "supported_magnitude": -0.0005030409170399555,
+          "supported_magnitude_lower": -0.0005254316219464569,
+          "supported_magnitude_upper": -0.0004806546742967337,
+          "literal_survival_fraction": 0.0,
+          "literal_survival_lower": 0.0,
+          "literal_survival_upper": 0.0,
+          "survivor_count": 0,
+          "list_length": 600,
+          "maximum_optimization_gap": 0.000049999999999999264,
+          "branch_nodes": 7955,
+          "magnitude_requirement_met": false,
+          "survival_requirement_met": false,
+          "verdict": "verified_failure"
+        },
+        "evaluated_profile": [
+          {
+            "concentration_factor": 1.0,
+            "supported_magnitude": 0.0016983669805870003,
+            "supported_magnitude_lower": 0.0016983669805870003,
+            "supported_magnitude_upper": 0.0016983669805870003,
+            "literal_survival_fraction": 0.9933388981636061,
+            "literal_survival_lower": 0.9933388981636061,
+            "literal_survival_upper": 0.9933388981636061,
+            "survivor_count": 598,
+            "list_length": 600,
+            "maximum_optimization_gap": 0.0,
+            "branch_nodes": 0,
+            "magnitude_requirement_met": true,
+            "survival_requirement_met": true,
+            "verdict": "verified_pass"
+          },
+          {
+            "concentration_factor": 1.005,
+            "supported_magnitude": -0.0005030409170399555,
+            "supported_magnitude_lower": -0.0005254316219464569,
+            "supported_magnitude_upper": -0.0004806546742967337,
+            "literal_survival_fraction": 0.0,
+            "literal_survival_lower": 0.0,
+            "literal_survival_upper": 0.0,
+            "survivor_count": 0,
+            "list_length": 600,
+            "maximum_optimization_gap": 0.000049999999999999264,
+            "branch_nodes": 7955,
+            "magnitude_requirement_met": false,
+            "survival_requirement_met": false,
+            "verdict": "verified_failure"
+          },
+          {
+            "concentration_factor": 1.01,
+            "supported_magnitude": -0.0017169858362976113,
+            "supported_magnitude_lower": -0.001799220299412374,
+            "supported_magnitude_upper": -0.001634773104763662,
+            "literal_survival_fraction": 0.0,
+            "literal_survival_lower": 0.0,
+            "literal_survival_upper": 0.0,
+            "survivor_count": 0,
+            "list_length": 600,
+            "maximum_optimization_gap": 0.00019381435406698715,
+            "branch_nodes": 148762,
+            "magnitude_requirement_met": false,
+            "survival_requirement_met": false,
+            "verdict": "verified_failure"
+          }
+        ]
+      }
+    },
+    "low_over_high": {
+      "winner": "full_q_mono_pn__roc__regime_2279",
+      "loser": "full_q_mono_pn__roc__regime_2625",
+      "verdict": "not_supported",
+      "official_verdict": "VerifiedFailure"
+    },
+    "high_over_low": {
+      "winner": "full_q_mono_pn__roc__regime_2625",
+      "loser": "full_q_mono_pn__roc__regime_2279",
+      "verdict": "supported",
+      "official_verdict": "VerifiedPass"
+    },
+    "descriptive": {
+      "empirical_metric_low": null,
+      "empirical_metric_high": null,
+      "observed_difference_low_over_high": -0.002250717703349282,
+      "observed_difference_high_over_low": 0.002250717703349282
+    }
+  }
+}

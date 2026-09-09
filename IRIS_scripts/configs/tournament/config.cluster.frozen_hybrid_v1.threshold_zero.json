@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "configuration_kind": "prebuilt_bundles",
+  "prebuilt_bundle_root": "../../../artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_65_systems",
+  "covid_spike_label_specification": {
+    "id": "threshold_zero",
+    "description": "COVID SPIKE response is positive when cd8_IFNg_dmso_adj is strictly greater than 0.0.",
+    "threshold": 0.0,
+    "comparison_operator": ">",
+    "response_field": "cd8_IFNg_dmso_adj"
+  }
+}

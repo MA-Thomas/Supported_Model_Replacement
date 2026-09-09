@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 
 use serde_json::{Map, Value, json};
 
-use crate::config::{BuildConfig, DatasetConfig, ResponseKind, resolve_path};
+use crate::config::{BuildConfig, DatasetConfig, ExpectedViewCounts, ResponseKind, resolve_path};
 use crate::error::{InputError, Result};
 use crate::io::{
     Row, copy_file, field, filename, read_csv, read_json, read_text, require_columns, sha256_file,
@@ -32,20 +32,6 @@ fn parse_u32(value: &str, label: &str, path: &Path) -> Result<u32> {
     value.parse::<u32>().map_err(|_| {
         InputError::contract(format!("invalid {label} {value:?} in {}", path.display()))
     })
-}
-
-fn biological_key(row: &Row, path: &Path) -> Result<Vec<String>> {
-    Ok(vec![
-        field(row, "PatientID", path)?.trim().to_owned(),
-        field(row, "peptide", path)?.trim().to_uppercase(),
-        normalize_hla(field(row, "HLA-RE", path)?),
-        field(row, "TCGA_EXPR_TYPE", path)?.trim().to_owned(),
-        row.get("gene").map_or("", String::as_str).trim().to_owned(),
-        row.get("SetNeoepitopeSampleID")
-            .map_or("", String::as_str)
-            .trim()
-            .to_owned(),
-    ])
 }
 
 fn suggested_env_chunks(total_envs: usize, max_envs_per_chunk: usize) -> usize {
@@ -137,18 +123,18 @@ fn expected_count(
 
 fn validate_expected(
     dataset: &DatasetConfig,
-    unique_query_rows: usize,
+    full_query_rows: usize,
     mono_environments: usize,
-    mapping_rows: usize,
-    scoreable_rows: usize,
-    floor_rows: usize,
+    primary_source_rows: usize,
+    primary_mapping_rows: usize,
+    primary_endpoints: usize,
 ) -> Result<()> {
     let expected = dataset.expected.as_ref().cloned().unwrap_or_default();
     expected_count(
         dataset,
-        "unique_query_rows",
-        unique_query_rows,
-        expected.unique_query_rows,
+        "full_query_rows",
+        full_query_rows,
+        expected.full_query_rows,
     )?;
     expected_count(
         dataset,
@@ -156,14 +142,24 @@ fn validate_expected(
         mono_environments,
         expected.mono_environments,
     )?;
-    expected_count(dataset, "mapping_rows", mapping_rows, expected.mapping_rows)?;
     expected_count(
         dataset,
-        "scoreable_rows",
-        scoreable_rows,
-        expected.scoreable_rows,
+        "primary_source_rows",
+        primary_source_rows,
+        expected.primary_source_rows,
     )?;
-    expected_count(dataset, "floor_rows", floor_rows, expected.floor_rows)
+    expected_count(
+        dataset,
+        "primary_mapping_rows",
+        primary_mapping_rows,
+        expected.primary_mapping_rows,
+    )?;
+    expected_count(
+        dataset,
+        "primary_endpoints",
+        primary_endpoints,
+        expected.primary_endpoints,
+    )
 }
 
 fn source_record(path: &Path) -> Result<Value> {
@@ -189,16 +185,345 @@ fn verify_expected_hash(path: &Path, expected: Option<&str>, role: &str) -> Resu
     Ok(())
 }
 
+type ComputeKey = (String, String, u32, String);
+
+#[derive(Clone, Debug)]
+struct PreparedView {
+    headers: Vec<String>,
+    source_rows: usize,
+    exact_duplicate_source_rows: usize,
+    exact_duplicate_candidate_rows: usize,
+    endpoints: BTreeSet<Vec<String>>,
+    endpoint_nmer_keys: BTreeSet<Vec<String>>,
+    compute_keys: BTreeSet<ComputeKey>,
+    rows: Vec<Row>,
+    endpoints_positive_zero: usize,
+    endpoints_positive_noise: Option<usize>,
+    materialized_label_columns: Vec<String>,
+}
+
+fn endpoint_nmer_key(row: &Row, fields: &[String]) -> Vec<String> {
+    let mut key = endpoint_key(row, fields);
+    key.push(
+        row.get("nmer")
+            .map_or("", String::as_str)
+            .trim()
+            .to_uppercase(),
+    );
+    key
+}
+
+fn endpoint_candidate_key(row: &Row, fields: &[String]) -> Vec<String> {
+    let mut key = endpoint_nmer_key(row, fields);
+    key.push(normalize_hla(row.get("HLA-RE").map_or("", String::as_str)));
+    key
+}
+
+fn compute_key(row: &Row, expression: &str, path: &Path) -> Result<ComputeKey> {
+    Ok((
+        field(row, "nmer", path)?.trim().to_uppercase(),
+        normalize_hla(field(row, "HLA-RE", path)?),
+        parse_u32(field(row, "full_env_id", path)?, "full_env_id", path)?,
+        expression.to_owned(),
+    ))
+}
+
+fn check_expected_view(
+    dataset: &DatasetConfig,
+    view_id: &str,
+    expected: Option<&ExpectedViewCounts>,
+    prepared: &PreparedView,
+) -> Result<()> {
+    let expected = expected.cloned().unwrap_or_default();
+    for (name, observed, wanted) in [
+        ("source_rows", prepared.source_rows, expected.source_rows),
+        ("mapping_rows", prepared.rows.len(), expected.mapping_rows),
+        ("endpoints", prepared.endpoints.len(), expected.endpoints),
+        (
+            "compute_keys",
+            prepared.compute_keys.len(),
+            expected.compute_keys,
+        ),
+    ] {
+        if let Some(wanted) = wanted
+            && observed != wanted
+        {
+            return Err(InputError::contract(format!(
+                "{} view {view_id} expected {name}={wanted}, observed {observed}",
+                dataset.id
+            )));
+        }
+    }
+    Ok(())
+}
+
+fn prepare_view(
+    spec: &DatasetConfig,
+    mapping_path: &Path,
+    view_id: &str,
+    view_role: &str,
+    full_envs: &BTreeMap<u32, BTreeSet<String>>,
+) -> Result<PreparedView> {
+    let table = read_csv(mapping_path)?;
+    require_columns(
+        &table,
+        &["patient_id", "env_id", "long_peptide", "nmer"],
+        mapping_path,
+    )?;
+    require_columns(
+        &table,
+        &spec
+            .endpoint_fields
+            .iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>(),
+        mapping_path,
+    )?;
+    require_columns(&table, &[&spec.response_column], mapping_path)?;
+
+    let source_unique: BTreeSet<Vec<String>> = table
+        .rows
+        .iter()
+        .map(|row| row_identity(row, &table.headers))
+        .collect();
+    let exact_duplicate_source_rows = table.rows.len() - source_unique.len();
+    let mut headers = table.headers.clone();
+    for name in [
+        "view_id",
+        "view_role",
+        "full_env_id",
+        "HLA-RE",
+        "mapping_status",
+        "compute_key_id",
+    ] {
+        append_header(&mut headers, name);
+    }
+
+    let mut candidates: BTreeMap<Vec<String>, Row> = BTreeMap::new();
+    let mut endpoint_nmer_keys = BTreeSet::new();
+    for source in &table.rows {
+        let mut normalized = source.clone();
+        let patient = field(&normalized, "patient_id", mapping_path)?
+            .trim()
+            .to_owned();
+        let long_peptide = field(&normalized, "long_peptide", mapping_path)?
+            .trim()
+            .to_uppercase();
+        let nmer = field(&normalized, "nmer", mapping_path)?
+            .trim()
+            .to_uppercase();
+        if patient.is_empty() || long_peptide.is_empty() || nmer.is_empty() {
+            return Err(InputError::contract(format!(
+                "blank endpoint candidate field in {}",
+                mapping_path.display()
+            )));
+        }
+        if !long_peptide.contains(&nmer) {
+            return Err(InputError::contract(format!(
+                "{view_id} nmer {nmer:?} is not contained in long peptide {long_peptide:?}"
+            )));
+        }
+        let full_env_id = parse_u32(
+            field(&normalized, "env_id", mapping_path)?,
+            "env_id",
+            mapping_path,
+        )?;
+        let alleles = full_envs.get(&full_env_id).ok_or_else(|| {
+            InputError::contract(format!(
+                "{view_id} references absent full env_id={full_env_id}"
+            ))
+        })?;
+        normalized.insert("patient_id".to_owned(), patient);
+        normalized.insert("long_peptide".to_owned(), long_peptide);
+        normalized.insert("nmer".to_owned(), nmer);
+        normalized.insert("view_id".to_owned(), view_id.to_owned());
+        normalized.insert("view_role".to_owned(), view_role.to_owned());
+        normalized.insert("full_env_id".to_owned(), full_env_id.to_string());
+        normalized.insert("mapping_status".to_owned(), "scoreable".to_owned());
+        normalized.insert("compute_key_id".to_owned(), String::new());
+        endpoint_nmer_keys.insert(endpoint_nmer_key(&normalized, &spec.endpoint_fields));
+
+        for hla in alleles {
+            let mut candidate = normalized.clone();
+            candidate.insert("HLA-RE".to_owned(), hla.clone());
+            let key = endpoint_candidate_key(&candidate, &spec.endpoint_fields);
+            if let Some(previous) = candidates.get(&key) {
+                if field(previous, &spec.response_column, mapping_path)?
+                    != field(&candidate, &spec.response_column, mapping_path)?
+                    || field(previous, "full_env_id", mapping_path)?
+                        != field(&candidate, "full_env_id", mapping_path)?
+                {
+                    return Err(InputError::contract(format!(
+                        "conflicting rows share endpoint candidate identity {:?} in {}",
+                        key,
+                        mapping_path.display()
+                    )));
+                }
+                continue;
+            }
+            candidates.insert(key, candidate);
+        }
+    }
+
+    let exact_duplicate_candidate_rows = table
+        .rows
+        .iter()
+        .map(|row| {
+            let env_id = parse_u32(field(row, "env_id", mapping_path)?, "env_id", mapping_path)?;
+            Ok(full_envs.get(&env_id).map_or(0, BTreeSet::len))
+        })
+        .collect::<Result<Vec<_>>>()?
+        .into_iter()
+        .sum::<usize>()
+        .saturating_sub(candidates.len());
+    let mut rows: Vec<Row> = candidates.into_values().collect();
+    let endpoints: BTreeSet<Vec<String>> = rows
+        .iter()
+        .map(|row| endpoint_key(row, &spec.endpoint_fields))
+        .collect();
+
+    let mut responses: BTreeMap<Vec<String>, BTreeSet<String>> = BTreeMap::new();
+    for row in &rows {
+        responses
+            .entry(endpoint_key(row, &spec.endpoint_fields))
+            .or_default()
+            .insert(
+                field(row, &spec.response_column, mapping_path)?
+                    .trim()
+                    .to_owned(),
+            );
+    }
+    if let Some((endpoint, values)) = responses.iter().find(|(_, values)| values.len() != 1) {
+        return Err(InputError::contract(format!(
+            "{view_id} endpoint {:?} has conflicting response values {:?}",
+            endpoint, values
+        )));
+    }
+    let parse_response = |raw: &str| -> Result<f64> {
+        let value = raw
+            .parse::<f64>()
+            .map_err(|_| InputError::contract(format!("invalid response {raw:?} in {view_id}")))?;
+        if !value.is_finite() {
+            return Err(InputError::contract(format!(
+                "non-finite response {raw:?} in {view_id}"
+            )));
+        }
+        if spec.response_kind == ResponseKind::Binary && !matches!(value, 0.0 | 1.0) {
+            return Err(InputError::contract(format!(
+                "binary response must be 0 or 1, got {raw:?} in {view_id}"
+            )));
+        }
+        Ok(value)
+    };
+    let endpoints_positive_zero = responses
+        .values()
+        .filter_map(|values| values.iter().next())
+        .map(|raw| parse_response(raw))
+        .collect::<Result<Vec<_>>>()?
+        .into_iter()
+        .filter(|value| *value > LABEL_ZERO_THRESHOLD)
+        .count();
+
+    let mut materialized_label_columns = Vec::new();
+    let endpoints_positive_noise = if spec.response_kind == ResponseKind::Continuous {
+        if let Some(threshold) = spec.noise_ceiling_threshold {
+            materialized_label_columns.extend([
+                LABEL_ZERO_COLUMN.to_owned(),
+                LABEL_NOISE_CEILING_COLUMN.to_owned(),
+            ]);
+            append_header(&mut headers, LABEL_ZERO_COLUMN);
+            append_header(&mut headers, LABEL_NOISE_CEILING_COLUMN);
+            for row in &mut rows {
+                let value = parse_response(field(row, &spec.response_column, mapping_path)?)?;
+                row.insert(
+                    LABEL_ZERO_COLUMN.to_owned(),
+                    u8::from(value > LABEL_ZERO_THRESHOLD).to_string(),
+                );
+                row.insert(
+                    LABEL_NOISE_CEILING_COLUMN.to_owned(),
+                    u8::from(value > threshold).to_string(),
+                );
+            }
+            Some(
+                responses
+                    .values()
+                    .filter_map(|values| values.iter().next())
+                    .map(|raw| parse_response(raw))
+                    .collect::<Result<Vec<_>>>()?
+                    .into_iter()
+                    .filter(|value| *value > threshold)
+                    .count(),
+            )
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    let compute_keys = rows
+        .iter()
+        .map(|row| compute_key(row, &spec.expression, mapping_path))
+        .collect::<Result<BTreeSet<_>>>()?;
+    Ok(PreparedView {
+        headers,
+        source_rows: table.rows.len(),
+        exact_duplicate_source_rows,
+        exact_duplicate_candidate_rows,
+        endpoints,
+        endpoint_nmer_keys,
+        compute_keys,
+        rows,
+        endpoints_positive_zero,
+        endpoints_positive_noise,
+        materialized_label_columns,
+    })
+}
+
+fn representation_rows(
+    rows: &[Row],
+    mapping_path: &Path,
+    pair_to_mono: &BTreeMap<(u32, String), usize>,
+    compute_ids: &BTreeMap<ComputeKey, String>,
+    expression: &str,
+) -> Result<(Vec<Row>, Vec<Row>, Vec<Row>)> {
+    let mut mono = Vec::with_capacity(rows.len());
+    let mut full = Vec::with_capacity(rows.len());
+    let mut canonical = Vec::with_capacity(rows.len());
+    for source in rows {
+        let key = compute_key(source, expression, mapping_path)?;
+        let compute_id = compute_ids.get(&key).ok_or_else(|| {
+            InputError::contract(format!(
+                "mapping compute key is outside primary roster: {key:?}"
+            ))
+        })?;
+        let mono_id = pair_to_mono
+            .get(&(key.2, key.1.clone()))
+            .ok_or_else(|| InputError::contract("mapping HLA lacks mono environment"))?;
+        let mut full_row = source.clone();
+        full_row.insert("env_id".to_owned(), key.2.to_string());
+        full_row.insert("compute_key_id".to_owned(), compute_id.clone());
+        let mut mono_row = full_row.clone();
+        mono_row.insert("env_id".to_owned(), mono_id.to_string());
+        let mut canonical_row = mono_row.clone();
+        canonical_row.remove("env_id");
+        canonical_row.insert("mono_env_id".to_owned(), mono_id.to_string());
+        full.push(full_row);
+        mono.push(mono_row);
+        canonical.push(canonical_row);
+    }
+    Ok((mono, full, canonical))
+}
+
 fn build_dataset(
     spec: &DatasetConfig,
     input_root: &Path,
     output_dir: &Path,
 ) -> Result<DatasetBuild> {
-    let query_path = resolve_path(input_root, &spec.query);
     let env_path = resolve_path(input_root, &spec.env_dict);
-    let mapping_path = resolve_path(input_root, &spec.mapping);
+    let primary_path = resolve_path(input_root, &spec.primary_mapping);
     let template_path = resolve_path(input_root, &spec.config_template);
-    for path in [&query_path, &env_path, &mapping_path, &template_path] {
+    for path in [&env_path, &primary_path, &template_path] {
         if !path.is_file() {
             return Err(InputError::contract(format!(
                 "required input is not a file: {}",
@@ -207,13 +532,16 @@ fn build_dataset(
         }
     }
     if let Some(expected) = &spec.expected_source_sha256 {
-        verify_expected_hash(&query_path, Some(&expected.query), "query")?;
         verify_expected_hash(
             &env_path,
             Some(&expected.env_dict),
             "environment dictionary",
         )?;
-        verify_expected_hash(&mapping_path, Some(&expected.mapping), "source mapping")?;
+        verify_expected_hash(
+            &primary_path,
+            Some(&expected.primary_mapping),
+            "primary mapping",
+        )?;
         verify_expected_hash(
             &template_path,
             Some(&expected.config_template),
@@ -223,17 +551,11 @@ fn build_dataset(
 
     let env_table = read_csv(&env_path)?;
     require_columns(&env_table, &["env_id", "allele_environment"], &env_path)?;
-    let mut full_envs: BTreeMap<u32, Vec<String>> = BTreeMap::new();
+    let mut full_envs: BTreeMap<u32, BTreeSet<String>> = BTreeMap::new();
     let mut full_env_text: BTreeMap<u32, String> = BTreeMap::new();
     for row in &env_table.rows {
         let env_id = parse_u32(field(row, "env_id", &env_path)?, "env_id", &env_path)?;
-        if full_envs.contains_key(&env_id) {
-            return Err(InputError::contract(format!(
-                "duplicate full env_id={env_id} in {}",
-                env_path.display()
-            )));
-        }
-        let alleles: Vec<String> = field(row, "allele_environment", &env_path)?
+        let alleles: BTreeSet<String> = field(row, "allele_environment", &env_path)?
             .split(',')
             .filter(|value| !value.trim().is_empty())
             .map(normalize_hla)
@@ -244,86 +566,34 @@ fn build_dataset(
                 env_path.display()
             )));
         }
-        full_env_text.insert(env_id, alleles.join(","));
-        full_envs.insert(env_id, alleles);
-    }
-
-    let query_table = read_csv(&query_path)?;
-    require_columns(
-        &query_table,
-        &[
-            "peptide",
-            "HLA-RE",
-            "PatientID",
-            "TCGA_EXPR_TYPE",
-            "env_id",
-            "gene",
-        ],
-        &query_path,
-    )?;
-    let mut unique_query = Vec::new();
-    let mut by_compute: BTreeMap<(String, String, u32, String), Row> = BTreeMap::new();
-    let mut duplicate_compute_rows = 0_usize;
-    for source_row in &query_table.rows {
-        let mut row = source_row.clone();
-        let peptide = field(&row, "peptide", &query_path)?.to_uppercase();
-        let hla = normalize_hla(field(&row, "HLA-RE", &query_path)?);
-        row.insert("peptide".to_owned(), peptide.clone());
-        row.insert("HLA-RE".to_owned(), hla.clone());
-        let full_env_id = parse_u32(field(&row, "env_id", &query_path)?, "env_id", &query_path)?;
-        let alleles = full_envs.get(&full_env_id).ok_or_else(|| {
-            InputError::contract(format!(
-                "query references absent full env_id={full_env_id}: {}",
-                query_path.display()
-            ))
-        })?;
-        if !alleles.iter().any(|allele| allele == &hla) {
+        if full_envs.insert(env_id, alleles.clone()).is_some() {
             return Err(InputError::contract(format!(
-                "query HLA {hla} is absent from full env {full_env_id} ({})",
-                full_env_text.get(&full_env_id).map_or("", String::as_str)
+                "duplicate full env_id={env_id} in {}",
+                env_path.display()
             )));
         }
-        let compute_key = (
-            peptide,
-            hla,
-            full_env_id,
-            field(&row, "TCGA_EXPR_TYPE", &query_path)?.to_owned(),
-        );
-        if let Some(previous) = by_compute.get(&compute_key) {
-            if previous != &row {
-                return Err(InputError::contract(format!(
-                    "conflicting rows share compute key {:?} in {}",
-                    compute_key,
-                    query_path.display()
-                )));
-            }
-            duplicate_compute_rows += 1;
-            continue;
-        }
-        by_compute.insert(compute_key, row.clone());
-        unique_query.push(row);
+        full_env_text.insert(env_id, alleles.into_iter().collect::<Vec<_>>().join(","));
     }
 
-    let full_biological_keys: Vec<Vec<String>> = unique_query
+    let primary = prepare_view(
+        spec,
+        &primary_path,
+        &spec.primary_view_id,
+        "primary",
+        &full_envs,
+    )?;
+    let compute_ids: BTreeMap<ComputeKey, String> = primary
+        .compute_keys
         .iter()
-        .map(|row| biological_key(row, &query_path))
-        .collect::<Result<_>>()?;
-    if full_biological_keys.iter().collect::<BTreeSet<_>>().len() != full_biological_keys.len() {
-        return Err(InputError::contract(format!(
-            "biological query identity is not unique in {}",
-            query_path.display()
-        )));
-    }
-
-    let env_hla_pairs: Vec<(u32, String)> = unique_query
+        .cloned()
+        .enumerate()
+        .map(|(index, key)| (key, format!("{}:{index:08}", spec.prefix)))
+        .collect();
+    let env_hla_pairs: Vec<(u32, String)> = primary
+        .compute_keys
         .iter()
-        .map(|row| {
-            Ok((
-                parse_u32(field(row, "env_id", &query_path)?, "env_id", &query_path)?,
-                field(row, "HLA-RE", &query_path)?.to_owned(),
-            ))
-        })
-        .collect::<Result<BTreeSet<_>>>()?
+        .map(|key| (key.2, key.1.clone()))
+        .collect::<BTreeSet<_>>()
         .into_iter()
         .collect();
     let pair_to_mono: BTreeMap<(u32, String), usize> = env_hla_pairs
@@ -333,77 +603,131 @@ fn build_dataset(
         .map(|(mono_id, pair)| (pair, mono_id))
         .collect();
 
-    let mut mono_query_rows = Vec::with_capacity(unique_query.len());
-    let mut observation_crosswalk_rows = Vec::with_capacity(unique_query.len());
-    for row in &unique_query {
-        let full_env_id = parse_u32(field(row, "env_id", &query_path)?, "env_id", &query_path)?;
-        let hla = field(row, "HLA-RE", &query_path)?.to_owned();
-        let mono_env_id = pair_to_mono
-            .get(&(full_env_id, hla.clone()))
-            .copied()
-            .ok_or_else(|| InputError::contract("internal missing mono environment"))?;
-        let mut mono_row = row.clone();
-        mono_row.insert("env_id".to_owned(), mono_env_id.to_string());
-        mono_query_rows.push(mono_row);
-        observation_crosswalk_rows.push(Row::from([
-            ("dataset".to_owned(), spec.id.clone()),
+    let query_headers = vec![
+        "peptide".to_owned(),
+        "HLA-RE".to_owned(),
+        "SetNeoepitopeSampleID".to_owned(),
+        "PatientID".to_owned(),
+        "TCGA_EXPR_TYPE".to_owned(),
+        "env_id".to_owned(),
+        "gene".to_owned(),
+        "count".to_owned(),
+        "compute_key_id".to_owned(),
+    ];
+    let mut representative: BTreeMap<ComputeKey, &Row> = BTreeMap::new();
+    for row in &primary.rows {
+        representative
+            .entry(compute_key(row, &spec.expression, &primary_path)?)
+            .or_insert(row);
+    }
+    let mut full_query = Vec::with_capacity(primary.compute_keys.len());
+    let mut mono_query = Vec::with_capacity(primary.compute_keys.len());
+    let mut observation_crosswalk = Vec::with_capacity(primary.compute_keys.len());
+    for key in &primary.compute_keys {
+        let source = representative
+            .get(key)
+            .ok_or_else(|| InputError::contract("missing representative query metadata"))?;
+        let compute_id = compute_ids
+            .get(key)
+            .ok_or_else(|| InputError::contract("missing compute_key_id"))?;
+        let mono_id = pair_to_mono
+            .get(&(key.2, key.1.clone()))
+            .ok_or_else(|| InputError::contract("missing mono environment"))?;
+        let full_row = Row::from([
+            ("peptide".to_owned(), key.0.clone()),
+            ("HLA-RE".to_owned(), key.1.clone()),
+            ("SetNeoepitopeSampleID".to_owned(), String::new()),
             (
                 "PatientID".to_owned(),
-                field(row, "PatientID", &query_path)?.to_owned(),
+                field(source, "patient_id", &primary_path)?.to_owned(),
             ),
-            (
-                "peptide".to_owned(),
-                field(row, "peptide", &query_path)?.to_owned(),
-            ),
-            ("HLA-RE".to_owned(), hla),
-            (
-                "TCGA_EXPR_TYPE".to_owned(),
-                field(row, "TCGA_EXPR_TYPE", &query_path)?.to_owned(),
-            ),
+            ("TCGA_EXPR_TYPE".to_owned(), key.3.clone()),
+            ("env_id".to_owned(), key.2.to_string()),
             (
                 "gene".to_owned(),
-                row.get("gene").cloned().unwrap_or_default(),
+                source.get("gene").cloned().unwrap_or_default(),
             ),
-            (
-                "SetNeoepitopeSampleID".to_owned(),
-                row.get("SetNeoepitopeSampleID")
-                    .cloned()
-                    .unwrap_or_default(),
-            ),
-            ("full_env_id".to_owned(), full_env_id.to_string()),
-            ("mono_env_id".to_owned(), mono_env_id.to_string()),
+            ("count".to_owned(), "1".to_owned()),
+            ("compute_key_id".to_owned(), compute_id.clone()),
+        ]);
+        let mut mono_row = full_row.clone();
+        mono_row.insert("env_id".to_owned(), mono_id.to_string());
+        full_query.push(full_row);
+        mono_query.push(mono_row);
+        observation_crosswalk.push(Row::from([
+            ("dataset".to_owned(), spec.id.clone()),
+            ("compute_key_id".to_owned(), compute_id.clone()),
+            ("peptide".to_owned(), key.0.clone()),
+            ("HLA-RE".to_owned(), key.1.clone()),
+            ("TCGA_EXPR_TYPE".to_owned(), key.3.clone()),
+            ("full_env_id".to_owned(), key.2.to_string()),
+            ("mono_env_id".to_owned(), mono_id.to_string()),
         ]));
     }
-
-    let mono_compute_keys: BTreeSet<(String, String, u32, String)> = mono_query_rows
+    let (primary_mono, primary_full, primary_canonical) = representation_rows(
+        &primary.rows,
+        &primary_path,
+        &pair_to_mono,
+        &compute_ids,
+        &spec.expression,
+    )?;
+    let canonical_headers: Vec<String> = primary
+        .headers
         .iter()
-        .map(|row| {
-            Ok((
-                field(row, "peptide", &query_path)?.to_owned(),
-                field(row, "HLA-RE", &query_path)?.to_owned(),
-                parse_u32(field(row, "env_id", &query_path)?, "env_id", &query_path)?,
-                field(row, "TCGA_EXPR_TYPE", &query_path)?.to_owned(),
-            ))
+        .map(|header| {
+            if header == "env_id" {
+                "mono_env_id".to_owned()
+            } else {
+                header.clone()
+            }
         })
-        .collect::<Result<_>>()?;
-    if mono_compute_keys.len() != mono_query_rows.len() {
-        return Err(InputError::contract(format!(
-            "derived mono compute identity is not unique for {}",
-            spec.id
-        )));
-    }
-    let mono_biological_keys: BTreeSet<Vec<String>> = mono_query_rows
-        .iter()
-        .map(|row| biological_key(row, &query_path))
-        .collect::<Result<_>>()?;
-    let full_biological_set: BTreeSet<Vec<String>> = full_biological_keys.into_iter().collect();
-    if mono_biological_keys != full_biological_set {
-        return Err(InputError::contract(format!(
-            "full/mono biological identity mismatch for {}",
-            spec.id
-        )));
-    }
+        .collect();
 
+    validate_expected(
+        spec,
+        full_query.len(),
+        env_hla_pairs.len(),
+        primary.source_rows,
+        primary.rows.len(),
+        primary.endpoints.len(),
+    )?;
+
+    let mono_query_name = format!("{}_mono_query.csv", spec.prefix);
+    let full_query_name = format!("{}_full_deduplicated_query.csv", spec.prefix);
+    let full_env_name = format!("{}_full_hla_env_dict.csv", spec.prefix);
+    let mono_env_name = format!("{}_mono_hla_env_dict.csv", spec.prefix);
+    let env_crosswalk_name = format!("{}_full_to_mono_env_crosswalk.csv", spec.prefix);
+    let observation_crosswalk_name =
+        format!("{}_full_to_mono_observation_crosswalk.csv", spec.prefix);
+    let mono_mapping_name = format!("{}_mono_longpep_mapping.csv", spec.prefix);
+    let full_mapping_name = format!("{}_full_longpep_mapping.csv", spec.prefix);
+    let canonical_mapping_name = format!("{}_candidate_roster.csv", spec.prefix);
+    let audit_name = format!("{}_inputs_audit.json", spec.prefix);
+
+    write_csv(
+        &output_dir.join(&mono_query_name),
+        &query_headers,
+        &mono_query,
+    )?;
+    write_csv(
+        &output_dir.join(&full_query_name),
+        &query_headers,
+        &full_query,
+    )?;
+    let full_env_rows: Vec<Row> = full_env_text
+        .iter()
+        .map(|(env_id, alleles)| {
+            Row::from([
+                ("env_id".to_owned(), env_id.to_string()),
+                ("allele_environment".to_owned(), alleles.clone()),
+            ])
+        })
+        .collect();
+    write_csv(
+        &output_dir.join(&full_env_name),
+        &["env_id".to_owned(), "allele_environment".to_owned()],
+        &full_env_rows,
+    )?;
     let mono_env_rows: Vec<Row> = env_hla_pairs
         .iter()
         .enumerate()
@@ -414,6 +738,11 @@ fn build_dataset(
             ])
         })
         .collect();
+    write_csv(
+        &output_dir.join(&mono_env_name),
+        &["env_id".to_owned(), "allele_environment".to_owned()],
+        &mono_env_rows,
+    )?;
     let env_crosswalk_rows: Vec<Row> = env_hla_pairs
         .iter()
         .enumerate()
@@ -430,359 +759,6 @@ fn build_dataset(
             ])
         })
         .collect();
-
-    let mapping_table = read_csv(&mapping_path)?;
-    require_columns(
-        &mapping_table,
-        &["patient_id", "env_id", "long_peptide", "nmer"],
-        &mapping_path,
-    )?;
-    require_columns(
-        &mapping_table,
-        &spec
-            .endpoint_fields
-            .iter()
-            .map(String::as_str)
-            .collect::<Vec<_>>(),
-        &mapping_path,
-    )?;
-    require_columns(&mapping_table, &[&spec.response_column], &mapping_path)?;
-
-    let source_unique: BTreeSet<Vec<String>> = mapping_table
-        .rows
-        .iter()
-        .map(|row| row_identity(row, &mapping_table.headers))
-        .collect();
-    let exact_duplicate_source_rows = mapping_table.rows.len() - source_unique.len();
-
-    let mut query_hlas: BTreeMap<(String, u32, String), BTreeSet<String>> = BTreeMap::new();
-    for row in &unique_query {
-        let key = (
-            field(row, "PatientID", &query_path)?.to_owned(),
-            parse_u32(field(row, "env_id", &query_path)?, "env_id", &query_path)?,
-            field(row, "peptide", &query_path)?.to_owned(),
-        );
-        query_hlas
-            .entry(key)
-            .or_default()
-            .insert(field(row, "HLA-RE", &query_path)?.to_owned());
-    }
-
-    let mut mapping_headers = mapping_table.headers.clone();
-    append_header(&mut mapping_headers, "full_env_id");
-    append_header(&mut mapping_headers, "HLA-RE");
-    append_header(&mut mapping_headers, "mapping_status");
-    let mut expanded_mapping = Vec::new();
-    let mut matched_source_rows = 0_usize;
-    let mut unmatched_source_rows = 0_usize;
-    for source_row in &mapping_table.rows {
-        let mut row = source_row.clone();
-        let full_env_id = parse_u32(
-            field(&row, "env_id", &mapping_path)?,
-            "env_id",
-            &mapping_path,
-        )?;
-        let nmer = field(&row, "nmer", &mapping_path)?.to_uppercase();
-        row.insert("nmer".to_owned(), nmer.clone());
-        let patient = field(&row, "patient_id", &mapping_path)?.to_owned();
-        let scoreable_hlas = query_hlas
-            .get(&(patient, full_env_id, nmer))
-            .cloned()
-            .unwrap_or_default();
-        let env_alleles = full_envs.get(&full_env_id).ok_or_else(|| {
-            InputError::contract(format!(
-                "{} mapping references full env_id={full_env_id} absent from {}",
-                spec.id,
-                env_path.display()
-            ))
-        })?;
-        let distinct_alleles: BTreeSet<String> = env_alleles.iter().cloned().collect();
-        if scoreable_hlas.is_empty() {
-            unmatched_source_rows += 1;
-        } else {
-            matched_source_rows += 1;
-        }
-        for hla in distinct_alleles {
-            let mut mapped = row.clone();
-            mapped.insert("full_env_id".to_owned(), full_env_id.to_string());
-            mapped.insert("HLA-RE".to_owned(), hla.clone());
-            if scoreable_hlas.contains(&hla) {
-                let mono_id = pair_to_mono
-                    .get(&(full_env_id, hla.clone()))
-                    .copied()
-                    .ok_or_else(|| InputError::contract("scoreable HLA lacks mono environment"))?;
-                mapped.insert("env_id".to_owned(), mono_id.to_string());
-                mapped.insert("mapping_status".to_owned(), "scoreable".to_owned());
-            } else {
-                mapped.insert(
-                    "env_id".to_owned(),
-                    (env_hla_pairs.len() + full_env_id as usize).to_string(),
-                );
-                mapped.insert("mapping_status".to_owned(), "floor".to_owned());
-            }
-            expanded_mapping.push(mapped);
-        }
-    }
-
-    let mut mapping_seen = BTreeSet::new();
-    let mut mono_mapping = Vec::new();
-    let mut duplicate_mapping_rows = 0_usize;
-    for row in expanded_mapping {
-        if mapping_seen.insert(row_identity(&row, &mapping_headers)) {
-            mono_mapping.push(row);
-        } else {
-            duplicate_mapping_rows += 1;
-        }
-    }
-
-    let scoreable_rows = mono_mapping
-        .iter()
-        .filter(|row| {
-            row.get("mapping_status")
-                .is_some_and(|status| status == "scoreable")
-        })
-        .count();
-    let floor_rows = mono_mapping.len() - scoreable_rows;
-    for row in mono_mapping.iter().filter(|row| {
-        row.get("mapping_status")
-            .is_some_and(|status| status == "scoreable")
-    }) {
-        let lookup = (
-            field(row, "patient_id", &mapping_path)?.to_owned(),
-            parse_u32(
-                field(row, "full_env_id", &mapping_path)?,
-                "full_env_id",
-                &mapping_path,
-            )?,
-            field(row, "nmer", &mapping_path)?.to_owned(),
-        );
-        let hla = field(row, "HLA-RE", &mapping_path)?;
-        if !query_hlas
-            .get(&lookup)
-            .is_some_and(|hlas| hlas.contains(hla))
-        {
-            return Err(InputError::contract(format!(
-                "derived scoreable mapping row lacks query support: {:?}/{hla}",
-                lookup
-            )));
-        }
-        let expected_mono = pair_to_mono
-            .get(&(lookup.1, hla.to_owned()))
-            .copied()
-            .ok_or_else(|| InputError::contract("scoreable mapping HLA lacks mono ID"))?;
-        if field(row, "env_id", &mapping_path)? != expected_mono.to_string() {
-            return Err(InputError::contract(format!(
-                "derived mapping has incorrect mono env_id: {:?}",
-                row
-            )));
-        }
-    }
-
-    let noncontained: Vec<Row> = mono_mapping
-        .iter()
-        .filter(|row| {
-            row.get("mapping_status")
-                .is_some_and(|status| status == "scoreable")
-        })
-        .filter(|row| {
-            let nmer = row.get("nmer").map_or("", String::as_str).to_uppercase();
-            let long = row
-                .get("long_peptide")
-                .map_or("", String::as_str)
-                .to_uppercase();
-            !long.contains(&nmer)
-        })
-        .cloned()
-        .collect();
-    if let Some(example) = noncontained.first() {
-        return Err(InputError::contract(format!(
-            "{}: {} of {} scoreable mapping rows link an nmer to a long peptide that does not contain it (nmer={:?}, long_peptide={:?}, patient={:?})",
-            spec.id,
-            noncontained.len(),
-            scoreable_rows,
-            example.get("nmer"),
-            example.get("long_peptide"),
-            example.get("patient_id")
-        )));
-    }
-
-    let source_endpoints: BTreeSet<Vec<String>> = mapping_table
-        .rows
-        .iter()
-        .map(|row| endpoint_key(row, &spec.endpoint_fields))
-        .collect();
-    let output_endpoints: BTreeSet<Vec<String>> = mono_mapping
-        .iter()
-        .map(|row| endpoint_key(row, &spec.endpoint_fields))
-        .collect();
-    if source_endpoints != output_endpoints {
-        return Err(InputError::contract(format!(
-            "mapping endpoint population changed for {}",
-            spec.id
-        )));
-    }
-
-    let mut endpoint_responses: BTreeMap<Vec<String>, BTreeSet<String>> = BTreeMap::new();
-    let mut endpoint_labels: BTreeMap<Vec<String>, BTreeSet<u8>> = BTreeMap::new();
-    for row in &mono_mapping {
-        let endpoint = endpoint_key(row, &spec.endpoint_fields);
-        let response = field(row, &spec.response_column, &mapping_path)?
-            .trim()
-            .to_owned();
-        endpoint_responses
-            .entry(endpoint.clone())
-            .or_default()
-            .insert(response.clone());
-        let label = match spec.response_kind {
-            ResponseKind::Binary => {
-                let value: i64 = response.parse().map_err(|_| {
-                    InputError::contract(format!(
-                        "invalid binary label {response:?} for endpoint {:?}",
-                        endpoint
-                    ))
-                })?;
-                if !matches!(value, 0 | 1) {
-                    return Err(InputError::contract(format!(
-                        "binary label must be 0 or 1, got {value} for endpoint {:?}",
-                        endpoint
-                    )));
-                }
-                value as u8
-            }
-            ResponseKind::Continuous => {
-                let value: f64 = response.parse().map_err(|_| {
-                    InputError::contract(format!(
-                        "invalid continuous response {response:?} for endpoint {:?}",
-                        endpoint
-                    ))
-                })?;
-                u8::from(value > LABEL_ZERO_THRESHOLD)
-            }
-        };
-        endpoint_labels.entry(endpoint).or_default().insert(label);
-    }
-    let conflicting_response_endpoints: Vec<_> = endpoint_responses
-        .iter()
-        .filter(|(_, values)| values.len() > 1)
-        .collect();
-    let conflicting_label_endpoints: Vec<_> = endpoint_labels
-        .iter()
-        .filter(|(_, values)| values.len() > 1)
-        .collect();
-
-    let mut materialized_label_columns = Vec::new();
-    if spec.response_kind == ResponseKind::Continuous
-        && let Some(noise_threshold) = spec.noise_ceiling_threshold
-    {
-        materialized_label_columns.extend([
-            LABEL_ZERO_COLUMN.to_owned(),
-            LABEL_NOISE_CEILING_COLUMN.to_owned(),
-        ]);
-        append_header(&mut mapping_headers, LABEL_ZERO_COLUMN);
-        append_header(&mut mapping_headers, LABEL_NOISE_CEILING_COLUMN);
-        for row in &mut mono_mapping {
-            let raw = field(row, &spec.response_column, &mapping_path)?.trim();
-            if raw.is_empty() {
-                row.insert(LABEL_ZERO_COLUMN.to_owned(), String::new());
-                row.insert(LABEL_NOISE_CEILING_COLUMN.to_owned(), String::new());
-            } else {
-                let value: f64 = raw.parse().map_err(|_| {
-                    InputError::contract(format!("invalid continuous response {raw:?}"))
-                })?;
-                row.insert(
-                    LABEL_ZERO_COLUMN.to_owned(),
-                    u8::from(value > LABEL_ZERO_THRESHOLD).to_string(),
-                );
-                row.insert(
-                    LABEL_NOISE_CEILING_COLUMN.to_owned(),
-                    u8::from(value > noise_threshold).to_string(),
-                );
-            }
-        }
-    }
-
-    let endpoints_positive_at = |threshold: f64| -> Result<usize> {
-        let mut positive = 0_usize;
-        for values in endpoint_responses.values() {
-            let numeric: Vec<f64> = values
-                .iter()
-                .filter(|value| !value.is_empty())
-                .map(|value| {
-                    value
-                        .parse::<f64>()
-                        .map_err(|_| InputError::contract(format!("invalid response {value:?}")))
-                })
-                .collect::<Result<_>>()?;
-            if !numeric.is_empty()
-                && numeric.iter().copied().fold(f64::INFINITY, f64::min) > threshold
-            {
-                positive += 1;
-            }
-        }
-        Ok(positive)
-    };
-
-    validate_expected(
-        spec,
-        unique_query.len(),
-        env_hla_pairs.len(),
-        mono_mapping.len(),
-        scoreable_rows,
-        floor_rows,
-    )?;
-
-    let mut full_mapping = mono_mapping.clone();
-    for row in &mut full_mapping {
-        let full_env_id = field(row, "full_env_id", &mapping_path)?.to_owned();
-        row.insert("env_id".to_owned(), full_env_id);
-    }
-    let canonical_headers: Vec<String> = mapping_headers
-        .iter()
-        .map(|header| {
-            if header == "env_id" {
-                "mono_env_id".to_owned()
-            } else {
-                header.clone()
-            }
-        })
-        .collect();
-    if canonical_headers.iter().collect::<BTreeSet<_>>().len() != canonical_headers.len() {
-        return Err(InputError::contract(format!(
-            "{} source mapping already contains mono_env_id; canonical header would be ambiguous",
-            spec.id
-        )));
-    }
-    let canonical_mapping: Vec<Row> = mono_mapping
-        .iter()
-        .map(|row| {
-            let mut canonical = row.clone();
-            let mono_id = canonical.remove("env_id").unwrap_or_default();
-            canonical.insert("mono_env_id".to_owned(), mono_id);
-            canonical
-        })
-        .collect();
-
-    let query_name = format!("{}_mono_query.csv", spec.prefix);
-    let env_name = format!("{}_mono_hla_env_dict.csv", spec.prefix);
-    let env_crosswalk_name = format!("{}_full_to_mono_env_crosswalk.csv", spec.prefix);
-    let observation_crosswalk_name =
-        format!("{}_full_to_mono_observation_crosswalk.csv", spec.prefix);
-    let mono_mapping_name = format!("{}_mono_longpep_mapping.csv", spec.prefix);
-    let full_mapping_name = format!("{}_full_longpep_mapping.csv", spec.prefix);
-    let canonical_mapping_name = format!("{}_candidate_roster.csv", spec.prefix);
-    let audit_name = format!("{}_inputs_audit.json", spec.prefix);
-    let full_query_name = format!("{}_full_deduplicated_query.csv", spec.prefix);
-
-    write_csv(
-        &output_dir.join(&query_name),
-        &query_table.headers,
-        &mono_query_rows,
-    )?;
-    write_csv(
-        &output_dir.join(&env_name),
-        &["env_id".to_owned(), "allele_environment".to_owned()],
-        &mono_env_rows,
-    )?;
     write_csv(
         &output_dir.join(&env_crosswalk_name),
         &[
@@ -798,155 +774,222 @@ fn build_dataset(
         &output_dir.join(&observation_crosswalk_name),
         &[
             "dataset".to_owned(),
-            "PatientID".to_owned(),
+            "compute_key_id".to_owned(),
             "peptide".to_owned(),
             "HLA-RE".to_owned(),
             "TCGA_EXPR_TYPE".to_owned(),
-            "gene".to_owned(),
-            "SetNeoepitopeSampleID".to_owned(),
             "full_env_id".to_owned(),
             "mono_env_id".to_owned(),
         ],
-        &observation_crosswalk_rows,
+        &observation_crosswalk,
     )?;
     write_csv(
         &output_dir.join(&mono_mapping_name),
-        &mapping_headers,
-        &mono_mapping,
+        &primary.headers,
+        &primary_mono,
     )?;
     write_csv(
         &output_dir.join(&full_mapping_name),
-        &mapping_headers,
-        &full_mapping,
+        &primary.headers,
+        &primary_full,
     )?;
     write_csv(
         &output_dir.join(&canonical_mapping_name),
         &canonical_headers,
-        &canonical_mapping,
+        &primary_canonical,
     )?;
 
-    let mono_root = "${EXTERNAL_VALIDATION_INPUT_ROOT}";
     let template = read_text(&template_path)?;
+    let root = "${EXTERNAL_VALIDATION_INPUT_ROOT}";
     let mono_config = replace_toml_string(
         &replace_toml_string(
             &template,
             "hla_env_dict",
-            &format!("{mono_root}/{env_name}"),
+            &format!("{root}/{mono_env_name}"),
         )?,
         "query_peptide_input_tuples_file",
-        &format!("{mono_root}/{query_name}"),
+        &format!("{root}/{mono_query_name}"),
     )?;
     write_text(
         &output_dir.join(&spec.generated_mono_config),
         &format!(
-            "# Generated by external_validation_inputs; source cohort directories remain read-only.\n{mono_config}"
+            "# Generated complete-F mono query; source cohort directories remain read-only.\n{mono_config}"
         ),
     )?;
-
-    let mut output_files = BTreeMap::from([
-        ("query", query_name.clone()),
-        ("env_dict", env_name.clone()),
-        ("env_crosswalk", env_crosswalk_name.clone()),
-        ("observation_crosswalk", observation_crosswalk_name.clone()),
-        ("canonical_mapping", canonical_mapping_name.clone()),
-        ("full_mapping", full_mapping_name.clone()),
-        ("mono_mapping", mono_mapping_name.clone()),
-        ("mono_config", spec.generated_mono_config.clone()),
-    ]);
-    if let Some(full_config_name) = &spec.generated_full_deduplicated_config {
-        write_csv(
-            &output_dir.join(&full_query_name),
-            &query_table.headers,
-            &unique_query,
-        )?;
-        let full_config = replace_toml_string(
+    let full_config = replace_toml_string(
+        &replace_toml_string(
             &template,
-            "query_peptide_input_tuples_file",
-            &format!("${{EXTERNAL_VALIDATION_INPUT_ROOT}}/{full_query_name}"),
+            "hla_env_dict",
+            &format!("{root}/{full_env_name}"),
+        )?,
+        "query_peptide_input_tuples_file",
+        &format!("{root}/{full_query_name}"),
+    )?;
+    write_text(
+        &output_dir.join(&spec.generated_full_deduplicated_config),
+        &format!("# Generated complete-F full query; no presentation filtering.\n{full_config}"),
+    )?;
+
+    let mut view_audits = Map::new();
+    let mut view_output_names = Vec::new();
+    for view in &spec.views {
+        let view_path = resolve_path(input_root, &view.mapping);
+        if !view_path.is_file() {
+            return Err(InputError::contract(format!(
+                "secondary view mapping is not a file: {}",
+                view_path.display()
+            )));
+        }
+        verify_expected_hash(
+            &view_path,
+            view.expected_sha256.as_deref(),
+            &format!("secondary view {}", view.id),
         )?;
-        write_text(
-            &output_dir.join(full_config_name),
-            &format!(
-                "# Generated by external_validation_inputs; exact duplicate query rows removed.\n{full_config}"
-            ),
+        let prepared = prepare_view(spec, &view_path, &view.id, "secondary", &full_envs)?;
+        if view.require_subset_of != spec.primary_view_id {
+            return Err(InputError::contract(format!(
+                "view {} does not name primary parent {}",
+                view.id, spec.primary_view_id
+            )));
+        }
+        if !prepared
+            .endpoint_nmer_keys
+            .is_subset(&primary.endpoint_nmer_keys)
+        {
+            return Err(InputError::contract(format!(
+                "view {} has endpoint+nmer rows outside primary view {}",
+                view.id, spec.primary_view_id
+            )));
+        }
+        if !prepared.compute_keys.is_subset(&primary.compute_keys) {
+            return Err(InputError::contract(format!(
+                "view {} has compute keys outside primary view {}",
+                view.id, spec.primary_view_id
+            )));
+        }
+        check_expected_view(spec, &view.id, view.expected.as_ref(), &prepared)?;
+        let (mono, full, canonical) = representation_rows(
+            &prepared.rows,
+            &view_path,
+            &pair_to_mono,
+            &compute_ids,
+            &spec.expression,
         )?;
-        output_files.insert("full_deduplicated_query", full_query_name.clone());
-        output_files.insert("full_deduplicated_config", full_config_name.clone());
+        let token = view.id.to_lowercase().replace('-', "_");
+        let redundant_prefix = format!("{}_", spec.prefix);
+        let view_token = token.strip_prefix(&redundant_prefix).unwrap_or(&token);
+        let mono_name = format!("{}_{}_mono_longpep_mapping.csv", spec.prefix, view_token);
+        let full_name = format!("{}_{}_full_longpep_mapping.csv", spec.prefix, view_token);
+        let canonical_name = format!("{}_{}_candidate_roster.csv", spec.prefix, view_token);
+        let view_canonical_headers: Vec<String> = prepared
+            .headers
+            .iter()
+            .map(|header| {
+                if header == "env_id" {
+                    "mono_env_id".to_owned()
+                } else {
+                    header.clone()
+                }
+            })
+            .collect();
+        write_csv(&output_dir.join(&mono_name), &prepared.headers, &mono)?;
+        write_csv(&output_dir.join(&full_name), &prepared.headers, &full)?;
+        write_csv(
+            &output_dir.join(&canonical_name),
+            &view_canonical_headers,
+            &canonical,
+        )?;
+        view_output_names.extend([mono_name.clone(), full_name.clone(), canonical_name.clone()]);
+        view_audits.insert(
+            view.id.clone(),
+            json!({
+                "role": view.role,
+                "parent_view_id": view.require_subset_of,
+                "selection_eligible": view.selection_eligible,
+                "bundle_eligible": view.bundle_eligible,
+                "source": source_record(&view_path)?,
+                "source_rows": prepared.source_rows,
+                "exact_duplicate_source_rows": prepared.exact_duplicate_source_rows,
+                "mapping_rows": prepared.rows.len(),
+                "exact_duplicate_candidate_rows_removed": prepared.exact_duplicate_candidate_rows,
+                "endpoints": prepared.endpoints.len(),
+                "compute_keys": prepared.compute_keys.len(),
+                "subset_status": "pass",
+                "endpoints_positive_label_thr0": prepared.endpoints_positive_zero,
+                "endpoints_positive_label_noise_ceiling": prepared.endpoints_positive_noise,
+                "materialized_label_columns": prepared.materialized_label_columns,
+                "output_files": {
+                    "mono_mapping": mono_name,
+                    "full_mapping": full_name,
+                    "canonical_mapping": canonical_name,
+                },
+            }),
+        );
     }
 
-    let conflict_examples: Vec<Value> = conflicting_label_endpoints
-        .iter()
-        .take(20)
-        .map(|(key, _)| {
-            let mut object = Map::new();
-            for (name, value) in spec.endpoint_fields.iter().zip(key.iter()) {
-                object.insert(name.clone(), Value::String(value.clone()));
-            }
-            object.insert(
-                "response_values".to_owned(),
-                serde_json::to_value(endpoint_responses.get(*key).cloned().unwrap_or_default())
-                    .unwrap_or(Value::Null),
-            );
-            Value::Object(object)
-        })
-        .collect();
+    let output_files = json!({
+        "mono_query": mono_query_name,
+        "full_deduplicated_query": full_query_name,
+        "full_env_dict": full_env_name,
+        "env_dict": mono_env_name,
+        "env_crosswalk": env_crosswalk_name,
+        "observation_crosswalk": observation_crosswalk_name,
+        "canonical_mapping": canonical_mapping_name,
+        "full_mapping": full_mapping_name,
+        "mono_mapping": mono_mapping_name,
+        "mono_config": spec.generated_mono_config,
+        "full_deduplicated_config": spec.generated_full_deduplicated_config,
+    });
     let audit = json!({
-        "schema_version": 2,
+        "schema_version": 3,
         "generator": "external_validation_inputs",
         "dataset": spec.id,
+        "expression": spec.expression,
+        "primary_view_id": spec.primary_view_id,
         "source_files": {
-            "query": source_record(&query_path)?,
             "env_dict": source_record(&env_path)?,
-            "mapping": source_record(&mapping_path)?,
+            "primary_mapping": source_record(&primary_path)?,
             "config_template": source_record(&template_path)?,
         },
-        "full_query_rows": query_table.rows.len(),
-        "unique_full_query_compute_rows": unique_query.len(),
-        "exact_duplicate_query_rows_removed": duplicate_compute_rows,
         "full_environment_rows": full_envs.len(),
+        "full_query_rows": full_query.len(),
         "mono_environment_rows": env_hla_pairs.len(),
-        "mono_query_rows": mono_query_rows.len(),
-        "full_only_biological_identities": 0,
-        "mono_only_biological_identities": 0,
+        "mono_query_rows": mono_query.len(),
+        "duplicate_full_compute_identities": 0,
         "duplicate_mono_compute_identities": 0,
-        "mapping_source_rows": mapping_table.rows.len(),
-        "exact_duplicate_source_mapping_rows": exact_duplicate_source_rows,
-        "mapping_source_rows_with_query_support": matched_source_rows,
-        "mapping_source_rows_outside_query_roster": unmatched_source_rows,
-        "candidate_roster_rows": mono_mapping.len(),
-        "scoreable_candidate_rows": scoreable_rows,
-        "floor_candidate_rows": floor_rows,
-        "blank_hla_rows": 0,
-        "noncontained_scoreable_mapping_rows": noncontained.len(),
-        "exact_duplicate_candidate_rows_removed": duplicate_mapping_rows,
+        "candidate_roster_rows": primary.rows.len(),
+        "scoreable_candidate_rows": primary.rows.len(),
+        "floor_candidate_rows": 0,
+        "primary_source_rows": primary.source_rows,
+        "exact_duplicate_source_mapping_rows": primary.exact_duplicate_source_rows,
+        "exact_duplicate_candidate_rows_removed": primary.exact_duplicate_candidate_rows,
         "endpoint_key_fields": spec.endpoint_fields,
-        "mapping_endpoints": source_endpoints.len(),
-        "mapping_endpoints_with_conflicting_response_values": conflicting_response_endpoints.len(),
-        "mapping_endpoints_with_conflicting_binary_labels": conflicting_label_endpoints.len(),
-        "conflicting_binary_label_examples": conflict_examples,
+        "mapping_endpoints": primary.endpoints.len(),
+        "mapping_endpoints_with_conflicting_response_values": 0,
+        "mapping_endpoints_with_conflicting_binary_labels": 0,
         "label_zero_threshold": LABEL_ZERO_THRESHOLD,
         "noise_ceiling_threshold": spec.noise_ceiling_threshold,
-        "materialized_label_columns": materialized_label_columns,
-        "endpoints_positive_label_thr0": endpoints_positive_at(LABEL_ZERO_THRESHOLD)?,
-        "endpoints_positive_label_noise_ceiling": match spec.noise_ceiling_threshold {
-            Some(threshold) => Some(endpoints_positive_at(threshold)?),
-            None => None,
-        },
-        "input_audit_status": if conflicting_label_endpoints.is_empty() { "pass" } else { "blocked_conflicting_endpoint_labels" },
+        "materialized_label_columns": primary.materialized_label_columns,
+        "endpoints_positive_label_thr0": primary.endpoints_positive_zero,
+        "endpoints_positive_label_noise_ceiling": primary.endpoints_positive_noise,
+        "input_audit_status": "pass",
         "suggested_smoke_env_chunks": env_hla_pairs.len(),
         "suggested_production_env_chunks": suggested_env_chunks(env_hla_pairs.len(), 4),
         "output_files": output_files,
+        "views": view_audits,
+        "secondary_view_output_count": view_output_names.len(),
     });
     write_json(&output_dir.join(&audit_name), &audit)?;
 
     Ok(DatasetBuild {
         summary: json!({
-            "candidate_rows": mono_mapping.len(),
-            "scoreable_rows": scoreable_rows,
-            "floor_rows": floor_rows,
+            "candidate_rows": primary.rows.len(),
+            "scoreable_rows": primary.rows.len(),
+            "floor_rows": 0,
             "mono_environments": env_hla_pairs.len(),
-            "query_rows": mono_query_rows.len(),
-            "endpoints": source_endpoints.len(),
+            "query_rows": full_query.len(),
+            "endpoints": primary.endpoints.len(),
+            "secondary_views": spec.views.len(),
         }),
         audit,
     })
@@ -1148,6 +1191,119 @@ pub fn build_bundle(config_path: &Path, input_root: &Path, output: &Path) -> Res
     }
 }
 
+fn validate_mapping_family(
+    bundle: &Path,
+    dataset: &str,
+    view_id: &str,
+    output_files: &serde_json::Map<String, Value>,
+    compute_ids: &BTreeSet<String>,
+) -> Result<usize> {
+    let filename_for = |role: &str| -> Result<&str> {
+        output_files[role].as_str().ok_or_else(|| {
+            InputError::contract(format!("dataset {dataset} view {view_id} lacks {role}"))
+        })
+    };
+    let mono_name = filename_for("mono_mapping")?;
+    let full_name = filename_for("full_mapping")?;
+    let canonical_name = filename_for("canonical_mapping")?;
+    let mono = read_csv(&bundle.join(mono_name))?;
+    let full = read_csv(&bundle.join(full_name))?;
+    let canonical = read_csv(&bundle.join(canonical_name))?;
+    require_columns(
+        &mono,
+        &[
+            "HLA-RE",
+            "mapping_status",
+            "full_env_id",
+            "env_id",
+            "compute_key_id",
+            "view_id",
+            "view_role",
+        ],
+        &bundle.join(mono_name),
+    )?;
+    if mono.headers != full.headers
+        || mono.rows.len() != full.rows.len()
+        || mono.rows.len() != canonical.rows.len()
+    {
+        return Err(InputError::contract(format!(
+            "dataset {dataset} view {view_id} canonical/full/mono mapping shape mismatch"
+        )));
+    }
+    let expected_canonical_headers: Vec<String> = mono
+        .headers
+        .iter()
+        .map(|header| {
+            if header == "env_id" {
+                "mono_env_id".to_owned()
+            } else {
+                header.clone()
+            }
+        })
+        .collect();
+    if canonical.headers != expected_canonical_headers {
+        return Err(InputError::contract(format!(
+            "dataset {dataset} view {view_id} canonical mapping header mismatch"
+        )));
+    }
+    let unique_rows: BTreeSet<Vec<String>> = full
+        .rows
+        .iter()
+        .map(|row| row_identity(row, &full.headers))
+        .collect();
+    if unique_rows.len() != full.rows.len() {
+        return Err(InputError::contract(format!(
+            "dataset {dataset} view {view_id} contains duplicate mapping rows"
+        )));
+    }
+    for (idx, (mono_row, full_row)) in mono.rows.iter().zip(&full.rows).enumerate() {
+        let hla = mono_row.get("HLA-RE").map_or("", String::as_str);
+        let status = mono_row.get("mapping_status").map_or("", String::as_str);
+        if hla.is_empty() || status != "scoreable" {
+            return Err(InputError::contract(format!(
+                "dataset {dataset} view {view_id} invalid complete-F row {idx}: HLA={hla:?}, status={status:?}"
+            )));
+        }
+        let compute_id = mono_row.get("compute_key_id").map_or("", String::as_str);
+        if !compute_ids.contains(compute_id) {
+            return Err(InputError::contract(format!(
+                "dataset {dataset} view {view_id} row {idx} references unknown compute_key_id {compute_id:?}"
+            )));
+        }
+        if mono_row.get("view_id").map_or("", String::as_str) != view_id {
+            return Err(InputError::contract(format!(
+                "dataset {dataset} view {view_id} row {idx} carries a different view_id"
+            )));
+        }
+        for header in &mono.headers {
+            if header != "env_id" && mono_row.get(header) != full_row.get(header) {
+                return Err(InputError::contract(format!(
+                    "dataset {dataset} view {view_id} full/mono mapping differs in {header} at row {idx}"
+                )));
+            }
+        }
+        if full_row.get("env_id") != full_row.get("full_env_id") {
+            return Err(InputError::contract(format!(
+                "dataset {dataset} view {view_id} full mapping env_id != full_env_id at row {idx}"
+            )));
+        }
+        let canonical_row = &canonical.rows[idx];
+        for header in &canonical.headers {
+            let mono_header = if header == "mono_env_id" {
+                "env_id"
+            } else {
+                header.as_str()
+            };
+            if canonical_row.get(header) != mono_row.get(mono_header) {
+                return Err(InputError::contract(format!(
+                    "dataset {dataset} view {view_id} canonical/mono mapping differs in {header} at row {idx}"
+                )));
+            }
+        }
+    }
+    Ok(mono.rows.len())
+}
+
 pub fn validate_bundle(bundle: &Path) -> Result<Value> {
     if !bundle.is_dir() {
         return Err(InputError::contract(format!(
@@ -1203,95 +1359,86 @@ pub fn validate_bundle(bundle: &Path) -> Result<Value> {
         let output_files = audit["output_files"]
             .as_object()
             .ok_or_else(|| InputError::contract(format!("dataset {dataset} lacks output_files")))?;
-        let mono_name = output_files["mono_mapping"]
+        let query_name = output_files["full_deduplicated_query"]
             .as_str()
-            .ok_or_else(|| InputError::contract(format!("dataset {dataset} lacks mono_mapping")))?;
-        let full_name = output_files["full_mapping"]
-            .as_str()
-            .ok_or_else(|| InputError::contract(format!("dataset {dataset} lacks full_mapping")))?;
-        let canonical_name = output_files["canonical_mapping"].as_str().ok_or_else(|| {
-            InputError::contract(format!("dataset {dataset} lacks canonical_mapping"))
-        })?;
-        let mono = read_csv(&bundle.join(mono_name))?;
-        let full = read_csv(&bundle.join(full_name))?;
-        let canonical = read_csv(&bundle.join(canonical_name))?;
+            .ok_or_else(|| {
+                InputError::contract(format!("dataset {dataset} lacks full_deduplicated_query"))
+            })?;
+        let query = read_csv(&bundle.join(query_name))?;
         require_columns(
-            &mono,
-            &["HLA-RE", "mapping_status", "full_env_id", "env_id"],
-            &bundle.join(mono_name),
+            &query,
+            &[
+                "peptide",
+                "HLA-RE",
+                "TCGA_EXPR_TYPE",
+                "env_id",
+                "compute_key_id",
+            ],
+            &bundle.join(query_name),
         )?;
-        if mono.headers != full.headers
-            || mono.rows.len() != full.rows.len()
-            || mono.rows.len() != canonical.rows.len()
-        {
-            return Err(InputError::contract(format!(
-                "dataset {dataset} canonical/full/mono mapping shape mismatch"
-            )));
-        }
-        let expected_canonical_headers: Vec<String> = mono
-            .headers
+        let compute_ids: BTreeSet<String> = query
+            .rows
             .iter()
-            .map(|header| {
-                if header == "env_id" {
-                    "mono_env_id".to_owned()
-                } else {
-                    header.clone()
-                }
+            .map(|row| row.get("compute_key_id").cloned().unwrap_or_default())
+            .collect();
+        let compute_keys: BTreeSet<(String, String, String, String)> = query
+            .rows
+            .iter()
+            .map(|row| {
+                (
+                    row.get("peptide").cloned().unwrap_or_default(),
+                    row.get("HLA-RE").cloned().unwrap_or_default(),
+                    row.get("env_id").cloned().unwrap_or_default(),
+                    row.get("TCGA_EXPR_TYPE").cloned().unwrap_or_default(),
+                )
             })
             .collect();
-        if canonical.headers != expected_canonical_headers {
+        if compute_ids.len() != query.rows.len()
+            || compute_ids.contains("")
+            || compute_keys.len() != query.rows.len()
+        {
             return Err(InputError::contract(format!(
-                "dataset {dataset} canonical mapping header mismatch"
+                "dataset {dataset} full query has duplicate or blank compute identities"
             )));
         }
-        let mut observed_scoreable = 0_usize;
-        let mut observed_floor = 0_usize;
-        for (idx, (mono_row, full_row)) in mono.rows.iter().zip(&full.rows).enumerate() {
-            let hla = mono_row.get("HLA-RE").map_or("", String::as_str);
-            let status = mono_row.get("mapping_status").map_or("", String::as_str);
-            if hla.is_empty() || !matches!(status, "scoreable" | "floor") {
-                return Err(InputError::contract(format!(
-                    "dataset {dataset} invalid mapping row {idx}: HLA={hla:?}, status={status:?}"
-                )));
-            }
-            if status == "scoreable" {
-                observed_scoreable += 1;
-            } else {
-                observed_floor += 1;
-            }
-            for header in &mono.headers {
-                if header != "env_id" && mono_row.get(header) != full_row.get(header) {
-                    return Err(InputError::contract(format!(
-                        "dataset {dataset} full/mono mapping differs in {header} at row {idx}"
-                    )));
-                }
-            }
-            if full_row.get("env_id") != full_row.get("full_env_id") {
-                return Err(InputError::contract(format!(
-                    "dataset {dataset} full mapping env_id != full_env_id at row {idx}"
-                )));
-            }
-            let canonical_row = &canonical.rows[idx];
-            for header in &canonical.headers {
-                let mono_header = if header == "mono_env_id" {
-                    "env_id"
-                } else {
-                    header.as_str()
-                };
-                if canonical_row.get(header) != mono_row.get(mono_header) {
-                    return Err(InputError::contract(format!(
-                        "dataset {dataset} canonical/mono mapping differs in {header} at row {idx}"
-                    )));
-                }
-            }
+        if audit["full_query_rows"].as_u64() != Some(query.rows.len() as u64) {
+            return Err(InputError::contract(format!(
+                "dataset {dataset} audit full_query_rows differs from query contents"
+            )));
         }
-        if audit["candidate_roster_rows"].as_u64() != Some(mono.rows.len() as u64)
-            || audit["scoreable_candidate_rows"].as_u64() != Some(observed_scoreable as u64)
-            || audit["floor_candidate_rows"].as_u64() != Some(observed_floor as u64)
+        let primary_view_id = audit["primary_view_id"].as_str().ok_or_else(|| {
+            InputError::contract(format!("dataset {dataset} lacks primary_view_id"))
+        })?;
+        let primary_rows =
+            validate_mapping_family(bundle, dataset, primary_view_id, output_files, &compute_ids)?;
+        if audit["candidate_roster_rows"].as_u64() != Some(primary_rows as u64)
+            || audit["scoreable_candidate_rows"].as_u64() != Some(primary_rows as u64)
+            || audit["floor_candidate_rows"].as_u64() != Some(0)
         {
             return Err(InputError::contract(format!(
                 "dataset {dataset} audit counts differ from mapping contents"
             )));
+        }
+        let views = audit["views"].as_object().ok_or_else(|| {
+            InputError::contract(format!("dataset {dataset} views is not an object"))
+        })?;
+        for (view_id, view_audit) in views {
+            let view_files = view_audit["output_files"].as_object().ok_or_else(|| {
+                InputError::contract(format!(
+                    "dataset {dataset} view {view_id} lacks output_files"
+                ))
+            })?;
+            let observed =
+                validate_mapping_family(bundle, dataset, view_id, view_files, &compute_ids)?;
+            if view_audit["mapping_rows"].as_u64() != Some(observed as u64)
+                || view_audit["subset_status"].as_str() != Some("pass")
+                || view_audit["selection_eligible"].as_bool() != Some(false)
+                || view_audit["bundle_eligible"].as_bool() != Some(false)
+            {
+                return Err(InputError::contract(format!(
+                    "dataset {dataset} view {view_id} audit contract mismatch"
+                )));
+            }
         }
     }
     Ok(json!({

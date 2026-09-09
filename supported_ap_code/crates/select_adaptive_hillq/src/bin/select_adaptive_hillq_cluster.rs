@@ -1,4 +1,4 @@
-//! Cluster lifecycle for adaptive Hill-q paired-CNAP parameter selection.
+//! Cluster lifecycle for complete-F power-anchor Hill-q paired-CNAP selection.
 
 use std::path::PathBuf;
 
@@ -7,12 +7,12 @@ use select_adaptive_hillq::cluster::{
     GridContract, PlanOptions, audit, create_plan, run_shard, status,
 };
 use select_adaptive_hillq::error::{Result, SelectionError};
-use select_adaptive_hillq::grid::{GridSpec, default_q_tokens, parse_q_values};
+use select_adaptive_hillq::grid::{GridSpec, default_q_tokens, parse_alpha_values, parse_q_values};
 
 #[derive(Parser, Debug)]
 #[command(
     name = "select-adaptive-hillq-cluster",
-    about = "Plan, shard, audit, and finalize adaptive Hill-q CNAP selection",
+    about = "Plan, shard, audit, and finalize complete-F power-anchor Hill-q CNAP selection",
     allow_negative_numbers = true
 )]
 struct Cli {
@@ -43,6 +43,9 @@ struct PlanArgs {
     bundle_root: PathBuf,
     #[arg(long)]
     output: PathBuf,
+    /// Explicit power-mean orders. There is deliberately no production default.
+    #[arg(long, value_delimiter = ' ', num_args = 1.., required = true)]
+    alpha_values: Vec<String>,
     #[arg(long, value_delimiter = ' ', num_args = 1..)]
     q_values: Vec<String>,
     #[arg(long, default_value_t = -12.0, allow_hyphen_values = true)]
@@ -126,7 +129,8 @@ fn run() -> Result<()> {
             if args.q_values.is_empty() {
                 args.q_values = default_q_tokens();
             }
-            let orders = parse_q_values(&args.q_values)?;
+            let powers = parse_alpha_values(&args.alpha_values)?;
+            let hills = parse_q_values(&args.q_values)?;
             let spec = GridSpec {
                 c_min: args.c_min,
                 c_max: args.c_max,
@@ -140,7 +144,8 @@ fn run() -> Result<()> {
                 bundle_root: args.bundle_root,
                 output: args.output,
                 grid: GridContract::new(
-                    &orders,
+                    &powers,
+                    &hills,
                     &spec,
                     args.solver_absolute_tolerance,
                     args.solver_max_iterations,

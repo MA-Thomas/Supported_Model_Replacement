@@ -1,0 +1,133 @@
+{
+  "bundle_eligible": false,
+  "comparison_csv": "comparison_to_pdac_full.csv",
+  "comparison_csv_sha256": "3db16689aacc43b59a8dd0d98f95a6b4fc9e0e5a15e480c5ec098d77517acd9b",
+  "coverage_requirement": "100%; every candidate resolves to a completed tensor observation",
+  "jobs": [
+    {
+      "branch": "pr",
+      "endpoint_count": 76,
+      "mapping_kind": "full",
+      "mapping_sha256": "8867cdc69e84101ae3115ff23218ca9455a9fb1e05471c5117a1e5e7727a4f4d",
+      "model": "full_hla",
+      "n_completed_zero_candidates": 0,
+      "n_missing_computations": 0,
+      "positive_count": 23
+    },
+    {
+      "branch": "roc",
+      "endpoint_count": 76,
+      "mapping_kind": "full",
+      "mapping_sha256": "8867cdc69e84101ae3115ff23218ca9455a9fb1e05471c5117a1e5e7727a4f4d",
+      "model": "full_hla",
+      "n_completed_zero_candidates": 0,
+      "n_missing_computations": 0,
+      "positive_count": 23
+    },
+    {
+      "branch": "pr",
+      "endpoint_count": 76,
+      "mapping_kind": "full",
+      "mapping_sha256": "8867cdc69e84101ae3115ff23218ca9455a9fb1e05471c5117a1e5e7727a4f4d",
+      "model": "focal_hla",
+      "n_completed_zero_candidates": 0,
+      "n_missing_computations": 0,
+      "positive_count": 23
+    },
+    {
+      "branch": "roc",
+      "endpoint_count": 76,
+      "mapping_kind": "full",
+      "mapping_sha256": "8867cdc69e84101ae3115ff23218ca9455a9fb1e05471c5117a1e5e7727a4f4d",
+      "model": "focal_hla",
+      "n_completed_zero_candidates": 0,
+      "n_missing_computations": 0,
+      "positive_count": 23
+    },
+    {
+      "branch": "pr",
+      "endpoint_count": 76,
+      "mapping_kind": "mono",
+      "mapping_sha256": "6db46a20128d56e1b7f67bc1da11979c1973c393a00a39ecd845635c0e52994a",
+      "model": "old_monoallelic",
+      "n_completed_zero_candidates": 0,
+      "n_missing_computations": 0,
+      "positive_count": 23
+    },
+    {
+      "branch": "roc",
+      "endpoint_count": 76,
+      "mapping_kind": "mono",
+      "mapping_sha256": "6db46a20128d56e1b7f67bc1da11979c1973c393a00a39ecd845635c0e52994a",
+      "model": "old_monoallelic",
+      "n_completed_zero_candidates": 0,
+      "n_missing_computations": 0,
+      "positive_count": 23
+    },
+    {
+      "branch": "pr",
+      "endpoint_count": 76,
+      "mapping_kind": "full",
+      "mapping_sha256": "8867cdc69e84101ae3115ff23218ca9455a9fb1e05471c5117a1e5e7727a4f4d",
+      "model": "mono_q_full_pn",
+      "n_completed_zero_candidates": 0,
+      "n_missing_computations": 0,
+      "positive_count": 23
+    },
+    {
+      "branch": "roc",
+      "endpoint_count": 76,
+      "mapping_kind": "full",
+      "mapping_sha256": "8867cdc69e84101ae3115ff23218ca9455a9fb1e05471c5117a1e5e7727a4f4d",
+      "model": "mono_q_full_pn",
+      "n_completed_zero_candidates": 0,
+      "n_missing_computations": 0,
+      "positive_count": 23
+    },
+    {
+      "branch": "pr",
+      "endpoint_count": 76,
+      "mapping_kind": "mono",
+      "mapping_sha256": "6db46a20128d56e1b7f67bc1da11979c1973c393a00a39ecd845635c0e52994a",
+      "model": "full_q_mono_pn",
+      "n_completed_zero_candidates": 0,
+      "n_missing_computations": 0,
+      "positive_count": 23
+    },
+    {
+      "branch": "roc",
+      "endpoint_count": 76,
+      "mapping_kind": "mono",
+      "mapping_sha256": "6db46a20128d56e1b7f67bc1da11979c1973c393a00a39ecd845635c0e52994a",
+      "model": "full_q_mono_pn",
+      "n_completed_zero_candidates": 0,
+      "n_missing_computations": 0,
+      "positive_count": 23
+    }
+  ],
+  "parent_cohort": "pdac_full",
+  "role": "secondary",
+  "schema_version": 1,
+  "selection_eligible": false,
+  "tensor_hashes": {
+    "focal": {
+      "directory": "/Users/thomm15/Documents/Supported_Model_Replacement/cluster_outputs/evaluation_PDAC/runs/complete_f_tensor_focal",
+      "metadata_sha256": "903f198a918865d4a8df37f0ededa65393317a56299ca9eb26ca17c418165056",
+      "observations_sha256": "0dc73f81a0e468ccb4839b545fe10d87e71f3f1fcf0ebc2a5def86066b730830",
+      "tensor_sha256": "0129ce89711516b39e091c7c04fd20838b2df343386691beb1cd47f5e3431642"
+    },
+    "full": {
+      "directory": "/Users/thomm15/Documents/Supported_Model_Replacement/cluster_outputs/evaluation_PDAC/runs/complete_f_tensor",
+      "metadata_sha256": "43dbcf4498a9e80c012171203ae2e89bf12a525bef8ab507ddfdbbd411ef54c7",
+      "observations_sha256": "dcae75554131121dfb21d32aabb449d930a7e9909488a4212074344af8ce64a8",
+      "tensor_sha256": "963407f7c9754586acec6342775e41c6b0205511fa38d9c0fdf4bb2952addbfe"
+    },
+    "mono": {
+      "directory": "/Users/thomm15/Documents/Supported_Model_Replacement/cluster_outputs/evaluation_PDAC/runs/complete_f_tensor_mono",
+      "metadata_sha256": "2a2e2818903a476de143f41339741b756f7df44c60a46af47b6cdbc24ea899fb",
+      "observations_sha256": "4c8ffdcbd7498a00da6be94ad583f8c2373b980cbcb4159f083fc507966d703b",
+      "tensor_sha256": "95a2bf7be961350ae13599522831ed6e27f9c4fa2165c3850eeb5eb997b7882a"
+    }
+  },
+  "view_id": "pdac_rojas_sethna"
+}

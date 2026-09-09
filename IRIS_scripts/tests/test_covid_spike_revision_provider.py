@@ -4,9 +4,11 @@ import sys
 import unittest
 
 
-SCRIPT_DIR = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(SCRIPT_DIR))
-PROVIDER_PATH = SCRIPT_DIR / "iris_covid_spike_revision_provider.py"
+IRIS_SCRIPTS_ROOT = Path(__file__).resolve().parents[1]
+PROVIDER_PATH = (
+    IRIS_SCRIPTS_ROOT
+    / "revisions/covid_spike/iris_covid_spike_revision_provider.py"
+)
 SPEC = importlib.util.spec_from_file_location(
     "iris_covid_spike_revision_provider", PROVIDER_PATH
 )

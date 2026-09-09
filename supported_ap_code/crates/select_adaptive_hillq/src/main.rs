@@ -1,4 +1,4 @@
-//! CLI entry point: self-gated adaptive L2 parameter selection.
+//! CLI entry point: self-gated power-anchor Hill-q L2 parameter selection.
 //!
 //! The joint-grid sweep is parallelized with rayon; ranking and both policy
 //! selections are deterministic across thread counts.
@@ -24,22 +24,25 @@ use select_adaptive_hillq::data::{
 };
 use select_adaptive_hillq::error::{Result, SelectionError};
 use select_adaptive_hillq::grid::{
-    BaseGrid, GridSpec, default_q_tokens, make_grid, parse_q_values,
+    AggregationOrder, BaseGrid, GridSpec, aggregation_orders, default_q_tokens, make_grid,
+    parse_alpha_values, parse_q_values,
 };
 use select_adaptive_hillq::manifest::sha256_file;
-use select_adaptive_hillq::numeric::{FLOOR, HillOrder, ap_auc, hill_components, self_gated_score};
+use select_adaptive_hillq::numeric::{
+    FLOOR, adaptive_components, ap_auc, max_of, self_gated_score,
+};
 use select_adaptive_hillq::output::{fmt_f64, write_csv, write_csv_gz_iter, write_text};
 use select_adaptive_hillq::select::{
     JointRanking, LeaveOneOutRow, SelectedCnapEvidence, SelectedRow, SelectionPolicy,
     leave_one_cohort_out, select_group, select_group_eligible, select_group_for_indices_eligible,
 };
 
-const SCHEMA_VERSION: u32 = 4;
+const SCHEMA_VERSION: u32 = 5;
 
 #[derive(Parser, Debug)]
 #[command(
     name = "select-adaptive-hillq",
-    about = "Self-gated adaptive L2 aggregation parameter selection",
+    about = "Self-gated power-anchor Hill-q L2 aggregation parameter selection",
     allow_negative_numbers = true
 )]
 struct Args {
@@ -52,9 +55,12 @@ struct Args {
     bundle_root: PathBuf,
     #[arg(
         long,
-        default_value = "IRIS_scripts/analysis_reports/adaptive_hillq_dual_selection_v2"
+        default_value = "IRIS_scripts/analysis_reports/adaptive_power_hillq_selection"
     )]
     output: PathBuf,
+    /// Explicit power-mean orders. There is deliberately no production default.
+    #[arg(long, value_delimiter = ' ', num_args = 1.., required = true)]
+    alpha_values: Vec<String>,
     /// Frozen Hill-order list (space-separated).
     #[arg(long, value_delimiter = ' ', num_args = 1..)]
     q_values: Vec<String>,
@@ -103,6 +109,10 @@ fn bool_str(b: bool) -> String {
 
 /// Metadata for one joint-grid index.
 struct JointMeta {
+    aggregation_order: usize,
+    alpha_order: usize,
+    alpha_id: String,
+    alpha_str: String,
     q_order: usize,
     q_id: String,
     q_str: String,
@@ -111,25 +121,38 @@ struct JointMeta {
     kappa: f64,
 }
 
-fn joint_meta(j: usize, base_len: usize, orders: &[HillOrder], base: &BaseGrid) -> JointMeta {
-    let q_order = j / base_len;
+fn joint_meta(
+    j: usize,
+    base_len: usize,
+    orders: &[AggregationOrder],
+    base: &BaseGrid,
+) -> JointMeta {
+    let aggregation_order = j / base_len;
     let grid_index = j % base_len;
-    let order = orders[q_order];
+    let order = orders[aggregation_order];
     JointMeta {
-        q_order,
-        q_id: order.id(),
-        q_str: fmt_f64(order.value()),
+        aggregation_order,
+        alpha_order: order.alpha_order,
+        alpha_id: order.power.id(),
+        alpha_str: fmt_f64(order.power.value()),
+        q_order: order.q_order,
+        q_id: order.hill.id(),
+        q_str: fmt_f64(order.hill.value()),
         grid_index,
         c: base.c[grid_index],
         kappa: base.kappa[grid_index],
     }
 }
 
-const SELECTED_HEADER: [&str; 57] = [
+const SELECTED_HEADER: [&str; 64] = [
     "selection_policy",
     "model",
     "branch",
     "selection_metric",
+    "aggregation_order",
+    "alpha_order",
+    "alpha_id",
+    "alpha",
     "q_order",
     "q_id",
     "q",
@@ -142,10 +165,13 @@ const SELECTED_HEADER: [&str; 57] = [
     "worst_cohort_fractional_rank",
     "mean_metric_regret",
     "near_optimal_rank_tolerance",
-    "near_optimal_joint_triples",
+    "near_optimal_joint_tuples",
+    "near_optimal_alpha_count",
+    "near_optimal_alpha_ids",
     "near_optimal_q_count",
     "near_optimal_q_ids",
     "q_is_zero_or_infinity",
+    "alpha_is_zero_or_infinity",
     "c_at_boundary",
     "kappa_at_boundary",
     "pdac_metric",
@@ -187,11 +213,14 @@ const SELECTED_HEADER: [&str; 57] = [
 
 fn system_id(row: &SelectedRow) -> String {
     match row.selection_policy.as_str() {
-        "pdac_only" => format!("{}__self_gated_hillq_pdac_selected", row.model),
+        "pdac_only" => format!("{}__self_gated_power_hillq_pdac_selected", row.model),
         "all_contexts_equal_weight" => {
-            format!("{}__self_gated_hillq_all_contexts_selected", row.model)
+            format!(
+                "{}__self_gated_power_hillq_all_contexts_selected",
+                row.model
+            )
         }
-        _ => format!("{}__self_gated_hillq_selected", row.model),
+        _ => format!("{}__self_gated_power_hillq_selected", row.model),
     }
 }
 
@@ -201,6 +230,10 @@ fn selected_fields(row: &SelectedRow) -> Vec<String> {
         row.model.clone(),
         row.branch.clone(),
         row.selection_metric.clone(),
+        row.aggregation_order.to_string(),
+        row.alpha_order.to_string(),
+        row.power.id(),
+        fmt_f64(row.power.value()),
         row.q_order.to_string(),
         row.hill.id(),
         fmt_f64(row.hill.value()),
@@ -213,10 +246,13 @@ fn selected_fields(row: &SelectedRow) -> Vec<String> {
         fmt_f64(row.worst_cohort_fractional_rank),
         fmt_f64(row.mean_metric_regret),
         fmt_f64(row.near_optimal_rank_tolerance),
-        row.near_optimal_joint_triples.to_string(),
+        row.near_optimal_joint_tuples.to_string(),
+        row.near_optimal_alpha_count.to_string(),
+        row.near_optimal_alpha_ids.clone(),
         row.near_optimal_q_count.to_string(),
         row.near_optimal_q_ids.clone(),
         bool_str(row.q_is_zero_or_infinity),
+        bool_str(row.power.value() == 0.0 || row.power.value().is_infinite()),
         bool_str(row.c_at_boundary),
         bool_str(row.kappa_at_boundary),
     ];
@@ -262,7 +298,7 @@ const AUDIT_HEADER: [&str; 14] = [
     "n_patients",
     "n_unique_candidates",
     "n_scoreable_candidates",
-    "n_floor_candidates",
+    "n_zero_signal_candidates",
     "n_exact_duplicates_removed",
     "max_reconstruction_max_abs_error",
     "logsumexp_reconstruction_max_abs_error",
@@ -280,7 +316,7 @@ fn audit_fields(a: &Audit) -> Vec<String> {
         a.n_patients.to_string(),
         a.n_unique_candidates.to_string(),
         a.n_scoreable_candidates.to_string(),
-        a.n_floor_candidates.to_string(),
+        a.n_zero_signal_candidates.to_string(),
         a.n_exact_duplicates_removed.to_string(),
         fmt_f64(a.max_reconstruction_max_abs_error),
         fmt_f64(a.logsumexp_reconstruction_max_abs_error),
@@ -296,8 +332,8 @@ fn audit_fields(a: &Audit) -> Vec<String> {
 /// parallelized across grid points with rayon.
 fn sweep_grid(
     labels: &[i8],
-    maxima: &[f64],
-    admitted_bonus: &[f64],
+    anchors: &[f64],
+    corroboration_offer: &[f64],
     base: &BaseGrid,
     solver_absolute_tolerance: f64,
     solver_max_iterations: usize,
@@ -308,13 +344,13 @@ fn sweep_grid(
         .map(|b| {
             let c = base.c[b];
             let kappa = base.kappa[b];
-            let scores: Result<Vec<f64>> = maxima
+            let scores: Result<Vec<f64>> = anchors
                 .iter()
-                .zip(admitted_bonus.iter())
-                .map(|(&m, &bonus)| {
+                .zip(corroboration_offer.iter())
+                .map(|(&anchor, &offer)| {
                     self_gated_score(
-                        m,
-                        bonus,
+                        anchor,
+                        offer,
                         c,
                         kappa,
                         solver_absolute_tolerance,
@@ -341,8 +377,8 @@ fn sweep_pr_cnap(
     cohort: &str,
     labels_i8: &[i8],
     labels_bool: &[bool],
-    maxima: &[f64],
-    admitted_bonus: &[f64],
+    anchors: &[f64],
+    corroboration_offer: &[f64],
     maximum_reference: &[f64],
     base: &BaseGrid,
     contract: &CnapContract,
@@ -361,13 +397,13 @@ fn sweep_pr_cnap(
     let diagnostics: Result<Vec<Diagnostic>> = (0..base.len())
         .into_par_iter()
         .map(|b| {
-            let scores: Result<Vec<f64>> = maxima
+            let scores: Result<Vec<f64>> = anchors
                 .iter()
-                .zip(admitted_bonus)
-                .map(|(&m, &bonus)| {
+                .zip(corroboration_offer)
+                .map(|(&anchor, &offer)| {
                     self_gated_score(
-                        m,
-                        bonus,
+                        anchor,
+                        offer,
                         base.c[b],
                         base.kappa[b],
                         solver_absolute_tolerance,
@@ -402,13 +438,13 @@ fn sweep_pr_cnap(
         representatives
             .par_iter()
             .map(|&(signature, b)| {
-                let scores: Result<Vec<f64>> = maxima
+                let scores: Result<Vec<f64>> = anchors
                     .iter()
-                    .zip(admitted_bonus)
-                    .map(|(&m, &bonus)| {
+                    .zip(corroboration_offer)
+                    .map(|(&anchor, &offer)| {
                         self_gated_score(
-                            m,
-                            bonus,
+                            anchor,
+                            offer,
                             base.c[b],
                             base.kappa[b],
                             solver_absolute_tolerance,
@@ -461,7 +497,7 @@ fn process_group(
     model: &str,
     branch: &str,
     source_root: &Path,
-    orders: &[HillOrder],
+    orders: &[AggregationOrder],
     base: &BaseGrid,
     authorities: &BTreeMap<String, Vec<AuthEndpoint>>,
     surfaces_dir: &Path,
@@ -503,7 +539,17 @@ fn process_group(
         let pr_reference = if branch == "pr" {
             let (reference_id, reference_scores, reference_hash) =
                 aligned_maximum_reference(pr_bundle, cohort, model, &endpoint_ids, &labels)?;
-            let (reconstructed_max, _) = hill_components(&task.raw_candidates, orders[0])?;
+            let reconstructed_max: Vec<f64> = task
+                .raw_candidates
+                .iter()
+                .map(|roster| {
+                    if roster.is_empty() {
+                        FLOOR
+                    } else {
+                        max_of(roster)
+                    }
+                })
+                .collect();
             let bundle_error = reconstructed_max
                 .iter()
                 .zip(&reference_scores)
@@ -532,15 +578,16 @@ fn process_group(
         let mut cnap_cache: HashMap<[u8; 32], CnapOutcome> = HashMap::new();
         let mut unique_rankings = 0usize;
         for order in orders {
-            let (maxima, admitted_bonus) = hill_components(&task.raw_candidates, *order)?;
+            let (anchors, corroboration_offer) =
+                adaptive_components(&task.raw_candidates, order.power, order.hill)?;
             if let Some((reference_scores, seed)) = &pr_reference {
                 let mut block = sweep_pr_cnap(
                     model,
                     cohort,
                     &labels,
                     &labels_bool,
-                    &maxima,
-                    &admitted_bonus,
+                    &anchors,
+                    &corroboration_offer,
                     reference_scores,
                     base,
                     cnap_contract,
@@ -557,8 +604,8 @@ fn process_group(
             } else {
                 let (mut ap_block, mut auc_block) = sweep_grid(
                     &labels,
-                    &maxima,
-                    &admitted_bonus,
+                    &anchors,
+                    &corroboration_offer,
                     base,
                     solver_absolute_tolerance,
                     solver_max_iterations,
@@ -801,7 +848,7 @@ fn write_group_metrics(
     group_dir: &Path,
     model: &str,
     branch: &str,
-    orders: &[HillOrder],
+    orders: &[AggregationOrder],
     base: &BaseGrid,
     ranking: &JointRanking,
     cohort_ap: &[Vec<f64>],
@@ -815,6 +862,10 @@ fn write_group_metrics(
         "branch",
         "cohort",
         "joint_grid_index",
+        "aggregation_order",
+        "alpha_order",
+        "alpha_id",
+        "alpha",
         "q_order",
         "q_id",
         "q",
@@ -844,6 +895,10 @@ fn write_group_metrics(
                     branch.to_string(),
                     cohort.to_string(),
                     j.to_string(),
+                    meta.aggregation_order.to_string(),
+                    meta.alpha_order.to_string(),
+                    meta.alpha_id,
+                    meta.alpha_str,
                     meta.q_order.to_string(),
                     meta.q_id,
                     meta.q_str,
@@ -885,7 +940,7 @@ fn write_group_rankings(
     group_dir: &Path,
     model: &str,
     branch: &str,
-    orders: &[HillOrder],
+    orders: &[AggregationOrder],
     base: &BaseGrid,
     ranking: &JointRanking,
 ) -> Result<()> {
@@ -894,6 +949,10 @@ fn write_group_rankings(
         "model",
         "branch",
         "joint_grid_index",
+        "aggregation_order",
+        "alpha_order",
+        "alpha_id",
+        "alpha",
         "q_order",
         "q_id",
         "q",
@@ -916,6 +975,10 @@ fn write_group_rankings(
             model.to_string(),
             branch.to_string(),
             j.to_string(),
+            meta.aggregation_order.to_string(),
+            meta.alpha_order.to_string(),
+            meta.alpha_id,
+            meta.alpha_str,
             meta.q_order.to_string(),
             meta.q_id,
             meta.q_str,
@@ -982,7 +1045,9 @@ fn run() -> Result<()> {
             output.display()
         )));
     }
-    let orders = parse_q_values(&args.q_values)?;
+    let powers = parse_alpha_values(&args.alpha_values)?;
+    let hills = parse_q_values(&args.q_values)?;
+    let orders = aggregation_orders(&powers, &hills);
     let spec = GridSpec {
         c_min: args.c_min,
         c_max: args.c_max,
@@ -1004,7 +1069,8 @@ fn run() -> Result<()> {
             &bundle_root,
             plan,
             results,
-            &orders,
+            &powers,
+            &hills,
             &spec,
             args.solver_absolute_tolerance,
             args.solver_max_iterations,
@@ -1083,7 +1149,7 @@ fn build_outputs(
     source_root: &Path,
     bundle_root: &Path,
     staging: &Path,
-    orders: &[HillOrder],
+    orders: &[AggregationOrder],
     base: &BaseGrid,
     spec: &GridSpec,
     authorities: &BTreeMap<String, Vec<AuthEndpoint>>,
@@ -1093,7 +1159,7 @@ fn build_outputs(
     precomputed_cnap: Option<&PrecomputedCnap>,
     args: &Args,
 ) -> Result<String> {
-    // parameter and q grids
+    // Base, alpha, Hill, and complete joint grids.
     let grid_rows: Vec<Vec<String>> = (0..base.len())
         .map(|i| vec![i.to_string(), fmt_f64(base.c[i]), fmt_f64(base.kappa[i])])
         .collect();
@@ -1102,10 +1168,32 @@ fn build_outputs(
         &["grid_index", "c", "kappa"],
         &grid_rows,
     )?;
+    let alpha_rows: Vec<Vec<String>> = orders
+        .iter()
+        .filter(|order| order.q_order == 0)
+        .map(|order| {
+            vec![
+                order.alpha_order.to_string(),
+                order.power.id(),
+                fmt_f64(order.power.value()),
+            ]
+        })
+        .collect();
+    write_csv(
+        &staging.join("alpha_grid.csv"),
+        &["alpha_order", "alpha_id", "alpha"],
+        &alpha_rows,
+    )?;
     let q_rows: Vec<Vec<String>> = orders
         .iter()
-        .enumerate()
-        .map(|(i, o)| vec![i.to_string(), o.id(), fmt_f64(o.value())])
+        .filter(|order| order.alpha_order == 0)
+        .map(|order| {
+            vec![
+                order.q_order.to_string(),
+                order.hill.id(),
+                fmt_f64(order.hill.value()),
+            ]
+        })
         .collect();
     write_csv(
         &staging.join("q_grid.csv"),
@@ -1116,6 +1204,10 @@ fn build_outputs(
         let meta = joint_meta(j, base.len(), orders, base);
         vec![
             j.to_string(),
+            meta.aggregation_order.to_string(),
+            meta.alpha_order.to_string(),
+            meta.alpha_id,
+            meta.alpha_str,
             meta.q_order.to_string(),
             meta.q_id,
             meta.q_str,
@@ -1131,6 +1223,10 @@ fn build_outputs(
         &staging.join("joint_parameter_grid.csv"),
         &[
             "joint_grid_index",
+            "aggregation_order",
+            "alpha_order",
+            "alpha_id",
+            "alpha",
             "q_order",
             "q_id",
             "q",
@@ -1236,6 +1332,15 @@ fn build_outputs(
         args.solver_max_iterations,
     )?;
 
+    source_files.extend(write_secondary_view_outputs(
+        staging,
+        source_root,
+        &selections,
+        &loaded,
+        args.solver_absolute_tolerance,
+        args.solver_max_iterations,
+    )?);
+
     // manifest + readme
     let mut source_files_unique: Vec<PathBuf> = source_files.clone();
     source_files_unique.sort();
@@ -1280,6 +1385,9 @@ fn write_leave_one_out(path: &Path, rows: &[LeaveOneOutRow]) -> Result<()> {
         "model",
         "branch",
         "held_out_cohort",
+        "alpha_order",
+        "alpha_id",
+        "alpha",
         "q_order",
         "q_id",
         "q",
@@ -1317,6 +1425,9 @@ fn write_leave_one_out(path: &Path, rows: &[LeaveOneOutRow]) -> Result<()> {
                 selected.model.clone(),
                 selected.branch.clone(),
                 row.held_out_cohort.clone(),
+                selected.alpha_order.to_string(),
+                selected.power.id(),
+                fmt_f64(selected.power.value()),
                 selected.q_order.to_string(),
                 selected.hill.id(),
                 fmt_f64(selected.hill.value()),
@@ -1377,11 +1488,13 @@ fn write_selected_endpoint_scores(
         "mutation",
         "long_peptide",
         "label",
+        "alpha_id",
+        "alpha",
         "q_id",
         "q",
         "c",
         "kappa",
-        "self_gated_hillq_score",
+        "self_gated_power_hillq_score",
         "reference_system_id",
         "model_matched_max_score",
     ];
@@ -1392,7 +1505,8 @@ fn write_selected_endpoint_scores(
             let entry = loaded
                 .get(&key)
                 .ok_or_else(|| SelectionError::msg(format!("missing cached task for {key:?}")))?;
-            let (maxima, admitted) = hill_components(&entry.task.raw_candidates, sel.hill)?;
+            let (anchors, offers) =
+                adaptive_components(&entry.task.raw_candidates, sel.power, sel.hill)?;
             let reference = if sel.branch == "pr" {
                 let labels = entry.task.labels();
                 let (reference_id, scores, _) = aligned_maximum_reference(
@@ -1408,8 +1522,8 @@ fn write_selected_endpoint_scores(
             };
             for (i, endpoint) in entry.task.endpoints.iter().enumerate() {
                 let score = self_gated_score(
-                    maxima[i],
-                    admitted[i],
+                    anchors[i],
+                    offers[i],
                     sel.c,
                     sel.kappa,
                     solver_absolute_tolerance,
@@ -1426,6 +1540,8 @@ fn write_selected_endpoint_scores(
                     endpoint.mutation.clone(),
                     endpoint.long_peptide.clone(),
                     endpoint.label.to_string(),
+                    sel.power.id(),
+                    fmt_f64(sel.power.value()),
                     sel.hill.id(),
                     fmt_f64(sel.hill.value()),
                     fmt_f64(sel.c),
@@ -1446,12 +1562,267 @@ fn write_selected_endpoint_scores(
     write_csv(path, &header, &rows)
 }
 
+fn write_secondary_view_outputs(
+    staging: &Path,
+    source_root: &Path,
+    selections: &[SelectedRow],
+    primary_loaded: &BTreeMap<(String, String, String), Loaded>,
+    solver_absolute_tolerance: f64,
+    solver_max_iterations: usize,
+) -> Result<Vec<PathBuf>> {
+    let manifest_path = source_root.join("manifest.json");
+    let manifest_text =
+        std::fs::read_to_string(&manifest_path).map_err(|source| SelectionError::Io {
+            path: manifest_path.clone(),
+            source,
+        })?;
+    let manifest: serde_json::Value =
+        serde_json::from_str(&manifest_text).map_err(|source| SelectionError::Json {
+            path: manifest_path.clone(),
+            source,
+        })?;
+    let jobs = manifest["jobs"]
+        .as_array()
+        .ok_or_else(|| SelectionError::msg("transfer manifest jobs is not an array"))?;
+    let primary_input_views: BTreeMap<String, String> = jobs
+        .iter()
+        .filter(|job| job["view_role"].as_str() == Some("primary"))
+        .filter_map(|job| {
+            Some((
+                job["cohort"].as_str()?.to_owned(),
+                job["input_view_id"].as_str()?.to_owned(),
+            ))
+        })
+        .collect();
+    let mut views = BTreeMap::<String, (String, String)>::new();
+    for job in jobs {
+        if job["view_role"].as_str() != Some("secondary") {
+            continue;
+        }
+        if job["selection_eligible"].as_bool() != Some(false)
+            || job["bundle_eligible"].as_bool() != Some(false)
+        {
+            return Err(SelectionError::msg(
+                "secondary transfer job is unexpectedly selection- or bundle-eligible",
+            ));
+        }
+        let view_id = job["cohort"]
+            .as_str()
+            .ok_or_else(|| SelectionError::msg("secondary job lacks cohort/view identity"))?;
+        let parent = job["parent_cohort"]
+            .as_str()
+            .ok_or_else(|| SelectionError::msg("secondary job lacks parent cohort"))?;
+        let parent_view = primary_input_views.get(parent).ok_or_else(|| {
+            SelectionError::msg(format!(
+                "secondary view {view_id} lacks a primary parent job"
+            ))
+        })?;
+        let identity = (parent.to_owned(), parent_view.clone());
+        if let Some(previous) = views.insert(view_id.to_owned(), identity.clone())
+            && previous != identity
+        {
+            return Err(SelectionError::msg(format!(
+                "secondary view {view_id} has conflicting parents"
+            )));
+        }
+    }
+
+    let mut source_files = Vec::new();
+    for (view_id, (parent_cohort, parent_view_id)) in views {
+        let output = staging.join("secondary_views").join(&view_id);
+        std::fs::create_dir_all(&output).map_err(|source| SelectionError::Io {
+            path: output.clone(),
+            source,
+        })?;
+        let mut tasks = BTreeMap::<(String, String), Task>::new();
+        for model in MODELS {
+            for branch in BRANCHES {
+                let transfer_view = format!("secondary/{view_id}");
+                let (task, _) = load_task(source_root, &transfer_view, model, branch)?;
+                source_files.extend(task.source_files.iter().cloned());
+                tasks.insert((model.to_owned(), branch.to_owned()), task);
+            }
+        }
+
+        let mut endpoint_rows = Vec::new();
+        let mut metric_rows = Vec::new();
+        for selection in selections {
+            let task = &tasks[&(selection.model.clone(), selection.branch.clone())];
+            let (anchors, offers) =
+                adaptive_components(&task.raw_candidates, selection.power, selection.hill)?;
+            let mut scores = Vec::with_capacity(task.endpoints.len());
+            for (index, endpoint) in task.endpoints.iter().enumerate() {
+                let score = self_gated_score(
+                    anchors[index],
+                    offers[index],
+                    selection.c,
+                    selection.kappa,
+                    solver_absolute_tolerance,
+                    solver_max_iterations,
+                )?;
+                scores.push(score);
+                endpoint_rows.push(vec![
+                    view_id.clone(),
+                    parent_view_id.clone(),
+                    selection.selection_policy.clone(),
+                    system_id(selection),
+                    selection.model.clone(),
+                    selection.branch.clone(),
+                    endpoint.patient_id.clone(),
+                    endpoint.mutation.clone(),
+                    endpoint.long_peptide.clone(),
+                    endpoint.label.to_string(),
+                    selection.power.id(),
+                    fmt_f64(selection.power.value()),
+                    selection.hill.id(),
+                    fmt_f64(selection.hill.value()),
+                    fmt_f64(selection.c),
+                    fmt_f64(selection.kappa),
+                    fmt_f64(score),
+                ]);
+            }
+            let labels = task.labels();
+            let (view_ap, view_auc) = ap_auc(&labels, &scores)?;
+            let primary_key = (
+                selection.model.clone(),
+                selection.branch.clone(),
+                parent_cohort.clone(),
+            );
+            let primary = primary_loaded.get(&primary_key).ok_or_else(|| {
+                SelectionError::msg(format!("missing primary task for {primary_key:?}"))
+            })?;
+            let (primary_anchors, primary_offers) = adaptive_components(
+                &primary.task.raw_candidates,
+                selection.power,
+                selection.hill,
+            )?;
+            let primary_scores = primary_anchors
+                .iter()
+                .zip(&primary_offers)
+                .map(|(&anchor, &offer)| {
+                    self_gated_score(
+                        anchor,
+                        offer,
+                        selection.c,
+                        selection.kappa,
+                        solver_absolute_tolerance,
+                        solver_max_iterations,
+                    )
+                })
+                .collect::<Result<Vec<_>>>()?;
+            let (primary_ap, primary_auc) = ap_auc(&primary.task.labels(), &primary_scores)?;
+            let metric = if selection.branch == "pr" {
+                (view_ap, primary_ap)
+            } else {
+                (view_auc, primary_auc)
+            };
+            let candidate_count: usize = task.raw_candidates.iter().map(Vec::len).sum();
+            let completed_zeros = task
+                .raw_candidates
+                .iter()
+                .flatten()
+                .filter(|&&value| value <= FLOOR)
+                .count();
+            metric_rows.push(vec![
+                view_id.clone(),
+                parent_view_id.clone(),
+                selection.selection_policy.clone(),
+                system_id(selection),
+                selection.model.clone(),
+                selection.branch.clone(),
+                task.endpoints.len().to_string(),
+                labels
+                    .iter()
+                    .filter(|&&label| label == 1)
+                    .count()
+                    .to_string(),
+                candidate_count.to_string(),
+                completed_zeros.to_string(),
+                fmt_f64(completed_zeros as f64 / candidate_count as f64),
+                fmt_f64(view_ap),
+                fmt_f64(view_auc),
+                fmt_f64(metric.0),
+                fmt_f64(metric.1),
+                fmt_f64(metric.0 - metric.1),
+                "true".to_owned(),
+            ]);
+        }
+        write_csv(
+            &output.join("selected_endpoint_scores.csv"),
+            &[
+                "view_id",
+                "parent_view_id",
+                "selection_policy",
+                "system_id",
+                "model",
+                "branch",
+                "patient_id",
+                "mutation",
+                "long_peptide",
+                "label",
+                "alpha_id",
+                "alpha",
+                "q_id",
+                "q",
+                "c",
+                "kappa",
+                "self_gated_power_hillq_score",
+            ],
+            &endpoint_rows,
+        )?;
+        write_csv(
+            &output.join("metrics.csv"),
+            &[
+                "view_id",
+                "parent_view_id",
+                "selection_policy",
+                "system_id",
+                "model",
+                "branch",
+                "n_endpoints",
+                "n_positive",
+                "n_candidate_contributions",
+                "n_completed_zero_contributions",
+                "completed_zero_fraction",
+                "empirical_average_precision",
+                "empirical_auroc",
+                "branch_metric",
+                "parent_branch_metric",
+                "delta_from_parent",
+                "conditional_post_selection",
+            ],
+            &metric_rows,
+        )?;
+        let view_manifest = serde_json::json!({
+            "schema_version": 1,
+            "view_id": view_id,
+            "parent_view_id": parent_view_id,
+            "parent_cohort_path": parent_cohort,
+            "role": "secondary",
+            "selection_eligible": false,
+            "bundle_eligible": false,
+            "parameter_source": "parameters selected exclusively from primary transfer views",
+            "interpretation": "conditional post-selection diagnostic; not an independent selection cohort or tournament vote",
+            "transfer_manifest_sha256": sha256_file(&manifest_path)?,
+            "selected_endpoint_scores_sha256": sha256_file(&output.join("selected_endpoint_scores.csv"))?,
+            "metrics_sha256": sha256_file(&output.join("metrics.csv"))?,
+        });
+        write_text(
+            &output.join("manifest.json"),
+            &(serde_json::to_string_pretty(&view_manifest).map_err(|error| {
+                SelectionError::msg(format!("cannot serialize secondary-view manifest: {error}"))
+            })? + "\n"),
+        )?;
+    }
+    Ok(source_files)
+}
+
 #[allow(clippy::too_many_arguments)]
 fn write_manifest(
     staging: &Path,
     source_root: &Path,
     bundle_root: &Path,
-    orders: &[HillOrder],
+    orders: &[AggregationOrder],
     base: &BaseGrid,
     spec: &GridSpec,
     label_contracts: &serde_json::Value,
@@ -1573,6 +1944,8 @@ fn write_manifest(
                 "branch": r.branch,
                 "selection_policy": r.selection_policy,
                 "selection_metric": r.selection_metric,
+                "alpha_id": r.power.id(),
+                "alpha": r.power.json(),
                 "q_id": r.hill.id(),
                 "q": r.hill.json(),
                 "c": r.c,
@@ -1588,7 +1961,7 @@ fn write_manifest(
         .collect();
 
     let manifest = serde_json::json!({
-        "analysis": "component-metric-specific self-gated Hill-q L2 parameter selection",
+        "analysis": "component-metric-specific self-gated power-anchor Hill-q L2 parameter selection",
         "schema_version": SCHEMA_VERSION,
         "status": "post_hoc_model_development",
         "implementation": "rust_native",
@@ -1597,17 +1970,19 @@ fn write_manifest(
         "transfer_manifest_sha256": transfer_manifest_sha256,
         "base_bundle_content_hashes": base_bundle_content_hashes,
         "formula": {
-            "score": "S solves S = m + C_q * sigmoid((c-S)/kappa)",
-            "m": "max(z)",
-            "B": "log(sum(exp(z-m)))",
+            "score": "S solves S = A_alpha + C_alpha_q * sigmoid((c-S)/kappa)",
+            "A_alpha": "log generalized power mean of exp(z); alpha=0 is mean(z), alpha=1 is logmeanexp(z), alpha=infinity is max(z)",
+            "signal": "F_i = max(exp(z_i)-epsilon, 0)",
+            "accumulation_ceiling": "log(epsilon + sum(F_i))",
             "D_q": "1 - 1/N_q",
-            "C_q": "B * D_q",
-            "N_q": "Hill number of order q on p_i=exp(z_i-m)/sum(exp(z-m))",
+            "C_alpha_q": "D_q * max(accumulation_ceiling - A_alpha, 0)",
+            "N_q": "Hill number of order q on p_i=F_i/sum(F); q=0 counts positive-signal candidates",
             "empty_roster_score": FLOOR,
-            "uncomputed_observation_score": FLOOR,
+            "missing_observation_policy": "fail closed; omission floors are not accepted",
             "floor_definition": "ln(1e-12)",
+            "all_zero_roster_score": FLOOR,
             "candidate_roster": "complete 9-12-mer roster after exact duplicate removal by endpoint+nmer+normalized-HLA; overlapping and cross-HLA tuples are distinct contributions without an independence claim",
-            "certified_interval": "m <= S <= m + C_q <= m + B",
+            "certified_interval": "A_alpha <= S <= A_alpha + C_alpha_q <= accumulation_ceiling",
             "solver": {
                 "method": "bisection",
                 "absolute_tolerance": args.solver_absolute_tolerance,
@@ -1620,20 +1995,21 @@ fn write_manifest(
                 "pdac_only": "select from PDAC fractional rank and PDAC regret only; COVID cohorts are transport diagnostics",
                 "all_contexts_equal_weight": "select using equal-weight PDAC, COVID SPIKE, and COVID NONSPIKE objectives",
             },
-            "parameter_scope": "q, c, and kappa are jointly selected for each component-model and metric branch under each policy, then fixed across cohorts",
-            "q_values": orders.iter().map(|o| o.json()).collect::<Vec<_>>(),
-            "within_group_primary": "PR: staged-supported replacement of the model-matched maximum in every policy cohort, then minimum policy-specific mean fractional rank of supported magnitude; ROC: minimum policy-specific mean AUROC fractional rank",
+            "parameter_scope": "alpha, q, c, and kappa are jointly selected for each component-model and metric branch under each policy, then fixed across cohorts",
+            "alpha_values": orders.iter().filter(|o| o.q_order == 0).map(|o| o.power.json()).collect::<Vec<_>>(),
+            "q_values": orders.iter().filter(|o| o.alpha_order == 0).map(|o| o.hill.json()).collect::<Vec<_>>(),
+            "within_group_primary": "PR: staged-supported replacement of the model-matched maximum in every policy cohort, then minimum policy-specific worst-cohort fractional rank of supported magnitude; ROC: minimum policy-specific worst-cohort AUROC fractional rank",
             "within_group_tie_breaks": [
-                "minimum policy-specific worst-cohort fractional rank",
+                "minimum policy-specific mean fractional rank",
                 "minimum policy-specific mean metric regret",
                 "largest minimum literal-survival subset fraction among exact evidence ties",
                 "largest kappa among exact-performance ties",
                 "ascending c",
-                "declared q-grid order",
+                "declared alpha-q grid order",
             ],
-            "near_optimal_mean_rank_tolerance": args.near_optimal_rank_tolerance,
-            "leave_one_cohort_out_diagnostic": true,
-            "pr_metric": "authoritative V17 staged paired CNAP, adaptive Hill-q forward over the same component model's fixed maximum",
+            "near_optimal_worst_rank_tolerance": args.near_optimal_rank_tolerance,
+            "leave_one_cohort_out_status": "reported transport diagnostic; a production transport threshold must be preregistered after complete-F diagnosis and before grid selection",
+            "pr_metric": "authoritative V17 staged paired CNAP, power-anchor Hill-q forward over the same component model's fixed maximum",
             "pr_selection_computational_design": {
                 "replications": args.selection_replications,
                 "computational_order": cnap_contract.computational_order(),
@@ -1651,8 +2027,9 @@ fn write_manifest(
             "roc_metric": "AUROC with half credit for tied positive-negative pairs",
         },
         "grid": {
-            "kind": "one fixed joint q-c-kappa Cartesian grid",
-            "q_points": orders.len(),
+            "kind": "one explicitly declared joint alpha-q-c-kappa Cartesian grid",
+            "alpha_points": orders.iter().filter(|o| o.q_order == 0).count(),
+            "q_points": orders.iter().filter(|o| o.alpha_order == 0).count(),
             "c_min": base.c_min(),
             "c_max": base.c_max(),
             "c_step": spec.c_step,
@@ -1705,43 +2082,45 @@ fn collect_files(dir: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
 
 fn write_readme(
     staging: &Path,
-    orders: &[HillOrder],
+    orders: &[AggregationOrder],
     base: &BaseGrid,
     selections: &[SelectedRow],
     selection_replications: usize,
 ) -> Result<()> {
     let mut table = String::from(
-        "policy                     branch  model            q_id  c        kappa    mean_fractional_rank\n",
+        "policy                     branch  model            alpha  q_id  c        kappa    worst_fractional_rank\n",
     );
     for r in selections {
         table.push_str(&format!(
-            "{:<26} {:<7} {:<16} {:<5} {:<8} {:<8} {}\n",
+            "{:<26} {:<7} {:<16} {:<6} {:<5} {:<8} {:<8} {}\n",
             r.selection_policy,
             r.branch,
             r.model,
+            r.power.id(),
             r.hill.id(),
             fmt_f64(r.c),
             fmt_f64(r.kappa),
-            fmt_f64(r.mean_fractional_rank),
+            fmt_f64(r.worst_cohort_fractional_rank),
         ));
     }
     let readme = format!(
-        "# Self-gated adaptive Hill-q L2 selection v3\n\n\
+        "# Self-gated power-anchor Hill-q L2 selection\n\n\
 This is a post-hoc model-development selection performed before a subsequent\n\
-directed round robin. It evaluated a fixed list of **{}** Hill orders crossed\n\
-with **{}** `(c, kappa)` pairs, for **{}** triples per component/metric group.\n\n\
+directed round robin. It evaluated **{}** declared `(alpha, q)` pairs crossed\n\
+with **{}** `(c, kappa)` pairs, for **{}** tuples per component/metric group.\n\n\
 The complete joint grid was selected independently under two policies: PDAC-only\n\
 and equal-weight PDAC, COVID SPIKE, and COVID NONSPIKE. The aggregation solves\n\
-the authoritative implicit self-gated equation by bisection and uses\n\
-`ln(1e-12)` for uncomputed candidates.\n\n\
-For PR, every triple is assessed directionally against the same component\n\
+the authoritative implicit self-gated equation by bisection. Every candidate\n\
+must have a complete-F tensor score; omission floors fail closed.\n\n\
+For PR, every tuple is assessed directionally against the same component\n\
 model's fixed maximum using the complete staged paired-CNAP procedure. The\n\
 parameter-selection challenge uses a separately declared finite roster of\n\
 **{}** replications; the downstream replacement tournament remains at its\n\
-validated bundle contract. A policy selects only among triples\n\
+validated bundle contract. A policy selects only among tuples\n\
 with a staged-supported forward verdict in every policy cohort; absence of such\n\
-a triple fails closed. Among eligible triples, the existing equal-cohort rank\n\
-policy is applied to supported magnitude. ROC selection remains AUROC-based.\n\n\
+a tuple fails closed. Among eligible tuples, worst-cohort fractional rank is\n\
+primary, followed by mean fractional rank and mean metric regret. ROC uses the\n\
+same maximin ordering on AUROC ranks.\n\n\
 ## Selected component- and metric-specific parameters\n\n```text\n{}```\n\n\
 The compressed full surfaces are retained under `surfaces/`. Because the same\n\
 cohorts supplied selection, later tournament evidence using these\n\
@@ -1759,6 +2138,7 @@ directional transport evidence rather than selection inputs.\n",
 #[cfg(test)]
 mod tests {
     use super::*;
+    use select_adaptive_hillq::numeric::{HillOrder, PowerOrder};
 
     fn selected(policy: &str) -> SelectedRow {
         SelectedRow {
@@ -1766,6 +2146,9 @@ mod tests {
             model: "full_hla".to_string(),
             branch: "pr".to_string(),
             selection_metric: "average_precision".to_string(),
+            aggregation_order: 0,
+            alpha_order: 0,
+            power: PowerOrder::Finite(0.0),
             q_order: 0,
             hill: HillOrder::Finite(2.0),
             joint_grid_index: 1,
@@ -1777,7 +2160,9 @@ mod tests {
             worst_cohort_fractional_rank: 0.2,
             mean_metric_regret: 0.01,
             near_optimal_rank_tolerance: 0.01,
-            near_optimal_joint_triples: 2,
+            near_optimal_joint_tuples: 2,
+            near_optimal_alpha_count: 1,
+            near_optimal_alpha_ids: "a0".to_string(),
             near_optimal_q_count: 1,
             near_optimal_q_ids: "q2".to_string(),
             q_is_zero_or_infinity: false,
@@ -1797,10 +2182,13 @@ mod tests {
         let all = selected("all_contexts_equal_weight");
         assert_eq!(selected_fields(&pdac).len(), SELECTED_HEADER.len());
         assert_eq!(selected_fields(&all).len(), SELECTED_HEADER.len());
-        assert_eq!(system_id(&pdac), "full_hla__self_gated_hillq_pdac_selected");
+        assert_eq!(
+            system_id(&pdac),
+            "full_hla__self_gated_power_hillq_pdac_selected"
+        );
         assert_eq!(
             system_id(&all),
-            "full_hla__self_gated_hillq_all_contexts_selected"
+            "full_hla__self_gated_power_hillq_all_contexts_selected"
         );
     }
 

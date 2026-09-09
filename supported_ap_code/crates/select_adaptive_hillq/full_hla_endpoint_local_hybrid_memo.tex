@@ -1,0 +1,584 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+
+\definecolor{irisblue}{HTML}{22577A}
+\definecolor{irisgray}{HTML}{4B5563}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=irisblue,
+  urlcolor=irisblue,
+  pdftitle={An Endpoint-Local Adaptive L2 Rule for the Full-HLA Model},
+  pdfauthor={IRIS methodological development memo}
+}
+\titleformat{\section}{\Large\bfseries\color{irisblue}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\bfseries\color{irisgray}}{\thesubsection}{0.65em}{}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.65em}
+\setlist{itemsep=0.25em,topsep=0.35em}
+
+\newcommand{\sigmoid}{\operatorname{sigmoid}}
+\newcommand{\LSE}{\operatorname{LSE}}
+\newcommand{\AP}{\operatorname{AP}}
+
+\title{\textbf{An Endpoint-Local Adaptive Level~2 Rule for the Full-HLA Model:\\Distinct-Epitope Breadth with HLA Corroboration}}
+\author{IRIS methodological development memo}
+\date{September 5, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The complete-$F$ rerun showed that the original adaptive Level~2 family can
+improve on fixed maximum within each of PDAC, SARS-CoV-2 SPIKE, and
+SARS-CoV-2 NONSPIKE, but no single original parameter tuple transported across
+all three. A cohort-relative gate passed the numerical evidence criterion, but
+was scientifically inadmissible because the score of one long peptide depended
+on the other peptides in the scoring batch. A sequence of endpoint-local
+alternatives then isolated two complementary kinds of evidence. First,
+candidate breadth should be counted across distinct short peptides rather than
+across peptide--HLA tuples. Second, support through a second distinct HLA is
+useful, but not strong enough to replace epitope-level aggregation by itself.
+Combining these ideas yields a deterministic score computed only from one long
+peptide's candidate $F$ values and HLA identities. A representative central
+tuple passes the staged paired-CNAP criterion against fixed maximum in all
+three datasets at 600 replications, and 61 of 81 nearby tuples do likewise.
+These are encouraging post-result model-development findings, not independent
+validation and not yet a production replacement.
+\end{abstract}
+
+\section{The question that Level~2 must answer}
+
+The assay label belongs to a long peptide, whereas the Full-HLA Level~1 model
+assigns a score to each candidate short-peptide--HLA pair. Level~2 must turn
+that roster into one score that ranks the long peptide. Let
+\begin{equation}
+z_{jh}=\log(F_{jh}+\epsilon), \qquad \epsilon=10^{-12},
+\end{equation}
+where $j$ indexes a distinct candidate 9--12-mer and $h$ indexes an HLA allele
+in the endpoint's profile. The desired aggregate must satisfy a strict locality
+condition:
+\begin{quote}
+The score of a long peptide may depend on that peptide, its candidate Level~1
+scores, its own HLA profile, and globally frozen constants. It may not depend
+on the identities or scores of other long peptides in the dataset.
+\end{quote}
+This is both a deployment requirement and a biological one. Adding an
+unrelated peptide to an evaluation cohort should not change the meaning of the
+peptide already being scored.
+
+\section{The original adaptive rule, briefly}
+
+The adaptive Hill rule is developed in detail elsewhere; only the pieces
+needed for the present argument are repeated here. For a roster of log scores
+$z_1,\ldots,z_K$, its power-mean anchor is
+\begin{equation}
+A_\alpha(z)=
+\begin{cases}
+K^{-1}\sum_i z_i, & \alpha=0,\\[3pt]
+\alpha^{-1}\log\!\left(K^{-1}\sum_i e^{\alpha z_i}\right),
+  & 0<\alpha<\infty,\\[3pt]
+\max_i z_i, & \alpha=\infty.
+\end{cases}
+\end{equation}
+Thus $\alpha$ moves the anchor from the mean of log scores toward maximum.
+After removal of the numerical floor, define
+\begin{equation}
+x_i=\max(e^{z_i}-\epsilon,0),\qquad
+p_i=\frac{x_i}{\sum_r x_r},\qquad
+U=\log\!\left(\epsilon+\sum_i x_i\right).
+\end{equation}
+The Hill order $q$ measures how broadly the positive signal is distributed.
+For the ultimately useful case $q=\infty$,
+\begin{equation}
+D_\infty=1-\max_i p_i.
+\end{equation}
+The available corroboration offer is
+\begin{equation}
+C_{\alpha,q}=D_q\max(U-A_\alpha,0),
+\end{equation}
+and the adaptive score is the unique solution of
+\begin{equation}
+S=A_\alpha+C_{\alpha,q}
+\sigmoid\!\left(\frac{c-S}{\kappa}\right).
+\label{eq:original-adaptive}
+\end{equation}
+The sigmoid is a deterministic smooth switch, not a response probability.
+The center $c$ says where corroboration begins to close, while $\kappa$
+controls the sharpness of that transition.
+
+\section{What the complete-$F$ results changed}
+
+The complete-$F$ selection run removed the ambiguity caused by uncomputed
+candidate tensors. It then exposed a transport problem in the original
+Full-HLA PR rule. Finite-$\alpha$ anchors were vulnerable to dilution by the
+large complete candidate roster. At $\alpha=\infty$, however, useful
+corroboration was present in every dataset. The best supported absolute gate
+centers were nevertheless different: approximately $-1.2$ for PDAC, $-3.8$
+for SPIKE, and $-2.0$ for NONSPIKE. No common tuple from the original frozen
+family passed the all-context eligibility requirement.
+
+This was not evidence that maximum was unbeatable. Rather, maximum supplied a
+transportable anchor while the useful location of the corroboration gate did
+not transport. The subsequent investigation asked what endpoint-intrinsic
+structure could identify useful corroboration without letting the cohort set
+the score.
+
+\subsection{A successful diagnostic that could not be the answer}
+
+Replacing the absolute gate center by the 38th percentile of the evaluation
+batch's maximum scores produced positive supported magnitudes in all three
+datasets at 600 replications. This established that the original breadth offer
+contained predictive information when admitted in the appropriate score
+region. It did not establish an admissible scoring rule. If
+\begin{equation}
+c_E=Q_{0.38}\{m_i:i\in E\},
+\end{equation}
+then changing the other members of evaluation set $E$ can change the score of
+endpoint $i$. The rule was therefore discarded as transductive. Its value was
+diagnostic: it showed that there was secondary signal to recover, and that the
+problem was how that signal was represented and gated.
+
+\subsection{The key distinction: two kinds of breadth}
+
+The raw Full-HLA roster confounds two different claims:
+\begin{enumerate}
+  \item several \emph{distinct short peptides} within the long peptide have
+  meaningful Level~1 signal; and
+  \item meaningful signal is available through more than one \emph{distinct
+  HLA} in the endpoint's HLA profile.
+\end{enumerate}
+A short peptide that scores under several HLAs should not automatically count
+as several separate epitopes. Conversely, collapsing everything to one score
+per short peptide can hide the fact that the patient has more than one credible
+presentation route. The successful construction treats these as separate,
+complementary features.
+
+\section{The endpoint-local hybrid rule}
+
+\subsection{Step 1: collapse to distinct short peptides}
+
+For each distinct short peptide $j$, retain its strongest HLA-specific score:
+\begin{equation}
+u_j=\max_h z_{jh}.
+\label{eq:peptide-collapse}
+\end{equation}
+The epitope roster is $\mathcal U=(u_1,\ldots,u_J)$. Its maximum
+\begin{equation}
+m=\max_j u_j=\max_{j,h}z_{jh}
+\end{equation}
+is exactly the ordinary Full-HLA maximum. The collapse changes the accounting
+of breadth, not the identity of the strongest candidate.
+
+\subsection{Step 2: compute adaptive distinct-epitope breadth}
+
+On $\mathcal U$, define
+\begin{align}
+x_j&=\max(e^{u_j}-\epsilon,0),\\
+p_j&=x_j\Big/\sum_r x_r,\\
+D&=1-\max_j p_j,\\
+U&=\log\!\left(\epsilon+\sum_jx_j\right),\\
+C&=D\max(U-m,0).
+\end{align}
+The distinct-epitope score $P$ is the unique solution of
+\begin{equation}
+P=m+C\sigmoid\!\left(\frac{-2.2-P}{0.13}\right).
+\label{eq:peptide-branch}
+\end{equation}
+This is Equation~\eqref{eq:original-adaptive} with
+$\alpha=\infty$, $q=\infty$, $c=-2.2$, and $\kappa=0.13$, applied after
+short-peptide collapse.
+
+\subsection{Step 3: measure support from a second distinct HLA}
+
+Collapse in the other direction to obtain one maximum for each HLA:
+\begin{equation}
+M_h=\max_j z_{jh}.
+\end{equation}
+Let $m_2$ be the second-largest value among the distinct-HLA maxima $M_h$.
+Define a bounded HLA corroboration branch
+\begin{equation}
+H=m+B\sigmoid\!\left(\frac{m_2-t}{\delta}\right).
+\label{eq:hla-branch}
+\end{equation}
+For the representative central tuple,
+\begin{equation}
+t=-6.45,\qquad \delta=0.02,\qquad B=1.
+\end{equation}
+This branch asks a narrow question: is there at least one credible candidate
+route through a second HLA? It does not average the two best HLAs and does not
+allow the second HLA to replace the best candidate.
+
+\subsection{Step 4: combine the two branches}
+
+The final score is the convex combination
+\begin{equation}
+\boxed{
+S_{\mathrm{hybrid}}=(1-w)P+wH,
+\qquad w=0.12.
+}
+\label{eq:hybrid}
+\end{equation}
+Equivalently, 88\% of the score comes from maximum-anchored adaptive breadth
+among distinct short peptides and 12\% from the second-HLA branch. Because the
+HLA bonus is itself bounded by $B$, its maximum direct contribution to the
+final score is $wB=0.12$ log-score units. The second HLA can refine rankings;
+it cannot dominate them.
+
+\subsection{A literal computation recipe}
+
+For one endpoint, the calculation is:
+\begin{enumerate}
+  \item read its aligned $(\text{short peptide},\text{HLA},z)$ roster;
+  \item group by short-peptide sequence and retain the maximum $z$ within each
+  group;
+  \item compute $m$, $D$, $U$, and $C$ from this collapsed roster;
+  \item solve Equation~\eqref{eq:peptide-branch} for $P$ by bisection;
+  \item group the original roster by HLA and retain the maximum $z$ within
+  each group;
+  \item take the second-largest HLA maximum $m_2$ and compute $H$ from
+  Equation~\eqref{eq:hla-branch};
+  \item combine $P$ and $H$ using Equation~\eqref{eq:hybrid}.
+\end{enumerate}
+Every input in this recipe belongs to the endpoint being scored. All other
+quantities are frozen constants.
+
+\section{Results}
+
+The representative central tuple was compared with the same Full-HLA fixed
+maximum reference using the staged paired-CNAP procedure with 600
+replications. ``Supported magnitude'' is the conservative retained improvement
+used by the eligibility rule; ``survival'' is the fraction of the staged
+replication subsets retaining the required direction.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Dataset & Observed retained difference & Supported magnitude & Survival \\
+\midrule
+PDAC      & $+0.0003428$ & $+0.0001200$ & $0.9344$ \\
+SPIKE     & $+0.0000340$ & $+0.00000589$ & $0.9280$ \\
+NONSPIKE  & $+0.0007612$ & $+0.0001587$ & $0.9933$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All three supported magnitudes are positive and all three survival fractions
+exceed the declared $0.81$ threshold. SPIKE remains the limiting dataset by
+supported magnitude, but it is no longer a failure.
+
+The result is not confined to one exact numerical point. A 600-replication
+neighborhood varied
+\begin{align*}
+t&\in\{-6.475,-6.45,-6.425\},\\
+\delta&\in\{0.015,0.020,0.025\},\\
+w&\in\{0.08,0.10,0.12\},\\
+B&\in\{0.50,0.75,1.00\}.
+\end{align*}
+Of the $3^4=81$ combinations, 61 passed in all three datasets. Passing tuples
+occurred at every tested value of each parameter. This neighborhood result is
+stronger evidence than a single grid hit, although it does not remove the
+post-selection status of the entire exercise.
+
+\section{High-level interpretation}
+
+The hybrid is most naturally read as a decomposition of corroboration rather
+than as a statistical probability model.
+
+\textbf{The maximum remains the sufficiency anchor.}
+The strongest predicted short-peptide--HLA route is protected. The successful
+rule did not require a finite-$\alpha$ compromise below maximum.
+
+\textbf{Epitope breadth is counted in biological units.}
+The Hill calculation is performed across distinct short-peptide sequences.
+This prevents the same peptide from manufacturing apparent breadth merely
+because it is represented for several HLAs.
+
+\textbf{HLA breadth is separate corroboration.}
+After peptide collapse, the second-best distinct HLA still contains useful
+information. A credible second HLA suggests that the long peptide has more
+than one presentation route in that patient's actual HLA profile. The small
+mixture weight reflects the evidence: this feature is useful as a modifier,
+not as the primary aggregate.
+
+\textbf{The two gates answer different questions.}
+The adaptive gate in Equation~\eqref{eq:peptide-branch} regulates how much
+multi-epitope accumulation a long peptide receives. The second-HLA switch in
+Equation~\eqref{eq:hla-branch} recognizes an additional presentation route.
+Neither sigmoid is a probability. Both are smooth deterministic versions of
+threshold decisions.
+
+\textbf{The rule is endpoint-local.}
+Long-peptide sequence determines the candidate short peptides; the endpoint's
+HLA profile determines their presentation routes; the complete Level~1 model
+determines the $F$ scores. No cohort name, label prevalence, batch quantile,
+other endpoint, decoy distribution, or fitted endpoint-specific random
+quantity enters the calculation.
+
+\section{What was tried and did not provide the final rule}
+
+The negative results are part of the argument. They show that the successful
+hybrid is not simply ``use the second HLA'' or ``estimate a personalized gate
+center.'' The catalog below records distinct functional forms, rather than
+every parameter value evaluated within each form.
+
+\subsection{Original and location-adaptive gates}
+
+\begin{longtable}{@{}p{0.27\textwidth}p{0.34\textwidth}p{0.31\textwidth}@{}}
+\toprule
+Functional form & Intended interpretation & Result and lesson \\
+\midrule
+\endfirsthead
+\toprule
+Functional form & Intended interpretation & Result and lesson \\
+\midrule
+\endhead
+Raw-roster self-gated Hill rule,
+$S=A_\alpha+C_{\alpha,q}\sigmoid((c-S)/\kappa)$
+& Allow the candidate roster to choose a mean-to-maximum anchor and a
+corroboration increment.
+& No common Full-HLA PR tuple passed all three datasets. Finite $\alpha$ was
+particularly vulnerable to dilution; useful $\alpha=\infty$ regions required
+different absolute $c$ values. \\
+\addlinespace
+Batch-quantile center,
+$c_E=Q_\rho\{m_i:i\in E\}+\Delta$
+& Put the gate at the same relative location in each evaluation population.
+& Numerically successful at $\rho=0.38$, but rejected as transductive: the
+score of one long peptide changes when other peptides enter or leave $E$.
+This was a diagnostic success and a scientific failure. \\
+\addlinespace
+Candidate-count center,
+$c_i=a+b\log K_i$
+& Adjust the gate for the number of enumerated opportunities.
+& Reduced ordinary AP substantially in PDAC and slightly in SPIKE. Raw count
+does not encode redundancy, HLA composition, or upper-tail geometry. \\
+\addlinespace
+Raw-roster location centers,
+$c_i=T(z_i)+\Delta$, with $T$ equal to mean, median, 75th, 90th, or 95th
+percentile
+& Make $c$ depend on the endpoint's own candidate-score distribution.
+& Some observed improvements occurred, especially for the upper quartile, but
+no common staged-supported rule emerged. One location statistic did not
+separate useful from false corroboration. \\
+\addlinespace
+HLA-location centers: median or second-largest of $\{M_h\}$, plus an offset
+& Calibrate the gate using the endpoint's own HLA-specific maxima.
+& Did not yield an all-context supported tuple. HLA location alone was
+insufficient. \\
+\addlinespace
+Generalized intrinsic centers: a power mean of the raw roster, HLA maxima,
+short-peptide maxima, or within-peptide second-HLA scores, plus an offset
+& Let several endpoint-intrinsic roster summaries define $c_i$.
+& Observed screens produced candidates, but the compact paired-CNAP tests did
+not support a common rule. Greater flexibility in the center did not solve the
+representation problem. \\
+\addlinespace
+HLA-dominance gate,
+$S=m+C\sigmoid((g-\tau)/\delta)$, where $g=M_{(1)}-M_{(2)}$
+& Admit breadth according to whether one HLA dominates the rest; both the
+full-roster and winning-HLA offers were tested.
+& None of 32 tuples passed all three datasets at 600 replications. A gap can
+confound one strong route with two weak routes and discards the absolute
+strength of the second HLA. \\
+\addlinespace
+Ungated constant fraction,
+$S=m+\lambda C$
+& Avoid choosing a gate location entirely.
+& No common positive ordinary-AP improvement. Breadth was not globally
+positive-label enriched and needed selective admission. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Direct top-two-HLA functions}
+
+Let $M_{(1)}\geq M_{(2)}$ be the two largest maxima from distinct HLAs. These
+experiments established that $M_{(2)}$ contains signal, but also that it is not
+a sufficient Level~2 summary by itself.
+
+\begin{longtable}{@{}p{0.34\textwidth}p{0.26\textwidth}p{0.32\textwidth}@{}}
+\toprule
+Functional form & Intended interpretation & Result and lesson \\
+\midrule
+\endfirsthead
+\toprule
+Functional form & Intended interpretation & Result and lesson \\
+\midrule
+\endhead
+Power mean of $M_{(1)}$ and $M_{(2)}$
+& Treat the two best HLA routes as the entire roster.
+& No common supported rule. Averaging can penalize a valid leader and ignores
+distinct-epitope breadth. \\
+\addlinespace
+Weighted log-score mean,
+$(1-r)M_{(1)}+rM_{(2)}$
+& Give the second HLA a fixed fractional vote.
+& No common supported rule; the second HLA should modify rather than dilute
+the maximum. \\
+\addlinespace
+Exponential agreement bonus,
+$M_{(1)}+B\exp[-(M_{(1)}-M_{(2)})/s]$
+& Reward two HLA maxima that are close together.
+& No common supported rule. Closeness does not distinguish two strong routes
+from two weak ones. \\
+\addlinespace
+Hinge agreement bonus,
+$M_{(1)}+r[d-(M_{(1)}-M_{(2)})]_+$
+& Give a linear bonus when the two HLA routes are sufficiently close.
+& No common supported rule for the same reason: relative agreement lacks an
+absolute evidence requirement. \\
+\addlinespace
+Thresholded second-HLA bonus,
+$M_{(1)}+B\sigmoid((M_{(2)}-t)/\delta)$
+& Reward a second HLA only when its own score is strong enough.
+& This was the most promising HLA-only form, but no common standalone tuple
+was stable across PDAC, SPIKE, and NONSPIKE. It survives in the final rule only
+as a low-weight branch. \\
+\addlinespace
+Length-adjusted threshold,
+$t_i=t_0+s(L_i-15)_+$
+& Allow longer peptides, with more candidate windows, to require stronger
+second-HLA evidence.
+& Did not restore common support. Length was too coarse a description of the
+actual peptide--HLA opportunity structure. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Adaptive top-two and structural functions}
+
+The top-two idea was also inserted into the adaptive rule in several ways.
+Offers were computed from only the two HLA maxima, from all candidates
+belonging to the two leading HLAs, and from all raw candidates. Anchors included
+finite power means and maximum. Gate centers included a common absolute $c$,
+$M_{(2)}+\Delta$, $aM_{(2)}+b$, and
+$(M_{(1)}+M_{(2)})/2+\Delta$. None produced one staged-supported tuple across
+all three datasets. These failures showed that moving the existing gate center
+or restricting its offer roster did not cleanly separate epitope multiplicity
+from HLA multiplicity.
+
+More literal structural rules were then tested:
+\begin{longtable}{@{}p{0.37\textwidth}p{0.25\textwidth}p{0.30\textwidth}@{}}
+\toprule
+Functional form & Intended interpretation & Result and lesson \\
+\midrule
+\endfirsthead
+\toprule
+Functional form & Intended interpretation & Result and lesson \\
+\midrule
+\endhead
+Power mean of the best two HLA scores for the \emph{same} short peptide
+& Require promiscuous presentation of one exact epitope.
+& Did not transport. The requirement was too restrictive and discarded
+evidence from different epitopes presented by different HLAs. \\
+\addlinespace
+$\max\{m,M_{(2)}+b\}$
+& Let a sufficiently strong second HLA lift the maximum.
+& No common supported rule as a standalone score. \\
+\addlinespace
+$\max\{m,u_{(2)}+b\}$, where $u_{(2)}$ is the second distinct-peptide maximum
+& Require a second credible epitope.
+& Improved selected settings but did not satisfy the joint criterion. A hard
+two-epitope summary discarded the remainder of the breadth geometry. \\
+\addlinespace
+$\max\{m,v_{(2)}+b\}$, where $v_{(2)}$ is the second-HLA score for one exact
+short peptide
+& Reward one peptide supported by two HLAs.
+& Did not transport; again too restrictive. \\
+\addlinespace
+$\max\{m,(v_{(1)}+v_{(2)})/2+b\}$
+& Use the mean of two HLA scores for one peptide as corroboration.
+& Did not transport and reintroduced dilution within the corroborating branch. \\
+\addlinespace
+$m+r\min\{[d-(m-M_{(2)})]_+,[d-(m-u_{(2)})]_+\}$
+& Require HLA breadth and distinct-peptide breadth simultaneously.
+& No common supported rule. A hard conjunction was less effective than
+computing epitope breadth continuously and using HLA evidence as a modifier. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Collapsed-roster and hybrid functions}
+
+Applying the adaptive Hill rule after collapsing to one maximum per HLA, to
+the top two HLA maxima, or to one maximum per distinct short peptide directly
+tested the unit in which breadth should be counted. HLA-maxima and top-two-HLA
+rosters did not yield a common rule. Distinct-short-peptide collapse was the
+decisive near-success. With $\alpha=q=\infty$, $c=-2.2$, and
+$\kappa=0.13$, it passed PDAC and NONSPIKE at 600 replications but missed
+SPIKE only through a slightly negative supported magnitude:
+\begin{center}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Dataset & Supported magnitude & Survival \\
+\midrule
+PDAC     & $+0.0000254$ & $0.8493$ \\
+SPIKE    & $-0.00000564$ & $0.9024$ \\
+NONSPIKE & $+0.0001617$ & $0.9933$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+This result located the missing information: the epitope representation was
+substantially right, but SPIKE still benefited from a small HLA-specific cue.
+
+The first hybrid moved the peptide-collapsed score a gated fraction toward its
+collapsed log-sum-exp ceiling,
+\begin{equation}
+P+wG_{\mathrm{HLA}}(U-P).
+\end{equation}
+That bounded form did not provide the common supported rule. The successful
+form instead constructs the simple HLA branch $H=m+BG_{\mathrm{HLA}}$ and
+takes a convex combination with $P$. This keeps the two biological claims
+legible: continuous breadth across distinct epitopes in one branch and bounded
+evidence from a second presentation route in the other.
+
+\section{Evidential status and next decision}
+
+The numerical claim is verified on the present complete-$F$ PDAC, SPIKE, and
+NONSPIKE inputs under the same staged paired-CNAP machinery used by the
+selector. The conceptual claim is narrower: separating distinct-epitope breadth
+from second-HLA corroboration produces a locally robust, endpoint-local Full-HLA
+score that outperforms fixed maximum by the declared selection criterion in all
+three datasets.
+
+Three limitations should remain attached to that statement:
+\begin{enumerate}
+  \item The rule and its constants were developed after inspecting these
+  results. Re-evaluation on the same datasets is post-selection evidence, even
+  with 600 replications.
+  \item The PR improvements are small in absolute units, especially for SPIKE.
+  Their importance lies in consistent direction and resampling support, not in
+  a large change in empirical AP.
+  \item The exploratory implementation has not replaced the production
+  \texttt{select\_adaptive\_hillq} contract. The rule should be reviewed,
+  frozen, implemented, and tested before any new tournament; genuinely held-out
+  data would provide the cleanest confirmation.
+\end{enumerate}
+
+The appropriate conclusion is therefore neither that the search failed nor
+that a definitive production model has been proven. The search isolated a
+specific biological decomposition, found a simple computable rule expressing
+it, and verified a broad local region of numerical support. The next scientific
+act is to freeze that proposal before asking it another question.
+
+\section*{Reproducibility record}
+
+The representative and neighborhood results are stored in:
+\begin{itemize}
+  \item \path{artifacts/iris_fullroster_complete_f_20260904/adaptive_rule_exploration/full_hla_hybrid_convex_cnap_600.json};
+  \item \path{artifacts/iris_fullroster_complete_f_20260904/adaptive_rule_exploration/full_hla_hybrid_convex_robustness_cnap_600.json}.
+\end{itemize}
+The exploratory implementation is
+\path{supported_ap_code/crates/select_adaptive_hillq/src/bin/explore_full_hla_hybrid_breadth.rs}.
+The original rule is documented in
+\path{supported_ap_code/crates/select_adaptive_hillq/popperian_adaptive_l2_recommendation.tex}.
+
+\end{document}

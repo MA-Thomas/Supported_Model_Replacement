@@ -1,0 +1,65 @@
+{
+  "accepted_measurement_error": {
+    "covid_spike": "Mutation-specific response disagreement remains in the observed labels."
+  },
+  "analysis_unit_fields": [
+    "patient_id",
+    "long_peptide"
+  ],
+  "covid_spike_label_specification": null,
+  "endpoint_identity_table": {
+    "path": "endpoint_identities.csv",
+    "sha256": "9bb6630f304de2715b214ec4bbcd876746725cf4fc2b89801896275d70b1858c"
+  },
+  "evaluation_id": "covid_nonspike",
+  "input_manifest_sha256": "b1e42d5427382f38a4df6de72820fa06fa194d3e350eba26f2c53b89b911fc38",
+  "label_contract": {
+    "comparison_operator": ">",
+    "label_field": null,
+    "response_field": "cd8_TNFa_IFNg_dmso_adj",
+    "threshold": 0.0
+  },
+  "mapping": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/iris_fullroster_complete_f_20260904/full_roster_inputs/covid_nonspike_full_longpep_mapping.csv",
+  "mapping_sha256": "bc4ca7c9ca3f99e5a8256c60f174a726de92443258c419b50cd6438b078df7aa",
+  "measurement_error_policy": "Use the committed endpoint-level measured response without imputation.",
+  "schema_version": 3,
+  "tournament_label_authority": "Rust full-roster input package mapping",
+  "transfer_manifest_sha256": "a1a57ba38c99f99f584df50561bbde35e68f7e6e9961008ee6adc5212901f0e7",
+  "transfer_records": [
+    {
+      "model_id": "full_hla",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_nonspike/full_hla/pr/long_peptide_predictions.csv",
+      "predictions_sha256": "f64c582fca860c27cb59db771b2ab46f95a7bd6ce8b065f97a3b571cd3a3731a",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_nonspike/full_hla/pr/summary.json",
+      "summary_sha256": "9b769d59f20e6eb15c1c0691509f77137a6deebcd4ac68614ac25c0e08b46572"
+    },
+    {
+      "model_id": "focal_hla",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_nonspike/focal_hla/pr/long_peptide_predictions.csv",
+      "predictions_sha256": "6dc3a994401a0136ed7fc3cfe4b7188c592c68235a672367064a7537a143d340",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_nonspike/focal_hla/pr/summary.json",
+      "summary_sha256": "a08fd8aa67406075704275aef930aa6796802bf97960ac885df3772ea5feffdb"
+    },
+    {
+      "model_id": "old_monoallelic",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_nonspike/old_monoallelic/pr/long_peptide_predictions.csv",
+      "predictions_sha256": "84f7dcee973e6ee61d046d511bccde07079489516fb5bedc5b8dd34bef943144",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_nonspike/old_monoallelic/pr/summary.json",
+      "summary_sha256": "8efb2f8977ee6eee40250f2e451bdd08e9dbcf8266646139d272eb2844c6e57d"
+    },
+    {
+      "model_id": "mono_q_full_pn",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_nonspike/mono_q_full_pn/pr/long_peptide_predictions.csv",
+      "predictions_sha256": "55e099978896531d96653a871272a967475df0341f4ad6b6ca5ca3ba1aca2a86",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_nonspike/mono_q_full_pn/pr/summary.json",
+      "summary_sha256": "c9ee7fcfb287e242d87b21dc1547ea3cc9b2abc759fb91663dc1ed052d7b5464"
+    },
+    {
+      "model_id": "full_q_mono_pn",
+      "predictions": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_nonspike/full_q_mono_pn/pr/long_peptide_predictions.csv",
+      "predictions_sha256": "20aed34c6f48e428b6d2710613d69781af21dfa3fa4daf85567f485802c18365",
+      "summary": "artifacts/iris_fullroster_frozen_hybrid_v1_20260905/full_roster_transfers/covid_nonspike/full_q_mono_pn/pr/summary.json",
+      "summary_sha256": "7199f73b16c534fe24ed9e46ca030fc8ee471ed88248013bf977289c85c37c3d"
+    }
+  ]
+}

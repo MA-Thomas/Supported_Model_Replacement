@@ -1,0 +1,150 @@
+{
+  "adaptive_l2": {
+    "epitope_gate_center": -2.2,
+    "epitope_gate_width": 0.13,
+    "hla_bonus": 1.0,
+    "hla_weight": 0.12,
+    "method": "endpoint_local_epitope_second_hla_hybrid",
+    "second_hla_gate_width": 0.02,
+    "second_hla_threshold": -6.45,
+    "solver_absolute_tolerance": 1e-10,
+    "solver_max_iterations": 64
+  },
+  "analysis": "NCI-frozen full-roster transfer with per-observation tau and L2 aggregation",
+  "branch": "roc",
+  "bundle_eligible": true,
+  "cohort_id": "pdac",
+  "comparison_operator": null,
+  "complete_f_contract": "every eligible mapping row must resolve to a scored tensor observation; omission floors are forbidden",
+  "component_model": "Q and P/N from the same tensor",
+  "component_sources": {
+    "pi_tensor": "/Users/thomm15/Documents/Supported_Model_Replacement/cluster_outputs/evaluation_PDAC/runs/complete_f_tensor_mono/f_tensor.parquet",
+    "pn_tensor": "/Users/thomm15/Documents/Supported_Model_Replacement/cluster_outputs/evaluation_PDAC/runs/complete_f_tensor_mono/f_tensor.parquet",
+    "q_observations": "/Users/thomm15/Documents/Supported_Model_Replacement/cluster_outputs/evaluation_PDAC/runs/complete_f_tensor_mono/f_tensor.observations.parquet",
+    "q_tensor": "/Users/thomm15/Documents/Supported_Model_Replacement/cluster_outputs/evaluation_PDAC/runs/complete_f_tensor_mono/f_tensor.parquet"
+  },
+  "coverage": {
+    "n_candidate_rows_eligible": 52458,
+    "n_completed_zero_candidates": 0,
+    "n_duplicate_candidates_removed": 0,
+    "n_endpoints_total": 221,
+    "n_endpoints_with_tensor_supported_candidate": 221,
+    "n_mapping_rows_read": 52458,
+    "n_missing_computations": 0,
+    "n_negative_endpoints": 198,
+    "n_positive_endpoints": 23,
+    "n_scoreable_candidates": 52458
+  },
+  "dataset": "PDAC",
+  "endpoint_key": "(patient_id, long_peptide)",
+  "input_manifest_sha256": "b1e42d5427382f38a4df6de72820fa06fa194d3e350eba26f2c53b89b911fc38",
+  "input_view_id": "pdac_full",
+  "l2_specs": [
+    {
+      "fraction": null,
+      "k": null,
+      "method": "max"
+    },
+    {
+      "fraction": null,
+      "k": null,
+      "method": "mean"
+    },
+    {
+      "fraction": null,
+      "k": null,
+      "method": "median"
+    },
+    {
+      "fraction": null,
+      "k": null,
+      "method": "logsumexp"
+    },
+    {
+      "fraction": null,
+      "k": null,
+      "method": "logmeanexp"
+    },
+    {
+      "fraction": 0.01,
+      "k": null,
+      "method": "top_fraction_mean"
+    },
+    {
+      "fraction": 0.02,
+      "k": null,
+      "method": "top_fraction_mean"
+    },
+    {
+      "fraction": 0.05,
+      "k": null,
+      "method": "top_fraction_mean"
+    },
+    {
+      "fraction": null,
+      "k": 2,
+      "method": "top_k_mean"
+    },
+    {
+      "fraction": null,
+      "k": 3,
+      "method": "top_k_mean"
+    },
+    {
+      "fraction": null,
+      "k": 2,
+      "method": "top_k_logsumexp"
+    },
+    {
+      "fraction": null,
+      "k": 10,
+      "method": "top_k_logsumexp"
+    }
+  ],
+  "label_column": "long_peptide_label",
+  "label_threshold": null,
+  "log_epsilon": 1e-12,
+  "mapping": "/Users/thomm15/Documents/Supported_Model_Replacement/artifacts/iris_fullroster_complete_f_20260904/full_roster_inputs/pdac_mono_longpep_mapping.csv",
+  "metadata": "/Users/thomm15/Documents/Supported_Model_Replacement/cluster_outputs/evaluation_PDAC/runs/complete_f_tensor_mono/f_tensor.metadata.json",
+  "model_id": "old_monoallelic",
+  "nci_summary": "/Users/thomm15/Work_Data/IRIS_scripts/python/outputs/nci_full_20260803_singleHLAmodel_OLD_MONOALLELIC_per_observation_tau/summary.json",
+  "observations": "/Users/thomm15/Documents/Supported_Model_Replacement/cluster_outputs/evaluation_PDAC/runs/complete_f_tensor_mono/f_tensor.observations.parquet",
+  "parent_cohort_id": "pdac",
+  "pipeline_config_sha256": "3ebb32b1e84bcdead425b1b9601cf6f1c7dc360b4826fe02910b85e79c09ca8f",
+  "primary_representation": "mono",
+  "query_q_representation": null,
+  "response_column": null,
+  "schema_version": 2,
+  "selected_regimes": [
+    {
+      "nci_regime_idx": 2450,
+      "selector": "nci_best_roc",
+      "target_parameters": {
+        "M": 1,
+        "N": 1,
+        "d_neg": 6.75,
+        "d_pos": 15.0,
+        "geometry_idx": 1,
+        "mn_idx": 0,
+        "param_idx": 1,
+        "regime_idx": 1,
+        "steepness_neg": 0.75,
+        "steepness_pos": 0.5,
+        "tau_idx": 6,
+        "tau_thymus": null
+      }
+    }
+  ],
+  "selection_eligible": true,
+  "tau_mode": "per_observation",
+  "tau_values": [
+    1000.0,
+    50052.0,
+    91691.0,
+    120604.0,
+    156295.0,
+    200000.0
+  ],
+  "tensor": "/Users/thomm15/Documents/Supported_Model_Replacement/cluster_outputs/evaluation_PDAC/runs/complete_f_tensor_mono/f_tensor.parquet",
+  "view_role": "primary"
+}
