@@ -1,0 +1,19 @@
+# Downloaded datasets; keep the documentation for obtaining them.
+/data/raw/*
+!/data/raw/README.md
+
+# Generated study reports, figures, tables, and predictions.
+outputs/
+outputs_*/
+
+# Generated per-metric runs and execution metadata.
+/proteingym_adaptive_*/auroc/
+/proteingym_adaptive_*/cnap/
+/proteingym_adaptive_*/checks/
+/proteingym_adaptive_*/manifest.json
+/proteingym_adaptive_*/timing.json
+/proteingym_recheck_*/auroc/
+/proteingym_recheck_*/cnap/
+/proteingym_recheck_*/checks/
+/proteingym_recheck_*/manifest.json
+/proteingym_recheck_*/timing.json

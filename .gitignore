@@ -1,6 +1,30 @@
 .DS_Store
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+node_modules/
+~$*.pptx
+
+# Local presentation builds and scratch work.
+/.presentation_build/
+/.deck_build_*/
+/.pptx-points.*/
+/.codex_work/
+/.tmp/
+/.writetest
+
+# Generated deliverables and analysis artifacts.
 cluster_outputs/
 artifacts/
 Claude outputs/
+/output/
+/outputs/
+
+# Local input payloads and downloaded reference material.
+# Keep the input documentation available in Git.
+/cluster_inputs/*
+!/cluster_inputs/README.md
+/previous_literature/
