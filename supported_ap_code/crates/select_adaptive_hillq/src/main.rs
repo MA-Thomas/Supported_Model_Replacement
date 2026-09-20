@@ -639,6 +639,22 @@ fn process_group(
         }
     }
 
+    if branch == "pr" {
+        let pending = select_adaptive_hillq::cnap::pending_grid_indices(&cohort_cnap);
+        if !pending.is_empty() {
+            return Err(SelectionError::PendingCnapSelection(Box::new(
+                serde_json::json!({
+                    "schema_version": 1, "status": "pending_numerical_resolution",
+                    "model": model, "branch": branch, "pending_joint_grid_indices": pending,
+                    "cohorts": SELECTION_COHORTS, "cohort_outcomes": cohort_cnap,
+                    "selection_finalized": false,
+                    "reason": "Eligibility remains unresolved; no candidate is excluded on that basis",
+                    "refinement_multiplier": select_adaptive_hillq::cnap::SEARCH_REFINEMENT_MULTIPLIER,
+                }),
+            )));
+        }
+    }
+
     let cohort_array: [Vec<f64>; 3] = [
         cohort_values[0].clone(),
         cohort_values[1].clone(),
@@ -810,6 +826,17 @@ fn process_group(
         path: group_dir.clone(),
         source: e,
     })?;
+
+    if branch == "pr" {
+        let evidence = serde_json::json!({"schema_version": 1, "cohorts": SELECTION_COHORTS,
+            "outcomes": cohort_cnap, "limiting_prevalence_semantics": "best sampled witness",
+            "refinement_multiplier": select_adaptive_hillq::cnap::SEARCH_REFINEMENT_MULTIPLIER});
+        write_text(
+            &group_dir.join("numerical_evidence.json"),
+            &serde_json::to_string_pretty(&evidence)
+                .map_err(|error| SelectionError::msg(error.to_string()))?,
+        )?;
+    }
 
     write_group_metrics(
         &group_dir,
@@ -1136,6 +1163,18 @@ fn run() -> Result<()> {
             })?;
             println!("{summary_line}");
             Ok(())
+        }
+        Err(SelectionError::PendingCnapSelection(evidence)) => {
+            write_text(
+                &staging.join("pending_selection.json"),
+                &serde_json::to_string_pretty(&evidence)
+                    .map_err(|error| SelectionError::msg(error.to_string()))?,
+            )?;
+            std::fs::rename(&staging, &output).map_err(|source| SelectionError::Io {
+                path: output.clone(),
+                source,
+            })?;
+            Err(SelectionError::PendingCnapSelection(evidence))
         }
         Err(err) => {
             std::fs::remove_dir_all(&staging).ok();

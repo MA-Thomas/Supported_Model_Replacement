@@ -238,7 +238,7 @@ fn load_bundle_internal(root: &Path, enforce_content_hash: bool) -> Result<Loade
             manifest.bundle_content_hash, computed_bundle_hash
         )));
     }
-    let policy_hash = hash_serializable(&spec.identity_view())?;
+    let policy_hash = spec.assessment_policy_hash()?;
     let mut manifest = manifest;
     if !enforce_content_hash {
         manifest.bundle_content_hash = computed_bundle_hash;

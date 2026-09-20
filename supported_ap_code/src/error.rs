@@ -16,6 +16,7 @@ pub enum Error {
     TooFewGridPoints,
     InvalidSearchTolerance,
     InvalidSearchIterations,
+    InvalidPrevalenceSearchCertificate,
     InvalidSupportOrder,
     InvalidComputationalReplicationCount,
     SupportOrderExceedsList {
@@ -100,6 +101,9 @@ impl fmt::Display for Error {
             Self::InvalidPrevalenceInterval => write!(f, "invalid prevalence interval"),
             Self::TooFewGridPoints => write!(f, "interval search needs at least three points"),
             Self::InvalidSearchTolerance => write!(f, "invalid search tolerance"),
+            Self::InvalidPrevalenceSearchCertificate => {
+                write!(f, "invalid prevalence-search certificate")
+            }
             Self::InvalidSearchIterations => {
                 write!(f, "interval search iterations must be positive")
             }

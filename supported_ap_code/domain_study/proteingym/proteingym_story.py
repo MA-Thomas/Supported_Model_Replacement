@@ -18,6 +18,8 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+from domain_study.search_evidence import effect_columns, evidence_columns
 STUDY = Path(__file__).resolve().parent
 RAW = STUDY / "data" / "raw"
 OUTPUTS = Path(os.environ.get("SUPPORTED_AP_PROTEINGYM_OUTPUTS", STUDY / "outputs"))
@@ -161,8 +163,8 @@ class Profile:
 
 
 PROFILES = {
-    "quick": Profile(65, 1e-6, 64),
-    "publication": Profile(257, 1e-8, 128),
+    "quick": Profile(3, 1e-6, 64),
+    "publication": Profile(3, 1e-8, 128),
 }
 
 BLUE = "#0072B2"
@@ -702,6 +704,8 @@ def extract_tables(
                     "uniprot_id": audit_by_id.loc[assay_id, "uniprot_id"],
                     "selection_type": audit_by_id.loc[assay_id, "selection_type"],
                     "retained_cnap_difference": evaluation["forward"]["value"],
+                    **effect_columns(evaluation["forward"], "forward_"),
+                    **effect_columns(evaluation["reverse"], "reverse_"),
                     "limiting_deleterious_prevalence": evaluation["forward"][
                         "limiting_prevalence"
                     ],
@@ -728,6 +732,7 @@ def extract_tables(
                     "assay_survivor_fraction": survival["survivor_fraction"],
                     "literal_subset_survival": survival["subset_fraction"],
                     "verdict": directional["verdict"],
+                    **evidence_columns(directional),
                 }
             )
 
@@ -747,6 +752,7 @@ def extract_tables(
                         "survivor_count": survival["survivor_count"],
                         "evaluation_count": survival["list_length"],
                         "verdict": directional["verdict"],
+                    **evidence_columns(directional),
                     }
                 )
 

@@ -42,6 +42,11 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Command {
+    /// Plan, execute, or independently audit candidate-conservative certificates.
+    Accelerated {
+        #[command(subcommand)]
+        command: AcceleratedCommand,
+    },
     ValidateBundle(BundleArgs),
     BundleContentHash(BundleArgs),
     Plan(PlanArgs),
@@ -54,6 +59,181 @@ enum Command {
     ComposeRevision(ComposeRevisionArgs),
     ComposeRevisionFromReductions(ComposeRevisionFromReductionsArgs),
     AuditRevision(AuditRevisionArgs),
+}
+
+#[derive(Debug, Subcommand)]
+enum AcceleratedCommand {
+    /// Distributed stages share a single immutable accelerated plan.
+    Distributed {
+        #[arg(long, value_parser = ["targets", "merge", "complete", "finish"])]
+        stage: String,
+        #[arg(long)]
+        bundle: PathBuf,
+        #[arg(long)]
+        plan: PathBuf,
+        #[arg(long)]
+        results: PathBuf,
+        #[arg(long)]
+        receipts: PathBuf,
+        #[arg(long)]
+        output: PathBuf,
+        #[arg(long)]
+        survivors: Option<PathBuf>,
+        #[arg(long)]
+        shard_count: usize,
+        #[arg(long, default_value_t = 0)]
+        shard_id: usize,
+        #[arg(long, default_value_t = 1)]
+        threads: usize,
+    },
+    Plan {
+        #[arg(long)]
+        bundle: PathBuf,
+        #[arg(long)]
+        output: PathBuf,
+        #[arg(long, default_value_t = 16)]
+        batch_size: usize,
+        /// Omit numerical reports needed by operational selection within S0.
+        #[arg(long)]
+        survivors_only: bool,
+        /// Disable acceleration for these contexts; use complete SCC reduction.
+        #[arg(long)]
+        exhaustive_context: Vec<String>,
+    },
+    Run {
+        #[arg(long)]
+        bundle: PathBuf,
+        #[arg(long)]
+        plan: PathBuf,
+        #[arg(long)]
+        results: PathBuf,
+        #[arg(long)]
+        output: PathBuf,
+        #[arg(long, default_value_t = 1)]
+        threads: usize,
+    },
+    Audit {
+        #[arg(long)]
+        bundle: PathBuf,
+        #[arg(long)]
+        plan: PathBuf,
+        #[arg(long)]
+        results: PathBuf,
+        #[arg(long)]
+        selection: PathBuf,
+    },
+}
+
+fn accelerated(command: AcceleratedCommand) -> Result<()> {
+    use directed_round_robin_organizer::accelerated::*;
+    match command {
+        AcceleratedCommand::Distributed {
+            stage,
+            bundle,
+            plan,
+            results,
+            receipts,
+            output,
+            survivors,
+            shard_count,
+            shard_id,
+            threads,
+        } => {
+            let bundle = load_bundle(&bundle)?;
+            let plan = read_accelerated_plan(&plan)?;
+            match stage.as_str() {
+                "targets" => run_target_shard(
+                    &bundle,
+                    &plan,
+                    &results,
+                    &receipts,
+                    shard_count,
+                    shard_id,
+                    threads,
+                ),
+                "merge" => {
+                    merge_target_shards(&bundle, &plan, &results, &receipts, shard_count, &output)
+                }
+                "complete" | "finish" => {
+                    let survivors = survivors.ok_or_else(|| {
+                        directed_round_robin_organizer::Error::InvalidPlan(
+                            "--survivors is required".into(),
+                        )
+                    })?;
+                    if stage == "complete" {
+                        run_completion_shard(
+                            &bundle,
+                            &plan,
+                            &results,
+                            &survivors,
+                            &receipts,
+                            shard_count,
+                            shard_id,
+                            threads,
+                        )
+                    } else {
+                        finish_distributed(
+                            &bundle,
+                            &plan,
+                            &results,
+                            &survivors,
+                            &receipts,
+                            shard_count,
+                            &output,
+                        )
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }
+        AcceleratedCommand::Plan {
+            bundle,
+            output,
+            batch_size,
+            survivors_only,
+            exhaustive_context,
+        } => {
+            let bundle = load_bundle(&bundle)?;
+            let plan = plan_accelerated(
+                &bundle,
+                AcceleratedOptions {
+                    batch_size,
+                    output_scope: if survivors_only {
+                        OutputScope::SurvivorSet
+                    } else {
+                        OutputScope::SurvivorSetAndOperationalInputs
+                    },
+                    exhaustive_contexts: exhaustive_context.into_iter().collect(),
+                },
+            )?;
+            write_accelerated_plan(&plan, &output)?;
+            print_json(&plan)
+        }
+        AcceleratedCommand::Run {
+            bundle,
+            plan,
+            results,
+            output,
+            threads,
+        } => {
+            let bundle = load_bundle(&bundle)?;
+            let plan = read_accelerated_plan(&plan)?;
+            print_json(&run_accelerated(
+                &bundle, &plan, &results, &output, threads,
+            )?)
+        }
+        AcceleratedCommand::Audit {
+            bundle,
+            plan,
+            results,
+            selection,
+        } => {
+            let bundle = load_bundle(&bundle)?;
+            let plan = read_accelerated_plan(&plan)?;
+            let certificate = read_certificate(&selection)?;
+            print_json(&audit_selection(&bundle, &plan, &results, &certificate)?)
+        }
+    }
 }
 
 #[derive(Debug, Args)]
@@ -241,6 +421,7 @@ fn main() {
 
 fn run() -> Result<()> {
     match Cli::parse().command {
+        Command::Accelerated { command } => accelerated(command),
         Command::ValidateBundle(args) => {
             let bundle = load_bundle(&args.bundle)?;
             print_json(&bundle.summary())

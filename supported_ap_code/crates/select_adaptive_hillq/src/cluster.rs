@@ -26,7 +26,7 @@ use crate::manifest::sha256_file;
 use crate::numeric::{HillOrder, PowerOrder, adaptive_components, self_gated_score};
 use crate::output::{fmt_f64, write_text};
 
-pub const CLUSTER_SCHEMA_VERSION: u32 = 2;
+pub const CLUSTER_SCHEMA_VERSION: u32 = 3;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct GridContract {
@@ -104,6 +104,7 @@ struct PlanIdentity {
     inherited_tournament_replications: usize,
     matches_per_shard: usize,
     cluster_executable_sha256: String,
+    search_refinement_multiplier: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -129,6 +130,7 @@ pub struct PlanManifest {
     pub inherited_tournament_replications: usize,
     pub matches_per_shard: usize,
     pub cluster_executable_sha256: String,
+    pub search_refinement_multiplier: usize,
     pub unique_match_count: usize,
     pub shard_count: usize,
     pub unique_matches_by_model_cohort: BTreeMap<String, usize>,
@@ -170,6 +172,7 @@ struct ShardResult {
     shard_id: usize,
     selection_replications: usize,
     cluster_executable_sha256: String,
+    search_refinement_multiplier: usize,
     outcomes: Vec<MatchOutcome>,
 }
 
@@ -386,6 +389,7 @@ pub fn create_plan(options: &PlanOptions) -> Result<PlanManifest> {
         inherited_tournament_replications: inherited,
         matches_per_shard: options.matches_per_shard,
         cluster_executable_sha256: executable_hash.clone(),
+        search_refinement_multiplier: crate::cnap::SEARCH_REFINEMENT_MULTIPLIER,
     };
     let plan_id = sha256_serialized(&identity)?;
 
@@ -508,6 +512,7 @@ pub fn create_plan(options: &PlanOptions) -> Result<PlanManifest> {
             inherited_tournament_replications: inherited,
             matches_per_shard: options.matches_per_shard,
             cluster_executable_sha256: executable_hash,
+            search_refinement_multiplier: crate::cnap::SEARCH_REFINEMENT_MULTIPLIER,
             unique_match_count: global_index,
             shard_count: records.len(),
             unique_matches_by_model_cohort: group_counts,
@@ -544,8 +549,10 @@ pub fn load_plan(plan_root: &Path) -> Result<PlanManifest> {
         inherited_tournament_replications: manifest.inherited_tournament_replications,
         matches_per_shard: manifest.matches_per_shard,
         cluster_executable_sha256: manifest.cluster_executable_sha256.clone(),
+        search_refinement_multiplier: manifest.search_refinement_multiplier,
     };
-    if manifest.schema_version != CLUSTER_SCHEMA_VERSION
+    if manifest.search_refinement_multiplier != crate::cnap::SEARCH_REFINEMENT_MULTIPLIER
+        || manifest.schema_version != CLUSTER_SCHEMA_VERSION
         || sha256_serialized(&identity)? != manifest.plan_id
         || manifest.shard_count != manifest.shards.len()
         || manifest.unique_match_count
@@ -615,6 +622,7 @@ fn validate_shard_result_payload(
         && result.shard_id == shard.shard_id
         && result.selection_replications == manifest.selection_replications
         && result.cluster_executable_sha256 == manifest.cluster_executable_sha256
+        && result.search_refinement_multiplier == manifest.search_refinement_multiplier
         && result.outcomes.len() == shard.matches.len();
     if !metadata_valid {
         return Err(SelectionError::msg(format!(
@@ -682,7 +690,20 @@ fn validate_outcome(outcome: &CnapOutcome, path: &Path) -> Result<()> {
     let survival_valid = outcome
         .survival_subset_fraction
         .is_none_or(|value| value.is_finite() && (0.0..=1.0).contains(&value));
-    if required.iter().any(|value| !value.is_finite())
+    if outcome
+        .observed_bounds
+        .is_some_and(|b| b.verdict != outcome.observed_status)
+        || outcome
+            .full_bounds
+            .is_some_and(|b| b.verdict != outcome.staged_status)
+        || !outcome.search_tolerance.is_finite()
+        || outcome.search_tolerance <= 0.0
+        || outcome.observed_gate_supported
+            != (outcome.observed_status == supported_ap::PolicyVerdict::VerifiedPass)
+        || outcome.staged_supported
+            != (outcome.staged_status == supported_ap::PolicyVerdict::VerifiedPass)
+        || outcome.search_iterations > outcome.maximum_search_iterations
+        || required.iter().any(|value| !value.is_finite())
         || optional.iter().flatten().any(|value| !value.is_finite())
         || !survival_valid
         || outcome.staged_supported && !outcome.observed_gate_supported
@@ -835,6 +856,7 @@ pub fn run_shard(
         shard_id,
         selection_replications: manifest.selection_replications,
         cluster_executable_sha256: manifest.cluster_executable_sha256.clone(),
+        search_refinement_multiplier: manifest.search_refinement_multiplier,
         outcomes: outcomes?,
     };
     validate_shard_result_payload(&result, &final_path, &manifest, &record, &shard)?;

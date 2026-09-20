@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from domain_study.search_evidence import effect_columns, evidence_columns
 STUDY = ROOT / "domain_study"
 RAW = STUDY / "data" / "raw"
 CSV_PATH = RAW / "bank-additional" / "bank-additional-full.csv"
@@ -93,8 +95,8 @@ class Profile:
 
 
 PROFILES = {
-    "quick": Profile(80, 33, 1e-6, 64, 300, 24, 0.05),
-    "publication": Profile(600, 257, 1e-8, 128, 300, 80, 0.02),
+    "quick": Profile(80, 3, 1e-6, 64, 300, 24, 0.05),
+    "publication": Profile(600, 3, 1e-8, 128, 300, 80, 0.02),
 }
 
 
@@ -899,6 +901,7 @@ def plot_comparison_profile(
     difference = np.asarray([point["value"] for point in profile])
     limit = estimate["observed_evaluation"]["forward"]["limiting_prevalence"]
     robust = estimate["observed_evaluation"]["forward"]["value"]
+    sampled = effect_columns(estimate["observed_evaluation"]["forward"])["sampled_effect"]
 
     axis.axhline(0, color=GRAY, ls="--", lw=1.2)
     axis.axvline(reference_prevalence, color=PURPLE, ls=":", lw=1.4)
@@ -914,11 +917,11 @@ def plot_comparison_profile(
         alpha=0.10,
     )
     axis.plot(prevalence, difference, color=color, lw=2.5)
-    axis.scatter([limit], [robust], s=58, color=VERMILLION, zorder=4)
+    axis.scatter([limit], [sampled], s=58, color=VERMILLION, zorder=4)
     annotation_offset = (42, 30) if limit <= TARGET_LOWER * 1.2 else (-185, 34)
     axis.annotate(
-        f"Range-wide guarantee\n{robust:+.4f}",
-        xy=(limit, robust),
+        f"Sampled witness: {sampled:+.4f}\nCertified lower bound: {robust:+.4f}",
+        xy=(limit, sampled),
         xytext=annotation_offset,
         textcoords="offset points",
         arrowprops={"arrowstyle": "->", "color": VERMILLION},
@@ -1003,6 +1006,7 @@ def plot_figure_4(control: dict[str, Any]) -> None:
     prevalence = np.asarray(trace["prevalences"])
     profiles = np.asarray(trace["replication_difference_profiles"])
     robust = np.asarray([effect["value"] for effect in forward["retained_effects"]])
+    sampled = np.asarray([effect_columns(effect)["sampled_effect"] for effect in forward["retained_effects"]])
     limiting = np.asarray(
         [effect["limiting_prevalence"] for effect in forward["retained_effects"]]
     )
@@ -1017,7 +1021,7 @@ def plot_figure_4(control: dict[str, Any]) -> None:
         axes[0].plot(prevalence, profiles[index], color=GREEN, alpha=0.20, lw=1.0)
         axes[0].scatter(
             [limiting[index]],
-            [robust[index]],
+            [sampled[index]],
             s=18,
             color=VERMILLION,
             alpha=0.75,
@@ -1036,7 +1040,7 @@ def plot_figure_4(control: dict[str, Any]) -> None:
         ylabel="Candidate − incumbent CNAP",
         title=(
             "A. Each complete replication faces the full range\n"
-            "Dots mark its range-wide result"
+            "Dots mark sampled witnesses"
         ),
     )
     prevalence_axis(axes[0])
@@ -1485,6 +1489,7 @@ def write_summary_tables(
                 "survivor_count": survival["survivor_count"],
                 "reported_list_length": survival["list_length"],
                 "verdict": staged["staged_verdict"],
+                **evidence_columns(selected),
                 "reference_status": estimate["reference_assessment"]["status"],
             }
         )

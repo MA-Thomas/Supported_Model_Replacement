@@ -1251,6 +1251,73 @@ fn json_number(value: &Value) -> Result<f64> {
     }
 }
 
+// Validate external column validity and scalar domains before any value() access.
+// Only required columns are checked: unrelated nullable metadata may be present.
+fn validate_input_batch(
+    batch: &RecordBatch,
+    path: &Path,
+    batch_index: usize,
+    required: &[&str],
+) -> Result<()> {
+    for &name in required {
+        let index = batch.schema().index_of(name).with_context(|| {
+            format!(
+                "{}: batch {batch_index}, missing required column {name}",
+                path.display()
+            )
+        })?;
+        let column = batch.column(index);
+        if column.null_count() != 0 {
+            let row = (0..column.len())
+                .find(|&row| column.is_null(row))
+                .expect("nonzero null count");
+            bail!(
+                "{}: batch {batch_index}, row {row}, column {name}: required value is null",
+                path.display()
+            );
+        }
+        if name == "label" {
+            let labels = column
+                .as_any()
+                .downcast_ref::<UInt8Array>()
+                .with_context(|| {
+                    format!(
+                        "{}: batch {batch_index}, column label must be uint8",
+                        path.display()
+                    )
+                })?;
+            for (row, &label) in labels.values().iter().enumerate() {
+                if label > 1 {
+                    bail!(
+                        "{}: batch {batch_index}, row {row}, column label: expected 0 or 1, got {label}",
+                        path.display()
+                    );
+                }
+            }
+        }
+        if matches!(name, "q_value" | "pos_prob" | "neg_prob" | "pi_eh") {
+            let values = column
+                .as_any()
+                .downcast_ref::<Float32Array>()
+                .with_context(|| {
+                    format!(
+                        "{}: batch {batch_index}, column {name} must be float32",
+                        path.display()
+                    )
+                })?;
+            for (row, &value) in values.values().iter().enumerate() {
+                if !value.is_finite() || value < 0.0 {
+                    bail!(
+                        "{}: batch {batch_index}, row {row}, column {name}: expected finite nonnegative value, got {value}",
+                        path.display()
+                    );
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
 fn column_index(batch: &RecordBatch, name: &str) -> Result<usize> {
     batch
         .schema()
@@ -1293,8 +1360,27 @@ fn string_column<'a>(batch: &'a RecordBatch, name: &str) -> Result<&'a StringArr
 fn load_observations(path: &Path) -> Result<Vec<Observation>> {
     let file = File::open(path)?;
     let mut observations = Vec::new();
-    for batch in ParquetRecordBatchReaderBuilder::try_new(file)?.build()? {
+    for (batch_index, batch) in ParquetRecordBatchReaderBuilder::try_new(file)?
+        .build()?
+        .enumerate()
+    {
         let batch = batch?;
+        validate_input_batch(
+            &batch,
+            path,
+            batch_index,
+            &[
+                "obs_idx",
+                "peptide",
+                "hla",
+                "env_id",
+                "patient_id",
+                "label",
+                "gene",
+                "cancer_type",
+                "wt_mt_group_id",
+            ],
+        )?;
         let obs_idx = u32_column(&batch, "obs_idx")?;
         let peptide = string_column(&batch, "peptide")?;
         let hla = string_column(&batch, "hla")?;
@@ -1343,31 +1429,48 @@ fn observation_join_key(observation: &Observation) -> ObservationJoinKey {
 
 fn load_constant_q_values(path: &Path, n_observations: usize) -> Result<Vec<f32>> {
     let file = File::open(path)?;
-    let mut values = vec![f32::NAN; n_observations];
-    for batch in ParquetRecordBatchReaderBuilder::try_new(file)?.build()? {
+    let mut values = vec![None::<f32>; n_observations];
+    for (batch_index, batch) in ParquetRecordBatchReaderBuilder::try_new(file)?
+        .build()?
+        .enumerate()
+    {
         let batch = batch?;
+        validate_input_batch(&batch, path, batch_index, &["obs_idx", "q_value"])?;
         let obs_idx = u32_column(&batch, "obs_idx")?;
         let q = f32_column(&batch, "q_value")?;
         for row in 0..batch.num_rows() {
             let observation = obs_idx.value(row) as usize;
             if observation >= values.len() {
-                bail!("Q tensor observation is outside its observation roster");
+                bail!(
+                    "{}: batch {batch_index}, row {row}: Q source obs_idx {observation} is out of range",
+                    path.display()
+                );
             }
             let value = q.value(row);
-            if !value.is_finite() || value < 0.0 {
-                bail!("Q tensor contains an invalid q_value");
-            }
-            if values[observation].is_nan() {
-                values[observation] = value;
-            } else if values[observation].to_bits() != value.to_bits() {
-                bail!("Q is parameter-dependent at observation {observation}");
+            match values[observation] {
+                None => values[observation] = Some(value),
+                Some(previous) if previous.to_bits() != value.to_bits() => {
+                    bail!(
+                        "{}: batch {batch_index}, row {row}: Q is parameter-dependent for obs_idx {observation}",
+                        path.display()
+                    );
+                }
+                Some(_) => {}
             }
         }
     }
-    if values.iter().any(|value| value.is_nan()) {
-        bail!("Q tensor lacks at least one source observation");
-    }
-    Ok(values)
+    values
+        .into_iter()
+        .enumerate()
+        .map(|(obs, value)| {
+            value.with_context(|| {
+                format!(
+                    "{}: Q source contains no value for obs_idx {obs}",
+                    path.display()
+                )
+            })
+        })
+        .collect()
 }
 
 fn build_q_override(
@@ -1530,8 +1633,25 @@ fn stream_profiled_scores(
             .push(position);
     }
     let file = File::open(path)?;
-    for batch in ParquetRecordBatchReaderBuilder::try_new(file)?.build()? {
+    for (batch_index, batch) in ParquetRecordBatchReaderBuilder::try_new(file)?
+        .build()?
+        .enumerate()
+    {
         let batch = batch?;
+        validate_input_batch(
+            &batch,
+            path,
+            batch_index,
+            &[
+                "obs_idx",
+                "param_idx",
+                "mn_idx",
+                "q_value",
+                "pos_prob",
+                "neg_prob",
+                "pi_eh",
+            ],
+        )?;
         let obs_idx = u32_column(&batch, "obs_idx")?;
         let param_idx = u32_column(&batch, "param_idx")?;
         let mn_idx = u32_column(&batch, "mn_idx")?;
@@ -1547,7 +1667,10 @@ fn stream_profiled_scores(
                 || parameter >= metadata.n_params
                 || mn >= metadata.n_mn
             {
-                bail!("tensor index is outside the metadata grid");
+                bail!(
+                    "{}: batch {batch_index}, row {row}: tensor index outside metadata grid (obs_idx={observation}, param_idx={parameter}, mn_idx={mn})",
+                    path.display()
+                );
             }
             raw_rows[observation] += 1;
             let geometry = parameter / metadata.n_tau;
@@ -1567,7 +1690,10 @@ fn stream_profiled_scores(
                     let offset = observation * selected.len() + position;
                     let coverage = offset * metadata.n_tau + tau;
                     if seen[coverage] {
-                        bail!("duplicate selected tensor cell");
+                        bail!(
+                            "{}: batch {batch_index}, row {row}: duplicate selected tensor cell (obs_idx={observation}, param_idx={parameter}, mn_idx={mn}, tau={tau})",
+                            path.display()
+                        );
                     }
                     seen[coverage] = true;
                     if chosen_tau[offset] == usize::MAX
@@ -1592,7 +1718,8 @@ fn stream_profiled_scores(
                 .count();
             if count != metadata.n_tau {
                 bail!(
-                    "covered observation {observation} has {count}/{} selected tau rows",
+                    "{}: obs_idx {observation} has {count}/{} selected tau rows for selected regime {position}",
+                    path.display(),
                     metadata.n_tau
                 );
             }
@@ -1928,6 +2055,159 @@ fn write_tau_selection(output: TauSelectionOutput<'_>) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use arrow::array::ArrayRef;
+    use parquet::arrow::ArrowWriter;
+    use std::sync::Arc;
+
+    fn write_input(path: &Path, columns: Vec<(&str, ArrayRef)>) {
+        let batch = RecordBatch::try_from_iter(columns).unwrap();
+        let mut writer =
+            ArrowWriter::try_new(File::create(path).unwrap(), batch.schema(), None).unwrap();
+        writer.write(&batch).unwrap();
+        writer.close().unwrap();
+    }
+
+    #[test]
+    fn observation_ingestion_rejects_required_nulls_and_invalid_labels() {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("observations.parquet");
+        for defect in [
+            "obs_idx",
+            "peptide",
+            "hla",
+            "env_id",
+            "patient_id",
+            "label",
+            "gene",
+            "cancer_type",
+            "wt_mt_group_id",
+            "invalid_label",
+        ] {
+            let strings = || Arc::new(StringArray::from(vec!["x", "y"])) as ArrayRef;
+            let mut columns: Vec<(&str, ArrayRef)> = vec![
+                ("obs_idx", Arc::new(UInt32Array::from(vec![0, 1]))),
+                ("peptide", strings()),
+                ("hla", strings()),
+                ("env_id", Arc::new(UInt32Array::from(vec![0, 0]))),
+                ("patient_id", strings()),
+                ("label", Arc::new(UInt8Array::from(vec![1, 0]))),
+                ("gene", strings()),
+                ("cancer_type", strings()),
+                ("wt_mt_group_id", strings()),
+            ];
+            if defect == "invalid_label" {
+                columns[5].1 = Arc::new(UInt8Array::from(vec![1, 2]));
+            } else {
+                let column = columns
+                    .iter_mut()
+                    .find(|(name, _)| *name == defect)
+                    .unwrap();
+                column.1 = arrow::array::new_null_array(column.1.data_type(), 2);
+            }
+            write_input(&path, columns);
+            let message = format!("{:#}", load_observations(&path).unwrap_err());
+            assert!(message.contains("observations.parquet"), "{message}");
+            assert!(
+                message.contains(if defect == "invalid_label" {
+                    "label"
+                } else {
+                    defect
+                }),
+                "{message}"
+            );
+        }
+    }
+
+    #[test]
+    fn q_ingestion_rejects_missing_and_invalid_values_and_accepts_zero() {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("q.parquet");
+        for value in [None, Some(f32::NAN), Some(f32::INFINITY), Some(-0.1)] {
+            write_input(
+                &path,
+                vec![
+                    ("obs_idx", Arc::new(UInt32Array::from(vec![0, 1]))),
+                    (
+                        "q_value",
+                        Arc::new(Float32Array::from(vec![Some(0.0), value])),
+                    ),
+                ],
+            );
+            let message = format!("{:#}", load_constant_q_values(&path, 2).unwrap_err());
+            assert!(
+                message.contains("q.parquet")
+                    && message.contains("q_value")
+                    && message.contains("row 1"),
+                "{message}"
+            );
+        }
+        write_input(
+            &path,
+            vec![
+                ("obs_idx", Arc::new(UInt32Array::from(vec![0, 0, 1]))),
+                ("q_value", Arc::new(Float32Array::from(vec![0.0, 0.0, 0.5]))),
+            ],
+        );
+        assert_eq!(load_constant_q_values(&path, 2).unwrap(), [0.0, 0.5]);
+        assert!(load_constant_q_values(&path, 3).is_err());
+    }
+
+    #[test]
+    fn profiled_ingestion_rejects_invalid_components_even_outside_selected_regimes() {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("tensor.parquet");
+        let metadata = Metadata {
+            n_params: 1,
+            n_mn: 1,
+            n_tau: 1,
+            geometry_params: vec![[1.0; 4]],
+            tau_values: vec![1.0],
+            mn_tuples: vec![[1, 1]],
+        };
+        for column in [
+            "obs_idx",
+            "param_idx",
+            "mn_idx",
+            "q_value",
+            "pos_prob",
+            "neg_prob",
+            "pi_eh",
+        ] {
+            for invalid in [None, Some(f32::NAN), Some(f32::INFINITY), Some(-0.1)] {
+                let mut columns: Vec<(&str, ArrayRef)> = vec![
+                    ("obs_idx", Arc::new(UInt32Array::from(vec![0]))),
+                    ("param_idx", Arc::new(UInt32Array::from(vec![0]))),
+                    ("mn_idx", Arc::new(UInt32Array::from(vec![0]))),
+                    ("q_value", Arc::new(Float32Array::from(vec![0.0]))),
+                    ("pos_prob", Arc::new(Float32Array::from(vec![0.0]))),
+                    ("neg_prob", Arc::new(Float32Array::from(vec![0.0]))),
+                    ("pi_eh", Arc::new(Float32Array::from(vec![0.0]))),
+                ];
+                let target = columns
+                    .iter_mut()
+                    .find(|(name, _)| *name == column)
+                    .unwrap();
+                if matches!(column, "obs_idx" | "param_idx" | "mn_idx") {
+                    if invalid.is_some() {
+                        continue;
+                    }
+                    target.1 = arrow::array::new_null_array(target.1.data_type(), 1);
+                } else {
+                    target.1 = Arc::new(Float32Array::from(vec![invalid]));
+                }
+                write_input(&path, columns);
+                let message = format!(
+                    "{:#}",
+                    stream_profiled_scores(&path, &metadata, 1, &[], 1e-12, Some(&[0.0]))
+                        .unwrap_err()
+                );
+                assert!(
+                    message.contains("tensor.parquet") && message.contains(column),
+                    "{message}"
+                );
+            }
+        }
+    }
 
     fn observation(index: usize, peptide: &str, hla: &str, env_id: u32) -> Observation {
         Observation {

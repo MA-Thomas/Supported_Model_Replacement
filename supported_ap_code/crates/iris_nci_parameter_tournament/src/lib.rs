@@ -10,6 +10,11 @@ pub mod io;
 pub mod tensor;
 pub mod version2;
 
-pub use bundle::{PrepareSummary, audit_prepared, prepare};
-pub use config::PipelineConfig;
-pub use version2::{Version2Selection, audit_version2, finalize_version2};
+pub use bundle::{PrepareSummary, audit_prepared, audit_prepared_for_config, prepare};
+pub use config::{PipelineConfig, RosterMode};
+pub use version2::{
+    Version2Selection, audit_version2, finalize_version2, finalize_version2_accelerated,
+};
+
+pub mod finalists;
+pub mod package;

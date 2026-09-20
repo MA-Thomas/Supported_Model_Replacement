@@ -1,10 +1,12 @@
 #![forbid(unsafe_code)]
-//! Deterministic orchestration for complete, single-metric supported-evidence tournaments.
+//! Deterministic single-metric supported-evidence tournaments, with exhaustive
+//! SCC reduction and audited accelerated candidate-conservative selection.
 //!
 //! This crate owns validation, planning, execution, artifact integrity, and verdict-only
 //! reduction. All AP, CNAP, AUROC, resampling, support, survival, and optimization mathematics
 //! remain in `supported-ap`.
 
+pub mod accelerated;
 pub mod artifact;
 pub mod audit;
 pub mod error;

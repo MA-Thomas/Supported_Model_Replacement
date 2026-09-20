@@ -51,6 +51,49 @@ pub struct JudgedMatch {
     pub descriptive: DescriptiveMatchMetrics,
 }
 
+/// Derives a context capability from this judge's observed-gate contract.
+/// Called only after specification validation (including the verdict field and
+/// nonnegative magnitude threshold). Future judges without this implication
+/// must return Exhaustive; they must not inherit it merely from a metric name.
+pub(crate) fn prepare_context_execution(
+    bundle: &LoadedBundle,
+    evaluation: &crate::input::LoadedEvaluation,
+) -> crate::accelerated::ContextExecution {
+    use crate::accelerated::ContextExecution;
+    use std::collections::BTreeMap;
+    use supported_ap::{observed_auroc_order_key, observed_cnap};
+    let result = match bundle.spec.metric {
+        MetricKind::PrCnap => {
+            let pr = bundle.spec.pr_cnap.as_ref().expect("validated PR policy");
+            let prevalence = match &pr.target_prevalences {
+                supported_ap::TargetPrevalences::Finite { values } => values[0],
+                supported_ap::TargetPrevalences::ClosedInterval { lower, .. } => *lower,
+            };
+            evaluation
+                .scores
+                .iter()
+                .map(|(system, scores)| {
+                    observed_cnap(scores, &evaluation.labels, prevalence)
+                        .map(|value| (system.clone(), value))
+                })
+                .collect::<std::result::Result<BTreeMap<_, _>, _>>()
+                .map(|values| ContextExecution::OrderedCnap { prevalence, values })
+        }
+        MetricKind::Auroc => evaluation
+            .scores
+            .iter()
+            .map(|(system, scores)| {
+                observed_auroc_order_key(scores, &evaluation.labels)
+                    .map(|value| (system.clone(), value))
+            })
+            .collect::<std::result::Result<BTreeMap<_, _>, _>>()
+            .map(|doubled_credits| ContextExecution::OrderedAuroc { doubled_credits }),
+    };
+    result.unwrap_or_else(|error: supported_ap::Error| ContextExecution::Exhaustive {
+        reason: format!("ordering primitive unavailable: {error}"),
+    })
+}
+
 pub fn judge_match(bundle: &LoadedBundle, item: &MatchPlan) -> Result<JudgedMatch> {
     let evaluation = bundle
         .evaluations
@@ -90,8 +133,8 @@ pub fn judge_match(bundle: &LoadedBundle, item: &MatchPlan) -> Result<JudgedMatc
                 pr.retain_replication_profiles,
             )
             .map_err(|error| Error::Judge(error.to_string()))?;
-            let low_verdict = normalize_pr(result.forward.staged_verdict);
-            let high_verdict = normalize_pr(result.reverse.staged_verdict);
+            let low_verdict = normalize_pr(&result.forward);
+            let high_verdict = normalize_pr(&result.reverse);
             let descriptive = DescriptiveMatchMetrics {
                 empirical_metric_low: Some(result.observed_evaluation.model_a_empirical_ap),
                 empirical_metric_high: Some(result.observed_evaluation.model_b_empirical_ap),
@@ -218,8 +261,17 @@ fn projected_resampling(
     .map_err(|error| Error::Judge(error.to_string()))
 }
 
-fn normalize_pr(verdict: FiniteEvidenceVerdict) -> DirectedVerdict {
-    match verdict {
+pub(crate) fn normalize_pr(result: &supported_ap::StagedDirectionalProjectedAp) -> DirectedVerdict {
+    // A failed/unfinished observed gate stops Stage 2. Otherwise the anchored
+    // full assessment controls the decision. Preserve numerical uncertainty.
+    let assessed = result
+        .full_assessment
+        .as_ref()
+        .unwrap_or(&result.observed_gate);
+    if let Some(bounds) = assessed.prevalence_search {
+        return normalize_auroc(bounds.verdict);
+    }
+    match result.staged_verdict {
         FiniteEvidenceVerdict::SupportedReplacement => DirectedVerdict::Supported,
         FiniteEvidenceVerdict::NoVerdict => DirectedVerdict::NotSupported,
     }
@@ -232,7 +284,7 @@ fn official_pr_verdict(verdict: DirectedVerdict) -> &'static str {
     }
 }
 
-fn normalize_auroc(verdict: PolicyVerdict) -> DirectedVerdict {
+pub(crate) fn normalize_auroc(verdict: PolicyVerdict) -> DirectedVerdict {
     match verdict {
         PolicyVerdict::VerifiedPass => DirectedVerdict::Supported,
         PolicyVerdict::VerifiedFailure => DirectedVerdict::NotSupported,
@@ -391,6 +443,50 @@ mod tests {
             normalize_auroc(PolicyVerdict::Unresolved),
             DirectedVerdict::Unresolved
         );
+    }
+
+    #[test]
+    fn unresolved_prevalence_gate_remains_unresolved_in_tournament_results() {
+        let paired = PairedEvaluation::new(
+            &[
+                20., 19., 16., 15., 12., 11., 9., 6., 2., 1., 18., 17., 14., 13., 10., 8., 7., 5.,
+                4., 3.,
+            ],
+            &[
+                18., 17., 16., 15., 13., 10., 9., 8., 6., 2., 20., 19., 14., 12., 11., 7., 5., 4.,
+                3., 1.,
+            ],
+            &(0..20).map(|i| i < 10).collect::<Vec<_>>(),
+        )
+        .unwrap();
+        let assessment = ProjectedApAssessment {
+            target_prevalences: supported_ap::TargetPrevalences::closed_interval(
+                supported_ap::Prevalence::new(0.391291675958276).unwrap(),
+                supported_ap::Prevalence::new(0.99).unwrap(),
+            )
+            .unwrap(),
+            search: supported_ap::SearchOptions::new(3, 1e-8, 1).unwrap(),
+            transport: ScoreTransportAssumption::new("test").unwrap(),
+            resampling: ProjectedResampling::new(
+                ComputationalReplicationCount::new(2).unwrap(),
+                SupportOrder::new(1).unwrap(),
+                paired.class_counts(),
+                1,
+                Execution::Sequential,
+                ResamplingUnit::IndependentObservation,
+            )
+            .unwrap(),
+            reference_assessment: supported_ap::ReferenceAssessment::not_asserted("test").unwrap(),
+        };
+        let policy = ReplacementPolicy::new(
+            MagnitudeThreshold::new(0.1832).unwrap(),
+            SurvivalFloor::new(0.0).unwrap(),
+            SurvivalRequirement::new(0.5).unwrap(),
+        );
+        let result = assess_staged_projected_ap(&paired, &assessment, policy, false).unwrap();
+        assert!(result.forward.full_assessment.is_none());
+        assert_eq!(normalize_pr(&result.forward), DirectedVerdict::Unresolved);
+        assert_eq!(normalize_pr(&result.reverse), DirectedVerdict::NotSupported);
     }
 
     fn system(system_id: &str, display_label: &str) -> SystemRecord {

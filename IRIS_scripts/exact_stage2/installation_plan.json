@@ -1,0 +1,132 @@
+{
+  "files": [
+    {
+      "path": "evaluation_code_COVID/slurm/run_assemble_covid.sh",
+      "before_sha256": "fab7700a469efaa5c2d346e213ec821d693d43c883cfc17da6a1a7966198d201",
+      "after_sha256": "a2612494b7b39bca038f87e2abb8bcae2fc1a2f4b7ef6f5f4f6cc0a0da983423"
+    },
+    {
+      "path": "evaluation_code_COVID/src/assembly_contract.rs",
+      "before_sha256": "752df024ca3d2ebbd5e2b608eaca7aacf87fc3e1f757b17da6021511cfc8d786",
+      "after_sha256": "ba632bc464762d787a36c54010f6eebdfcc020f13483cd6deedf5d7aa21ec8dd"
+    },
+    {
+      "path": "evaluation_code_COVID/src/bin/assemble_tensor_longpep.rs",
+      "before_sha256": "e4198b006ffbbb0077404919491a7463f0fa5eacf3be2cbc17b470aa70526da6",
+      "after_sha256": "fab7ce5aedc72c3c4222bc3035619e140d04f86798e8245e843fbbb76ac78c8e"
+    },
+    {
+      "path": "evaluation_code_COVID/src/lib.rs",
+      "before_sha256": "5263d28ff10ddc3ee5f3b9ad70e86cf5d0f1712b91b0cdd6a299f7d6003921dd",
+      "after_sha256": "32b49696ed28bb5bc31eaa527882dafc8627d126fd0f3e728e46bb5a24b929f8"
+    },
+    {
+      "path": "evaluation_code_COVID/src/sparse_grid.rs",
+      "before_sha256": null,
+      "after_sha256": "9b4bed86d37ce317b060b132dc628c23b727b9fa07ec32c883b72a8a6c5521cc"
+    },
+    {
+      "path": "evaluation_code_PDAC/slurm/run_assemble.sh",
+      "before_sha256": "39a7358bf3af4042f98a917eb324a06dc6fa66ab15bc144c9ab8531e7cffb852",
+      "after_sha256": "85b11f3186ce8e395953ccdae33e11022fd2a30f5f531505b7c9d396e78b4c0e"
+    },
+    {
+      "path": "evaluation_code_PDAC/src/assembly_contract.rs",
+      "before_sha256": "752df024ca3d2ebbd5e2b608eaca7aacf87fc3e1f757b17da6021511cfc8d786",
+      "after_sha256": "ba632bc464762d787a36c54010f6eebdfcc020f13483cd6deedf5d7aa21ec8dd"
+    },
+    {
+      "path": "evaluation_code_PDAC/src/bin/assemble_tensor_longpep.rs",
+      "before_sha256": "e5aa2d58944591c1cc72e9f2254cfa97af417f0c9c4b23dedbb8453696afc03c",
+      "after_sha256": "aa79752f1723c755e9636f27015013e38864e88e167580c38369d579286a8333"
+    },
+    {
+      "path": "evaluation_code_PDAC/src/lib.rs",
+      "before_sha256": "5263d28ff10ddc3ee5f3b9ad70e86cf5d0f1712b91b0cdd6a299f7d6003921dd",
+      "after_sha256": "32b49696ed28bb5bc31eaa527882dafc8627d126fd0f3e728e46bb5a24b929f8"
+    },
+    {
+      "path": "evaluation_code_PDAC/src/sparse_grid.rs",
+      "before_sha256": null,
+      "after_sha256": "9b4bed86d37ce317b060b132dc628c23b727b9fa07ec32c883b72a8a6c5521cc"
+    },
+    {
+      "path": "run_stage_2_new.sh",
+      "before_sha256": "0193a58926298a810b7d883cae672f58e35e92d241e7ee72a73fc78db0adee53",
+      "after_sha256": "ec58e568672aacaaf6271e1efac067414494f2ed254340d3fb9790b6a92a7d81"
+    },
+    {
+      "path": "stage2_run_contract.py",
+      "before_sha256": "3efc324ce098d760300967c0227a1ca5526c8da7a5addae78142e2f6e195469c",
+      "after_sha256": "969808b24ed8a284265f12500f21eba6bbbc80c5d448c42aaa8f87a2f3ea3c34"
+    },
+    {
+      "path": "submit_stage2_new.sh",
+      "before_sha256": "6e98a9e20ac33f7b59bd026349bc459ea9d221646b5474a94ab6e717f3cbe034",
+      "after_sha256": "8f69b56484e7b431a82d2dff84ea394967a602fca7b49833e0bd6e6d97c21f0f"
+    },
+    {
+      "path": "survivor_grid.py",
+      "before_sha256": null,
+      "after_sha256": "6f5cba66f393b96ca206cbf81d2dfa187a602e9956ddf9a65264931d619514ed"
+    },
+    {
+      "path": "tests/test_survivor_exact.py",
+      "before_sha256": null,
+      "after_sha256": "d1a6f75ff3ffa3a07cfa7bb143f6ac479ccffb867e1d5289515246c6b27c4e54"
+    }
+  ],
+  "replace_directories": {
+    "complete_f_stage2": {
+      "submit_complete_f_stage2.sh": "6ecd51a97479380a315f4854793f113a075a41db960f589c7314e42112612053",
+      "README.md": "3bfe7ad48621a5d6e80a9c1a9b748fc6f95b3e45c08170699dbb7b0ad3faa559",
+      "mn_tuples_external_validation.csv": "34a756c28695008b530f0d744335e44a8118c03e89dbccddeda10419ddc39f4b",
+      "param_sets_external_validation.csv": "253c7b0c103642b8266441c6526a797562f166a354744dbb8160cbcd25c364fb"
+    },
+    "complete_f_input_package": {
+      "covid_nonspike_mono_longpep_mapping.csv": "ada0351e58f857e4f3e7d880ec5078ad34ac388c1c4da44c51eceadc98cf6b78",
+      "covid_spike_inputs_audit.json": "435a9bb5818e9174bb05fc2db1cc6b73ffa3d55bea213fe630af89ada2dc9b25",
+      "covid_spike_mono_query.csv": "a748abe7fa2e63f5441839d4423ed3a63b7041a8b576a88bd2184c195950fc0f",
+      "pdac_mono_hla_env_dict.csv": "07b6058b2ca70c4b38cd455bcfae0774aa710ba67feee8add48eefd5cdf197c6",
+      "pdac_full_longpep_mapping.csv": "b14b42494532b8c1059983212f78019b02e796b1541b73bc109c3c754f5cb09e",
+      "pdac_rojas_sethna_full_longpep_mapping.csv": "8867cdc69e84101ae3115ff23218ca9455a9fb1e05471c5117a1e5e7727a4f4d",
+      "covid_nonspike_mono_hla_env_dict.csv": "d6731ce70e99260af0c10f6597da606a6152e3fdf3ca72d2890c79f7d0d930df",
+      "covid_spike_full_to_mono_observation_crosswalk.csv": "d7bb0f8715d644745fce7624eeeffc465fb9c748781aa4565ab25028f0e0f67a",
+      "pdac_mono_longpep_mapping.csv": "b9ede99deba39e26de704f8960728430e863d87aaa626f28cdd44b3af7b1f366",
+      "pdac_mono_query.csv": "df04882c352092002638d6d26e3ab7fa45956af092304ef713c7ef79276feee4",
+      "pdac_rojas_sethna_mono_longpep_mapping.csv": "6db46a20128d56e1b7f67bc1da11979c1973c393a00a39ecd845635c0e52994a",
+      "covid_nonspike_inputs_audit.json": "6f7866f7219ba7284de384023f3c3a2c8e8ac018f5a7621d7f36ebd3b9fe63df",
+      "pdac_inputs_audit.json": "9c526c70feeca71f4c2b86cd713ca22f46509d193f4f8a682e86b8b9c0747533",
+      "pdac_full_to_mono_observation_crosswalk.csv": "945b8126b746c05c55e8a3d19eb5553cd46533e4333c6dd4bb2a5f6ac74793a5",
+      "pdac_rojas_sethna_candidate_roster.csv": "a6dea88f86cf8a5eaca16a1cf07898ca19008719a543b7e961b2abf38cc726d6",
+      "binding_sim_updated_PDAC_Full_Deduplicated.toml": "58ce1fbca64356d67eeecf1805bc91731fc0c1f297bbf688aec7eac2849753ea",
+      "binding_sim_updated_PDAC_Mono.toml": "3c173f628e27d4b76dcbc96cb9f3bfb3aaffdbef50ada62da4fc7cf8368de3fa",
+      "covid_nonspike_candidate_roster.csv": "aa86d97297dd2e0c2e1d6750d61b6f3f499f2301fc3604539bf0b22046d47c82",
+      "covid_nonspike_full_longpep_mapping.csv": "bc4ca7c9ca3f99e5a8256c60f174a726de92443258c419b50cd6438b078df7aa",
+      "covid_spike_full_to_mono_env_crosswalk.csv": "5a95b03d047f67fd7adc4445684505b4f95e6497bc96bfbd115cbeaa4f52f363",
+      "pdac_full_deduplicated_query.csv": "99a518c1efedc6c388c554b2bf23028b1615e29b8ed0cedce62f15ad5e9cf372",
+      "covid_spike_candidate_roster.csv": "dcf5abcfcc96a424fc6048dae131794fdf73bdc402b2cb59fe41150c6c65c94f",
+      "pdac_candidate_roster.csv": "2152f3ef64f9bfe0033caa6e6e9bdbdc1b150e6ab575ec991dc98d91ba9eb9da",
+      "covid_nonspike_full_deduplicated_query.csv": "5edbcbdcf571545840f928fc22da27375480359330ec13132a7fc159c82a24e8",
+      "covid_spike_mono_hla_env_dict.csv": "f2d8714ba1c4cfdd9937e2f4eb038ebe0c46b9d81e7c0c5b2e639721cf06e988",
+      "covid_nonspike_mono_query.csv": "c24e494d1bd30eed22e2b3ea6566c1e1dff6870840f6f465a454e2f9c0bc64d6",
+      "covid_spike_mono_longpep_mapping.csv": "ca71e49b1e8710de80ebc9a20b8eb3bc79a4ad60cf45aed2aeac69eacae648d4",
+      "covid_nonspike_full_to_mono_env_crosswalk.csv": "e94264c57f41abe54a05437503d40d9cec66686e28eb685080e779ea7558360c",
+      "mn_tuples_external_validation.csv": "34a756c28695008b530f0d744335e44a8118c03e89dbccddeda10419ddc39f4b",
+      "binding_sim_updated_COVID_Spike_Mono.toml": "a4745bebb1cd5f013369921fbcfec7100c7eb00ec0e68f700eefba192b1085f8",
+      "covid_spike_full_hla_env_dict.csv": "c670bca2577d946a1e4092621218dc5c9e7ce120713224bb9b8627eb92c440ed",
+      "binding_sim_updated_COVID_Nonspike_Full_Deduplicated.toml": "7ad1a5c467eb18c9a892670e8f961b0e62c454c02dc2b11747f438a5eee7af72",
+      "binding_sim_updated_COVID_Spike_Full_Deduplicated.toml": "fe9aee17b14c3c06231c93377b0a391095909b41c22b7dd7271f5711e009e996",
+      "manifest.json": "b1e42d5427382f38a4df6de72820fa06fa194d3e350eba26f2c53b89b911fc38",
+      "covid_nonspike_full_to_mono_observation_crosswalk.csv": "f82fbeebeef761a4532516072b887c4d5eeb0c85f13ded6533fde45fee07ba63",
+      "pdac_full_to_mono_env_crosswalk.csv": "2b4f2585d5b1d7798817108b50ff07785d9c5ee7675a2d92c9beef7af274e0f6",
+      "pdac_endpoint_views_manifest.json": "50491b35c2763ed33cd4f3efbc7fd801e689d5f90dfaba7d3f6e18d036dc8c38",
+      "param_sets_external_validation.csv": "253c7b0c103642b8266441c6526a797562f166a354744dbb8160cbcd25c364fb",
+      "binding_sim_updated_COVID_Nonspike_Mono.toml": "a1a5fa3a3adac20fb098edda294ce3f5131a48ca4fd7ce247e0e3e5a57c1c8bb",
+      "covid_nonspike_full_hla_env_dict.csv": "a80e177f0ea8c312a9686a7a99688ac15773bc2db9b793dae92f06db7f47719e",
+      "covid_spike_full_longpep_mapping.csv": "684c74d8d13c1b0afccb04fb16aaab8d773bf6c56165f08a240e187b7880d547",
+      "covid_spike_full_deduplicated_query.csv": "405779a60158b5eba9cc4a0d4080ba8f8754748a43ff07f3be648e15be53e892",
+      "pdac_full_hla_env_dict.csv": "98b8e125526b8dee88ea15de522e9d35aaf0f50b22950160af328dee01b9162d"
+    }
+  }
+}

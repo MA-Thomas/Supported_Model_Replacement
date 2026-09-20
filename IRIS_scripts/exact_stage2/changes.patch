@@ -1,0 +1,1563 @@
+--- a/evaluation_code_COVID/slurm/run_assemble_covid.sh
++++ b/evaluation_code_COVID/slurm/run_assemble_covid.sh
+@@ -33,8 +33,9 @@
+ 
+ 
+ # Paths
+-ROOT_DIR="/data1/lukszam/Marcus/New_Approaches"
+-LAUNCHER_DIR="/home/thomm15/New_Approaches_Scripts"
++ROOT_DIR="${WORKSPACE:-/data1/lukszam/Marcus/New_Approaches}"
++LAUNCHER_DIR="${LAUNCHER_DIR:-/home/thomm15/New_Approaches_Scripts}"
++INPUT_PACKAGE="${COMPLETE_F_INPUT_PACKAGE:-${LAUNCHER_DIR}/complete_f_input_package}"
+ CONTRACT_HELPER="${LAUNCHER_DIR}/stage2_run_contract.py"
+ 
+ # ============================================================================
+@@ -49,18 +50,18 @@
+ # ============================================================================
+ case "${CANSU_DATASET}" in
+   COVID_SPIKE)
+-    COHORT_ROOT="/data1/lukszam/Marcus/Cansu_Covid_Spike"
++    COHORT_ROOT="${INPUT_PACKAGE}"
+     RESULTS_DIR="${ROOT_DIR}/Runner/Outputs_Cansu_Covid_Spike/runs/${RUN_ID}"
+     FULL_MAPPING="${COHORT_ROOT}/covid_spike_full_longpep_mapping.csv"
+     MONO_MAPPING="${COHORT_ROOT}/covid_spike_mono_longpep_mapping.csv"
+-    INSTALL_MANIFEST="${COHORT_ROOT}/covid_spike_complete_f_inputs_manifest.json"
++    INSTALL_MANIFEST="${INPUT_PACKAGE}/manifest.json"
+     ;;
+   COVID_NONSPIKE)
+-    COHORT_ROOT="/data1/lukszam/Marcus/Cansu_Covid_Nonspike"
++    COHORT_ROOT="${INPUT_PACKAGE}"
+     RESULTS_DIR="${ROOT_DIR}/Runner/Outputs_Cansu_Covid_Nonspike/runs/${RUN_ID}"
+     FULL_MAPPING="${COHORT_ROOT}/covid_nonspike_full_longpep_mapping.csv"
+     MONO_MAPPING="${COHORT_ROOT}/covid_nonspike_mono_longpep_mapping.csv"
+-    INSTALL_MANIFEST="${COHORT_ROOT}/covid_nonspike_complete_f_inputs_manifest.json"
++    INSTALL_MANIFEST="${INPUT_PACKAGE}/manifest.json"
+     ;;
+   *)
+     echo "ERROR: unknown CANSU_DATASET='${CANSU_DATASET}' (use COVID_SPIKE or COVID_NONSPIKE)"
+@@ -143,7 +144,7 @@
+     python3 - "${INSTALL_MANIFEST}" "${MAPPING}" "${QUERY_PEPTIDES}" <<'PYEOF'
+ import hashlib, json, os, sys
+ manifest_path, *inputs = sys.argv[1:]
+-files = json.load(open(manifest_path)).get("files", {})
++files = json.load(open(manifest_path)).get("output_files", {})
+ def sha256(path):
+     h = hashlib.sha256()
+     with open(path, "rb") as fh:
+@@ -177,7 +178,7 @@
+         --verify-hashes
+ 
+     # Build only after the run contract and all recorded Stage 2 outputs pass.
+-    cd "${ROOT_DIR}/evaluation_code_COVID"
++    cd "${LAUNCHER_DIR}/evaluation_code_COVID"
+     echo "Building assemble_tensor_longpep binary..."
+     cargo build --release --bin assemble_tensor_longpep
+ 
+@@ -204,7 +205,7 @@
+     echo "Running data assembly..."
+     echo "NOTE: exact HLA candidates come from the Stage-2 query roster; labels are long-peptide-level placeholders"
+ 
+-    "${ROOT_DIR}/evaluation_code_COVID/target/release/assemble_tensor_longpep" \
++    "${LAUNCHER_DIR}/evaluation_code_COVID/target/release/assemble_tensor_longpep" \
+         --results-dirs "${RESULTS_DIR}" \
+         --dataset "${CANSU_DATASET}" \
+         --run-id "${RUN_ID}" \
+--- a/evaluation_code_COVID/src/assembly_contract.rs
++++ b/evaluation_code_COVID/src/assembly_contract.rs
+@@ -45,6 +45,8 @@
+ #[derive(Debug, Deserialize)]
+ struct TaskOutput {
+     path: PathBuf,
++    size: u64,
++    sha256: String,
+ }
+ 
+ #[derive(Debug, Deserialize)]
+@@ -87,6 +89,9 @@
+     pub qpi_manifest: PathBuf,
+     pub pn_manifest: PathBuf,
+     pub expected_grid: ExpectedGrid,
++    pub sparse_grid: crate::sparse_grid::SparseGrid,
++    pub survivor_grid_file: PathBuf,
++    pub survivor_grid_sha256: String,
+     results_dir: PathBuf,
+ }
+ 
+@@ -128,7 +133,7 @@
+     Ok(matches[0])
+ }
+ 
+-fn sha256_file(path: &Path) -> Result<String> {
++pub(crate) fn sha256_file(path: &Path) -> Result<String> {
+     for (program, args) in [
+         ("sha256sum", Vec::<&str>::new()),
+         ("shasum", vec!["-a", "256"]),
+@@ -462,6 +467,26 @@
+         );
+     }
+ 
++    let grid_input = input_for_role(&pn.inputs, "survivor_grid")?;
++    let (survivor_grid_file, survivor_grid_sha256) = verify_manifest_file(grid_input)?;
++    for inputs in [&common.inputs, &qpi.inputs] {
++        let (other, hash) = verify_manifest_file(input_for_role(inputs, "survivor_grid")?)?;
++        if other != survivor_grid_file || hash != survivor_grid_sha256 { bail!("run modes disagree on survivor grid"); }
++    }
++    let sparse_grid: crate::sparse_grid::SparseGrid = load_json(&survivor_grid_file)?;
++    sparse_grid.validate(&expected_grid, &common.hla_environment_representation, &pn_hla_scope)?;
++    let grid_root = survivor_grid_file.parent().context("grid has no parent")?;
++    if crate::sparse_grid::verify_file(grid_root, &sparse_grid.parameter_file)? != parameter_file
++        || crate::sparse_grid::verify_file(grid_root, &sparse_grid.mn_union_file)? != mn_tuples_file {
++        bail!("grid CSV paths disagree with mode inputs");
++    }
++    for g in &sparse_grid.geometries {
++        let mn_path = crate::sparse_grid::verify_file(grid_root, &g.mn_file)?;
++        let local_grid = read_expected_grid(&parameter_file, &mn_path)?;
++        let mut pairs = g.mn_pairs.clone(); pairs.sort_unstable();
++        if pairs != local_grid.mn_tuples { bail!("per-geometry MN CSV disagrees with sparse grid"); }
++    }
++
+     let mapping_file = canonical_file(mapping_file, "assembly mapping")?;
+     let mapping_sha256 = sha256_file(&mapping_file)?;
+ 
+@@ -487,6 +512,9 @@
+         qpi_manifest: qpi_manifest_path,
+         pn_manifest: pn_manifest_path,
+         expected_grid,
++        sparse_grid,
++        survivor_grid_file,
++        survivor_grid_sha256,
+         results_dir,
+     })
+ }
+@@ -542,6 +570,9 @@
+                         path.display()
+                     );
+                 }
++                if fs::metadata(&path)?.len() != output.size || sha256_file(&path)? != output.sha256 {
++                    bail!("Task output hash/size mismatch: {}", path.display());
++                }
+                 if !outputs.insert(path.clone()) {
+                     bail!(
+                         "Stage 2 output is recorded by more than one task manifest: {}",
+@@ -711,7 +742,7 @@
+         .unwrap();
+         fs::write(
+             &parameters,
+-            "d_pos,d_neg,steepness_pos,steepness_neg,tau_thymus\n15,9,0.5,0.75,1000\n",
++            "d_pos,d_neg,steepness_pos,steepness_neg,tau_thymus\n15,9,0.5,0.75,1000\n15,9,0.5,0.75,50052\n15,9,0.5,0.75,91691\n15,9,0.5,0.75,120604\n15,9,0.5,0.75,156295\n15,9,0.5,0.75,200000\n",
+         )
+         .unwrap();
+         fs::write(&mn, "at_least_M,at_most_N\n1,1\n").unwrap();
+@@ -724,6 +755,16 @@
+                 "sha256": sha256_file(path).unwrap(),
+             })
+         };
++        let grid = root.join("grid.json");
++        let grid_record = |path: &Path| serde_json::json!({"path": path.file_name().unwrap().to_str().unwrap(), "sha256": sha256_file(path).unwrap(), "bytes": fs::metadata(path).unwrap().len()});
++        write_json(&grid, serde_json::json!({
++            "schema_version":1,"kind":"survivor_exact_stage2_grid","construction":"full",
++            "hla_environment_representation":"full","pn_hla_scope":"all","n_regimes":1,
++            "tau_values_str":["1000","50052","91691","120604","156295","200000"],
++            "parameter_file":grid_record(&parameters),"mn_union_file":grid_record(&mn),
++            "geometries":[{"geometry_idx":0,"geometry_params_str":["15","9","0.5","0.75"],
++                "mn_pairs":[[1,1]],"mn_file":grid_record(&mn)}]
++        }));
+         let run_manifest = root.join("run_manifest.json");
+         let qpi_manifest = root.join("qpi_manifest.json");
+         let pn_manifest = root.join("pn_manifest.json");
+@@ -735,7 +776,7 @@
+                 "hla_environment_representation": "full",
+                 "query_input_file": query,
+                 "common_fingerprint": "common",
+-                "inputs": [input("query_peptides", &query)],
++                "inputs": [input("query_peptides", &query), input("survivor_grid", &grid)],
+             }),
+         );
+         write_json(
+@@ -747,9 +788,9 @@
+                 "common_fingerprint": "common",
+                 "mode_fingerprint": "qpi-fingerprint",
+                 "query_input_file": query,
+-                "total_params": 1,
++                "total_params": 6,
+                 "param_chunks": 1,
+-                "inputs": [],
++                "inputs": [input("survivor_grid", &grid)],
+             }),
+         );
+         write_json(
+@@ -761,12 +802,13 @@
+                 "common_fingerprint": "common",
+                 "mode_fingerprint": "pn-fingerprint",
+                 "query_input_file": query,
+-                "total_params": 1,
++                "total_params": 6,
+                 "param_chunks": 1,
+                 "pn_hla_scope": "all",
+                 "max_num_ps_values_log2": 14,
+                 "max_num_ps_values": 16384,
+                 "inputs": [
++                    input("survivor_grid", &grid),
+                     input("parameter_sets", &parameters),
+                     input("mn_tuples", &mn),
+                 ],
+@@ -783,7 +825,7 @@
+             &pn_manifest,
+         )
+         .unwrap();
+-        assert_eq!(contract.expected_grid.parameter_rows, 1);
++        assert_eq!(contract.expected_grid.parameter_rows, 6);
+         assert_eq!(contract.expected_grid.mn_tuples, vec![(1, 1)]);
+ 
+         let pn_dir = root.join("results_pn_env_id_0_1");
+@@ -801,7 +843,7 @@
+                 "run_id": "test_run",
+                 "fingerprint": "pn-fingerprint",
+                 "mode": "pn",
+-                "output_files": [{"path": pn_output.strip_prefix(&root).unwrap()}],
++                "output_files": [{"path": pn_output.strip_prefix(&root).unwrap(), "size": fs::metadata(&pn_output).unwrap().len(), "sha256": sha256_file(&pn_output).unwrap()}],
+             }),
+         );
+         write_json(
+@@ -811,7 +853,7 @@
+                 "run_id": "test_run",
+                 "fingerprint": "qpi-fingerprint",
+                 "mode": "qpi",
+-                "output_files": [{"path": qpi_output.strip_prefix(&root).unwrap()}],
++                "output_files": [{"path": qpi_output.strip_prefix(&root).unwrap(), "size": fs::metadata(&qpi_output).unwrap().len(), "sha256": sha256_file(&qpi_output).unwrap()}],
+             }),
+         );
+         validate_discovered_outputs(
+--- a/evaluation_code_COVID/src/bin/assemble_tensor_longpep.rs
++++ b/evaluation_code_COVID/src/bin/assemble_tensor_longpep.rs
+@@ -1083,77 +1083,9 @@
+ fn validate_complete_tensor(
+     entries: &[(usize, u32, u32, f32, f32, f32, f32)],
+     observations: &[Observation],
+-    n_params: usize,
+-    n_mn: usize,
++    allowed: &HashSet<(u32,u32)>,
+ ) -> Result<()> {
+-    let expected_rows_per_observation = n_params
+-        .checked_mul(n_mn)
+-        .context("Parameter-grid size overflow")?;
+-    let total_cells = observations
+-        .len()
+-        .checked_mul(expected_rows_per_observation)
+-        .context("Tensor validation bitmap size overflow")?;
+-    let mut seen = vec![0u8; total_cells];
+-    let mut row_counts = vec![0usize; observations.len()];
+-
+-    for &(obs_idx, param_idx, mn_idx, ..) in entries {
+-        if obs_idx >= observations.len() {
+-            bail!("Tensor entry has invalid obs_idx={obs_idx}");
+-        }
+-        let param_idx = param_idx as usize;
+-        let mn_idx = mn_idx as usize;
+-        if param_idx >= n_params || mn_idx >= n_mn {
+-            bail!(
+-                "Tensor entry has out-of-grid indices: obs_idx={obs_idx} param_idx={param_idx} mn_idx={mn_idx}"
+-            );
+-        }
+-        let local_cell = param_idx
+-            .checked_mul(n_mn)
+-            .and_then(|value| value.checked_add(mn_idx))
+-            .context("Tensor cell index overflow")?;
+-        let cell = obs_idx
+-            .checked_mul(expected_rows_per_observation)
+-            .and_then(|value| value.checked_add(local_cell))
+-            .context("Tensor validation index overflow")?;
+-        if seen[cell] != 0 {
+-            let observation = &observations[obs_idx];
+-            bail!(
+-                "Duplicate tensor cell for obs_idx={obs_idx} patient={} env={} peptide={} hla={} param_idx={param_idx} mn_idx={mn_idx}",
+-                observation.patient_id,
+-                observation.env_id,
+-                observation.peptide,
+-                observation.hla,
+-            );
+-        }
+-        seen[cell] = 1;
+-        row_counts[obs_idx] += 1;
+-    }
+-
+-    let incomplete: Vec<_> = row_counts
+-        .iter()
+-        .enumerate()
+-        .filter(|(_, count)| **count != expected_rows_per_observation)
+-        .take(10)
+-        .map(|(obs_idx, &count)| {
+-            let observation = &observations[obs_idx];
+-            format!(
+-                "obs_idx={obs_idx} patient={} env={} peptide={} hla={} rows={count}",
+-                observation.patient_id, observation.env_id, observation.peptide, observation.hla,
+-            )
+-        })
+-        .collect();
+-    if !incomplete.is_empty() {
+-        let n_incomplete = row_counts
+-            .iter()
+-            .filter(|&&count| count != expected_rows_per_observation)
+-            .count();
+-        bail!(
+-            "Tensor coverage is incomplete for {n_incomplete}/{} observations; expected exactly {expected_rows_per_observation} unique rows per observation. Examples: {}",
+-            observations.len(),
+-            incomplete.join("; "),
+-        );
+-    }
+-    Ok(())
++    immunogenicity_evaluation::sparse_grid::validate_cells(entries, observations.len(), allowed)
+ }
+ 
+ // =============================================================================
+@@ -1365,6 +1297,8 @@
+         grid_metadata.n_params,
+     )?;
+     let indices = build_parameter_indices(&grid_metadata);
++    let allowed_cells = provenance.sparse_grid.cells(&grid_metadata.geometry_params,
++        grid_metadata.n_tau, &grid_metadata.mn_tuples)?;
+ 
+     // ------------------------------------------------------------------
+     // Chunked parallel PN file processing
+@@ -1429,14 +1363,12 @@
+     validate_complete_tensor(
+         &all_entries,
+         &all_observations,
+-        grid_metadata.n_params,
+-        grid_metadata.n_mn,
++        &allowed_cells,
+     )?;
+     info!(
+-        "Validated complete tensor coverage: {} observations × {} parameter settings × {} (M,N) settings",
++        "Validated exact tensor coverage: {} observations × {} required cells",
+         all_observations.len(),
+-        grid_metadata.n_params,
+-        grid_metadata.n_mn,
++        allowed_cells.len(),
+     );
+ 
+     // ------------------------------------------------------------------
+@@ -1561,7 +1493,13 @@
+         .as_object_mut()
+         .context("Serialized parameter metadata was not a JSON object")?;
+     let string = |value: String| serde_json::Value::String(value);
+-    object.insert("assembly_schema_version".into(), string("stage3_tensor_v1".into()));
++    object.insert("assembly_schema_version".into(), string("stage3_survivor_sparse_v2".into()));
++    let mut required_cells: Vec<_> = allowed_cells.iter().copied().collect();
++    required_cells.sort_unstable();
++    object.insert("required_parameter_mn_cells".into(), serde_json::to_value(required_cells)?);
++    object.insert("n_required_regimes".into(), serde_json::Value::from(provenance.sparse_grid.n_regimes));
++    object.insert("survivor_grid_file".into(), string(provenance.survivor_grid_file.display().to_string()));
++    object.insert("survivor_grid_sha256".into(), string(provenance.survivor_grid_sha256));
+     object.insert("dataset".into(), string(provenance.dataset));
+     object.insert("run_id".into(), string(provenance.run_id));
+     object.insert(
+@@ -1720,16 +1658,16 @@
+             (0, 1, 1, 0.1, 0.2, 0.3, 0.4),
+         ];
+ 
+-        validate_complete_tensor(&complete, &observations, 2, 2).unwrap();
++        validate_complete_tensor(&complete, &observations, &HashSet::from([(0,0),(0,1),(1,0),(1,1)])).unwrap();
+ 
+         let missing_error =
+-            validate_complete_tensor(&complete[..3], &observations, 2, 2).unwrap_err();
++            validate_complete_tensor(&complete[..3], &observations, &HashSet::from([(0,0),(0,1),(1,0),(1,1)])).unwrap_err();
+         assert!(missing_error.to_string().contains("coverage is incomplete"));
+ 
+         let mut duplicate = complete.clone();
+         duplicate.push(complete[0]);
+         let duplicate_error =
+-            validate_complete_tensor(&duplicate, &observations, 2, 2).unwrap_err();
++            validate_complete_tensor(&duplicate, &observations, &HashSet::from([(0,0),(0,1),(1,0),(1,1)])).unwrap_err();
+         assert!(duplicate_error
+             .to_string()
+             .contains("Duplicate tensor cell"));
+--- a/evaluation_code_COVID/src/lib.rs
++++ b/evaluation_code_COVID/src/lib.rs
+@@ -1,6 +1,7 @@
+ // src/lib.rs - Shared types and utilities for evaluation pipeline
+ 
+ pub mod assembly_contract;
++pub mod sparse_grid;
+ 
+ use serde::{Deserialize, Serialize};
+ use std::collections::HashMap;
+--- a/evaluation_code_COVID/src/sparse_grid.rs
++++ b/evaluation_code_COVID/src/sparse_grid.rs
+@@ -0,0 +1,135 @@
++//! Exact geometry/MN coverage. No P, N, Q or Pi calculations are performed here.
++use std::collections::{HashMap, HashSet};
++use std::path::{Path, PathBuf};
++use anyhow::{bail, Context, Result};
++use serde::Deserialize;
++use super::assembly_contract::ExpectedGrid;
++
++#[derive(Debug, Deserialize)]
++pub struct GridFile { pub path: PathBuf, pub sha256: String, pub bytes: u64 }
++#[derive(Debug, Deserialize)]
++pub struct Geometry {
++    pub geometry_idx: usize,
++    pub geometry_params_str: [String; 4],
++    pub mn_pairs: Vec<(u32, u32)>,
++    pub mn_file: GridFile,
++}
++#[derive(Debug, Deserialize)]
++pub struct SparseGrid {
++    pub schema_version: u32,
++    pub kind: String,
++    pub construction: String,
++    pub hla_environment_representation: String,
++    pub pn_hla_scope: String,
++    pub n_regimes: usize,
++    pub tau_values_str: Vec<String>,
++    pub parameter_file: GridFile,
++    pub mn_union_file: GridFile,
++    pub geometries: Vec<Geometry>,
++}
++
++fn bits(values: (f32, f32, f32, f32)) -> [u32; 4] {
++    [values.0.to_bits(), values.1.to_bits(), values.2.to_bits(), values.3.to_bits()]
++}
++fn geometry_bits(g: &Geometry) -> Result<[u32; 4]> {
++    let v = g.geometry_params_str.iter().map(|s| s.parse::<f32>()).collect::<std::result::Result<Vec<_>, _>>()?;
++    if v.iter().any(|x| !x.is_finite() || *x <= 0.0) { bail!("invalid sparse geometry"); }
++    Ok(bits((v[0], v[1], v[2], v[3])))
++}
++
++impl SparseGrid {
++    pub fn validate(&self, expected: &ExpectedGrid, representation: &str, scope: &str) -> Result<()> {
++        if self.schema_version != 1 || self.kind != "survivor_exact_stage2_grid" {
++            bail!("exact survivor grid v1 required");
++        }
++        let construction = match (representation, scope) {
++            ("full", "all") => "full", ("full", "focal") => "focal", ("mono", "all") => "mono",
++            _ => anyhow::bail!("invalid representation/scope"),
++        };
++        if self.construction != construction || self.hla_environment_representation != representation || self.pn_hla_scope != scope {
++            bail!("survivor grid construction differs from run");
++        }
++        let taus = ["1000", "50052", "91691", "120604", "156295", "200000"];
++        if self.tau_values_str != taus || expected.tau_values.len() != 6 {
++            bail!("all six frozen taus required");
++        }
++        let actual_tau: HashSet<_> = expected.tau_values.iter().map(|x| x.to_bits()).collect();
++        let desired_tau: HashSet<_> = taus.iter().map(|x| x.parse::<f32>().unwrap().to_bits()).collect();
++        if actual_tau != desired_tau { bail!("tau values differ from frozen grid"); }
++        let mut geometries = HashSet::new();
++        let mut union = HashSet::new();
++        let mut count = 0;
++        for (i, g) in self.geometries.iter().enumerate() {
++            if g.geometry_idx != i || !geometries.insert(geometry_bits(g)?) { bail!("duplicate/misindexed geometry"); }
++            let pairs: HashSet<_> = g.mn_pairs.iter().copied().collect();
++            if pairs.is_empty() || pairs.len() != g.mn_pairs.len() || pairs.iter().any(|p| p.0 == 0 || p.1 == 0) { bail!("invalid sparse M/N pairs"); }
++            count += pairs.len(); union.extend(pairs);
++        }
++        let expected_geometry: HashSet<_> = expected.geometry_params.iter().map(|g| bits(*g)).collect();
++        let expected_mn: HashSet<_> = expected.mn_tuples.iter().copied().collect();
++        if geometries != expected_geometry || union != expected_mn || count != self.n_regimes || count == 0 {
++            bail!("sparse geometry/MN axes disagree with manifest CSV inputs");
++        }
++        Ok(())
++    }
++
++    pub fn cells(&self, geometry: &[(f32, f32, f32, f32)], n_tau: usize, mn: &[(u32,u32)]) -> Result<HashSet<(u32,u32)>> {
++        let indices: HashMap<_,_> = geometry.iter().enumerate().map(|(i,g)| (bits(*g),i)).collect();
++        let mn_indices: HashMap<_,_> = mn.iter().enumerate().map(|(i,p)| (*p,i)).collect();
++        let mut result = HashSet::new();
++        for g in &self.geometries {
++            let index = indices.get(&geometry_bits(g)?).context("required geometry absent from tensor")?;
++            for pair in &g.mn_pairs {
++                let m = mn_indices.get(pair).context("required M/N absent from tensor")?;
++                for tau in 0..n_tau { result.insert(((index * n_tau + tau) as u32, *m as u32)); }
++            }
++        }
++        Ok(result)
++    }
++}
++
++pub fn verify_file(root: &Path, record: &GridFile) -> Result<PathBuf> {
++    let root = root.canonicalize()?;
++    let path = root.join(&record.path).canonicalize()?;
++    if !path.starts_with(&root) || std::fs::metadata(&path)?.len() != record.bytes
++        || super::assembly_contract::sha256_file(&path)? != record.sha256 {
++        bail!("sparse input hash/path mismatch: {}", path.display());
++    }
++    Ok(path)
++}
++
++pub fn validate_cells(entries: &[(usize,u32,u32,f32,f32,f32,f32)], n_observations: usize,
++                      allowed: &HashSet<(u32,u32)>) -> Result<()> {
++    if allowed.is_empty() || n_observations == 0 { bail!("empty exact tensor roster"); }
++    let rank: HashMap<_,_> = allowed.iter().enumerate().map(|(i, p)| (*p,i)).collect();
++    let size = n_observations.checked_mul(rank.len()).context("sparse coverage size overflow")?;
++    let mut seen = vec![false; size];
++    for &(obs, p, m, q, pos, neg, pi) in entries {
++        if obs >= n_observations { bail!("invalid observation index"); }
++        if [q,pos,neg,pi].iter().any(|v| !v.is_finite()) { bail!("nonfinite tensor component"); }
++        let r = rank.get(&(p,m)).context("unrequested geometry/MN tensor cell")?;
++        let index = obs * rank.len() + r;
++        if seen[index] { bail!("Duplicate tensor cell for obs={obs} param={p} mn={m}"); }
++        seen[index] = true;
++    }
++    if seen.iter().any(|v| !v) { bail!("Tensor coverage is incomplete for exact survivor grid"); }
++    Ok(())
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn sparse_holes_are_allowed_but_missing_extra_and_duplicate_cells_fail() {
++        let allowed = HashSet::from([(0,0),(1,1)]);
++        let rows = vec![(0,0,0,0.1,0.2,0.3,0.4),(0,1,1,0.1,0.2,0.3,0.4)];
++        validate_cells(&rows,1,&allowed).unwrap();
++        assert!(validate_cells(&rows[..1],1,&allowed).is_err());
++        let mut extra=rows.clone();extra.push((0,0,1,0.1,0.2,0.3,0.4));
++        assert!(validate_cells(&extra,1,&allowed).is_err());
++        let mut duplicate=rows.clone();duplicate.push(rows[0]);
++        assert!(validate_cells(&duplicate,1,&allowed).is_err());
++        let mut substituted=rows.clone();substituted[1]=rows[0];
++        assert!(validate_cells(&substituted,1,&allowed).is_err());
++    }
++}
+--- a/evaluation_code_PDAC/slurm/run_assemble.sh
++++ b/evaluation_code_PDAC/slurm/run_assemble.sh
+@@ -33,12 +33,13 @@
+ 
+ 
+ # Paths
+-ROOT_DIR="/data1/lukszam/Marcus/New_Approaches"
+-LAUNCHER_DIR="/home/thomm15/New_Approaches_Scripts"
++ROOT_DIR="${WORKSPACE:-/data1/lukszam/Marcus/New_Approaches}"
++LAUNCHER_DIR="${LAUNCHER_DIR:-/home/thomm15/New_Approaches_Scripts}"
++INPUT_PACKAGE="${COMPLETE_F_INPUT_PACKAGE:-${LAUNCHER_DIR}/complete_f_input_package}"
+ CONTRACT_HELPER="${LAUNCHER_DIR}/stage2_run_contract.py"
+ RUN_ID="${RUN_ID:?Export RUN_ID for the validated PDAC Stage 2 rerun before submitting assembly}"
+-COHORT_ROOT="/data1/lukszam/Marcus/PDAC_vax_trial_epitopes"
+-INSTALL_MANIFEST="${COHORT_ROOT}/pdac_complete_f_inputs_manifest.json"
++COHORT_ROOT="${INPUT_PACKAGE}"
++INSTALL_MANIFEST="${INPUT_PACKAGE}/manifest.json"
+ RESULTS_DIR="${ROOT_DIR}/Runner/Outputs_PDAC/runs/${RUN_ID}"
+ 
+ if [ ! -d "${RESULTS_DIR}" ]; then
+@@ -109,7 +110,7 @@
+ python3 - "${INSTALL_MANIFEST}" "${MAPPING}" "${QUERY_PEPTIDES}" <<'PYEOF'
+ import hashlib, json, os, sys
+ manifest_path, *inputs = sys.argv[1:]
+-files = json.load(open(manifest_path)).get("files", {})
++files = json.load(open(manifest_path)).get("output_files", {})
+ def sha256(path):
+     h = hashlib.sha256()
+     with open(path, "rb") as fh:
+@@ -148,7 +149,7 @@
+ mkdir -p "${OUTPUT_DIR}"
+ 
+ # Navigate to evaluation workspace
+-cd "${ROOT_DIR}/evaluation_code_PDAC"
++cd "${LAUNCHER_DIR}/evaluation_code_PDAC"
+ 
+ # ============================================================================
+ # Build and run assembly
+@@ -164,7 +165,7 @@
+ echo "Query roster: ${QUERY_PEPTIDES}"
+ echo "NOTE: expected HLAs come only from the filtered query roster; missing values abort assembly"
+ 
+-"${ROOT_DIR}/evaluation_code_PDAC/target/release/assemble_tensor_longpep" \
++"${LAUNCHER_DIR}/evaluation_code_PDAC/target/release/assemble_tensor_longpep" \
+     --results-dirs "${RESULTS_DIR}" \
+     --dataset PDAC \
+     --run-id "${RUN_ID}" \
+--- a/evaluation_code_PDAC/src/assembly_contract.rs
++++ b/evaluation_code_PDAC/src/assembly_contract.rs
+@@ -45,6 +45,8 @@
+ #[derive(Debug, Deserialize)]
+ struct TaskOutput {
+     path: PathBuf,
++    size: u64,
++    sha256: String,
+ }
+ 
+ #[derive(Debug, Deserialize)]
+@@ -87,6 +89,9 @@
+     pub qpi_manifest: PathBuf,
+     pub pn_manifest: PathBuf,
+     pub expected_grid: ExpectedGrid,
++    pub sparse_grid: crate::sparse_grid::SparseGrid,
++    pub survivor_grid_file: PathBuf,
++    pub survivor_grid_sha256: String,
+     results_dir: PathBuf,
+ }
+ 
+@@ -128,7 +133,7 @@
+     Ok(matches[0])
+ }
+ 
+-fn sha256_file(path: &Path) -> Result<String> {
++pub(crate) fn sha256_file(path: &Path) -> Result<String> {
+     for (program, args) in [
+         ("sha256sum", Vec::<&str>::new()),
+         ("shasum", vec!["-a", "256"]),
+@@ -462,6 +467,26 @@
+         );
+     }
+ 
++    let grid_input = input_for_role(&pn.inputs, "survivor_grid")?;
++    let (survivor_grid_file, survivor_grid_sha256) = verify_manifest_file(grid_input)?;
++    for inputs in [&common.inputs, &qpi.inputs] {
++        let (other, hash) = verify_manifest_file(input_for_role(inputs, "survivor_grid")?)?;
++        if other != survivor_grid_file || hash != survivor_grid_sha256 { bail!("run modes disagree on survivor grid"); }
++    }
++    let sparse_grid: crate::sparse_grid::SparseGrid = load_json(&survivor_grid_file)?;
++    sparse_grid.validate(&expected_grid, &common.hla_environment_representation, &pn_hla_scope)?;
++    let grid_root = survivor_grid_file.parent().context("grid has no parent")?;
++    if crate::sparse_grid::verify_file(grid_root, &sparse_grid.parameter_file)? != parameter_file
++        || crate::sparse_grid::verify_file(grid_root, &sparse_grid.mn_union_file)? != mn_tuples_file {
++        bail!("grid CSV paths disagree with mode inputs");
++    }
++    for g in &sparse_grid.geometries {
++        let mn_path = crate::sparse_grid::verify_file(grid_root, &g.mn_file)?;
++        let local_grid = read_expected_grid(&parameter_file, &mn_path)?;
++        let mut pairs = g.mn_pairs.clone(); pairs.sort_unstable();
++        if pairs != local_grid.mn_tuples { bail!("per-geometry MN CSV disagrees with sparse grid"); }
++    }
++
+     let mapping_file = canonical_file(mapping_file, "assembly mapping")?;
+     let mapping_sha256 = sha256_file(&mapping_file)?;
+ 
+@@ -487,6 +512,9 @@
+         qpi_manifest: qpi_manifest_path,
+         pn_manifest: pn_manifest_path,
+         expected_grid,
++        sparse_grid,
++        survivor_grid_file,
++        survivor_grid_sha256,
+         results_dir,
+     })
+ }
+@@ -542,6 +570,9 @@
+                         path.display()
+                     );
+                 }
++                if fs::metadata(&path)?.len() != output.size || sha256_file(&path)? != output.sha256 {
++                    bail!("Task output hash/size mismatch: {}", path.display());
++                }
+                 if !outputs.insert(path.clone()) {
+                     bail!(
+                         "Stage 2 output is recorded by more than one task manifest: {}",
+@@ -711,7 +742,7 @@
+         .unwrap();
+         fs::write(
+             &parameters,
+-            "d_pos,d_neg,steepness_pos,steepness_neg,tau_thymus\n15,9,0.5,0.75,1000\n",
++            "d_pos,d_neg,steepness_pos,steepness_neg,tau_thymus\n15,9,0.5,0.75,1000\n15,9,0.5,0.75,50052\n15,9,0.5,0.75,91691\n15,9,0.5,0.75,120604\n15,9,0.5,0.75,156295\n15,9,0.5,0.75,200000\n",
+         )
+         .unwrap();
+         fs::write(&mn, "at_least_M,at_most_N\n1,1\n").unwrap();
+@@ -724,6 +755,16 @@
+                 "sha256": sha256_file(path).unwrap(),
+             })
+         };
++        let grid = root.join("grid.json");
++        let grid_record = |path: &Path| serde_json::json!({"path": path.file_name().unwrap().to_str().unwrap(), "sha256": sha256_file(path).unwrap(), "bytes": fs::metadata(path).unwrap().len()});
++        write_json(&grid, serde_json::json!({
++            "schema_version":1,"kind":"survivor_exact_stage2_grid","construction":"full",
++            "hla_environment_representation":"full","pn_hla_scope":"all","n_regimes":1,
++            "tau_values_str":["1000","50052","91691","120604","156295","200000"],
++            "parameter_file":grid_record(&parameters),"mn_union_file":grid_record(&mn),
++            "geometries":[{"geometry_idx":0,"geometry_params_str":["15","9","0.5","0.75"],
++                "mn_pairs":[[1,1]],"mn_file":grid_record(&mn)}]
++        }));
+         let run_manifest = root.join("run_manifest.json");
+         let qpi_manifest = root.join("qpi_manifest.json");
+         let pn_manifest = root.join("pn_manifest.json");
+@@ -735,7 +776,7 @@
+                 "hla_environment_representation": "full",
+                 "query_input_file": query,
+                 "common_fingerprint": "common",
+-                "inputs": [input("query_peptides", &query)],
++                "inputs": [input("query_peptides", &query), input("survivor_grid", &grid)],
+             }),
+         );
+         write_json(
+@@ -747,9 +788,9 @@
+                 "common_fingerprint": "common",
+                 "mode_fingerprint": "qpi-fingerprint",
+                 "query_input_file": query,
+-                "total_params": 1,
++                "total_params": 6,
+                 "param_chunks": 1,
+-                "inputs": [],
++                "inputs": [input("survivor_grid", &grid)],
+             }),
+         );
+         write_json(
+@@ -761,12 +802,13 @@
+                 "common_fingerprint": "common",
+                 "mode_fingerprint": "pn-fingerprint",
+                 "query_input_file": query,
+-                "total_params": 1,
++                "total_params": 6,
+                 "param_chunks": 1,
+                 "pn_hla_scope": "all",
+                 "max_num_ps_values_log2": 14,
+                 "max_num_ps_values": 16384,
+                 "inputs": [
++                    input("survivor_grid", &grid),
+                     input("parameter_sets", &parameters),
+                     input("mn_tuples", &mn),
+                 ],
+@@ -783,7 +825,7 @@
+             &pn_manifest,
+         )
+         .unwrap();
+-        assert_eq!(contract.expected_grid.parameter_rows, 1);
++        assert_eq!(contract.expected_grid.parameter_rows, 6);
+         assert_eq!(contract.expected_grid.mn_tuples, vec![(1, 1)]);
+ 
+         let pn_dir = root.join("results_pn_env_id_0_1");
+@@ -801,7 +843,7 @@
+                 "run_id": "test_run",
+                 "fingerprint": "pn-fingerprint",
+                 "mode": "pn",
+-                "output_files": [{"path": pn_output.strip_prefix(&root).unwrap()}],
++                "output_files": [{"path": pn_output.strip_prefix(&root).unwrap(), "size": fs::metadata(&pn_output).unwrap().len(), "sha256": sha256_file(&pn_output).unwrap()}],
+             }),
+         );
+         write_json(
+@@ -811,7 +853,7 @@
+                 "run_id": "test_run",
+                 "fingerprint": "qpi-fingerprint",
+                 "mode": "qpi",
+-                "output_files": [{"path": qpi_output.strip_prefix(&root).unwrap()}],
++                "output_files": [{"path": qpi_output.strip_prefix(&root).unwrap(), "size": fs::metadata(&qpi_output).unwrap().len(), "sha256": sha256_file(&qpi_output).unwrap()}],
+             }),
+         );
+         validate_discovered_outputs(
+--- a/evaluation_code_PDAC/src/bin/assemble_tensor_longpep.rs
++++ b/evaluation_code_PDAC/src/bin/assemble_tensor_longpep.rs
+@@ -51,8 +51,8 @@
+ //     an observation. Missing, malformed, or non-finite values abort assembly;
+ //     they are never replaced with zero.
+ //
+-//   - Every observation must contain exactly one complete parameter × (M,N)
+-//     grid. Missing rows and duplicate PN tensor cells abort assembly before
++//   - Every observation must contain exactly the manifest-required sparse
++//     parameter/MN cells. Missing rows and duplicate PN tensor cells abort assembly before
+ //     any output tensor is written.
+ //
+ //   - wt_mt_group_id is a representative placeholder context for the deduped
+@@ -1079,42 +1079,9 @@
+ fn validate_complete_tensor(
+     entries: &[(usize, u32, u32, f32, f32, f32, f32)],
+     observations: &[Observation],
+-    expected_rows_per_observation: usize,
++    allowed: &HashSet<(u32,u32)>,
+ ) -> Result<()> {
+-    let mut row_counts = vec![0usize; observations.len()];
+-    for entry in entries {
+-        let count = row_counts
+-            .get_mut(entry.0)
+-            .with_context(|| format!("Tensor entry has invalid obs_idx={}", entry.0))?;
+-        *count += 1;
+-    }
+-
+-    let incomplete: Vec<_> = row_counts
+-        .iter()
+-        .enumerate()
+-        .filter(|(_, count)| **count != expected_rows_per_observation)
+-        .take(10)
+-        .map(|(obs_idx, &count)| {
+-            let obs = &observations[obs_idx];
+-            format!(
+-                "obs_idx={obs_idx} patient={} env={} peptide={} hla={} rows={count}",
+-                obs.patient_id, obs.env_id, obs.peptide, obs.hla
+-            )
+-        })
+-        .collect();
+-
+-    if !incomplete.is_empty() {
+-        let n_incomplete = row_counts
+-            .iter()
+-            .filter(|&&count| count != expected_rows_per_observation)
+-            .count();
+-        bail!(
+-            "Tensor coverage is incomplete or duplicated for {n_incomplete}/{} observations; expected exactly {expected_rows_per_observation} rows per observation. Examples: {}",
+-            observations.len(),
+-            incomplete.join("; ")
+-        );
+-    }
+-    Ok(())
++    immunogenicity_evaluation::sparse_grid::validate_cells(entries, observations.len(), allowed)
+ }
+ 
+ 
+@@ -1315,6 +1282,8 @@
+         grid_metadata.n_params,
+     )?;
+     let indices = build_parameter_indices(&grid_metadata);
++    let allowed_cells = provenance.sparse_grid.cells(&grid_metadata.geometry_params,
++        grid_metadata.n_tau, &grid_metadata.mn_tuples)?;
+ 
+     // ------------------------------------------------------------------
+     // Chunked parallel PN file processing
+@@ -1371,15 +1340,8 @@
+     pb.finish_with_message("File processing complete");
+     info!("Collected {} F tensor entries", all_entries.len());
+ 
+-    let expected_rows_per_observation = grid_metadata
+-        .n_params
+-        .checked_mul(grid_metadata.n_mn)
+-        .context("Parameter-grid size overflow")?;
+-    validate_complete_tensor(
+-        &all_entries,
+-        &all_observations,
+-        expected_rows_per_observation,
+-    )?;
++    let expected_rows_per_observation = allowed_cells.len();
++    validate_complete_tensor(&all_entries, &all_observations, &allowed_cells)?;
+     info!(
+         "Validated complete tensor coverage: exactly {} rows for each of {} observations",
+         expected_rows_per_observation,
+@@ -1496,7 +1458,13 @@
+         .as_object_mut()
+         .context("Serialized parameter metadata was not a JSON object")?;
+     let string = |value: String| serde_json::Value::String(value);
+-    object.insert("assembly_schema_version".into(), string("stage3_tensor_v1".into()));
++    object.insert("assembly_schema_version".into(), string("stage3_survivor_sparse_v2".into()));
++    let mut required_cells: Vec<_> = allowed_cells.iter().copied().collect();
++    required_cells.sort_unstable();
++    object.insert("required_parameter_mn_cells".into(), serde_json::to_value(required_cells)?);
++    object.insert("n_required_regimes".into(), serde_json::Value::from(provenance.sparse_grid.n_regimes));
++    object.insert("survivor_grid_file".into(), string(provenance.survivor_grid_file.display().to_string()));
++    object.insert("survivor_grid_sha256".into(), string(provenance.survivor_grid_sha256));
+     object.insert("dataset".into(), string(provenance.dataset));
+     object.insert("run_id".into(), string(provenance.run_id));
+     object.insert(
+@@ -1623,9 +1591,9 @@
+         }];
+         let row = (0usize, 0u32, 0u32, 0.25f32, 0.5f32, 0.5f32, 0.5f32);
+ 
+-        assert!(validate_complete_tensor(&[], &observations, 1).is_err());
+-        assert!(validate_complete_tensor(&[row], &observations, 1).is_ok());
+-        assert!(validate_complete_tensor(&[row, row], &observations, 1).is_err());
++        assert!(validate_complete_tensor(&[], &observations, &HashSet::from([(0,0)])).is_err());
++        assert!(validate_complete_tensor(&[row], &observations, &HashSet::from([(0,0)])).is_ok());
++        assert!(validate_complete_tensor(&[row, row], &observations, &HashSet::from([(0,0)])).is_err());
+     }
+ 
+     #[test]
+--- a/evaluation_code_PDAC/src/lib.rs
++++ b/evaluation_code_PDAC/src/lib.rs
+@@ -1,6 +1,7 @@
+ // src/lib.rs - Shared types and utilities for evaluation pipeline
+ 
+ pub mod assembly_contract;
++pub mod sparse_grid;
+ 
+ use serde::{Deserialize, Serialize};
+ use std::collections::HashMap;
+--- a/evaluation_code_PDAC/src/sparse_grid.rs
++++ b/evaluation_code_PDAC/src/sparse_grid.rs
+@@ -0,0 +1,135 @@
++//! Exact geometry/MN coverage. No P, N, Q or Pi calculations are performed here.
++use std::collections::{HashMap, HashSet};
++use std::path::{Path, PathBuf};
++use anyhow::{bail, Context, Result};
++use serde::Deserialize;
++use super::assembly_contract::ExpectedGrid;
++
++#[derive(Debug, Deserialize)]
++pub struct GridFile { pub path: PathBuf, pub sha256: String, pub bytes: u64 }
++#[derive(Debug, Deserialize)]
++pub struct Geometry {
++    pub geometry_idx: usize,
++    pub geometry_params_str: [String; 4],
++    pub mn_pairs: Vec<(u32, u32)>,
++    pub mn_file: GridFile,
++}
++#[derive(Debug, Deserialize)]
++pub struct SparseGrid {
++    pub schema_version: u32,
++    pub kind: String,
++    pub construction: String,
++    pub hla_environment_representation: String,
++    pub pn_hla_scope: String,
++    pub n_regimes: usize,
++    pub tau_values_str: Vec<String>,
++    pub parameter_file: GridFile,
++    pub mn_union_file: GridFile,
++    pub geometries: Vec<Geometry>,
++}
++
++fn bits(values: (f32, f32, f32, f32)) -> [u32; 4] {
++    [values.0.to_bits(), values.1.to_bits(), values.2.to_bits(), values.3.to_bits()]
++}
++fn geometry_bits(g: &Geometry) -> Result<[u32; 4]> {
++    let v = g.geometry_params_str.iter().map(|s| s.parse::<f32>()).collect::<std::result::Result<Vec<_>, _>>()?;
++    if v.iter().any(|x| !x.is_finite() || *x <= 0.0) { bail!("invalid sparse geometry"); }
++    Ok(bits((v[0], v[1], v[2], v[3])))
++}
++
++impl SparseGrid {
++    pub fn validate(&self, expected: &ExpectedGrid, representation: &str, scope: &str) -> Result<()> {
++        if self.schema_version != 1 || self.kind != "survivor_exact_stage2_grid" {
++            bail!("exact survivor grid v1 required");
++        }
++        let construction = match (representation, scope) {
++            ("full", "all") => "full", ("full", "focal") => "focal", ("mono", "all") => "mono",
++            _ => anyhow::bail!("invalid representation/scope"),
++        };
++        if self.construction != construction || self.hla_environment_representation != representation || self.pn_hla_scope != scope {
++            bail!("survivor grid construction differs from run");
++        }
++        let taus = ["1000", "50052", "91691", "120604", "156295", "200000"];
++        if self.tau_values_str != taus || expected.tau_values.len() != 6 {
++            bail!("all six frozen taus required");
++        }
++        let actual_tau: HashSet<_> = expected.tau_values.iter().map(|x| x.to_bits()).collect();
++        let desired_tau: HashSet<_> = taus.iter().map(|x| x.parse::<f32>().unwrap().to_bits()).collect();
++        if actual_tau != desired_tau { bail!("tau values differ from frozen grid"); }
++        let mut geometries = HashSet::new();
++        let mut union = HashSet::new();
++        let mut count = 0;
++        for (i, g) in self.geometries.iter().enumerate() {
++            if g.geometry_idx != i || !geometries.insert(geometry_bits(g)?) { bail!("duplicate/misindexed geometry"); }
++            let pairs: HashSet<_> = g.mn_pairs.iter().copied().collect();
++            if pairs.is_empty() || pairs.len() != g.mn_pairs.len() || pairs.iter().any(|p| p.0 == 0 || p.1 == 0) { bail!("invalid sparse M/N pairs"); }
++            count += pairs.len(); union.extend(pairs);
++        }
++        let expected_geometry: HashSet<_> = expected.geometry_params.iter().map(|g| bits(*g)).collect();
++        let expected_mn: HashSet<_> = expected.mn_tuples.iter().copied().collect();
++        if geometries != expected_geometry || union != expected_mn || count != self.n_regimes || count == 0 {
++            bail!("sparse geometry/MN axes disagree with manifest CSV inputs");
++        }
++        Ok(())
++    }
++
++    pub fn cells(&self, geometry: &[(f32, f32, f32, f32)], n_tau: usize, mn: &[(u32,u32)]) -> Result<HashSet<(u32,u32)>> {
++        let indices: HashMap<_,_> = geometry.iter().enumerate().map(|(i,g)| (bits(*g),i)).collect();
++        let mn_indices: HashMap<_,_> = mn.iter().enumerate().map(|(i,p)| (*p,i)).collect();
++        let mut result = HashSet::new();
++        for g in &self.geometries {
++            let index = indices.get(&geometry_bits(g)?).context("required geometry absent from tensor")?;
++            for pair in &g.mn_pairs {
++                let m = mn_indices.get(pair).context("required M/N absent from tensor")?;
++                for tau in 0..n_tau { result.insert(((index * n_tau + tau) as u32, *m as u32)); }
++            }
++        }
++        Ok(result)
++    }
++}
++
++pub fn verify_file(root: &Path, record: &GridFile) -> Result<PathBuf> {
++    let root = root.canonicalize()?;
++    let path = root.join(&record.path).canonicalize()?;
++    if !path.starts_with(&root) || std::fs::metadata(&path)?.len() != record.bytes
++        || super::assembly_contract::sha256_file(&path)? != record.sha256 {
++        bail!("sparse input hash/path mismatch: {}", path.display());
++    }
++    Ok(path)
++}
++
++pub fn validate_cells(entries: &[(usize,u32,u32,f32,f32,f32,f32)], n_observations: usize,
++                      allowed: &HashSet<(u32,u32)>) -> Result<()> {
++    if allowed.is_empty() || n_observations == 0 { bail!("empty exact tensor roster"); }
++    let rank: HashMap<_,_> = allowed.iter().enumerate().map(|(i, p)| (*p,i)).collect();
++    let size = n_observations.checked_mul(rank.len()).context("sparse coverage size overflow")?;
++    let mut seen = vec![false; size];
++    for &(obs, p, m, q, pos, neg, pi) in entries {
++        if obs >= n_observations { bail!("invalid observation index"); }
++        if [q,pos,neg,pi].iter().any(|v| !v.is_finite()) { bail!("nonfinite tensor component"); }
++        let r = rank.get(&(p,m)).context("unrequested geometry/MN tensor cell")?;
++        let index = obs * rank.len() + r;
++        if seen[index] { bail!("Duplicate tensor cell for obs={obs} param={p} mn={m}"); }
++        seen[index] = true;
++    }
++    if seen.iter().any(|v| !v) { bail!("Tensor coverage is incomplete for exact survivor grid"); }
++    Ok(())
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn sparse_holes_are_allowed_but_missing_extra_and_duplicate_cells_fail() {
++        let allowed = HashSet::from([(0,0),(1,1)]);
++        let rows = vec![(0,0,0,0.1,0.2,0.3,0.4),(0,1,1,0.1,0.2,0.3,0.4)];
++        validate_cells(&rows,1,&allowed).unwrap();
++        assert!(validate_cells(&rows[..1],1,&allowed).is_err());
++        let mut extra=rows.clone();extra.push((0,0,1,0.1,0.2,0.3,0.4));
++        assert!(validate_cells(&extra,1,&allowed).is_err());
++        let mut duplicate=rows.clone();duplicate.push(rows[0]);
++        assert!(validate_cells(&duplicate,1,&allowed).is_err());
++        let mut substituted=rows.clone();substituted[1]=rows[0];
++        assert!(validate_cells(&substituted,1,&allowed).is_err());
++    }
++}
+--- a/run_stage_2_new.sh
++++ b/run_stage_2_new.sh
+@@ -204,6 +204,11 @@
+ 
+     STAGING_ATTEMPT="${SLURM_JOB_ID:-local}_${SLURM_RESTART_COUNT:-0}"
+     RUN_OUTPUTS_ROOT="${OUTPUTS_ROOT}/.staging/${STAGE2_MODE}/TASK_${TASK_ID}/${STAGING_ATTEMPT}"
++fi
++
++if [ "${EXECUTION_MODE}" = "pn" ] && [ "${GRID_PROFILE:-}" = "survivor-exact" ]; then
++    MN_TUPLES_FILE=$("${PYTHON_BIN}" "${SURVIVOR_GRID_HELPER}" task-mn \
++        --mode-manifest "${MODE_MANIFEST}" --start "${START_IDX}" --stop "${STOP_IDX}")
+ fi
+ 
+ RUNNER_ARGS=(
+--- a/stage2_run_contract.py
++++ b/stage2_run_contract.py
+@@ -476,6 +476,22 @@
+         ("run_script", Path(args.run_script)),
+         ("contract_helper", Path(args.contract_helper)),
+     ]
++    regime_manifest = getattr(args, "regime_manifest", "")
++    exact_grid = None
++    if regime_manifest:
++        import survivor_grid
++        grid_path = Path(regime_manifest).resolve()
++        exact_grid, grid_params, grid_union = survivor_grid.load(
++            grid_path, args.hla_environment_representation, args.pn_hla_scope)
++        if (grid_params != Path(args.param_file).resolve() or grid_union != Path(args.mn_tuples).resolve()
++                or args.total_params != len(exact_grid["geometries"]) * 6
++                or args.param_chunks != len(exact_grid["geometries"])):
++            raise ContractError("Submission geometry/files disagree with the exact survivor grid")
++        common_entries.extend([("survivor_grid", grid_path),
++            ("survivor_grid_helper", Path(survivor_grid.__file__).resolve())])
++        common_entries.extend(("survivor_grid_file", survivor_grid.checked_file(grid_path.parent, rec))
++            for rec in [exact_grid["parameter_file"], exact_grid["mn_union_file"]]
++            + [g["mn_file"] for g in exact_grid["geometries"]])
+     common_entries.extend(("q_config_reference", path) for path in referenced)
+     representation_crosswalk = getattr(args, "representation_crosswalk", "")
+     if args.hla_environment_representation == "mono":
+@@ -533,6 +549,10 @@
+         atomic_json(common_path, common_payload)
+ 
+     mode_inputs: List[Tuple[str, Path]] = []
++    if exact_grid is not None:
++        mode_inputs.append(("survivor_grid", grid_path))
++        mode_inputs.extend(("survivor_geometry_mn", survivor_grid.checked_file(grid_path.parent, g["mn_file"]))
++                           for g in exact_grid["geometries"])
+     if args.mode == "pn":
+         param_file = Path(args.param_file).resolve()
+         mn_tuples = Path(args.mn_tuples).resolve()
+@@ -1044,6 +1064,22 @@
+     return published
+ 
+ 
++def task_mn_file(args, start, stop):
++    # Resolve from the signed mode inputs, never trust a task-supplied union CSV.
++    root = Path(getattr(args, "run_root", None) or getattr(args, "final_root", "."))
++    mode_path = root / "pn_manifest.json"
++    if mode_path.is_file():
++        mode = json.loads(mode_path.read_text())
++        if mode.get("mode_fingerprint") != args.fingerprint:
++            raise ContractError("Task fingerprint differs from P/N mode manifest")
++        if any(x["role"] == "survivor_grid" for x in mode["inputs"]):
++            import survivor_grid
++            return survivor_grid.mode_grid(mode_path, start, stop)
++    if os.environ.get("GRID_PROFILE") == "survivor-exact":
++        raise ContractError("Exact task lacks its frozen survivor-grid mode contract")
++    return Path(args.mn_tuples)
++
++
+ def command_validate_publish(args: argparse.Namespace) -> int:
+     staging_root = Path(args.staging_root).resolve()
+     final_root = Path(args.final_root).resolve()
+@@ -1073,7 +1109,7 @@
+         parameters = load_param_rows(
+             Path(args.param_file), args.parameter_start, args.parameter_stop
+         )
+-        mn_pairs = load_mn(Path(args.mn_tuples))
++        mn_pairs = load_mn(task_mn_file(args, args.parameter_start, args.parameter_stop))
+         staged = validate_pn(source_dir, query_rows, parameters, mn_pairs)
+         published = publish_files(staged, source_dir, final_dir)
+         status = "success"
+@@ -1245,7 +1281,7 @@
+     parameters = load_param_rows(
+         Path(args.param_file), task.parameter_start, task.parameter_stop
+     )
+-    mn_pairs = load_mn(Path(args.mn_tuples))
++    mn_pairs = load_mn(task_mn_file(args, task.parameter_start, task.parameter_stop))
+     staged = validate_pn(source_dir, shard_rows, parameters, mn_pairs)
+     destination = shard_storage_dir(run_root, task)
+     published = publish_files(staged, source_dir, destination)
+@@ -1292,7 +1328,7 @@
+     parameter_rows = load_param_rows(
+         Path(args.param_file), reference.parameter_start, reference.parameter_stop
+     )
+-    mn_order = load_mn_order(Path(args.mn_tuples))
++    mn_order = load_mn_order(task_mn_file(args, reference.parameter_start, reference.parameter_stop))
+     mn_rank = {pair: index for index, pair in enumerate(mn_order)}
+     context_rank: Dict[Tuple[str, str], Dict[Tuple[str, int], int]] = defaultdict(dict)
+     for row in env_rows:
+@@ -1520,6 +1556,7 @@
+         choices=("full", "mono"),
+         required=True,
+     )
++    prepare.add_argument("--regime-manifest", default="")
+     prepare.add_argument("--representation-crosswalk", default="")
+     prepare.add_argument("--pn-peptides-per-shard", type=int, default=0)
+     prepare.add_argument("--pn-shard-plan", default="")
+--- a/submit_stage2_new.sh
++++ b/submit_stage2_new.sh
+@@ -33,6 +33,8 @@
+ GRID_PROFILE="${GRID_PROFILE:-full-production}"
+ PARAM_FILE_OVERRIDE=""
+ MN_TUPLES_FILE_OVERRIDE=""
++REGIME_MANIFEST=""
++SURVIVOR_GRID_HELPER="${SCRIPT_DIR}/survivor_grid.py"
+ HLA_ENVIRONMENT_REPRESENTATION="${HLA_ENVIRONMENT_REPRESENTATION:-full}"
+ REPRESENTATION_CROSSWALK=""
+ TOTAL_ENV_IDS_OVERRIDE=""
+@@ -103,7 +105,8 @@
+                            Maps mono observations/environments back to their full
+                            biological identities. Required for PDAC/COVID mono.
+   --grid-profile PROFILE   full-production (1,008 x 25; default) or
+-                           external-validation (18 x 1).
++                           survivor-exact (certified sparse regimes; external cohorts).
++  --regime-manifest PATH  Required survivor grid manifest for external cohorts.
+   --param-file PATH        Parameter CSV. Required explicitly for the external profile.
+   --mn-tuples-file PATH    M/N CSV. Required explicitly for the external profile.
+   --pn-peptides-per-shard N
+@@ -150,6 +153,10 @@
+             RUN_ID="${2:-}"
+             shift 2
+             ;;
++        --regime-manifest)
++            REGIME_MANIFEST="${2:-}"
++            shift 2
++            ;;
+         --grid-profile)
+             GRID_PROFILE="${2:-}"
+             shift 2
+@@ -415,21 +422,25 @@
+         PARAM_FILE="${PARAM_FILE_OVERRIDE:-${PARAM_FILE:-${WORKSPACE}/TCR_availability/param_sets.csv}}"
+         MN_TUPLES_FILE="${MN_TUPLES_FILE_OVERRIDE:-${MN_TUPLES_FILE:-${WORKSPACE}/TCR_availability/mn_tuples.csv}}"
+         ;;
+-    external-validation)
+-        TOTAL_PARAMS=18
+-        PARAM_CHUNKS=3
+-        if [ -z "${PARAM_FILE_OVERRIDE}" ] || [ -z "${MN_TUPLES_FILE_OVERRIDE}" ]; then
+-            echo "ERROR: external-validation profile requires explicit --param-file and --mn-tuples-file." >&2
++    survivor-exact)
++        if [ -z "${REGIME_MANIFEST}" ] || [ -n "${PARAM_FILE_OVERRIDE}" ] || [ -n "${MN_TUPLES_FILE_OVERRIDE}" ]; then
++            echo "ERROR: survivor-exact requires --regime-manifest and derives both CSV paths from it." >&2
+             exit 1
+         fi
+-        PARAM_FILE="${PARAM_FILE_OVERRIDE}"
+-        MN_TUPLES_FILE="${MN_TUPLES_FILE_OVERRIDE}"
++        GRID_DESCRIPTION=$("${PYTHON_BIN}" "${SURVIVOR_GRID_HELPER}" describe \
++            --manifest "${REGIME_MANIFEST}" --representation "${HLA_ENVIRONMENT_REPRESENTATION}" --scope "${PN_HLA_SCOPE}")
++        IFS=$'\t' read -r TOTAL_PARAMS PARAM_CHUNKS PARAM_FILE MN_TUPLES_FILE <<< "${GRID_DESCRIPTION}"
+         ;;
+     *)
+-        echo "ERROR: unknown grid profile '${GRID_PROFILE}' (use full-production or external-validation)." >&2
++        echo "ERROR: unknown grid profile '${GRID_PROFILE}' (use full-production for NCI or survivor-exact for external cohorts)." >&2
+         exit 1
+         ;;
+ esac
++
++if [ "${DATASET}" != "NCI" ] && [ "${MODE}" != "evac" ] && [ "${GRID_PROFILE}" != "survivor-exact" ]; then
++    echo "ERROR: external-cohort PN/QPi require --grid-profile survivor-exact." >&2
++    exit 1
++fi
+ 
+ if ! printf '%s' "${PN_PEPTIDES_PER_SHARD}" | grep -Eq '^[0-9]+$'; then
+     echo "ERROR: --pn-peptides-per-shard must be a non-negative integer." >&2
+@@ -447,8 +458,8 @@
+             exit 1
+             ;;
+     esac
+-    if [ "${GRID_PROFILE}" != "external-validation" ]; then
+-        echo "ERROR: P/N peptide sharding requires --grid-profile external-validation." >&2
++    if [ "${GRID_PROFILE}" != "survivor-exact" ]; then
++        echo "ERROR: P/N peptide sharding requires --grid-profile survivor-exact." >&2
+         exit 1
+     fi
+     if [ ! -f "${FINALIZE_SHARDS_SCRIPT}" ]; then
+@@ -505,11 +516,19 @@
+ # here are the exact files consumed by every array task.
+ PARAM_FILE=$(absolute_file_path "${PARAM_FILE}")
+ MN_TUPLES_FILE=$(absolute_file_path "${MN_TUPLES_FILE}")
++if [ -n "${REGIME_MANIFEST}" ]; then
++    REGIME_MANIFEST=$(absolute_file_path "${REGIME_MANIFEST}")
++fi
+ if [ -n "${REPRESENTATION_CROSSWALK}" ]; then
+     REPRESENTATION_CROSSWALK=$(absolute_file_path "${REPRESENTATION_CROSSWALK}")
+ fi
+ 
+ validate_grid_profile() {
++    if [ "${GRID_PROFILE}" = "survivor-exact" ]; then
++        "${PYTHON_BIN}" "${SURVIVOR_GRID_HELPER}" describe --manifest "${REGIME_MANIFEST}" \
++            --representation "${HLA_ENVIRONMENT_REPRESENTATION}" --scope "${PN_HLA_SCOPE}" >/dev/null
++        return
++    fi
+     "${PYTHON_BIN}" - "${GRID_PROFILE}" "${PARAM_FILE}" "${MN_TUPLES_FILE}" <<'PY'
+ import csv
+ import sys
+@@ -563,19 +582,7 @@
+     expected_mn = {(m, n) for m in (1, 2, 3, 6, 20) for n in (1, 2, 3, 8, 15)}
+     if set(mn) != expected_mn:
+         fail("full-production M/N file does not match the required 25-pair product")
+-elif profile == "external-validation":
+-    geometries = [
+-        (Decimal("15.00"), Decimal("9.00"), Decimal("0.50"), Decimal("0.75")),
+-        (Decimal("13.89"), Decimal("8.33"), Decimal("0.50"), Decimal("0.75")),
+-        (Decimal("15.00"), Decimal("6.75"), Decimal("0.50"), Decimal("0.75")),
+-    ]
+-    expected = [(*geometry, tau) for geometry in geometries for tau in taus]
+-    if params != expected:
+-        if set(params) != set(expected):
+-            fail("external-validation parameters do not equal the required geometry/tau product")
+-        fail("external-validation rows are out of order; each six-row chunk must contain one geometry")
+-    if mn != [(1, 1)]:
+-        fail("external-validation M/N file must contain only (1,1)")
++
+ else:
+     fail(f"unknown grid profile {profile!r}")
+ 
+@@ -915,6 +922,9 @@
+         cd "${SCRIPT_DIR}"
+ 
+         PREPARE_RUN_EXTRA_ARGS=()
++        if [ -n "${REGIME_MANIFEST}" ]; then
++            PREPARE_RUN_EXTRA_ARGS+=(--regime-manifest "${REGIME_MANIFEST}")
++        fi
+         if [ "${DATASET}" = "NCI" ] && { [ "${MODE}" = "pn" ] || [ "${MODE}" = "qpi" ]; }; then
+             PREPARE_RUN_EXTRA_ARGS+=(--allow-operational-provenance-change)
+         fi
+@@ -1202,7 +1212,7 @@
+     done
+ fi
+ 
+-SLURM_EXPORT_SPEC="ALL,DATASET=${DATASET},STAGE2_MODE=${MODE},HLA_ENVIRONMENT_REPRESENTATION=${HLA_ENVIRONMENT_REPRESENTATION},PN_HLA_SCOPE=${PN_HLA_SCOPE},MAX_NUM_PS_VALUES_LOG2=${MAX_NUM_PS_VALUES_LOG2},RUN_ID=${RUN_ID},MODE_FINGERPRINT=${MODE_FINGERPRINT},MODE_MANIFEST=${MODE_MANIFEST},QUERY_INPUT_FILE=${QUERY_INPUT_FILE},CONTRACT_HELPER=${CONTRACT_HELPER},PYTHON_BIN=${PYTHON_BIN},PARAM_FILE=${PARAM_FILE},MN_TUPLES_FILE=${MN_TUPLES_FILE},PARAM_FILE_SHA256=${PARAM_FILE_SHA256},MN_TUPLES_FILE_SHA256=${MN_TUPLES_FILE_SHA256},PMHC_CONFIG=${PMHC_CONFIG},PMHC_PARAMETERS_FILE=${PMHC_PARAMETERS_FILE},COMPUTE_PN=${COMPUTE_PN},COMPUTE_Q=${COMPUTE_Q},COMPUTE_PI=${COMPUTE_PI},COMPUTE_EVAC=${COMPUTE_EVAC},EXECUTION_MODE=${EXECUTION_MODE},TOTAL_PARAMS=${TOTAL_PARAMS},PARAM_CHUNKS=${PARAM_CHUNKS},TOTAL_ENV_IDS=${TOTAL_ENV_IDS},ENV_CHUNKS=${ENV_CHUNKS},RUNNER=${RUNNER},RUNNER_ROOT=${RUNNER_ROOT},OUTPUTS_ROOT=${OUTPUTS_ROOT},COMPUTE_IN_VITRO=${COMPUTE_IN_VITRO},IN_VITRO_PEPTIDE_CONC=${IN_VITRO_PEPTIDE_CONC},Q_MODEL_CONFIG=${Q_MODEL_CONFIG},EXTERNAL_VALIDATION_INPUT_ROOT=${EXTERNAL_VALIDATION_INPUT_ROOT},VACCINE_CONFIG=${VACCINE_CONFIG},PN_SHARD_PLAN=${PN_SHARD_PLAN}"
++SLURM_EXPORT_SPEC="ALL,DATASET=${DATASET},STAGE2_MODE=${MODE},HLA_ENVIRONMENT_REPRESENTATION=${HLA_ENVIRONMENT_REPRESENTATION},PN_HLA_SCOPE=${PN_HLA_SCOPE},MAX_NUM_PS_VALUES_LOG2=${MAX_NUM_PS_VALUES_LOG2},RUN_ID=${RUN_ID},MODE_FINGERPRINT=${MODE_FINGERPRINT},MODE_MANIFEST=${MODE_MANIFEST},QUERY_INPUT_FILE=${QUERY_INPUT_FILE},CONTRACT_HELPER=${CONTRACT_HELPER},PYTHON_BIN=${PYTHON_BIN},PARAM_FILE=${PARAM_FILE},MN_TUPLES_FILE=${MN_TUPLES_FILE},PARAM_FILE_SHA256=${PARAM_FILE_SHA256},MN_TUPLES_FILE_SHA256=${MN_TUPLES_FILE_SHA256},PMHC_CONFIG=${PMHC_CONFIG},PMHC_PARAMETERS_FILE=${PMHC_PARAMETERS_FILE},COMPUTE_PN=${COMPUTE_PN},COMPUTE_Q=${COMPUTE_Q},COMPUTE_PI=${COMPUTE_PI},COMPUTE_EVAC=${COMPUTE_EVAC},EXECUTION_MODE=${EXECUTION_MODE},TOTAL_PARAMS=${TOTAL_PARAMS},PARAM_CHUNKS=${PARAM_CHUNKS},TOTAL_ENV_IDS=${TOTAL_ENV_IDS},ENV_CHUNKS=${ENV_CHUNKS},RUNNER=${RUNNER},RUNNER_ROOT=${RUNNER_ROOT},OUTPUTS_ROOT=${OUTPUTS_ROOT},COMPUTE_IN_VITRO=${COMPUTE_IN_VITRO},IN_VITRO_PEPTIDE_CONC=${IN_VITRO_PEPTIDE_CONC},Q_MODEL_CONFIG=${Q_MODEL_CONFIG},EXTERNAL_VALIDATION_INPUT_ROOT=${EXTERNAL_VALIDATION_INPUT_ROOT},VACCINE_CONFIG=${VACCINE_CONFIG},PN_SHARD_PLAN=${PN_SHARD_PLAN},SURVIVOR_GRID_HELPER=${SURVIVOR_GRID_HELPER},GRID_PROFILE=${GRID_PROFILE}"
+ 
+ if [ "${DRY_RUN}" -eq 1 ]; then
+     echo "Resolved worker submission command:"
+--- a/survivor_grid.py
++++ b/survivor_grid.py
+@@ -0,0 +1,145 @@
++"""Exact survivor-derived Stage 2 input contract (no numerical calculations)."""
++import argparse
++import csv
++from decimal import Decimal
++import hashlib
++import json
++from pathlib import Path
++
++TAUS = ['1000', '50052', '91691', '120604', '156295', '200000']
++GEOMETRY = ['d_pos', 'd_neg', 'steepness_pos', 'steepness_neg']
++CONSUMERS = {'full': ['full_hla', 'mono_q_full_pn'], 'focal': ['focal_hla'],
++             'mono': ['old_monoallelic', 'full_q_mono_pn']}
++
++
++def require(condition, message):
++    if not condition:
++        raise ValueError(message)
++
++
++def decimal(value):
++    result = Decimal(str(value))
++    require(result.is_finite() and result > 0, 'nonpositive/nonfinite grid value')
++    return format(result.normalize(), 'f')
++
++
++def sha(path):
++    h = hashlib.sha256()
++    with Path(path).open('rb') as f:
++        for chunk in iter(lambda: f.read(1048576), b''):
++            h.update(chunk)
++    return h.hexdigest()
++
++
++def json_read(path):
++    return json.loads(Path(path).read_text())
++
++
++def record(path, root):
++    return {'path': str(path.relative_to(root)), 'sha256': sha(path), 'bytes': path.stat().st_size}
++
++
++def checked_file(root, rec):
++    path = (root / rec['path']).resolve()
++    require(path.is_relative_to(root.resolve()), 'grid file escapes manifest directory')
++    require(path.is_file() and path.stat().st_size == rec['bytes'] and sha(path) == rec['sha256'],
++            f'grid input hash/size mismatch: {path}')
++    return path
++
++
++def csv_rows(path, headers):
++    with path.open(newline='') as f:
++        r = csv.DictReader(f)
++        require(r.fieldnames == headers, f'bad header: {path}')
++        return [[row[h] for h in headers] for row in r]
++
++
++def load(path, representation=None, scope=None):
++    path = Path(path).resolve()
++    d = json_read(path)
++    require(d.get('kind') == 'survivor_exact_stage2_grid' and d.get('schema_version') == 1,
++            'expected survivor_exact_stage2_grid v1')
++    kind = d['construction']
++    require(kind in CONSUMERS, 'unknown construction')
++    expected_rep = 'mono' if kind == 'mono' else 'full'
++    expected_scope = 'focal' if kind == 'focal' else 'all'
++    require(d['hla_environment_representation'] == expected_rep and d['pn_hla_scope'] == expected_scope,
++            'construction representation/scope mismatch')
++    require(representation in (None, expected_rep) and scope in (None, expected_scope),
++            'requested representation/scope does not match survivor grid')
++    require(d['tau_values_str'] == TAUS, 'all six frozen tau values are required')
++    param = checked_file(path.parent, d['parameter_file'])
++    union = checked_file(path.parent, d['mn_union_file'])
++    expected = set()
++    ids = set()
++    for row in d['survivors']:
++        require(row['model_id'] in CONSUMERS[kind] and row['metric'] in ['pr', 'roc'], 'wrong survivor consumer')
++        require(row['system_id'] not in ids, 'duplicate survivor identity')
++        ids.add(row['system_id'])
++        g = tuple(decimal(row[k]) for k in GEOMETRY)
++        m, n = row['M'], row['N']
++        require(type(m) is int and type(n) is int and m > 0 and n > 0, 'invalid M/N')
++        expected.add((*g, m, n))
++    require(expected, 'empty survivor grid')
++    observed = set()
++    params = []
++    seen_g = set()
++    for i, g in enumerate(d['geometries']):
++        values = tuple(g['geometry_params_str'])
++        require(g['geometry_idx'] == i and len(values) == 4 and values not in seen_g, 'invalid geometry indexing')
++        require(tuple(decimal(v) for v in values) == values, 'noncanonical geometry')
++        seen_g.add(values)
++        mn = checked_file(path.parent, g['mn_file'])
++        pairs = [tuple(map(int, r)) for r in csv_rows(mn, ['at_least_M', 'at_most_N'])]
++        require(pairs == sorted(set(pairs)) and pairs == [tuple(p) for p in g['mn_pairs']], 'M/N file mismatch')
++        for m, n in pairs:
++            require(m > 0 and n > 0, 'nonpositive M/N')
++            observed.add((*values, m, n))
++        params.extend([*values, tau] for tau in TAUS)
++    require(observed == expected, 'computed regimes must equal the exact survivor union')
++    require(csv_rows(param, GEOMETRY + ['tau_thymus']) == params, 'parameter CSV must be geometry-major, six taus each')
++    pairs = sorted({r[-2:] for r in expected})
++    require(csv_rows(union, ['at_least_M', 'at_most_N']) == [[str(m), str(n)] for m, n in pairs], 'M/N union mismatch')
++    require(d['n_regimes'] == len(expected), 'incorrect regime count')
++    return d, param, union
++
++
++def mode_grid(mode_path, parameter_start, parameter_stop):
++    """Resolve one geometry's M/N file against the frozen mode fingerprint."""
++    mode = json_read(mode_path)
++    comparable = {k: v for k, v in mode.items() if k not in ('run_id', 'mode_fingerprint')}
++    digest = hashlib.sha256(json.dumps(comparable, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
++    require(digest == mode['mode_fingerprint'], 'mode fingerprint mismatch')
++    entries = [x for x in mode['inputs'] if x['role'] == 'survivor_grid']
++    require(len(entries) == 1, 'missing exact survivor grid in mode manifest')
++    entry = entries[0]
++    require(sha(entry['path']) == entry['sha256'], 'survivor grid changed after submission')
++    d, param, _ = load(entry['path'])
++    require(parameter_start % 6 == 0 and parameter_stop == parameter_start + 6,
++            'each P/N task must compute one geometry with six taus')
++    index = parameter_start // 6
++    require(0 <= index < len(d['geometries']), 'geometry index out of range')
++    return checked_file(Path(entry['path']).parent, d['geometries'][index]['mn_file'])
++
++
++def main():
++    p = argparse.ArgumentParser()
++    sub = p.add_subparsers(dest='command', required=True)
++    desc = sub.add_parser('describe')
++    desc.add_argument('--manifest', required=True)
++    desc.add_argument('--representation', required=True)
++    desc.add_argument('--scope', required=True)
++    task = sub.add_parser('task-mn')
++    task.add_argument('--mode-manifest', required=True)
++    task.add_argument('--start', type=int, required=True)
++    task.add_argument('--stop', type=int, required=True)
++    a = p.parse_args()
++    if a.command == 'describe':
++        d, param, union = load(a.manifest, a.representation, a.scope)
++        print(f'{len(d["geometries"])*6}\t{len(d["geometries"])}\t{param}\t{union}')
++    else:
++        print(mode_grid(a.mode_manifest, a.start, a.stop))
++
++
++if __name__ == '__main__':
++    main()
+--- a/tests/test_survivor_exact.py
++++ b/tests/test_survivor_exact.py
+@@ -0,0 +1,171 @@
++import argparse
++import contextlib
++import csv
++import io
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++import unittest
++
++import stage2_run_contract as contract
++import survivor_grid as grid
++
++RUNTIME = Path(contract.__file__).resolve().parent
++
++
++def write_csv(path, headers, rows):
++    with path.open('w', newline='') as f:
++        w = csv.writer(f, lineterminator='\n'); w.writerow(headers); w.writerows(rows)
++
++
++def fixture_grid(root):
++    params = root / 'params.csv'; union = root / 'union.csv'
++    geometries = [('3','2','1','1'), ('4','2','1','1')]
++    pairs = [(1,1),(2,1)]
++    write_csv(params, grid.GEOMETRY+['tau_thymus'], [[*g,t] for g in geometries for t in grid.TAUS])
++    write_csv(union, ['at_least_M','at_most_N'], pairs)
++    groups=[]; survivors=[]
++    for i,(g,pair) in enumerate(zip(geometries,pairs)):
++        mn=root/f'mn_{i}.csv';write_csv(mn,['at_least_M','at_most_N'],[pair])
++        groups.append(dict(geometry_idx=i, geometry_params_str=g,mn_pairs=[pair],mn_file=grid.record(mn,root)))
++        survivors.append(dict(system_id=f'full_hla__pr__regime_{i}',model_id='full_hla',metric='pr',
++                              **dict(zip(grid.GEOMETRY,g)),M=pair[0],N=pair[1]))
++    manifest=root/'grid.json'
++    manifest.write_text(json.dumps(dict(schema_version=1,kind='survivor_exact_stage2_grid',construction='full',
++        hla_environment_representation='full',pn_hla_scope='all',n_regimes=2,tau_values_str=grid.TAUS,
++        parameter_file=grid.record(params,root),mn_union_file=grid.record(union,root),geometries=groups,survivors=survivors)))
++    grid.load(manifest)
++    return manifest,params,union
++
++
++FAKE_RUNNER = '''import csv,json,os,sys
++from pathlib import Path
++sys.path.insert(0,os.environ['TEST_RUNTIME'])
++import stage2_run_contract as c
++args=sys.argv[1:]
++def value(flag):return args[args.index(flag)+1]
++root=Path(value('--outputs-root'));out=root/'results_pn_env_id_0_1';out.mkdir(parents=True)
++start,stop=int(value('--start-idx')),int(value('--stop-idx'))
++params=c.load_param_rows(Path(value('--parameter-file')),start,stop)
++pairs=c.load_mn_order(Path(value('--mn-tuples-file')))
++rows=c.load_query(Path(os.environ['QUERY_INPUT_FILE']))
++if '--query-shard-index' in args:
++ rows=c.select_query_shard(rows,int(value('--query-shard-index')),int(value('--query-shard-count')))
++for dp,dn,sp,sn,tau in params:
++ name=f'query_peptides_results_dpos_{dp}_dneg_{dn}_steepness_pos_{sp}_steepness_neg_{sn}_fft_size_16384_tau_thymus_{tau}_HLA_A0101_expr_PDAC.csv'
++ with (out/name).open('w',newline='') as f:
++  w=csv.writer(f,lineterminator='\\n');w.writerow(['peptide','env_id','M','N','p_pos','p_neg'])
++  for row in rows:
++   for m,n in pairs:w.writerow([row.peptide,row.env_id,m,n,0.2,0.3])
++Path(os.environ['CAPTURE']+str(os.environ['SLURM_ARRAY_TASK_ID'])).write_text(json.dumps({'pairs':pairs,'params':params}))
++'''
++
++
++class ExactTests(unittest.TestCase):
++    def setUp(self):
++        self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
++        self.manifest,self.params,self.union=fixture_grid(self.root)
++    def tearDown(self):self.tmp.cleanup()
++
++    def test_grid_rejects_extra_required_regime_and_modified_file(self):
++        d=grid.json_read(self.manifest);d['geometries'][0]['mn_pairs'].append([2,1])
++        self.manifest.write_text(json.dumps(d))
++        with self.assertRaises(ValueError):grid.load(self.manifest)
++        self.manifest,self.params,self.union=fixture_grid(self.root)
++        self.params.write_text(self.params.read_text().replace('1000\n','1001\n'))
++        with self.assertRaises(ValueError):grid.load(self.manifest)
++
++    def test_wrong_construction_is_rejected(self):
++        with self.assertRaises(ValueError):grid.load(self.manifest,'mono','all')
++        with self.assertRaises(ValueError):grid.load(self.manifest,'full','focal')
++
++    def test_geometry_tasks_shard_merge_audit_and_optional_assembly(self):
++        query=self.root/'query.csv'
++        query.write_text('peptide,HLA-RE,PatientID,TCGA_EXPR_TYPE,env_id,gene,count\nPEPTIDEAA,A0101,P1,PDAC,0,G,1\nPEPTIDEAB,A0101,P1,PDAC,0,G,1\n')
++        env=self.root/'env.csv';env.write_text('env_id,allele_environment\n0,"A0101,B0702"\n')
++        config=self.root/'q.toml';config.write_text(f'query_peptide_input_tuples_file = "{query}"\nhla_env_dict = "{env}"\n')
++        mapping=self.root/'mapping.csv';mapping.write_text('patient_id,env_id,long_peptide,nmer,long_peptide_label,gene,cancer_type\nP1,0,LONGPEPTIDEAA,PEPTIDEAA,1,G,PDAC\nP1,0,LONGPEPTIDEAB,PEPTIDEAB,0,G,PDAC\n')
++        matrix=self.root/'data/matrices';matrix.mkdir(parents=True);(matrix/'dummy').write_text('fixture')
++        pmhc=self.root/'pmhc.csv';pmhc.write_text('fixture')
++        runner=self.root/'Runner';runner.write_text(f'#!{sys.executable}\n'+FAKE_RUNNER);runner.chmod(0o755)
++        run=self.root/'run';run.mkdir();plan=run/'pn_shard_plan.json'
++        contract.write_pn_shard_plan(plan,query,1,1,12,2,1)
++        args=dict(run_root=str(run),run_id='fixture',dataset='PDAC',runner_root=str(self.root),runner=str(runner),
++             q_model_config=str(config),submit_script=str(RUNTIME/'submit_stage2_new.sh'),run_script=str(RUNTIME/'run_stage_2_new.sh'),
++             contract_helper=str(RUNTIME/'stage2_run_contract.py'),total_env_ids=1,env_chunks=1,total_params=12,param_chunks=2,
++             param_file=str(self.params),mn_tuples=str(self.union),pmhc_config=str(config),pmhc_parameters_file=str(pmhc),
++             peptide_conc=1000.0,pn_hla_scope='all',max_num_ps_values_log2=14,hla_environment_representation='full',
++             representation_crosswalk='',pn_peptides_per_shard=1,pn_shard_plan=str(plan),finalize_script=str(RUNTIME/'finalize_stage2_pn_shards.sh'),
++             allow_operational_provenance_change=False,regime_manifest=str(self.manifest))
++        with contextlib.redirect_stdout(io.StringIO()):
++            contract.command_prepare_run(argparse.Namespace(**args,mode='qpi',in_vitro=1))
++            contract.command_prepare_run(argparse.Namespace(**args,mode='pn',in_vitro=0))
++        mode=grid.json_read(run/'pn_manifest.json');fp=mode['mode_fingerprint']
++        environment=os.environ.copy();environment.update({k:str(v) for k,v in dict(DATASET='PDAC',COMPUTE_PN=1,COMPUTE_Q=0,
++            COMPUTE_PI=0,COMPUTE_EVAC=0,EXECUTION_MODE='pn',TOTAL_ENV_IDS=1,ENV_CHUNKS=1,TOTAL_PARAMS=12,PARAM_CHUNKS=2,
++            PN_HLA_SCOPE='all',MAX_NUM_PS_VALUES_LOG2=14,RUNNER=runner,RUNNER_ROOT=self.root,OUTPUTS_ROOT=run,
++            SLURM_JOB_ID=101,SLURM_CPUS_PER_TASK=1,STAGE2_MODE='pn',RUN_ID='fixture',MODE_FINGERPRINT=fp,
++            MODE_MANIFEST=run/'pn_manifest.json',QUERY_INPUT_FILE=query,CONTRACT_HELPER=RUNTIME/'stage2_run_contract.py',
++            PYTHON_BIN=sys.executable,PARAM_FILE=self.params,MN_TUPLES_FILE=self.union,PARAM_FILE_SHA256=grid.sha(self.params),
++            MN_TUPLES_FILE_SHA256=grid.sha(self.union),HLA_ENVIRONMENT_REPRESENTATION='full',Q_MODEL_CONFIG=config,
++            PN_SHARD_PLAN=plan,SURVIVOR_GRID_HELPER=RUNTIME/'survivor_grid.py',GRID_PROFILE='survivor-exact',
++            TEST_RUNTIME=RUNTIME,CAPTURE=self.root/'capture').items()})
++        for task in range(4):
++            environment['SLURM_ARRAY_TASK_ID']=str(task)
++            subprocess.run(['bash',str(RUNTIME/'run_stage_2_new.sh')],env=environment,check=True,capture_output=True)
++            captured=grid.json_read(self.root/f'capture{task}')
++            self.assertEqual(captured['pairs'],[[task//2+1,1]])
++            self.assertEqual(len(captured['params']),6)
++        for parent in range(2):
++            environment['SLURM_ARRAY_TASK_ID']=str(parent)
++            subprocess.run(['bash',str(RUNTIME/'finalize_stage2_pn_shards.sh')],env=environment,check=True,capture_output=True)
++        with contextlib.redirect_stdout(io.StringIO()):
++            self.assertEqual(contract.command_audit_run(argparse.Namespace(run_root=str(run),mode_manifest=str(run/'pn_manifest.json'),verify_hashes=True)),0)
++        files=list((run/'results_pn_env_id_0_1').glob('*.csv'))
++        self.assertEqual(len(files),12)
++        total = 0
++        for file in files:
++            with file.open() as handle:
++                total += len(list(csv.DictReader(handle)))
++        self.assertEqual(total,24)
++        # Missing, extra and duplicate data must fail before publication.
++        parameters=contract.load_param_rows(self.params,0,6)
++        staging=self.root/'bad';staging.mkdir()
++        import shutil
++        for f in files:
++            if '_dpos_3_' in f.name:shutil.copyfile(f,staging/f.name)
++        target=next(staging.glob('*.csv'));original=target.read_text()
++        for contents in [original+original.splitlines()[1]+'\n', original.replace(',1,1,',',2,1,'), '\n'.join(original.splitlines()[:-1])+'\n']:
++            target.write_text(contents)
++            with self.assertRaises(contract.ContractError):contract.validate_pn(staging,contract.load_query(query),parameters,{(1,1)})
++        # Prepare independently validated Q/Pi outputs for real assembler integration.
++        qstage=self.root/'qstage';qd=qstage/'results_qpi_env_id_0_1';qd.mkdir(parents=True)
++        (qd/'query_peptides_results_HLA_A0101_q_values.csv').write_text('peptide,env_id,q_value\nPEPTIDEAA,0,0.1\nPEPTIDEAB,0,0.1\n')
++        (qd/'query_peptides_results_HLA_A0101_pi_values.csv').write_text('peptide,pi_value\nPEPTIDEAA,0.4\nPEPTIDEAB,0.4\n')
++        qfp=grid.json_read(run/'qpi_manifest.json')['mode_fingerprint']
++        with contextlib.redirect_stdout(io.StringIO()):
++            contract.command_validate_publish(argparse.Namespace(mode='qpi',run_id='fixture',fingerprint=qfp,task_id=0,
++                query=str(query),staging_root=str(qstage),final_root=str(run),env_start=0,env_stop=1,
++                parameter_start=0,parameter_stop=1,param_file=str(self.params),mn_tuples=str(self.union)))
++        for family in ['PDAC','COVID']:
++            binary=os.environ.get(f'EXACT_{family}_ASSEMBLER')
++            if not binary:continue
++            output=self.root/f'{family}.parquet'
++            command=[binary,'--results-dirs',str(run),'--dataset','PDAC','--run-id','fixture',
++                '--run-manifest',str(run/'run_manifest.json'),'--qpi-manifest',str(run/'qpi_manifest.json'),
++                '--pn-manifest',str(run/'pn_manifest.json'),'--mapping',str(mapping),'--query-peptides',str(query),
++                '--output',str(output),'--threads','1']
++            subprocess.run(command,check=True,capture_output=True)
++            metadata=grid.json_read(output.with_suffix('.metadata.json'))
++            self.assertEqual(len(metadata['required_parameter_mn_cells']),12)
++            self.assertEqual(metadata['n_tensor_rows'],24)
++            import pyarrow.parquet as pq
++            self.assertEqual(pq.read_table(output).num_rows,24)
++        # A changed file is rejected even if the mode fingerprint itself stays unchanged.
++        mn=grid.mode_grid(run/'pn_manifest.json',0,6);mn.write_text(mn.read_text()+'2,1\n')
++        with self.assertRaises(ValueError):grid.mode_grid(run/'pn_manifest.json',0,6)
++
++if __name__=='__main__':unittest.main()

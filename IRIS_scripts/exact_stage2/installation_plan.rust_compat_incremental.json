@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "path": "evaluation_code_COVID/src/bin/assemble_tensor_longpep.rs",
+      "before_sha256": "fab7ce5aedc72c3c4222bc3035619e140d04f86798e8245e843fbbb76ac78c8e",
+      "after_sha256": "9381839981994d1679c457f3592f6b64b619faad467fa451b6c16785e9057a4a"
+    },
+    {
+      "path": "evaluation_code_COVID/src/lib.rs",
+      "before_sha256": "32b49696ed28bb5bc31eaa527882dafc8627d126fd0f3e728e46bb5a24b929f8",
+      "after_sha256": "daea5d03c0fbca3527fde9f1ae137ba6dd434817475e3a742e40018725c9ae5c"
+    },
+    {
+      "path": "evaluation_code_PDAC/src/bin/assemble_tensor_longpep.rs",
+      "before_sha256": "aa79752f1723c755e9636f27015013e38864e88e167580c38369d579286a8333",
+      "after_sha256": "410c4ffad9da03bfff9174cba1448ea6e6917c308cf2d3f475e0964526627528"
+    },
+    {
+      "path": "evaluation_code_PDAC/src/lib.rs",
+      "before_sha256": "32b49696ed28bb5bc31eaa527882dafc8627d126fd0f3e728e46bb5a24b929f8",
+      "after_sha256": "daea5d03c0fbca3527fde9f1ae137ba6dd434817475e3a742e40018725c9ae5c"
+    }
+  ],
+  "replace_directories": {},
+  "unchanged_files": {
+    "evaluation_code_COVID/slurm/run_assemble_covid.sh": "a2612494b7b39bca038f87e2abb8bcae2fc1a2f4b7ef6f5f4f6cc0a0da983423",
+    "evaluation_code_COVID/src/assembly_contract.rs": "ba632bc464762d787a36c54010f6eebdfcc020f13483cd6deedf5d7aa21ec8dd",
+    "evaluation_code_COVID/src/sparse_grid.rs": "9b4bed86d37ce317b060b132dc628c23b727b9fa07ec32c883b72a8a6c5521cc",
+    "evaluation_code_PDAC/slurm/run_assemble.sh": "85b11f3186ce8e395953ccdae33e11022fd2a30f5f531505b7c9d396e78b4c0e",
+    "evaluation_code_PDAC/src/assembly_contract.rs": "ba632bc464762d787a36c54010f6eebdfcc020f13483cd6deedf5d7aa21ec8dd",
+    "evaluation_code_PDAC/src/sparse_grid.rs": "9b4bed86d37ce317b060b132dc628c23b727b9fa07ec32c883b72a8a6c5521cc",
+    "run_stage_2_new.sh": "ec58e568672aacaaf6271e1efac067414494f2ed254340d3fb9790b6a92a7d81",
+    "stage2_run_contract.py": "969808b24ed8a284265f12500f21eba6bbbc80c5d448c42aaa8f87a2f3ea3c34",
+    "submit_stage2_new.sh": "8f69b56484e7b431a82d2dff84ea394967a602fca7b49833e0bd6e6d97c21f0f",
+    "survivor_grid.py": "6f5cba66f393b96ca206cbf81d2dfa187a602e9956ddf9a65264931d619514ed",
+    "tests/test_survivor_exact.py": "d1a6f75ff3ffa3a07cfa7bb143f6ac479ccffb867e1d5289515246c6b27c4e54"
+  },
+  "base_installation_plan_sha256": "053273b8c5f7f0f836937de32ed2c1d89ca6dcd5be1d3dc4367c642240926dbd",
+  "revision_reason": "Incremental Rust compatibility update from the installed September 16 overlay; preserve launchers, input package, and historical installation records."
+}

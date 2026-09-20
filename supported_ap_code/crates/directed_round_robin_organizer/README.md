@@ -1,7 +1,8 @@
 # directed_round_robin_organizer
 
-`directed_round_robin_organizer` runs complete deterministic
-supported-evidence tournaments over opaque systems. It contains no domain
+`directed_round_robin_organizer` runs deterministic supported-evidence
+tournaments over opaque systems, with exhaustive SCC reduction and a separately
+audited accelerated candidate-conservative mode. It contains no domain
 model, grouping, or interpretation logic, and no AP, CNAP, AUROC, resampling,
 support, survival, or optimization mathematics. Each match is judged by the
 workspace's `supported-ap` library.
@@ -51,7 +52,7 @@ plural evidential survivor set and does not change either selection.
 replace B) is created only when the same direction is supported in *every*
 evaluation (the all-evaluation conjunction). The graph is condensed and every
 vertex in a source strongly connected component survives; a system is removed
-only when a supported edge enters it. This is conservative about *asserting
+only when a supported edge enters its SCC from another SCC. This is conservative about *asserting
 replacements*: a defeat in one context does not remove a system unless the same
 direction survives the conjunction across all contexts. It returns broad
 admissible sets and is never empty.
@@ -59,9 +60,10 @@ admissible sets and is never empty.
 **`candidate_conservative`** (default). The maximal set is computed separately
 for each evaluation (`per_evaluation_maximal.json`) and the survivors are the
 *intersection*: a system is retained only if it is maximal in every evaluation.
-A single-context defeat is fatal. This is conservative about *retaining
-candidates*, and it is the sharper, more eliminative rule — its survivor set is
-always a subset of the replacement-conservative set. An empty result is a valid,
+A single context in which the candidate is outside every source SCC excludes
+it. If each context graph is acyclic, a single supported incoming edge suffices,
+and the candidate-conservative set is a subset of the replacement-conservative
+set. Neither simplification is assumed for general cyclic graphs. An empty result is a valid,
 informative outcome (`outcome.kind = "no_surviving_candidate"`): no system is
 top-tier in every context, i.e. the evidence favors domain-specific tradeoffs
 rather than one universal model.
@@ -149,9 +151,8 @@ create or merge strongly connected components, so graph-maximal membership need
 not change monotonically. The profile is therefore a diagnostic of the complete
 reduction path, not a replacement for a declared choice rule.
 
-For the operational choice, let the fixed-policy primary survivor set supply
-the eligible winners, but retain the full tournament roster as challengers. An
-excluded system may still expose an eligible system's weakness. For each
+For the NCI Version 2 operational choice, freeze the fixed-policy survivor set
+S0 as both the eligible winners and the challenger/comparator cohort. For each
 eligible system B, collect every incoming activation strength A->B over all
 challengers and evaluations and sort them from largest to smallest. Compare
 eligible systems lexicographically, preferring the system with the smaller
@@ -160,6 +161,99 @@ largest values tie, and so on. The first comparison is a minimax rule: the
 strongest observed replacement claim against B controls, and favorable
 comparisons cannot compensate for it. The later comparisons resolve finite
 ties without averaging threats.
+
+This operational cohort restriction does not apply to evidential selection:
+an excluded system remains a challenger when testing other candidates. Supported
+replacement is not assumed transitive.
+
+## Accelerated candidate-conservative selection
+
+The exhaustive commands and their schemas are unchanged. The separate
+`accelerated` command family selects the same intersection of context source-SCC
+sets while retaining explicit exclusion witnesses and survivor certificates.
+It always requests candidate-conservative selection, independently of the
+bundle's default reduction strategy; this request is recorded in the plan.
+
+```sh
+directed_round_robin_organizer accelerated plan \
+  --bundle bundle --output accelerated_plan --batch-size 1
+directed_round_robin_organizer accelerated run \
+  --bundle bundle --plan accelerated_plan --results accelerated_results \
+  --output accelerated_selection --threads 8
+directed_round_robin_organizer accelerated audit \
+  --bundle bundle --plan accelerated_plan --results accelerated_results \
+  --selection accelerated_selection
+```
+
+Applicability is established separately for each context by the current judge
+and validated policy. PR uses the common observed CNAP at a prevalence actually
+included in the empirical gate's search (the interval lower endpoint, or the
+first finite-set point). Its value is computed by `supported-ap` using the same
+tie averaging kernel as the gate. A direction whose endpoint difference is at
+most delta cannot pass that gate. ROC uses exact doubled Mann–Whitney credits:
+Gamma=1 support requires the winner's credit to be strictly larger. These strict
+potentials prove that the original context support graphs are acyclic. This is
+a judge contract, not a claim that SCC condensation proves the original graph
+acyclic, and not a conclusion drawn from sampling some comparisons.
+
+Unavailable order primitives fall back to a full-roster SCC computation for
+that context. `--exhaustive-context CONTEXT` explicitly disables its fast path
+and can be repeated. Cycles in such a context are preserved: an exclusion
+witness identifies the entire non-source component and an edge entering it
+from outside. An observed numerical contradiction in an ordered context fails
+the run without publishing a selection; investigate and replan that context
+with the explicit exhaustive option. The default does not silently reinterpret
+contradictory evidence or use an epsilon to assert an ordering.
+
+The plan is O(contexts × systems), without enumerating all match objects. A
+single coordinator issues bounded immutable batches, reads opponents in a
+deterministic context-specific order, and commits worker results in request
+order. An ordered-context target stops after its first supported incoming
+witness. Excluded targets remain available as challengers. Work is resumable
+from validated immutable pair artifacts; use the same plan/results and a new
+selection output directory. Pair identities and seeds match exhaustive runs,
+but artifacts retain their actual plan provenance and cannot simply be copied
+between plan directories. The first implementation is a local coordinator;
+it does not provide a distributed batch dispatcher or import old-plan evidence.
+
+Batch size 1 minimizes speculative matches and can still parallelize the
+judge's internal work. Larger batches (default 16) also parallelize opponents
+but may finish unnecessary comparisons after a decisive witness. Neither batch
+size nor worker completion order changes pair seeds or final selection. Worst
+case work remains quadratic when many comparisons are necessary.
+
+`selection_certificate.json` is untrusted input to the auditor. The audit
+recomputes the context potentials, checks report hashes and original run
+bindings, checks normalized directions and numerical ordering consistency,
+validates each exclusion, and reconstructs every incoming obligation for every
+survivor over the full roster. `AuditedSelection` has private fields and no
+`Deserialize` implementation. Its comparison API distinguishes assessed
+verdicts, directions ruled out by the observed-gate bound, and uncomputed
+directions. Scientific `Unresolved` remains distinct from an operationally
+missing comparison, and is reported as a qualification on the asserted-edge
+selection, consistently with exhaustive reduction. The audit checks the saved
+evidence; it does not rerun every computational replication.
+
+By default the plan also requires all numerical pair reports within S0 in every
+context, including gate-rejected pairs, preserving the NCI Version 2 activation
+profiles. `--survivors-only` omits that obligation and cannot be used for
+operational finalization. The NCI adapter uses the same activation and regret
+implementation as exhaustive finalization:
+
+```sh
+iris_nci_parameter_tournament finalize-version2-accelerated \
+  --config config.json --bundle bundle --plan accelerated_plan \
+  --results accelerated_results --selection accelerated_selection \
+  --output version2 --threads 8
+```
+
+The accelerated output is **not** a complete `Reduction` or a
+`CompletenessAudit`. It does not promise every context graph, every per-context
+maximal set, the alternative strategy, threshold-profile graphs, induced views,
+or revision composition. Complete graphs are reported only for contexts
+explicitly executed exhaustively. Use the existing exhaustive workflow when
+those outputs are required. No candidate screen or numerical replication
+budget is changed by enabling this mode.
 
 Independent metrics remain separate tournaments. If they are declared to be
 independent opportunities to exclude a candidate, intersect their fixed-policy
@@ -321,3 +415,31 @@ cargo test --workspace
 
 The optional root-crate `highs-reference` feature additionally requires CMake
 and a C++ toolchain; organizer production judgments do not use it.
+
+
+## Distributed accelerated execution
+
+`accelerated distributed` adds four scheduler-neutral stages: `targets`, `merge`,
+`complete`, and `finish`. They use `--bundle`, `--plan`, `--results`, `--receipts`,
+`--output`, and `--shard-count`; workers additionally use `--shard-id` and
+`--threads`. Completion and finish require `--survivors` pointing to the merge
+output. The NCI cluster driver wires these commands into dependent Slurm arrays.
+
+Targets are assigned round-robin in the first context's derived ordering, while
+each target retains the full challenger roster in every context. An ordered
+comparison belongs to the lower-potential target. Any exhaustive context sends
+the entire target phase to shard zero to retain the existing full-roster SCC
+fallback; remaining shards publish empty receipts. Target receipts bind the
+plan, assignment, exclusions, and immutable comparison references.
+
+Merge requires every receipt and independently audits survivor obligations.
+Its intermediate certificate explicitly has `survivor_set` scope, even though
+the unchanged parent plan requests complete operational inputs. It is validated
+by the distributed merge/completion interfaces; the ordinary final selection
+auditor rejects it as insufficient for that plan. Completion shards partition
+unordered survivor pairs, reusing validated reports already present. Finish
+requires all completion receipts and the complete certificate audit before
+publishing the final selection. Existing local accelerated and exhaustive
+interfaces remain available. Duplicate live workers for the same shard are
+unsupported and fail closed on publication conflicts; resumption runs after the
+previous worker has stopped.

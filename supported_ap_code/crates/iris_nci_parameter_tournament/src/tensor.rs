@@ -128,6 +128,73 @@ pub fn load_metadata(path: &Path) -> Result<Metadata> {
     })
 }
 
+// Validate external column validity and scalar domains before any value() access.
+// Only required columns are checked: unrelated nullable metadata may be present.
+fn validate_input_batch(
+    batch: &RecordBatch,
+    path: &Path,
+    batch_index: usize,
+    required: &[&str],
+) -> Result<()> {
+    for &name in required {
+        let index = batch.schema().index_of(name).with_context(|| {
+            format!(
+                "{}: batch {batch_index}, missing required column {name}",
+                path.display()
+            )
+        })?;
+        let column = batch.column(index);
+        if column.null_count() != 0 {
+            let row = (0..column.len())
+                .find(|&row| column.is_null(row))
+                .expect("nonzero null count");
+            bail!(
+                "{}: batch {batch_index}, row {row}, column {name}: required value is null",
+                path.display()
+            );
+        }
+        if name == "label" {
+            let labels = column
+                .as_any()
+                .downcast_ref::<UInt8Array>()
+                .with_context(|| {
+                    format!(
+                        "{}: batch {batch_index}, column label must be uint8",
+                        path.display()
+                    )
+                })?;
+            for (row, &label) in labels.values().iter().enumerate() {
+                if label > 1 {
+                    bail!(
+                        "{}: batch {batch_index}, row {row}, column label: expected 0 or 1, got {label}",
+                        path.display()
+                    );
+                }
+            }
+        }
+        if matches!(name, "q_value" | "pos_prob" | "neg_prob" | "pi_eh") {
+            let values = column
+                .as_any()
+                .downcast_ref::<Float32Array>()
+                .with_context(|| {
+                    format!(
+                        "{}: batch {batch_index}, column {name} must be float32",
+                        path.display()
+                    )
+                })?;
+            for (row, &value) in values.values().iter().enumerate() {
+                if !value.is_finite() || value < 0.0 {
+                    bail!(
+                        "{}: batch {batch_index}, row {row}, column {name}: expected finite nonnegative value, got {value}",
+                        path.display()
+                    );
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
 fn column_index(batch: &RecordBatch, name: &str) -> Result<usize> {
     batch
         .schema()
@@ -170,8 +237,27 @@ fn string_column<'a>(batch: &'a RecordBatch, name: &str) -> Result<&'a StringArr
 pub fn load_observations(path: &Path) -> Result<Vec<Observation>> {
     let file = File::open(path).with_context(|| format!("opening {}", path.display()))?;
     let mut observations = Vec::new();
-    for batch in ParquetRecordBatchReaderBuilder::try_new(file)?.build()? {
+    for (batch_index, batch) in ParquetRecordBatchReaderBuilder::try_new(file)?
+        .build()?
+        .enumerate()
+    {
         let batch = batch?;
+        validate_input_batch(
+            &batch,
+            path,
+            batch_index,
+            &[
+                "obs_idx",
+                "peptide",
+                "hla",
+                "env_id",
+                "patient_id",
+                "label",
+                "gene",
+                "cancer_type",
+                "wt_mt_group_id",
+            ],
+        )?;
         let obs_idx = u32_column(&batch, "obs_idx")?;
         let peptide = string_column(&batch, "peptide")?;
         let hla = string_column(&batch, "hla")?;
@@ -183,9 +269,6 @@ pub fn load_observations(path: &Path) -> Result<Vec<Observation>> {
         let wt_mt_group_id = string_column(&batch, "wt_mt_group_id")?;
         for index in 0..batch.num_rows() {
             let label = label.value(index);
-            if label > 1 {
-                bail!("NCI label must be zero or one");
-            }
             observations.push(Observation {
                 obs_idx: obs_idx.value(index) as usize,
                 peptide: peptide.value(index).to_owned(),
@@ -219,31 +302,48 @@ pub fn load_observations(path: &Path) -> Result<Vec<Observation>> {
 
 fn load_constant_q(path: &Path, observation_count: usize) -> Result<Vec<f32>> {
     let file = File::open(path).with_context(|| format!("opening {}", path.display()))?;
-    let mut values = vec![f32::NAN; observation_count];
-    for batch in ParquetRecordBatchReaderBuilder::try_new(file)?.build()? {
+    let mut values = vec![None::<f32>; observation_count];
+    for (batch_index, batch) in ParquetRecordBatchReaderBuilder::try_new(file)?
+        .build()?
+        .enumerate()
+    {
         let batch = batch?;
+        validate_input_batch(&batch, path, batch_index, &["obs_idx", "q_value"])?;
         let obs_idx = u32_column(&batch, "obs_idx")?;
         let q = f32_column(&batch, "q_value")?;
         for index in 0..batch.num_rows() {
             let obs = obs_idx.value(index) as usize;
             if obs >= observation_count {
-                bail!("Q source obs_idx {obs} is out of range");
+                bail!(
+                    "{}: batch {batch_index}, row {index}: Q source obs_idx {obs} is out of range",
+                    path.display()
+                );
             }
             let value = q.value(index);
-            if !value.is_finite() || value < 0.0 {
-                bail!("invalid q_value {value} for obs_idx {obs}");
-            }
-            if values[obs].is_nan() {
-                values[obs] = value;
-            } else if values[obs].to_bits() != value.to_bits() {
-                bail!("Q is parameter-dependent for source obs_idx {obs}");
+            match values[obs] {
+                None => values[obs] = Some(value),
+                Some(previous) if previous.to_bits() != value.to_bits() => {
+                    bail!(
+                        "{}: batch {batch_index}, row {index}: Q is parameter-dependent for obs_idx {obs}",
+                        path.display()
+                    );
+                }
+                Some(_) => {}
             }
         }
     }
-    if let Some(obs) = values.iter().position(|value| value.is_nan()) {
-        bail!("Q source contains no value for obs_idx {obs}");
-    }
-    Ok(values)
+    values
+        .into_iter()
+        .enumerate()
+        .map(|(obs, value)| {
+            value.with_context(|| {
+                format!(
+                    "{}: Q source contains no value for obs_idx {obs}",
+                    path.display()
+                )
+            })
+        })
+        .collect()
 }
 
 fn build_q_override(model: &ModelConfig, target: &[Observation]) -> Result<Option<Vec<f32>>> {
@@ -325,6 +425,39 @@ fn validate_candidate(candidate: &Candidate, metadata: &Metadata) -> Result<()> 
     Ok(())
 }
 
+/// Full-roster selection must cover the tensor's geometry × M/N grid, not
+/// merely all rows in a potentially truncated discovery metrics table.
+pub(crate) fn validate_complete_regime_grid(
+    candidates: &[Candidate],
+    metadata: &Metadata,
+) -> Result<()> {
+    let expected = metadata
+        .geometry_params
+        .len()
+        .checked_mul(metadata.n_mn)
+        .context("tensor regime count overflow")?;
+    if candidates.len() != expected {
+        bail!(
+            "all-regimes roster has {} candidates; tensor metadata declares {expected} regimes",
+            candidates.len()
+        );
+    }
+    let mut regimes = BTreeSet::new();
+    for candidate in candidates {
+        validate_candidate(candidate, metadata)?;
+        if !regimes.insert(candidate.parameters.regime_idx) {
+            bail!(
+                "all-regimes roster duplicates regime {}",
+                candidate.parameters.regime_idx
+            );
+        }
+    }
+    if !regimes.into_iter().eq(0..expected) {
+        bail!("all-regimes roster does not cover the complete tensor grid");
+    }
+    Ok(())
+}
+
 pub fn score_model_candidates(
     model: &ModelConfig,
     candidates: &[Candidate],
@@ -362,15 +495,36 @@ pub fn score_model_candidates(
         .keys()
         .map(|&regime| (regime, vec![f32::NEG_INFINITY; observations.len()]))
         .collect();
-    let mut counts: BTreeMap<usize, Vec<usize>> = unique
+    let coverage_len = observations
+        .len()
+        .checked_mul(metadata.n_tau)
+        .context("selected tensor coverage size overflow")?;
+    let mut seen: BTreeMap<usize, Vec<bool>> = unique
         .keys()
-        .map(|&regime| (regime, vec![0; observations.len()]))
+        .map(|&regime| (regime, vec![false; coverage_len]))
         .collect();
 
     let file = File::open(&model.primary.tensor.path)
         .with_context(|| format!("opening {}", model.primary.tensor.path.display()))?;
-    for batch in ParquetRecordBatchReaderBuilder::try_new(file)?.build()? {
+    for (batch_index, batch) in ParquetRecordBatchReaderBuilder::try_new(file)?
+        .build()?
+        .enumerate()
+    {
         let batch = batch?;
+        validate_input_batch(
+            &batch,
+            &model.primary.tensor.path,
+            batch_index,
+            &[
+                "obs_idx",
+                "param_idx",
+                "mn_idx",
+                "q_value",
+                "pos_prob",
+                "neg_prob",
+                "pi_eh",
+            ],
+        )?;
         let obs_idx = u32_column(&batch, "obs_idx")?;
         let param_idx = u32_column(&batch, "param_idx")?;
         let mn_idx = u32_column(&batch, "mn_idx")?;
@@ -383,12 +537,25 @@ pub fn score_model_candidates(
             let param = param_idx.value(index) as usize;
             let mn = mn_idx.value(index) as usize;
             if obs >= observations.len() || param >= metadata.n_params || mn >= metadata.n_mn {
-                bail!("primary tensor index is out of range");
+                bail!(
+                    "{}: batch {batch_index}, row {index}: tensor index out of range (obs_idx={obs}, param_idx={param}, mn_idx={mn})",
+                    model.primary.tensor.path.display()
+                );
             }
             let geometry = param / metadata.n_tau;
             let Some(&regime) = coordinates.get(&(geometry, mn)) else {
                 continue;
             };
+            let tau = param % metadata.n_tau;
+            let covered =
+                &mut seen.get_mut(&regime).expect("registered regime")[obs * metadata.n_tau + tau];
+            if *covered {
+                bail!(
+                    "{}: batch {batch_index}, row {index}: duplicate tensor cell (obs_idx={obs}, regime_idx={regime}, tau={tau})",
+                    model.primary.tensor.path.display()
+                );
+            }
+            *covered = true;
             let q_value = q_override
                 .as_ref()
                 .map_or(q.value(index), |values| values[obs]);
@@ -406,18 +573,15 @@ pub fn score_model_candidates(
             if value > *slot {
                 *slot = value;
             }
-            counts.get_mut(&regime).expect("registered regime")[obs] += 1;
         }
     }
-    for (&regime, regime_counts) in &counts {
-        if let Some(obs) = regime_counts
-            .iter()
-            .position(|&count| count != metadata.n_tau)
-        {
+    for (&regime, coverage) in &seen {
+        if let Some(cell) = coverage.iter().position(|&present| !present) {
+            let obs = cell / metadata.n_tau;
+            let tau = cell % metadata.n_tau;
             bail!(
-                "regime {regime}, obs_idx {obs} has {} tau rows; expected {}",
-                regime_counts[obs],
-                metadata.n_tau
+                "{}: missing tensor cell (obs_idx={obs}, regime_idx={regime}, tau={tau})",
+                model.primary.tensor.path.display()
             );
         }
     }

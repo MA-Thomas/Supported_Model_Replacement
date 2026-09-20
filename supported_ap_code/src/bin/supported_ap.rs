@@ -129,11 +129,14 @@ struct PrevalenceArgs {
     interval_upper: Option<f64>,
     #[arg(long)]
     transport_justification: String,
-    #[arg(long, default_value_t = 257)]
+    #[arg(long, default_value_t = 3)]
+    /// Initial interval grid; additional points are chosen adaptively.
     search_grid_points: usize,
     #[arg(long, default_value_t = 1e-8)]
+    /// Absolute error tolerance in the retained effect.
     search_tolerance: f64,
     #[arg(long, default_value_t = 128)]
+    /// Maximum total interval bisections, shared by both directions.
     search_max_iterations: usize,
 }
 

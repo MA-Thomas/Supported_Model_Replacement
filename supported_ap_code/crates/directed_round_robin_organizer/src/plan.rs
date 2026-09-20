@@ -136,59 +136,90 @@ pub fn plan_with_match_target(
     )
 }
 
+/// Constructs the canonical pair independently of any scheduling or sharding.
+/// Match identities and seeds are identical in exhaustive and accelerated runs.
+pub fn match_for_pair(
+    bundle: &LoadedBundle,
+    evaluation_id: &str,
+    a: &str,
+    b: &str,
+) -> Result<MatchPlan> {
+    if a == b {
+        return Err(Error::InvalidPlan("a match needs distinct systems".into()));
+    }
+    let (low, high) = if a < b { (a, b) } else { (b, a) };
+    let evaluation = bundle
+        .evaluations
+        .get(evaluation_id)
+        .ok_or_else(|| Error::InvalidPlan(format!("unknown evaluation {evaluation_id}")))?;
+    let score_hash_low = evaluation
+        .score_vector_hashes
+        .get(low)
+        .ok_or_else(|| Error::InvalidPlan(format!("unknown system {low}")))?
+        .clone();
+    let score_hash_high = evaluation
+        .score_vector_hashes
+        .get(high)
+        .ok_or_else(|| Error::InvalidPlan(format!("unknown system {high}")))?
+        .clone();
+    let identity = MatchIdentity {
+        schema_version: PLAN_SCHEMA_VERSION,
+        tournament_content_hash: &bundle.manifest.bundle_content_hash,
+        metric: bundle.spec.metric,
+        evaluation_id,
+        system_low: low,
+        system_high: high,
+        score_hash_low: &score_hash_low,
+        score_hash_high: &score_hash_high,
+        label_vector_hash: &evaluation.label_vector_hash,
+        assessment_policy_hash: &bundle.policy_hash,
+        seed_derivation_version: bundle.spec.seed_derivation_version,
+    };
+    let seed = seed_from_hash_material(&SeedMaterial {
+        master_seed: bundle.spec.master_seed,
+        metric: bundle.spec.metric,
+        evaluation_id,
+        system_low: low,
+        system_high: high,
+        seed_derivation_version: bundle.spec.seed_derivation_version,
+    })?;
+    Ok(MatchPlan {
+        match_id: hash_serializable(&identity)?,
+        evaluation_id: evaluation_id.into(),
+        system_low: low.into(),
+        system_high: high.into(),
+        score_hash_low,
+        score_hash_high,
+        label_vector_hash: evaluation.label_vector_hash.clone(),
+        seed,
+        shard_id: 0,
+    })
+}
+
+pub fn tournament_id(bundle: &LoadedBundle) -> Result<String> {
+    hash_serializable(&(
+        "directed-round-robin-tournament-v1",
+        &bundle.manifest.bundle_content_hash,
+        bundle.spec.metric,
+        &bundle.policy_hash,
+    ))
+}
+
 fn enumerate_matches(bundle: &LoadedBundle) -> Result<Vec<MatchPlan>> {
     let systems = bundle.registry.sorted_systems();
     let pairs_per_evaluation = systems.len() * (systems.len() - 1) / 2;
     let expected = bundle.evaluations.len() * pairs_per_evaluation;
     let mut matches_by_evaluation = Vec::with_capacity(bundle.evaluations.len());
-    for (evaluation_id, evaluation) in &bundle.evaluations {
+    for evaluation_id in bundle.evaluations.keys() {
         let mut evaluation_matches = Vec::with_capacity(pairs_per_evaluation);
         for low_index in 0..systems.len() {
             for high_index in low_index + 1..systems.len() {
-                let low = systems[low_index];
-                let high = systems[high_index];
-                let score_hash_low = evaluation
-                    .score_vector_hashes
-                    .get(&low.system_id)
-                    .expect("validated score vector")
-                    .clone();
-                let score_hash_high = evaluation
-                    .score_vector_hashes
-                    .get(&high.system_id)
-                    .expect("validated score vector")
-                    .clone();
-                let identity = MatchIdentity {
-                    schema_version: PLAN_SCHEMA_VERSION,
-                    tournament_content_hash: &bundle.manifest.bundle_content_hash,
-                    metric: bundle.spec.metric,
+                evaluation_matches.push(match_for_pair(
+                    bundle,
                     evaluation_id,
-                    system_low: &low.system_id,
-                    system_high: &high.system_id,
-                    score_hash_low: &score_hash_low,
-                    score_hash_high: &score_hash_high,
-                    label_vector_hash: &evaluation.label_vector_hash,
-                    assessment_policy_hash: &bundle.policy_hash,
-                    seed_derivation_version: bundle.spec.seed_derivation_version,
-                };
-                let seed_material = SeedMaterial {
-                    master_seed: bundle.spec.master_seed,
-                    metric: bundle.spec.metric,
-                    evaluation_id,
-                    system_low: &low.system_id,
-                    system_high: &high.system_id,
-                    seed_derivation_version: bundle.spec.seed_derivation_version,
-                };
-                evaluation_matches.push(MatchPlan {
-                    match_id: hash_serializable(&identity)?,
-                    evaluation_id: evaluation_id.clone(),
-                    system_low: low.system_id.clone(),
-                    system_high: high.system_id.clone(),
-                    score_hash_low,
-                    score_hash_high,
-                    label_vector_hash: evaluation.label_vector_hash.clone(),
-                    seed: seed_from_hash_material(&seed_material)?,
-                    shard_id: 0,
-                });
+                    &systems[low_index].system_id,
+                    &systems[high_index].system_id,
+                )?);
             }
         }
         // Content ordering scatters system pairs without introducing an
@@ -218,12 +249,7 @@ fn finish_plan(
     shard_count: usize,
     matches: Vec<MatchPlan>,
 ) -> Result<TournamentPlan> {
-    let tournament_id = hash_serializable(&(
-        "directed-round-robin-tournament-v1",
-        &bundle.manifest.bundle_content_hash,
-        bundle.spec.metric,
-        &bundle.policy_hash,
-    ))?;
+    let tournament_id = tournament_id(bundle)?;
     let assignments = matches
         .iter()
         .map(|item| (item.match_id.as_str(), item.shard_id))

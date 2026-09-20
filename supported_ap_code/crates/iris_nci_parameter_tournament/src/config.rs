@@ -20,6 +20,42 @@ pub const MODELS: [&str; 5] = [
     "full_q_mono_pn",
 ];
 
+/// Roster construction is independent of exhaustive/accelerated execution.
+#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum RosterMode {
+    #[default]
+    RankedUniqueBiologicalKey,
+    AllRegimes,
+}
+
+impl RosterMode {
+    pub fn is_default(&self) -> bool {
+        *self == Self::RankedUniqueBiologicalKey
+    }
+
+    pub fn rule(self) -> &'static str {
+        match self {
+            Self::RankedUniqueBiologicalKey => "metric_rank_then_first_unique_d_pos_d_neg_M_N",
+            Self::AllRegimes => "all_regimes_in_regime_idx_order",
+        }
+    }
+
+    pub fn ordering_rule(self) -> &'static str {
+        match self {
+            Self::RankedUniqueBiologicalKey => "primary_metric_desc_regime_idx_asc",
+            Self::AllRegimes => "regime_idx_asc",
+        }
+    }
+
+    pub fn diversity_key(self) -> &'static [&'static str] {
+        match self {
+            Self::RankedUniqueBiologicalKey => &["d_pos", "d_neg", "M", "N"],
+            Self::AllRegimes => &[],
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct HashedInput {
@@ -90,6 +126,13 @@ pub struct TournamentConfig {
     pub operational_prevalences: TargetPrevalences,
     pub operational_search: SearchOptions,
     pub operational_scope_statement: String,
+    /// The currently implemented AUROC tertiary rule uses the observed mix.
+    #[serde(default = "default_operational_auroc_gamma")]
+    pub operational_auroc_gamma: f64,
+}
+
+fn default_operational_auroc_gamma() -> f64 {
+    1.0
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -97,6 +140,10 @@ pub struct TournamentConfig {
 pub struct PipelineConfig {
     pub schema_version: u32,
     pub provider_identity: String,
+    #[serde(default, skip_serializing_if = "RosterMode::is_default")]
+    pub roster_mode: RosterMode,
+    /// Selection limit for the ranked mode; exact expected full-grid count
+    /// (never a truncation limit) for all-regimes mode.
     pub candidate_count: usize,
     pub log_epsilon: f64,
     pub models: BTreeMap<String, ModelConfig>,
@@ -105,9 +152,41 @@ pub struct PipelineConfig {
 
 impl PipelineConfig {
     pub fn load(path: &Path) -> Result<Self> {
-        let config: Self = read_json(path)?;
+        let config = Self::load_structure(path)?;
         config.validate(true)?;
         Ok(config)
+    }
+
+    pub fn load_structure(path: &Path) -> Result<Self> {
+        let mut config: Self = read_json(path)?;
+        let base = path
+            .canonicalize()?
+            .parent()
+            .context("configuration directory")?
+            .to_owned();
+        for input in config.inputs_mut() {
+            if input.path.is_relative() {
+                input.path = base.join(&input.path);
+            }
+        }
+        config.validate_structure()?;
+        Ok(config)
+    }
+
+    pub fn inputs_mut(&mut self) -> Vec<&mut HashedInput> {
+        let mut inputs = Vec::new();
+        for model in self.models.values_mut() {
+            inputs.push(&mut model.metrics);
+            inputs.extend([
+                &mut model.primary.tensor,
+                &mut model.primary.observations,
+                &mut model.primary.metadata,
+            ]);
+            if let Some(q) = &mut model.query_q {
+                inputs.extend([&mut q.tensor, &mut q.observations, &mut q.metadata]);
+            }
+        }
+        inputs
     }
 
     pub fn validate_structure(&self) -> Result<()> {
@@ -126,6 +205,11 @@ impl PipelineConfig {
         }
         if self.candidate_count < 2 {
             bail!("candidate_count must be at least two");
+        }
+        if self.tournament.operational_auroc_gamma != 1.0 {
+            bail!(
+                "operational_auroc_gamma must be 1; case-mix AUROC regret for Gamma > 1 is not implemented"
+            );
         }
         if !(self.log_epsilon.is_finite() && self.log_epsilon > 0.0) {
             bail!("log_epsilon must be finite and positive");
@@ -213,7 +297,7 @@ impl PipelineConfig {
                 ("provider_domain".into(), serde_json::json!("IRIS_NCI")),
                 (
                     "parameter_roster_rule".into(),
-                    serde_json::json!("metric_rank_then_first_unique_d_pos_d_neg_M_N"),
+                    serde_json::json!(self.roster_mode.rule()),
                 ),
                 (
                     "operational_prevalences".into(),
@@ -227,5 +311,80 @@ impl PipelineConfig {
             ]),
             operational_tie_break: None,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn empirical_auroc_gamma_defaults_to_one_and_rejects_other_values() {
+        let mut value: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../../IRIS_scripts/nci_parameter_tournament/config.nci.v1.json"
+        ))
+        .unwrap();
+        value["tournament"]
+            .as_object_mut()
+            .unwrap()
+            .remove("operational_auroc_gamma");
+        let mut config: PipelineConfig = serde_json::from_value(value).unwrap();
+        assert_eq!(config.tournament.operational_auroc_gamma, 1.0);
+        config.validate_structure().unwrap();
+        for gamma in [0.5, 1.01, f64::NAN, f64::INFINITY] {
+            config.tournament.operational_auroc_gamma = gamma;
+            assert!(
+                config
+                    .validate_structure()
+                    .unwrap_err()
+                    .to_string()
+                    .contains("operational_auroc_gamma")
+            );
+        }
+    }
+
+    #[test]
+    fn historical_config_keeps_legacy_roster_and_all_mode_is_explicit() {
+        let original: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../../IRIS_scripts/nci_parameter_tournament/config.nci.v1.json"
+        ))
+        .unwrap();
+        let old: PipelineConfig = serde_json::from_value(original.clone()).unwrap();
+        old.validate_structure().unwrap();
+        assert_eq!(old.roster_mode, RosterMode::RankedUniqueBiologicalKey);
+        assert_eq!(old.candidate_count, 20);
+        assert!(
+            serde_json::to_value(&old)
+                .unwrap()
+                .get("roster_mode")
+                .is_none()
+        );
+        let all: PipelineConfig = serde_json::from_str(include_str!(
+            "../../../../IRIS_scripts/nci_parameter_tournament/config.nci.all_regimes.v1.json"
+        ))
+        .unwrap();
+        all.validate_structure().unwrap();
+        assert_eq!(all.roster_mode, RosterMode::AllRegimes);
+        assert_eq!(all.candidate_count, 4200);
+        let mut restored = all.clone();
+        restored.roster_mode = RosterMode::default();
+        restored.candidate_count = 20;
+        // Keep the old config bytes (including historical CNAP wording) bound
+        // to completed artifacts; the new config documents metric-specific regret.
+        restored.tournament.operational_scope_statement =
+            old.tournament.operational_scope_statement.clone();
+        assert_eq!(
+            serde_json::to_value(restored).unwrap(),
+            serde_json::to_value(&old).unwrap()
+        );
+        for branch in ["pr", "roc"] {
+            assert_ne!(
+                old.tournament_spec(branch).unwrap().annotations["parameter_roster_rule"],
+                all.tournament_spec(branch).unwrap().annotations["parameter_roster_rule"]
+            );
+        }
+        let mut invalid = original;
+        invalid["roster_mode"] = serde_json::json!("all_regime_typo");
+        assert!(serde_json::from_value::<PipelineConfig>(invalid).is_err());
     }
 }

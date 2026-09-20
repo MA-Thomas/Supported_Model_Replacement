@@ -16,11 +16,13 @@ use time::OffsetDateTime;
 use time::format_description::well_known::Rfc3339;
 
 use crate::candidates::{
-    Candidate, CandidateSelection, MetricBranch, load_metric_rows, select_candidates, write_scan,
+    Candidate, CandidateSelection, MetricBranch, load_metric_rows, select_roster, write_scan,
 };
-use crate::config::{MODELS, ModelConfig, PipelineConfig};
+use crate::config::{MODELS, ModelConfig, PipelineConfig, RosterMode};
 use crate::io::{collect_file_hashes, sha256_file, stage_path, write_json, write_json_new};
-use crate::tensor::{Observation, ScoredModel, score_model_candidates};
+use crate::tensor::{
+    Observation, ScoredModel, load_metadata, score_model_candidates, validate_complete_regime_grid,
+};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PreparedBranch {
@@ -44,8 +46,10 @@ struct CandidateRoster<'a> {
     model_id: &'a str,
     metric: MetricBranch,
     candidate_count: usize,
+    #[serde(skip_serializing_if = "RosterMode::is_default")]
+    roster_mode: RosterMode,
     ranking_rule: &'static str,
-    diversity_key: [&'static str; 4],
+    diversity_key: &'static [&'static str],
     candidates: &'a [Candidate],
 }
 
@@ -70,9 +74,9 @@ pub fn prepare(config_path: &Path, output: &Path) -> Result<PrepareSummary> {
             .into_iter()
             .flatten()
             .collect::<Vec<_>>();
-        let manifest = json!({
-            "schema_version": 1,
-            "config": config_path,
+        let mut manifest = json!({
+            "schema_version": 2,
+            "config": crate::io::relative_path(output, &config_path)?,
             "config_sha256": config_sha256,
             "candidate_count_per_branch": config.candidate_count,
             "models": MODELS,
@@ -80,6 +84,9 @@ pub fn prepare(config_path: &Path, output: &Path) -> Result<PrepareSummary> {
             "branches": branches,
             "files": collect_file_hashes(&stage)?,
         });
+        if !config.roster_mode.is_default() {
+            manifest["roster_mode"] = serde_json::to_value(config.roster_mode)?;
+        }
         write_json_new(&stage.join("manifest.json"), &manifest)?;
         fs::rename(&stage, output)?;
         Ok(PrepareSummary {
@@ -108,10 +115,21 @@ fn prepare_model(
         .map(|branch| {
             Ok((
                 branch,
-                select_candidates(model_id, branch, &rows, config.candidate_count)?,
+                select_roster(
+                    model_id,
+                    branch,
+                    &rows,
+                    config.roster_mode,
+                    config.candidate_count,
+                )?,
             ))
         })
         .collect::<Result<BTreeMap<_, _>>>()?;
+    if config.roster_mode == RosterMode::AllRegimes {
+        let metadata = load_metadata(&model.primary.metadata.path)?;
+        validate_complete_regime_grid(&selections[&MetricBranch::Pr].selected, &metadata)
+            .with_context(|| format!("validating complete regime grid for {model_id}"))?;
+    }
     let all_candidates = selections
         .values()
         .flat_map(|selection| selection.selected.iter().cloned())
@@ -156,14 +174,21 @@ fn build_branch(
             model_id,
             metric: branch,
             candidate_count: selection.selected.len(),
-            ranking_rule: "primary_metric_desc_regime_idx_asc",
-            diversity_key: ["d_pos", "d_neg", "M", "N"],
+            roster_mode: config.roster_mode,
+            ranking_rule: config.roster_mode.ordering_rule(),
+            diversity_key: config.roster_mode.diversity_key(),
             candidates: &selection.selected,
         },
     )?;
     let bundle = branch_root.join("bundle");
     fs::create_dir_all(bundle.join("evaluations/nci"))?;
-    let registry = registry(model_id, model, branch, &selection.selected)?;
+    let registry = registry(
+        model_id,
+        model,
+        branch,
+        &selection.selected,
+        config.roster_mode,
+    )?;
     let mut spec = config.tournament_spec(branch.id())?;
     spec.annotations
         .insert("component_model_id".into(), json!(model_id));
@@ -227,6 +252,7 @@ fn registry(
     model: &ModelConfig,
     branch: MetricBranch,
     candidates: &[Candidate],
+    mode: RosterMode,
 ) -> Result<SystemRegistry> {
     let systems = candidates
         .iter()
@@ -235,10 +261,19 @@ fn registry(
             Ok(SystemRecord {
                 system_id: candidate.system_id.clone(),
                 display_label: format!(
-                    "{} {} rank {}: d+= {}, d-= {}, M={}, N={}, s+= {}, s-= {}",
+                    "{} {} {} {}: d+= {}, d-= {}, M={}, N={}, s+= {}, s-= {}",
                     model.display_label,
                     branch.id().to_uppercase(),
-                    candidate.selected_rank,
+                    if mode == RosterMode::AllRegimes {
+                        "regime"
+                    } else {
+                        "rank"
+                    },
+                    if mode == RosterMode::AllRegimes {
+                        row.regime_idx
+                    } else {
+                        candidate.selected_rank
+                    },
                     row.d_pos,
                     row.d_neg,
                     row.m,
@@ -363,7 +398,7 @@ fn hashed_path(root: &Path, relative: PathBuf) -> Result<HashedPath> {
     })
 }
 
-fn evaluation_manifest(root: &Path, evaluation_id: &str) -> Result<EvaluationManifest> {
+pub(crate) fn evaluation_manifest(root: &Path, evaluation_id: &str) -> Result<EvaluationManifest> {
     let base = PathBuf::from("evaluations").join(evaluation_id);
     Ok(EvaluationManifest {
         evaluation_id: evaluation_id.to_owned(),
@@ -373,7 +408,7 @@ fn evaluation_manifest(root: &Path, evaluation_id: &str) -> Result<EvaluationMan
     })
 }
 
-fn finalize_bundle(
+pub(crate) fn finalize_bundle(
     root: &Path,
     provider_identity: String,
     metric: MetricKind,
@@ -418,8 +453,20 @@ pub fn audit_prepared(root: &Path) -> Result<()> {
     let config_sha256 = manifest["config_sha256"]
         .as_str()
         .context("prepared manifest config_sha256")?;
-    if sha256_file(Path::new(config_path))? != config_sha256 {
+    let config_path = root.join(config_path);
+    if sha256_file(&config_path)? != config_sha256 {
         bail!("prepared package configuration no longer matches its manifest")
+    }
+    let config = PipelineConfig::load_structure(&config_path)?;
+    let declared_mode: RosterMode = manifest
+        .get("roster_mode")
+        .map(|v| serde_json::from_value(v.clone()))
+        .transpose()?
+        .unwrap_or_default();
+    if declared_mode != config.roster_mode
+        || manifest["candidate_count_per_branch"].as_u64() != Some(config.candidate_count as u64)
+    {
+        bail!("prepared roster mode/count differs from configuration");
     }
     let expected_files = manifest["files"]
         .as_object()
@@ -434,10 +481,75 @@ pub fn audit_prepared(root: &Path) -> Result<()> {
         }
     }
     for model in MODELS {
+        let inputs = &config.models[model];
+        let complete_grid = if config.roster_mode == RosterMode::AllRegimes {
+            inputs.metrics.validate("metrics")?;
+            inputs.primary.metadata.validate("metadata")?;
+            Some((
+                load_metric_rows(&inputs.metrics.path)?,
+                load_metadata(&inputs.primary.metadata.path)?,
+            ))
+        } else {
+            None
+        };
         for branch in MetricBranch::ALL {
-            load_bundle(&root.join(model).join(branch.id()).join("bundle"))
-                .map_err(anyhow::Error::msg)?;
+            let branch_root = root.join(model).join(branch.id());
+            let loaded = load_bundle(&branch_root.join("bundle")).map_err(anyhow::Error::msg)?;
+            if let Some((rows, metadata)) = &complete_grid {
+                let selection = select_roster(
+                    model,
+                    branch,
+                    rows,
+                    config.roster_mode,
+                    config.candidate_count,
+                )?;
+                validate_complete_regime_grid(&selection.selected, metadata)?;
+                let expected = serde_json::to_value(CandidateRoster {
+                    schema_version: 1,
+                    model_id: model,
+                    metric: branch,
+                    candidate_count: selection.selected.len(),
+                    roster_mode: config.roster_mode,
+                    ranking_rule: config.roster_mode.ordering_rule(),
+                    diversity_key: config.roster_mode.diversity_key(),
+                    candidates: &selection.selected,
+                })?;
+                let actual: serde_json::Value =
+                    crate::io::read_json(&branch_root.join("candidate_roster.json"))?;
+                if expected != actual
+                    || loaded.registry
+                        != registry(
+                            model,
+                            inputs,
+                            branch,
+                            &selection.selected,
+                            config.roster_mode,
+                        )?
+                {
+                    bail!(
+                        "{model}/{} prepared roster does not match the complete regime grid",
+                        branch.id()
+                    );
+                }
+                if loaded.spec.annotations.get("parameter_roster_rule")
+                    != Some(&json!(config.roster_mode.rule()))
+                {
+                    bail!(
+                        "{model}/{} bundle declares the wrong roster rule",
+                        branch.id()
+                    );
+                }
+            }
         }
     }
     Ok(())
+}
+
+/// Reject reuse of an old prepared package under a different requested config.
+pub fn audit_prepared_for_config(root: &Path, config_path: &Path) -> Result<()> {
+    let manifest: serde_json::Value = crate::io::read_json(&root.join("manifest.json"))?;
+    if manifest["config_sha256"].as_str() != Some(sha256_file(config_path)?.as_str()) {
+        bail!("prepared package belongs to a different configuration; choose a new run root");
+    }
+    audit_prepared(root)
 }

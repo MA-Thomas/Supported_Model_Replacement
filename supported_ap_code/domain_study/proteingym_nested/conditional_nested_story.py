@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+from domain_study.search_evidence import effect_columns, evidence_columns
 STUDY = Path(__file__).resolve().parent
 PARENT_STUDY = ROOT / "domain_study" / "proteingym"
 SOURCE_SCORES = PARENT_STUDY / "outputs" / "predictions" / "proteingym_observed_scores.csv"
@@ -78,8 +80,8 @@ class Profile:
 
 
 PROFILES = {
-    "quick": Profile(16, 65, 1e-6, 64),
-    "publication": Profile(200, 257, 1e-8, 128),
+    "quick": Profile(16, 3, 1e-6, 64),
+    "publication": Profile(200, 3, 1e-8, 128),
 }
 
 
@@ -290,6 +292,7 @@ def extract_tables(
         record = {
             "assay_id": assay_id,
             "observed_anchor": retained["observed"]["value"],
+            **effect_columns(retained["observed"], "observed_"),
             "limiting_prevalence": retained["observed"]["limiting_prevalence"],
             "computational_minimum": float(np.min(effects)),
             "computational_q05": float(np.quantile(effects, 0.05)),
@@ -332,6 +335,7 @@ def extract_tables(
                 "supported_magnitude": gate["supported_magnitude"],
                 "literal_survival": gate["literal_survival"]["subset_fraction"],
                 "verdict": gate["verdict"],
+                **evidence_columns(gate),
                 "mean_observed_anchor": gate["mean_retained_effect"],
                 "survivor_count": gate["literal_survival"]["survivor_count"],
                 "effect_count": gate["literal_survival"]["list_length"],
@@ -341,6 +345,7 @@ def extract_tables(
                 "supported_magnitude": full["supported_magnitude"],
                 "literal_survival": full["literal_survival"]["subset_fraction"],
                 "verdict": full["verdict"],
+                **evidence_columns(full),
                 "mean_observed_anchor": gate["mean_retained_effect"],
                 "survivor_count": np.nan,
                 "effect_count": len(rows),

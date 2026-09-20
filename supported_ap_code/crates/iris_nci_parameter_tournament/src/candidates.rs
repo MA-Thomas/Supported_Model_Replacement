@@ -5,6 +5,8 @@ use std::path::Path;
 use anyhow::{Context, Result, bail};
 use serde::{Deserialize, Serialize};
 
+use crate::config::RosterMode;
+
 #[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(rename_all = "snake_case")]
 pub enum MetricBranch {
@@ -65,6 +67,8 @@ pub struct Candidate {
     pub system_id: String,
     pub model_id: String,
     pub metric: MetricBranch,
+    /// One-based roster position. In all-regimes mode this is regime-index
+    /// order, not empirical performance rank.
     pub selected_rank: usize,
     #[serde(flatten)]
     pub parameters: MetricRow,
@@ -233,6 +237,66 @@ pub fn select_candidates(
     Ok(CandidateSelection { selected, scan })
 }
 
+pub fn select_roster(
+    model_id: &str,
+    branch: MetricBranch,
+    rows: &[MetricRow],
+    mode: RosterMode,
+    candidate_count: usize,
+) -> Result<CandidateSelection> {
+    match mode {
+        RosterMode::RankedUniqueBiologicalKey => {
+            select_candidates(model_id, branch, rows, candidate_count)
+        }
+        RosterMode::AllRegimes => all_regimes(model_id, branch, rows, candidate_count),
+    }
+}
+
+fn all_regimes(
+    model_id: &str,
+    branch: MetricBranch,
+    rows: &[MetricRow],
+    expected_count: usize,
+) -> Result<CandidateSelection> {
+    if expected_count < 2 || rows.len() != expected_count {
+        bail!(
+            "{model_id}/{} all-regimes roster requires exactly {expected_count} metric rows (at least two); found {}",
+            branch.id(),
+            rows.len()
+        );
+    }
+    let mut ordered = rows.to_vec();
+    ordered.sort_by_key(|row| row.regime_idx);
+    let mut selected = Vec::with_capacity(ordered.len());
+    let mut scan = Vec::with_capacity(ordered.len());
+    for (index, row) in ordered.into_iter().enumerate() {
+        if row.regime_idx != index {
+            bail!(
+                "{model_id}/{} all-regimes roster must contain every regime index 0..{expected_count} exactly once; expected {index}, found {}",
+                branch.id(),
+                row.regime_idx
+            );
+        }
+        let position = index + 1;
+        let system_id = format!("{model_id}__{}__regime_{}", branch.id(), row.regime_idx);
+        selected.push(Candidate {
+            system_id: system_id.clone(),
+            model_id: model_id.into(),
+            metric: branch,
+            selected_rank: position,
+            parameters: row.clone(),
+        });
+        scan.push(ScanRow {
+            ranked_position: position,
+            selected_rank: Some(position),
+            disposition: "selected_all_regimes".into(),
+            representative_system_id: Some(system_id),
+            parameters: row,
+        });
+    }
+    Ok(CandidateSelection { selected, scan })
+}
+
 pub fn write_scan(path: &Path, rows: &[ScanRow]) -> Result<()> {
     let mut writer = csv::Writer::from_path(path)?;
     writer.write_record([
@@ -320,5 +384,92 @@ mod tests {
         );
         assert_eq!(result.scan[1].disposition, "duplicate_biological_key");
         assert_eq!(result.scan[3].disposition, "after_candidate_limit");
+        assert_eq!(
+            select_roster(
+                "full_hla",
+                MetricBranch::Pr,
+                &rows,
+                RosterMode::default(),
+                2
+            )
+            .unwrap(),
+            result
+        );
+    }
+
+    #[test]
+    fn all_4200_regimes_survive_regardless_of_metrics_or_shared_biological_key() {
+        let rows: Vec<_> = (0..4200)
+            .rev()
+            .map(|i| row(i, 15.0, 9.0, 1, 1, i as f64 / 4200.0))
+            .collect();
+        for metric in MetricBranch::ALL {
+            let roster =
+                select_roster("full_hla", metric, &rows, RosterMode::AllRegimes, 4200).unwrap();
+            assert_eq!(roster.selected.len(), 4200);
+            assert!(
+                roster
+                    .selected
+                    .iter()
+                    .map(|c| c.parameters.regime_idx)
+                    .eq(0..4200)
+            );
+            assert!(roster.selected.iter().map(|c| c.selected_rank).eq(1..=4200));
+            assert!(
+                roster
+                    .scan
+                    .iter()
+                    .all(|r| r.disposition == "selected_all_regimes")
+            );
+            let mut changed = rows.clone();
+            changed.reverse();
+            for r in &mut changed {
+                r.pr_auc = 0.0;
+                r.roc_auc = 1.0;
+            }
+            let other =
+                select_roster("full_hla", metric, &changed, RosterMode::AllRegimes, 4200).unwrap();
+            assert!(
+                roster
+                    .selected
+                    .iter()
+                    .zip(&other.selected)
+                    .all(|(a, b)| a.system_id == b.system_id && a.selected_rank == b.selected_rank)
+            );
+        }
+        assert!(select_candidates("full_hla", MetricBranch::Pr, &rows, 20).is_err());
+        assert!(
+            select_roster(
+                "full_hla",
+                MetricBranch::Pr,
+                &rows,
+                RosterMode::AllRegimes,
+                20
+            )
+            .is_err()
+        );
+    }
+
+    #[test]
+    fn all_regimes_rejects_duplicate_missing_and_out_of_range_indices() {
+        for indices in [vec![0, 0, 2], vec![0, 2, 3], vec![1, 2, 3]] {
+            let rows: Vec<_> = indices
+                .into_iter()
+                .map(|i| row(i, 15.0, 9.0, 1, 1, 0.5))
+                .collect();
+            assert!(
+                select_roster(
+                    "full_hla",
+                    MetricBranch::Pr,
+                    &rows,
+                    RosterMode::AllRegimes,
+                    3
+                )
+                .is_err()
+            );
+        }
+        assert!(
+            select_roster("full_hla", MetricBranch::Pr, &[], RosterMode::AllRegimes, 0).is_err()
+        );
     }
 }

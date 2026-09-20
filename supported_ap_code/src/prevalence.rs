@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{Error, Prevalence};
+use crate::{Error, Prevalence, enclosure::Enclosure, prevalence_profile::PreparedDifference};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
@@ -41,8 +41,13 @@ impl TargetPrevalences {
                 let width = upper.get() - lower.get();
                 (0..count)
                     .map(|index| {
-                        let value =
-                            lower.get() + width * index as f64 / (count.saturating_sub(1)) as f64;
+                        let value = if index == 0 {
+                            lower.get()
+                        } else if index + 1 == count {
+                            upper.get()
+                        } else {
+                            lower.get() + width * (index as f64 / (count - 1) as f64)
+                        };
                         Prevalence::new(value).expect("interior interval points are valid")
                     })
                     .collect()
@@ -51,6 +56,20 @@ impl TargetPrevalences {
     }
 
     pub(crate) fn validate(&self) -> Result<(), Error> {
+        // The bounded rational profile requires prevalence strictly in (0,1).
+        // Recheck at this boundary because deserialized transparent wrappers
+        // need not have passed through Prevalence::new.
+        match self {
+            Self::Finite { values } => {
+                for value in values {
+                    Prevalence::new(value.get())?;
+                }
+            }
+            Self::ClosedInterval { lower, upper } => {
+                Prevalence::new(lower.get())?;
+                Prevalence::new(upper.get())?;
+            }
+        }
         match self {
             Self::Finite { values } if values.is_empty() => Err(Error::EmptyPrevalenceSet),
             Self::ClosedInterval { lower, upper } if lower.get() > upper.get() => {
@@ -63,8 +82,11 @@ impl TargetPrevalences {
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct SearchOptions {
+    /// Initial grid (also used for diagnostics); subsequent points are adaptive.
     pub grid_points: usize,
+    /// Absolute error in the objective value, not in prevalence coordinates.
     pub tolerance: f64,
+    /// Maximum total interval bisections, shared by both directions.
     pub max_iterations: usize,
 }
 
@@ -94,154 +116,219 @@ impl SearchOptions {
 impl Default for SearchOptions {
     fn default() -> Self {
         Self {
-            grid_points: 257,
+            grid_points: 3,
             tolerance: 1e-8,
             max_iterations: 128,
         }
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PrevalenceSearchStop {
+    AccuracyReached,
+    BudgetExhausted,
+    FloatingPointLimit,
+}
+
+/// Bounds enclose the true interval minimum, including numerical rounding.
+/// Counts are for the shared forward/reverse search, not per direction.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct PrevalenceSearchCertificate {
+    pub lower_bound: f64,
+    pub upper_bound: f64,
+    pub sampled_value: f64,
+    /// Distinct prevalence point evaluations; interval bounds are additional work.
+    pub evaluations: usize,
+    pub iterations: usize,
+    pub stop_reason: PrevalenceSearchStop,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct ProfileExtremum {
+    /// For an interval, the conservative lower bound used by decisions.
     pub value: f64,
+    /// Best evaluated witness; it need not attain the conservative bound.
     pub prevalence: Prevalence,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub search: Option<PrevalenceSearchCertificate>,
 }
 
-pub(crate) fn minimize<F>(
+#[derive(Clone, Copy)]
+struct Sample {
+    prevalence: Prevalence,
+    value: Enclosure,
+}
+
+struct Segment {
+    left: Sample,
+    right: Sample,
+    range: Enclosure,
+}
+
+impl Segment {
+    fn new(profile: &PreparedDifference, left: Sample, right: Sample) -> Self {
+        Self {
+            range: profile.range(
+                left.prevalence.get(),
+                right.prevalence.get(),
+                left.value,
+                right.value,
+            ),
+            left,
+            right,
+        }
+    }
+
+    fn midpoint(&self) -> Option<Prevalence> {
+        let left = self.left.prevalence.get();
+        let right = self.right.prevalence.get();
+        let mid = left + (right - left) * 0.5;
+        (mid > left && mid < right).then(|| Prevalence::new(mid).unwrap())
+    }
+}
+
+pub(crate) fn interval_extrema(
     set: &TargetPrevalences,
     search: SearchOptions,
-    mut evaluate: F,
-) -> ProfileExtremum
-where
-    F: FnMut(Prevalence) -> f64,
-{
-    match set {
-        TargetPrevalences::Finite { values } => values
-            .iter()
-            .copied()
-            .map(|prevalence| ProfileExtremum {
-                value: evaluate(prevalence),
+    profile: &PreparedDifference,
+) -> (ProfileExtremum, ProfileExtremum, Vec<f64>) {
+    let points = set.diagnostic_points(search);
+    let mut samples: Vec<Sample> = Vec::with_capacity(points.len());
+    let mut diagnostics = Vec::with_capacity(points.len());
+    for prevalence in points {
+        if samples.last().is_none_or(|s| s.prevalence != prevalence) {
+            samples.push(Sample {
                 prevalence,
-            })
-            .min_by(|a, b| a.value.total_cmp(&b.value))
-            .expect("finite target set is validated as nonempty"),
-        TargetPrevalences::ClosedInterval { lower, upper } => {
-            if lower == upper {
-                return ProfileExtremum {
-                    value: evaluate(*lower),
-                    prevalence: *lower,
-                };
-            }
-
-            let points = set.diagnostic_points(search);
-            let values: Vec<f64> = points.iter().copied().map(&mut evaluate).collect();
-            let mut best_index = values
-                .iter()
-                .enumerate()
-                .min_by(|left, right| left.1.total_cmp(right.1))
-                .map(|(index, _)| index)
-                .expect("interval grid is nonempty");
-            let mut best = ProfileExtremum {
-                value: values[best_index],
-                prevalence: points[best_index],
-            };
-
-            for index in 1..points.len() - 1 {
-                if values[index] <= values[index - 1] && values[index] <= values[index + 1] {
-                    let candidate = golden_section_minimum(
-                        points[index - 1],
-                        points[index + 1],
-                        search,
-                        &mut evaluate,
-                    );
-                    if candidate.value < best.value {
-                        best = candidate;
-                        best_index = index;
-                    }
-                }
-            }
-
-            if best_index == 0 || best_index + 1 == points.len() {
-                best
-            } else {
-                let refined = golden_section_minimum(
-                    points[best_index - 1],
-                    points[best_index + 1],
-                    search,
-                    &mut evaluate,
-                );
-                if refined.value < best.value {
-                    refined
-                } else {
-                    best
-                }
-            }
+                value: profile.point(prevalence.get()),
+            });
         }
+        diagnostics.push(samples.last().unwrap().value.midpoint());
     }
-}
-
-fn golden_section_minimum<F>(
-    lower: Prevalence,
-    upper: Prevalence,
-    search: SearchOptions,
-    evaluate: &mut F,
-) -> ProfileExtremum
-where
-    F: FnMut(Prevalence) -> f64,
-{
-    const RATIO: f64 = 0.618_033_988_749_894_9;
-    let mut left = lower.get();
-    let mut right = upper.get();
-    let mut c = right - RATIO * (right - left);
-    let mut d = left + RATIO * (right - left);
-    let mut fc = evaluate(Prevalence::new(c).expect("bracket is inside (0,1)"));
-    let mut fd = evaluate(Prevalence::new(d).expect("bracket is inside (0,1)"));
-    for _ in 0..search.max_iterations {
-        if right - left <= search.tolerance {
-            break;
-        }
-        if fc <= fd {
-            right = d;
-            d = c;
-            fd = fc;
-            c = right - RATIO * (right - left);
-            fc = evaluate(Prevalence::new(c).expect("bracket is inside (0,1)"));
-        } else {
-            left = c;
-            c = d;
-            fc = fd;
-            d = left + RATIO * (right - left);
-            fd = evaluate(Prevalence::new(d).expect("bracket is inside (0,1)"));
-        }
-    }
-    if fc <= fd {
-        ProfileExtremum {
-            value: fc,
-            prevalence: Prevalence::new(c).expect("bracket is inside (0,1)"),
-        }
-    } else {
-        ProfileExtremum {
-            value: fd,
-            prevalence: Prevalence::new(d).expect("bracket is inside (0,1)"),
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn interval_search_refines_an_interior_minimum() {
-        let set = TargetPrevalences::closed_interval(
-            Prevalence::new(0.01).unwrap(),
-            Prevalence::new(0.9).unwrap(),
-        )
+    let mut best_min = *samples
+        .iter()
+        .min_by(|a, b| a.value.hi.total_cmp(&b.value.hi))
         .unwrap();
-        let result = minimize(&set, SearchOptions::default(), |prevalence| {
-            (prevalence.get() - 0.371_234).powi(2) + 0.2
-        });
-        assert!((result.prevalence.get() - 0.371_234).abs() < 1e-7);
-        assert!((result.value - 0.2).abs() < 1e-12);
+    let mut best_max = *samples
+        .iter()
+        .max_by(|a, b| a.value.lo.total_cmp(&b.value.lo))
+        .unwrap();
+    let mut segments: Vec<_> = samples
+        .windows(2)
+        .map(|w| Segment::new(profile, w[0], w[1]))
+        .collect();
+    let mut evaluations = samples.len();
+    let mut iterations = 0;
+    let mut stop = PrevalenceSearchStop::AccuracyReached;
+    let (lower, upper) = loop {
+        let lower = segments
+            .iter()
+            .map(|s| s.range.lo)
+            .fold(best_min.value.lo, f64::min);
+        let upper = segments
+            .iter()
+            .map(|s| s.range.hi)
+            .fold(best_max.value.hi, f64::max);
+        if gap(lower, best_min.value.hi) <= search.tolerance
+            && gap(best_max.value.lo, upper) <= search.tolerance
+        {
+            break (lower, upper);
+        }
+        if iterations == search.max_iterations {
+            stop = PrevalenceSearchStop::BudgetExhausted;
+            break (lower, upper);
+        }
+        // A region is relevant if it can improve either directional minimum.
+        // Stable tie breaking makes a budgeted run independent of scheduling.
+        let next = segments
+            .iter()
+            .enumerate()
+            .filter(|(_, segment)| segment.midpoint().is_some())
+            .map(|(index, segment)| {
+                (
+                    index,
+                    gap(segment.range.lo, best_min.value.hi)
+                        .max(gap(best_max.value.lo, segment.range.hi)),
+                )
+            })
+            .filter(|(_, gap)| *gap > search.tolerance)
+            .max_by(|a, b| a.1.total_cmp(&b.1).then_with(|| b.0.cmp(&a.0)));
+        let Some((index, _)) = next else {
+            stop = PrevalenceSearchStop::FloatingPointLimit;
+            break (lower, upper);
+        };
+        let parent = segments.swap_remove(index);
+        let prevalence = parent.midpoint().unwrap();
+        let sample = Sample {
+            prevalence,
+            value: profile.point(prevalence.get()),
+        };
+        evaluations += 1;
+        iterations += 1;
+        if sample.value.hi < best_min.value.hi {
+            best_min = sample;
+        }
+        if sample.value.lo > best_max.value.lo {
+            best_max = sample;
+        }
+        // Intersect with the parent so increasing the budget can only tighten
+        // bounds, even when independent rounding enclosures vary slightly.
+        for mut child in [
+            Segment::new(profile, parent.left, sample),
+            Segment::new(profile, sample, parent.right),
+        ] {
+            child.range = child.range.intersect(parent.range);
+            segments.push(child);
+        }
+    };
+    let result = |sample: Sample, bounds: Enclosure, reverse: bool| {
+        let sampled_value = if reverse {
+            -sample.value.midpoint()
+        } else {
+            sample.value.midpoint()
+        };
+        ProfileExtremum {
+            value: bounds.lo,
+            prevalence: sample.prevalence,
+            search: Some(PrevalenceSearchCertificate {
+                lower_bound: bounds.lo,
+                upper_bound: bounds.hi,
+                sampled_value,
+                evaluations,
+                iterations,
+                stop_reason: if gap(bounds.lo, bounds.hi) <= search.tolerance {
+                    PrevalenceSearchStop::AccuracyReached
+                } else {
+                    stop
+                },
+            }),
+        }
+    };
+    (
+        result(
+            best_min,
+            Enclosure {
+                lo: lower,
+                hi: best_min.value.hi,
+            },
+            false,
+        ),
+        result(
+            best_max,
+            Enclosure {
+                lo: -upper,
+                hi: -best_max.value.lo,
+            },
+            true,
+        ),
+        diagnostics,
+    )
+}
+
+fn gap(lower: f64, upper: f64) -> f64 {
+    if lower == upper {
+        0.0
+    } else {
+        (Enclosure::point(upper) - Enclosure::point(lower)).hi
     }
 }

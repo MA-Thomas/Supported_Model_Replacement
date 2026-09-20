@@ -2,8 +2,13 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use directed_round_robin_organizer::accelerated::{
+    AcceleratedOptions, ComparisonEvidence, ContextExecution, OutputScope, audit_selection,
+    plan_accelerated, read_accelerated_plan, read_certificate, run_accelerated,
+    validate_accelerated_plan, write_accelerated_plan,
+};
 use directed_round_robin_organizer::artifact::{
-    checksum_path, read_artifact, result_path, run_shard,
+    checksum_path, read_artifact, result_path, run_shard, validate_artifact,
 };
 use directed_round_robin_organizer::audit::audit_results;
 use directed_round_robin_organizer::identity::{
@@ -33,6 +38,396 @@ use supported_ap::{Prevalence, ReferenceAssessment, SearchOptions, TargetPrevale
 use tempfile::TempDir;
 
 #[test]
+fn accelerated_selection_matches_exhaustive_and_retains_operational_reports() {
+    let temporary = TempDir::new().unwrap();
+    let root = temporary.path();
+    build_pr_bundle(&root.join("bundle"), false);
+    let mut bundle = load_bundle(&root.join("bundle")).unwrap();
+    bundle.spec.selection_strategy = SelectionStrategy::CandidateConservative;
+    let full = plan_with_shard_count(&bundle, 1).unwrap();
+    run_shard(&bundle, &full, 0, &root.join("full"), 2).unwrap();
+    let reduction = reduce_tournament(&bundle, &full, &root.join("full")).unwrap();
+    for (name, exhaustive_contexts) in [
+        ("ordered", vec![]),
+        ("mixed", vec!["eval_b".to_owned()]),
+        ("exhaustive", vec!["eval_a".to_owned(), "eval_b".to_owned()]),
+    ] {
+        let options = AcceleratedOptions {
+            batch_size: 1,
+            exhaustive_contexts: exhaustive_contexts.into_iter().collect(),
+            ..Default::default()
+        };
+        let plan = plan_accelerated(&bundle, options).unwrap();
+        write_accelerated_plan(&plan, &root.join(format!("{name}_plan"))).unwrap();
+        let plan = read_accelerated_plan(&root.join(format!("{name}_plan"))).unwrap();
+        validate_accelerated_plan(&plan, &bundle).unwrap();
+        let results = root.join(format!("{name}_results"));
+        let output = root.join(format!("{name}_selection"));
+        let summary = run_accelerated(&bundle, &plan, &results, &output, 2).unwrap();
+        assert_eq!(summary.survivors, reduction.selection.graph_maximal_systems);
+        if name == "ordered" {
+            assert!(summary.assessed_matches < full.matches.len());
+        }
+        if name == "exhaustive" {
+            assert_eq!(summary.assessed_matches, full.matches.len());
+        }
+        let certificate = read_certificate(&output).unwrap();
+        let audited = audit_selection(&bundle, &plan, &results, &certificate).unwrap();
+        let operational = audited.operational_match_references().unwrap();
+        assert_eq!(
+            operational.len(),
+            audited.survivors().len() * (audited.survivors().len() - 1) / 2
+                * bundle.evaluations.len()
+        );
+        if name == "ordered" {
+            let mut missing = certificate.clone();
+            let id = &operational[0].match_id;
+            missing.matches.retain(|r| &r.match_id != id);
+            let error = audit_selection(&bundle, &plan, &results, &missing).unwrap_err();
+            assert!(error.to_string().contains("missing S0 operational"));
+        }
+        for reference in audited.match_references() {
+            let actual = audited.read_match(&bundle, &results, reference).unwrap();
+            let expected =
+                read_artifact(&result_path(&root.join("full"), &reference.match_id)).unwrap();
+            assert_eq!(actual.seed, expected.seed);
+            assert_eq!(actual.judged, expected.judged);
+        }
+        let resumed = run_accelerated(
+            &bundle,
+            &plan,
+            &results,
+            &root.join(format!("{name}_resumed")),
+            1,
+        )
+        .unwrap();
+        assert_eq!(resumed.computed, 0);
+        assert_eq!(resumed.already_valid, summary.assessed_matches);
+        assert_eq!(
+            read_certificate(&root.join(format!("{name}_resumed"))).unwrap(),
+            certificate
+        );
+        for target in audited.survivors() {
+            for evaluation in plan.contexts.keys() {
+                for challenger in &plan.systems {
+                    if challenger != target {
+                        assert!(!matches!(
+                            audited.comparison(evaluation, challenger, target).unwrap(),
+                            ComparisonEvidence::NotComputed { .. }
+                        ));
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn accelerated_audit_rejects_missing_witnesses_and_false_scope() {
+    let temporary = TempDir::new().unwrap();
+    let root = temporary.path();
+    build_pr_bundle(&root.join("bundle"), false);
+    let bundle = load_bundle(&root.join("bundle")).unwrap();
+    let plan = plan_accelerated(
+        &bundle,
+        AcceleratedOptions {
+            batch_size: 1,
+            output_scope: OutputScope::SurvivorSet,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    run_accelerated(
+        &bundle,
+        &plan,
+        &root.join("results"),
+        &root.join("selection"),
+        1,
+    )
+    .unwrap();
+    let certificate = read_certificate(&root.join("selection")).unwrap();
+    let audited = audit_selection(&bundle, &plan, &root.join("results"), &certificate).unwrap();
+    assert!(audited.operational_match_references().is_err());
+    let mut bad = certificate.clone();
+    bad.output_scope = OutputScope::SurvivorSetAndOperationalInputs;
+    assert!(audit_selection(&bundle, &plan, &root.join("results"), &bad).is_err());
+    let mut bad = certificate.clone();
+    bad.matches.clear();
+    assert!(audit_selection(&bundle, &plan, &root.join("results"), &bad).is_err());
+    let mut bad = certificate.clone();
+    bad.survivors.push(plan.systems[0].clone());
+    assert!(audit_selection(&bundle, &plan, &root.join("results"), &bad).is_err());
+    let mut bad_plan = plan.clone();
+    if let ContextExecution::OrderedCnap { values, .. } =
+        bad_plan.contexts.get_mut("eval_a").unwrap()
+    {
+        *values.values_mut().next().unwrap() += 0.1;
+    }
+    assert!(validate_accelerated_plan(&bad_plan, &bundle).is_err());
+    let first = &certificate.matches[0];
+    let path = result_path(&root.join("results"), &first.match_id);
+    fs::remove_file(checksum_path(&path)).unwrap();
+    assert!(audit_selection(&bundle, &plan, &root.join("results"), &certificate).is_err());
+    assert!(!checksum_path(&path).exists());
+    let resumed = run_accelerated(
+        &bundle,
+        &plan,
+        &root.join("results"),
+        &root.join("repaired"),
+        2,
+    )
+    .unwrap();
+    assert_eq!(resumed.computed, 0);
+    assert!(checksum_path(&path).exists());
+    let mut artifact = read_artifact(&path).unwrap();
+    if let directed_round_robin_organizer::judge::JudgeReport::PrCnap { result, .. } =
+        &mut artifact.judged.report
+    {
+        result.observed_evaluation.forward.value = 100.0;
+    }
+    fs::write(&path, serde_json::to_vec(&artifact).unwrap()).unwrap();
+    let digest = sha256_file(&path).unwrap();
+    fs::write(checksum_path(&path), &digest).unwrap();
+    let mut inconsistent = certificate.clone();
+    inconsistent.matches[0].sha256 = digest;
+    let error = audit_selection(&bundle, &plan, &root.join("results"), &inconsistent).unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("numerical ordering contradiction")
+    );
+    assert!(
+        audited
+            .read_match(&bundle, &root.join("results"), first)
+            .is_err()
+    );
+}
+
+/// Reseal in-memory synthetic variants using the same content identity as the
+/// loader. Raw source hashes still name the underlying fixture input files.
+fn reseal_fixture(bundle: &mut directed_round_robin_organizer::LoadedBundle) {
+    let evaluations: Vec<_> = bundle
+        .evaluations
+        .values_mut()
+        .map(|e| {
+            e.score_vector_hashes = e
+                .scores
+                .iter()
+                .map(|(s, v)| (s.clone(), canonical_vector_hash(&e.endpoint_ids, v)))
+                .collect();
+            PortableEvaluationHashes {
+                evaluation_id: e.evaluation_id.clone(),
+                label_vector_hash: e.label_vector_hash.clone(),
+                score_vector_hashes: e.score_vector_hashes.clone(),
+            }
+        })
+        .collect();
+    bundle.spec.evaluations = bundle.evaluations.keys().cloned().collect();
+    bundle.policy_hash = bundle.spec.assessment_policy_hash().unwrap();
+    bundle.manifest.metric = bundle.spec.metric;
+    bundle.manifest.bundle_content_hash =
+        compute_bundle_content_hash(&bundle.spec, &bundle.registry, &evaluations).unwrap();
+}
+
+#[test]
+fn accelerated_plan_handles_4200_candidates_without_enumerating_pairs() {
+    let temporary = TempDir::new().unwrap();
+    build_pr_bundle(&temporary.path().join("bundle"), false);
+    let mut bundle = load_bundle(&temporary.path().join("bundle")).unwrap();
+    let prototype = bundle.registry.systems[0].clone();
+    bundle.registry.systems = (0..4200)
+        .map(|i| {
+            let mut record = prototype.clone();
+            record.system_id = format!("candidate_{i:04}");
+            record.score_column = record.system_id.clone();
+            record
+        })
+        .collect();
+    for e in bundle.evaluations.values_mut() {
+        e.scores = bundle
+            .registry
+            .systems
+            .iter()
+            .map(|s| (s.system_id.clone(), vec![1., 1., 1., 0., 0., 0.]))
+            .collect();
+    }
+    reseal_fixture(&mut bundle);
+    let plan = plan_accelerated(&bundle, AcceleratedOptions::default()).unwrap();
+    validate_accelerated_plan(&plan, &bundle).unwrap();
+    assert_eq!(plan.systems.len(), 4200);
+    let serialized = serde_json::to_vec(&plan).unwrap();
+    assert!(
+        serialized.len() < 1_000_000,
+        "compact two-context plan must not contain 17,635,800 pair records"
+    );
+    let json: serde_json::Value = serde_json::from_slice(&serialized).unwrap();
+    assert!(json.get("matches").is_none());
+}
+
+#[test]
+fn accelerated_pr_and_roc_cover_empty_intersections_ties_and_single_contexts() {
+    let temporary = TempDir::new().unwrap();
+    let root = temporary.path();
+    build_pr_bundle(&root.join("bundle"), false);
+    for metric in [MetricKind::PrCnap, MetricKind::Auroc] {
+        for scenario in ["opponent_switch", "all_tied", "single", "positive_delta"] {
+            let mut bundle = load_bundle(&root.join("bundle")).unwrap();
+            bundle.spec.selection_strategy = SelectionStrategy::CandidateConservative;
+            if scenario == "single" {
+                bundle.evaluations.remove("eval_b");
+            }
+            if scenario == "positive_delta" {
+                bundle.spec.evidence_policy.magnitude_threshold = 2.0;
+            }
+            for (id, e) in &mut bundle.evaluations {
+                for (i, scores) in e.scores.values_mut().enumerate() {
+                    *scores = if scenario == "all_tied" {
+                        vec![0.0; 6]
+                    } else if (id == "eval_a" && i == 0) || (id == "eval_b" && i == 3) {
+                        vec![1.0, 1.0, 1.0, 0.0, 0.0, 0.0]
+                    } else {
+                        vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
+                    };
+                }
+            }
+            bundle.spec.metric = metric;
+            if metric == MetricKind::Auroc {
+                bundle.spec.verdict_field = "baseline.verdict".into();
+                bundle.spec.pr_cnap = None;
+                bundle.spec.auroc =
+                    Some(directed_round_robin_organizer::spec::AurocSpecification {
+                        optimization: supported_ap::AuRocOptimizationOptions::default(),
+                        concentration_search: supported_ap::ConcentrationSearchOptions::new(
+                            0.01, 4,
+                        )
+                        .unwrap(),
+                    });
+            } else {
+                let pr = bundle.spec.pr_cnap.as_mut().unwrap();
+                pr.target_prevalences = TargetPrevalences::closed_interval(
+                    Prevalence::new(0.001).unwrap(),
+                    Prevalence::new(0.5).unwrap(),
+                )
+                .unwrap();
+                pr.search = SearchOptions::new(9, 1e-6, 8).unwrap();
+            }
+            reseal_fixture(&mut bundle);
+            let name = format!("{metric:?}_{scenario}");
+            let full = plan_with_shard_count(&bundle, 1).unwrap();
+            let full_results = root.join(format!("{name}_full"));
+            run_shard(&bundle, &full, 0, &full_results, 2).unwrap();
+            let expected = reduce_tournament(&bundle, &full, &full_results).unwrap();
+            for batch_size in [1, 3] {
+                let plan = plan_accelerated(
+                    &bundle,
+                    AcceleratedOptions {
+                        batch_size,
+                        ..Default::default()
+                    },
+                )
+                .unwrap();
+                let results = root.join(format!("{name}_{batch_size}_results"));
+                let output = root.join(format!("{name}_{batch_size}_output"));
+                let actual = run_accelerated(&bundle, &plan, &results, &output, 2).unwrap();
+                assert_eq!(
+                    actual.survivors, expected.selection.graph_maximal_systems,
+                    "{name}"
+                );
+                if scenario == "opponent_switch" {
+                    assert!(actual.survivors.is_empty());
+                }
+                if scenario == "all_tied" || scenario == "positive_delta" {
+                    assert_eq!(actual.survivors.len(), 4);
+                }
+                let certificate = read_certificate(&output).unwrap();
+                let audited = audit_selection(&bundle, &plan, &results, &certificate).unwrap();
+                for r in audited.match_references() {
+                    let actual = audited.read_match(&bundle, &results, r).unwrap();
+                    let expected = read_artifact(&result_path(&full_results, &r.match_id)).unwrap();
+                    assert_eq!(actual.judged, expected.judged);
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn accelerated_cli_publishes_and_reaudits_a_separate_selection_schema() {
+    let temporary = TempDir::new().unwrap();
+    let root = temporary.path();
+    build_pr_bundle(&root.join("bundle"), false);
+    let binary = env!("CARGO_BIN_EXE_directed_round_robin_organizer");
+    let run = |args: &[&str]| {
+        let result = Command::new(binary)
+            .current_dir(root)
+            .args(args)
+            .output()
+            .unwrap();
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        result
+    };
+    run(&[
+        "accelerated",
+        "plan",
+        "--bundle",
+        "bundle",
+        "--output",
+        "plan",
+        "--batch-size",
+        "1",
+    ]);
+    run(&[
+        "accelerated",
+        "run",
+        "--bundle",
+        "bundle",
+        "--plan",
+        "plan",
+        "--results",
+        "results",
+        "--output",
+        "selection",
+        "--threads",
+        "2",
+    ]);
+    let result = run(&[
+        "accelerated",
+        "audit",
+        "--bundle",
+        "bundle",
+        "--plan",
+        "plan",
+        "--results",
+        "results",
+        "--selection",
+        "selection",
+    ]);
+    let selection: serde_json::Value = serde_json::from_slice(&result.stdout).unwrap();
+    assert!(selection["survivors"].is_array());
+    assert!(!root.join("selection/reduction_manifest.json").exists());
+    let invalid = Command::new(binary)
+        .current_dir(root)
+        .args([
+            "reduce",
+            "--bundle",
+            "bundle",
+            "--plan",
+            "plan",
+            "--results",
+            "results",
+            "--output",
+            "false_full",
+        ])
+        .output()
+        .unwrap();
+    assert!(!invalid.status.success());
+}
+
+#[test]
 fn complete_pr_tournament_is_resumable_reducible_and_auditable() {
     let temporary = TempDir::new().unwrap();
     let bundle_root = temporary.path().join("bundle");
@@ -55,6 +450,15 @@ fn complete_pr_tournament_is_resumable_reducible_and_auditable() {
     assert_eq!(audit.valid_completed_matches, 12);
     let first_match = &plan.matches[0];
     let first_result = result_path(&results, &first_match.match_id);
+    let mut old_kernel_result = read_artifact(&first_result).unwrap();
+    validate_artifact(&old_kernel_result, &bundle, &plan, first_match).unwrap();
+    for obsolete_version in ["0.2.0", "0.2.1"] {
+        old_kernel_result.supported_ap.version = obsolete_version.into();
+        assert!(
+            validate_artifact(&old_kernel_result, &bundle, &plan, first_match).is_err(),
+            "results from older numerical kernels/search contracts must not be reused"
+        );
+    }
     let first_checksum = checksum_path(&first_result);
     let duplicate = results.join("matches/duplicate.json");
     fs::copy(&first_result, &duplicate).unwrap();
@@ -703,4 +1107,141 @@ fn run_cli<const N: usize>(arguments: [&str; N]) -> String {
         String::from_utf8_lossy(&output.stderr)
     );
     String::from_utf8(output.stdout).unwrap()
+}
+
+#[test]
+fn distributed_targets_and_completion_match_local_with_resume_and_missing_receipts() {
+    use directed_round_robin_organizer::accelerated::*;
+    let temporary = TempDir::new().unwrap();
+    let root = temporary.path();
+    build_pr_bundle(&root.join("bundle"), false);
+    for (name, fallback, roc) in [
+        ("ordered", false, false),
+        ("fallback", true, false),
+        ("roc", false, true),
+    ] {
+        let base = root.join(name);
+        fs::create_dir(&base).unwrap();
+        let mut bundle = load_bundle(&root.join("bundle")).unwrap();
+        if roc {
+            bundle.spec.metric = MetricKind::Auroc;
+            bundle.spec.verdict_field = "baseline.verdict".into();
+            bundle.spec.pr_cnap = None;
+            bundle.spec.auroc = Some(directed_round_robin_organizer::spec::AurocSpecification {
+                optimization: supported_ap::AuRocOptimizationOptions::default(),
+                concentration_search: supported_ap::ConcentrationSearchOptions::new(0.01, 4)
+                    .unwrap(),
+            });
+            reseal_fixture(&mut bundle);
+        }
+        let plan = plan_accelerated(
+            &bundle,
+            AcceleratedOptions {
+                batch_size: 1,
+                exhaustive_contexts: if fallback {
+                    ["eval_b".to_string()].into_iter().collect()
+                } else {
+                    Default::default()
+                },
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        let local = run_accelerated(
+            &bundle,
+            &plan,
+            &base.join("local_results"),
+            &base.join("local"),
+            1,
+        )
+        .unwrap();
+        let results = base.join("results");
+        let receipts = base.join("targets");
+        let survivors = base.join("survivors");
+        run_target_shard(&bundle, &plan, &results, &receipts, 3, 0, 1).unwrap();
+        assert!(merge_target_shards(&bundle, &plan, &results, &receipts, 3, &survivors).is_err());
+        std::thread::scope(|scope| {
+            for id in 1..3 {
+                let (bundle, plan, results, receipts) = (&bundle, &plan, &results, &receipts);
+                scope.spawn(move || {
+                    run_target_shard(bundle, plan, results, receipts, 3, id, 2).unwrap()
+                });
+            }
+        });
+        // Restart reconstructs the same receipt from validated existing reports.
+        run_target_shard(&bundle, &plan, &results, &receipts, 3, 0, 2).unwrap();
+        merge_target_shards(&bundle, &plan, &results, &receipts, 3, &survivors).unwrap();
+        let partial = read_certificate(&survivors).unwrap();
+        assert_eq!(partial.survivors, local.survivors);
+        assert!(audit_selection(&bundle, &plan, &results, &partial).is_err());
+        let completion = base.join("completion");
+        let output = base.join("selection");
+        assert!(
+            finish_distributed(
+                &bundle,
+                &plan,
+                &results,
+                &survivors,
+                &completion,
+                2,
+                &output
+            )
+            .is_err()
+        );
+        for id in 0..2 {
+            run_completion_shard(&bundle, &plan, &results, &survivors, &completion, 2, id, 2)
+                .unwrap();
+        }
+        finish_distributed(
+            &bundle,
+            &plan,
+            &results,
+            &survivors,
+            &completion,
+            2,
+            &output,
+        )
+        .unwrap();
+        finish_distributed(
+            &bundle,
+            &plan,
+            &results,
+            &survivors,
+            &completion,
+            2,
+            &output,
+        )
+        .unwrap();
+        let complete = read_certificate(&output).unwrap();
+        let audited = audit_selection(&bundle, &plan, &results, &complete).unwrap();
+        assert_eq!(audited.survivors(), local.survivors);
+        let full = plan_with_shard_count(&bundle, 1).unwrap();
+        run_shard(&bundle, &full, 0, &base.join("full_results"), 2).unwrap();
+        for reference in audited.match_references() {
+            let actual = audited.read_match(&bundle, &results, reference).unwrap();
+            let expected = read_artifact(&result_path(
+                &base.join("full_results"),
+                &reference.match_id,
+            ))
+            .unwrap();
+            assert_eq!(actual.seed, expected.seed);
+            assert_eq!(actual.judged, expected.judged);
+        }
+        let receipt = receipts.join("0/targets.json");
+        let mut changed: serde_json::Value =
+            serde_json::from_slice(&fs::read(&receipt).unwrap()).unwrap();
+        changed["targets"] = serde_json::json!([]);
+        fs::write(&receipt, serde_json::to_vec(&changed).unwrap()).unwrap();
+        assert!(
+            merge_target_shards(
+                &bundle,
+                &plan,
+                &results,
+                &receipts,
+                3,
+                &base.join("bad_merge")
+            )
+            .is_err()
+        );
+    }
 }

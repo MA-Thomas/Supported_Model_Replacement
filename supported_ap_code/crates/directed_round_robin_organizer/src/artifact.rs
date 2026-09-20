@@ -74,9 +74,34 @@ struct OperationalFailure {
 }
 
 #[derive(Debug)]
-enum WorkOutcome {
+pub(crate) enum WorkOutcome {
     Computed,
     AlreadyValid,
+}
+
+/// Identity of a run, independent of whether its schedule is exhaustive.
+pub(crate) struct RunBinding<'a> {
+    pub tournament_id: &'a str,
+    pub bundle_content_hash: &'a str,
+    pub plan_id: &'a str,
+    pub metric: MetricKind,
+    pub policy_hash: &'a str,
+    pub seed_derivation_version: u32,
+    pub organizer_build: &'a BuildProvenance,
+}
+
+impl<'a> From<&'a TournamentPlan> for RunBinding<'a> {
+    fn from(plan: &'a TournamentPlan) -> Self {
+        Self {
+            tournament_id: &plan.tournament_id,
+            bundle_content_hash: &plan.bundle_content_hash,
+            plan_id: &plan.plan_id,
+            metric: plan.metric,
+            policy_hash: &plan.policy_hash,
+            seed_derivation_version: plan.seed_derivation_version,
+            organizer_build: &plan.organizer_build,
+        }
+    }
 }
 
 pub fn result_path(results_root: &Path, match_id: &str) -> PathBuf {
@@ -132,7 +157,7 @@ pub fn run_shard(
             .map(|item| {
                 let outcome = execute_one(
                     bundle,
-                    plan,
+                    &RunBinding::from(plan),
                     item,
                     results_root,
                     &execution_build,
@@ -175,9 +200,9 @@ pub fn run_shard(
     }
 }
 
-fn execute_one(
+pub(crate) fn execute_one(
     bundle: &LoadedBundle,
-    plan: &TournamentPlan,
+    plan: &RunBinding<'_>,
     item: &MatchPlan,
     results_root: &Path,
     execution_build: &BuildProvenance,
@@ -186,7 +211,7 @@ fn execute_one(
     let final_path = result_path(results_root, &item.match_id);
     if final_path.exists() {
         let artifact = read_artifact(&final_path)?;
-        validate_artifact(&artifact, bundle, plan, item)?;
+        validate_bound_artifact(&artifact, bundle, plan, item)?;
         validate_or_repair_checksum(&final_path)?;
         return Ok(WorkOutcome::AlreadyValid);
     }
@@ -197,9 +222,9 @@ fn execute_one(
     let artifact = MatchArtifact {
         schema_version: MATCH_ARTIFACT_SCHEMA_VERSION,
         complete: true,
-        tournament_id: plan.tournament_id.clone(),
-        bundle_content_hash: plan.bundle_content_hash.clone(),
-        plan_id: plan.plan_id.clone(),
+        tournament_id: plan.tournament_id.to_owned(),
+        bundle_content_hash: plan.bundle_content_hash.to_owned(),
+        plan_id: plan.plan_id.to_owned(),
         match_id: item.match_id.clone(),
         metric: plan.metric,
         evaluation_id: item.evaluation_id.clone(),
@@ -211,7 +236,7 @@ fn execute_one(
         label_vector_hash: item.label_vector_hash.clone(),
         score_hash_low: item.score_hash_low.clone(),
         score_hash_high: item.score_hash_high.clone(),
-        assessment_policy_hash: plan.policy_hash.clone(),
+        assessment_policy_hash: plan.policy_hash.to_owned(),
         seed: item.seed,
         seed_derivation_version: plan.seed_derivation_version,
         supported_ap: PackageIdentity {
@@ -231,7 +256,7 @@ fn execute_one(
         completed_unix_milliseconds,
         judged,
     };
-    validate_artifact(&artifact, bundle, plan, item)?;
+    validate_bound_artifact(&artifact, bundle, plan, item)?;
     publish_artifact(&final_path, &artifact)?;
     Ok(WorkOutcome::Computed)
 }
@@ -240,6 +265,15 @@ pub fn validate_artifact(
     artifact: &MatchArtifact,
     bundle: &LoadedBundle,
     plan: &TournamentPlan,
+    item: &MatchPlan,
+) -> Result<()> {
+    validate_bound_artifact(artifact, bundle, &RunBinding::from(plan), item)
+}
+
+pub(crate) fn validate_bound_artifact(
+    artifact: &MatchArtifact,
+    bundle: &LoadedBundle,
+    plan: &RunBinding<'_>,
     item: &MatchPlan,
 ) -> Result<()> {
     let evaluation = bundle.evaluations.get(&item.evaluation_id).ok_or_else(|| {
@@ -268,7 +302,7 @@ pub fn validate_artifact(
         || artifact.supported_ap.version != supported_ap::PACKAGE_VERSION
         || artifact.supported_ap.scientific_schema != supported_ap::MANUSCRIPT_VERSION
         || artifact.organizer.package != env!("CARGO_PKG_NAME")
-        || artifact.plan_build != plan.organizer_build
+        || artifact.plan_build != *plan.organizer_build
     {
         return Err(Error::ArtifactConflict(format!(
             "result identity or provenance mismatch for {}",
@@ -306,6 +340,10 @@ pub fn read_artifact(path: &Path) -> Result<MatchArtifact> {
 /// large file to validate its checksum. Keeping the bytes in memory long
 /// enough to perform both operations removes that duplicate filesystem read.
 pub fn read_artifact_with_checksum(path: &Path) -> Result<MatchArtifact> {
+    read_artifact_with_digest(path).map(|(artifact, _)| artifact)
+}
+
+pub(crate) fn read_artifact_with_digest(path: &Path) -> Result<(MatchArtifact, String)> {
     let bytes = fs::read(path).map_err(|error| crate::error::io(path, error))?;
     let sidecar = checksum_path(path);
     if !sidecar.is_file() {
@@ -323,10 +361,11 @@ pub fn read_artifact_with_checksum(path: &Path) -> Result<MatchArtifact> {
             path.display()
         )));
     }
-    serde_json::from_slice(&bytes).map_err(|source| Error::Json {
+    let artifact = serde_json::from_slice(&bytes).map_err(|source| Error::Json {
         path: path.to_owned(),
         source,
-    })
+    })?;
+    Ok((artifact, actual))
 }
 
 fn publish_artifact(final_path: &Path, artifact: &MatchArtifact) -> Result<()> {

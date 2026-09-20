@@ -8,12 +8,12 @@ use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
 use serde::Serialize;
 use supported_ap::{
-    AnchoredEffectRow, ComputationalReplicationCount, DirectionalFiniteEvidence,
-    DirectionalNestedFiniteEvidence, Execution, FiniteEvidenceVerdict, MagnitudeThreshold,
-    NestedRetainedEffectRow, ObservedApAssessment, PairedEvaluation, Prevalence,
-    ReferenceAssessment, ReplacementPolicy, RetainedEffect, ScoreTransportAssumption,
-    SearchOptions, StagedDirectionalNestedAp, StagedNestedApResult, SupportOrder, SurvivalFloor,
-    SurvivalRequirement, TargetPrevalences, anchored_nested_support, assess_observed_ap,
+    ComputationalReplicationCount, DirectionalFiniteEvidence, DirectionalNestedFiniteEvidence,
+    Execution, FiniteEvidenceVerdict, MagnitudeThreshold, NestedRetainedEffectRow,
+    ObservedApAssessment, PairedEvaluation, Prevalence, ReferenceAssessment, ReplacementPolicy,
+    RetainedEffect, ScoreTransportAssumption, SearchOptions, StagedDirectionalNestedAp,
+    StagedNestedApResult, SupportOrder, SurvivalFloor, SurvivalRequirement, TargetPrevalences,
+    assess_observed_ap,
 };
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
@@ -59,11 +59,11 @@ struct Args {
     interval_lower: f64,
     #[arg(long)]
     interval_upper: f64,
-    #[arg(long, default_value_t = 257)]
+    #[arg(long, default_value_t = SearchOptions::default().grid_points)]
     search_grid_points: usize,
-    #[arg(long, default_value_t = 1e-8)]
+    #[arg(long, default_value_t = SearchOptions::default().tolerance)]
     search_tolerance: f64,
-    #[arg(long, default_value_t = 128)]
+    #[arg(long, default_value_t = SearchOptions::default().max_iterations)]
     search_max_iterations: usize,
     #[arg(long)]
     empirical_order: usize,
@@ -492,36 +492,16 @@ fn staged_direction(
             staged_verdict: FiniteEvidenceVerdict::NoVerdict,
         });
     }
-    let effects = rows
-        .iter()
-        .map(|row| AnchoredEffectRow {
-            observed_effect: row.observed.value,
-            computational_effects: row
-                .computational
-                .iter()
-                .map(|effect| effect.value)
-                .collect(),
-        })
-        .collect::<Vec<_>>();
-    let nested = anchored_nested_support(
-        &effects,
+    let full = DirectionalNestedFiniteEvidence::from_retained_effect_rows(
+        rows,
         empirical_order,
         computational_order,
-        policy.survival_floor,
-    )?;
-    let verdict = policy_verdict(
         policy,
-        nested.supported_magnitude,
-        nested.literal_survival.subset_fraction,
-    );
+    )?;
+    let verdict = full.verdict;
     Ok(StagedDirectionalNestedAp {
         observed_gate,
-        full_assessment: Some(DirectionalNestedFiniteEvidence {
-            supported_magnitude: nested.supported_magnitude,
-            literal_survival: nested.literal_survival,
-            verdict,
-            retained_effect_rows: rows,
-        }),
+        full_assessment: Some(full),
         staged_verdict: verdict,
     })
 }

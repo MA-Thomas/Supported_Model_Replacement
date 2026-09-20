@@ -14,7 +14,8 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use supported_ap::{
     ClassCounts, ComputationalReplicationCount, Execution, FiniteEvidenceVerdict,
-    MagnitudeThreshold, ObservedApAssessment, PairedEvaluation, ProjectedApAssessment,
+    MagnitudeThreshold, ObservedApAssessment, PairedEvaluation, PolicyVerdict,
+    PrevalenceDecisionBounds, PrevalenceSearchCertificate, ProjectedApAssessment,
     ProjectedResampling, ReplacementPolicy, ResamplingUnit, ScoreTransportAssumption, SupportOrder,
     SurvivalFloor, SurvivalRequirement, assess_observed_ap, assess_staged_projected_ap,
 };
@@ -85,6 +86,14 @@ pub struct ProjectedTemplate {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CnapOutcome {
+    pub observed_status: PolicyVerdict,
+    pub staged_status: PolicyVerdict,
+    pub observed_bounds: Option<PrevalenceDecisionBounds>,
+    pub full_bounds: Option<PrevalenceDecisionBounds>,
+    pub observed_search: Option<PrevalenceSearchCertificate>,
+    pub search_iterations: usize,
+    pub search_tolerance: f64,
+    pub maximum_search_iterations: usize,
     pub observed_retained_difference: f64,
     pub limiting_prevalence: f64,
     pub observed_gate_supported: bool,
@@ -105,6 +114,22 @@ impl CnapOutcome {
         maximum_empirical_ap: f64,
     ) -> Self {
         Self {
+            observed_status: if observed_gate_supported {
+                PolicyVerdict::VerifiedPass
+            } else {
+                PolicyVerdict::VerifiedFailure
+            },
+            staged_status: if observed_gate_supported {
+                PolicyVerdict::Unresolved
+            } else {
+                PolicyVerdict::VerifiedFailure
+            },
+            observed_bounds: None,
+            full_bounds: None,
+            observed_search: None,
+            search_iterations: 0,
+            search_tolerance: 0.0,
+            maximum_search_iterations: 0,
             observed_retained_difference,
             limiting_prevalence,
             observed_gate_supported,
@@ -129,6 +154,18 @@ impl CnapOutcome {
     pub fn ranking_survival(&self) -> f64 {
         self.survival_subset_fraction.unwrap_or(0.0)
     }
+}
+
+pub fn pending_grid_indices(cohorts: &[Vec<CnapOutcome>]) -> Vec<usize> {
+    let count = cohorts.first().map_or(0, Vec::len);
+    assert!(cohorts.iter().all(|c| c.len() == count));
+    (0..count)
+        .filter(|&j| {
+            cohorts
+                .iter()
+                .any(|c| c[j].staged_status == PolicyVerdict::Unresolved)
+        })
+        .collect()
 }
 
 fn map_supported_error(error: impl std::fmt::Display) -> SelectionError {
@@ -270,6 +307,24 @@ impl CnapContract {
     }
 }
 
+/// At most three retries, doubling the shared bisection budget each time.
+/// Each retry tightens objective tolerance tenfold. Seeds, draws, thresholds
+/// and the prevalence domain stay fixed.
+pub const SEARCH_REFINEMENT_MULTIPLIER: usize = 8;
+
+fn numerical_status(evidence: &supported_ap::DirectionalFiniteEvidence) -> PolicyVerdict {
+    evidence.prevalence_search.map_or_else(
+        || {
+            if evidence.verdict == FiniteEvidenceVerdict::SupportedReplacement {
+                PolicyVerdict::VerifiedPass
+            } else {
+                PolicyVerdict::VerifiedFailure
+            }
+        },
+        |bounds| bounds.verdict,
+    )
+}
+
 pub fn observed_gate(
     adaptive_scores: &[f64],
     maximum_scores: &[f64],
@@ -278,23 +333,47 @@ pub fn observed_gate(
 ) -> Result<(PairedEvaluation, CnapOutcome)> {
     let paired = PairedEvaluation::new(adaptive_scores, maximum_scores, labels)
         .map_err(map_supported_error)?;
-    let result = assess_observed_ap(
-        std::slice::from_ref(&paired),
-        &contract.observed,
-        contract.policy,
-    )
-    .map_err(map_supported_error)?;
-    let profile = &result.evaluations[0];
-    Ok((
-        paired,
-        CnapOutcome::observed_only(
+    let mut assessment = contract.observed.clone();
+    let limit = assessment
+        .search
+        .max_iterations
+        .saturating_mul(SEARCH_REFINEMENT_MULTIPLIER);
+    loop {
+        let result =
+            assess_observed_ap(std::slice::from_ref(&paired), &assessment, contract.policy)
+                .map_err(map_supported_error)?;
+        let status = numerical_status(&result.forward);
+        if status == PolicyVerdict::Unresolved && assessment.search.max_iterations < limit {
+            assessment.search.max_iterations = assessment
+                .search
+                .max_iterations
+                .saturating_mul(2)
+                .min(limit);
+            assessment.search.tolerance =
+                (assessment.search.tolerance * 0.1).max(f64::from_bits(1));
+            continue;
+        }
+        let profile = &result.evaluations[0];
+        let mut outcome = CnapOutcome::observed_only(
             profile.forward.value,
             profile.forward.limiting_prevalence.get(),
-            result.forward.verdict == FiniteEvidenceVerdict::SupportedReplacement,
+            status == PolicyVerdict::VerifiedPass,
             profile.model_a_empirical_ap,
             profile.model_b_empirical_ap,
-        ),
-    ))
+        );
+        outcome.observed_status = status;
+        outcome.staged_status = if status == PolicyVerdict::VerifiedPass {
+            PolicyVerdict::Unresolved
+        } else {
+            status
+        };
+        outcome.observed_bounds = result.forward.prevalence_search;
+        outcome.observed_search = profile.forward.search;
+        outcome.search_iterations = assessment.search.max_iterations;
+        outcome.search_tolerance = assessment.search.tolerance;
+        outcome.maximum_search_iterations = limit;
+        return Ok((paired, outcome));
+    }
 }
 
 pub fn complete_forward_assessment(
@@ -306,18 +385,55 @@ pub fn complete_forward_assessment(
     if !outcome.observed_gate_supported {
         return Ok(outcome);
     }
-    let assessment = contract.projected_assessment(seed, paired.class_counts())?;
-    let result = assess_staged_projected_ap(paired, &assessment, contract.policy, false)
-        .map_err(map_supported_error)?;
-    let forward = &result.forward;
-    outcome.staged_supported =
-        forward.staged_verdict == FiniteEvidenceVerdict::SupportedReplacement;
-    if let Some(full) = &forward.full_assessment {
-        outcome.supported_magnitude = Some(full.supported_magnitude);
-        outcome.survival_subset_fraction = Some(full.literal_survival.subset_fraction);
-        outcome.mean_retained_effect = Some(full.mean_retained_effect);
+    let mut assessment = contract.projected_assessment(seed, paired.class_counts())?;
+    let limit = assessment
+        .search
+        .max_iterations
+        .saturating_mul(SEARCH_REFINEMENT_MULTIPLIER);
+    assessment.search.max_iterations = assessment
+        .search
+        .max_iterations
+        .max(outcome.search_iterations);
+    assessment.search.tolerance = assessment.search.tolerance.min(outcome.search_tolerance);
+    loop {
+        let result = assess_staged_projected_ap(paired, &assessment, contract.policy, false)
+            .map_err(map_supported_error)?;
+        let forward = &result.forward;
+        let assessed = forward
+            .full_assessment
+            .as_ref()
+            .unwrap_or(&forward.observed_gate);
+        let status = numerical_status(assessed);
+        if status == PolicyVerdict::Unresolved && assessment.search.max_iterations < limit {
+            assessment.search.max_iterations = assessment
+                .search
+                .max_iterations
+                .saturating_mul(2)
+                .min(limit);
+            assessment.search.tolerance =
+                (assessment.search.tolerance * 0.1).max(f64::from_bits(1));
+            continue;
+        }
+        outcome.observed_status = numerical_status(&forward.observed_gate);
+        outcome.observed_gate_supported = outcome.observed_status == PolicyVerdict::VerifiedPass;
+        outcome.observed_bounds = forward.observed_gate.prevalence_search;
+        let anchor = forward.observed_gate.retained_effects[0];
+        outcome.observed_search = anchor.search;
+        outcome.observed_retained_difference = anchor.value;
+        outcome.limiting_prevalence = anchor.limiting_prevalence.get();
+        outcome.staged_status = status;
+        outcome.staged_supported = status == PolicyVerdict::VerifiedPass;
+        outcome.search_iterations = assessment.search.max_iterations;
+        outcome.search_tolerance = assessment.search.tolerance;
+        outcome.maximum_search_iterations = limit;
+        if let Some(full) = &forward.full_assessment {
+            outcome.full_bounds = full.prevalence_search;
+            outcome.supported_magnitude = Some(full.supported_magnitude);
+            outcome.survival_subset_fraction = Some(full.literal_survival.subset_fraction);
+            outcome.mean_retained_effect = Some(full.mean_retained_effect);
+        }
+        return Ok(outcome);
     }
-    Ok(outcome)
 }
 
 pub fn aligned_maximum_reference(
@@ -414,6 +530,37 @@ mod tests {
             master_seed: 17,
             seed_derivation_version: 1,
         }
+    }
+
+    #[test]
+    fn exhausted_eligibility_is_retained_as_pending_after_bounded_retries() {
+        let a = [
+            20., 19., 16., 15., 12., 11., 9., 6., 2., 1., 18., 17., 14., 13., 10., 8., 7., 5., 4.,
+            3.,
+        ];
+        let b = [
+            18., 17., 16., 15., 13., 10., 9., 8., 6., 2., 20., 19., 14., 12., 11., 7., 5., 4., 3.,
+            1.,
+        ];
+        let labels: Vec<_> = (0..20).map(|i| i < 10).collect();
+        let mut contract = tiny_contract();
+        contract.observed.target_prevalences = TargetPrevalences::closed_interval(
+            Prevalence::new(0.391291675958276).unwrap(),
+            Prevalence::new(0.99).unwrap(),
+        )
+        .unwrap();
+        contract.observed.search = SearchOptions::new(3, 1e-8, 1).unwrap();
+        contract.policy.magnitude_threshold = MagnitudeThreshold::new(0.18311061901043554).unwrap();
+        let (paired, observed) = observed_gate(&a, &b, &labels, &contract).unwrap();
+        assert_eq!(observed.observed_status, PolicyVerdict::Unresolved);
+        assert_eq!(observed.search_iterations, 8);
+        let result = complete_forward_assessment(&paired, observed, &contract, 42).unwrap();
+        assert_eq!(result.staged_status, PolicyVerdict::Unresolved);
+        assert_eq!(pending_grid_indices(&[vec![result.clone()]]), [0]);
+        assert!(result.supported_magnitude.is_none());
+        let encoded = serde_json::to_string(&result).unwrap();
+        let decoded: CnapOutcome = serde_json::from_str(&encoded).unwrap();
+        assert_eq!(decoded, result);
     }
 
     #[test]

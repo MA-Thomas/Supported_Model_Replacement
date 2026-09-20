@@ -35,12 +35,14 @@ pub enum DirectedVerdict {
 pub enum SelectionStrategy {
     /// Conjunction-graph source-SCC maximality: an edge (a supported replacement
     /// claim) requires the same direction to be supported in *every* evaluation,
-    /// and a system is removed only when a supported edge enters it. Conservative
+    /// and a system is removed only when a supported edge enters its SCC from
+    /// another SCC. Conservative
     /// about asserting replacements; returns broad admissible sets.
     ReplacementConservative,
     /// Per-evaluation source-SCC maximality intersected across evaluations: a
     /// system is retained only if it is maximal in *every* evaluation separately,
-    /// so a single-context defeat is fatal. Conservative about retaining
+    /// so non-maximality in a single context is fatal. A single incoming edge
+    /// suffices only in an acyclic context. Conservative about retaining
     /// candidates; the sharper, more eliminative rule, and the default. An empty
     /// result is a valid, informative outcome (nothing is top-tier everywhere).
     #[default]
@@ -139,6 +141,11 @@ pub(crate) struct TournamentSpecIdentity<'a> {
 }
 
 impl TournamentSpec {
+    /// Hash of the frozen assessment policy, independent of reduction strategy.
+    pub fn assessment_policy_hash(&self) -> Result<String> {
+        crate::identity::hash_serializable(&self.identity_view())
+    }
+
     /// The frozen-identity view used for all content/policy hashing.
     pub(crate) fn identity_view(&self) -> TournamentSpecIdentity<'_> {
         TournamentSpecIdentity {

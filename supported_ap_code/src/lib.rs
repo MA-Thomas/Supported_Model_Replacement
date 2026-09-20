@@ -15,12 +15,15 @@ pub const MANUSCRIPT_VERSION: &str = "v17";
 
 mod auroc;
 mod decision;
+mod enclosure;
 mod error;
 mod execution;
 mod metric;
 mod nested;
 mod paired;
 mod prevalence;
+mod prevalence_evidence;
+mod prevalence_profile;
 mod projected;
 mod random;
 mod resample;
@@ -41,6 +44,7 @@ pub use decision::{
     SurvivalRequirement,
 };
 pub use error::Error;
+pub use metric::{observed_auroc_order_key, observed_cnap};
 pub use nested::{
     AnchoredEffectRow, AnchoredNestedSupport, AnchoredRowSurvival, NestedLiteralSurvival,
     anchored_nested_support,
@@ -49,11 +53,15 @@ pub use paired::{
     ApEvidence, DirectionalFiniteEvidence, DirectionalNestedFiniteEvidence, EvaluationProfile,
     MarginalProfilePoint, NestedApAssessment, NestedRetainedEffectRow, NestedRowResampling,
     ObservedApAssessment, ObservedApResult, PairedEvaluation, PairedResamplingTrace,
-    ProjectedApAssessment, ReferenceAssessment, RetainedEffect, StagedDirectionalNestedAp,
-    StagedDirectionalProjectedAp, StagedNestedApResult, StagedProjectedApResult,
-    assess_observed_ap, assess_staged_nested_ap, assess_staged_projected_ap,
+    PrevalenceDecisionBounds, ProjectedApAssessment, ReferenceAssessment, RetainedEffect,
+    StagedDirectionalNestedAp, StagedDirectionalProjectedAp, StagedNestedApResult,
+    StagedProjectedApResult, assess_observed_ap, assess_staged_nested_ap,
+    assess_staged_projected_ap,
 };
-pub use prevalence::{ProfileExtremum, SearchOptions, TargetPrevalences};
+pub use prevalence::{
+    PrevalenceSearchCertificate, PrevalenceSearchStop, ProfileExtremum, SearchOptions,
+    TargetPrevalences,
+};
 pub use projected::{ProfilePoint, ProjectedResampling};
 pub use support::{monte_carlo_standard_error, support};
 pub use survival::{LiteralSurvival, literal_survival};

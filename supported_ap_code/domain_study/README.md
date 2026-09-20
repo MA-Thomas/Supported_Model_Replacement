@@ -5,6 +5,17 @@ path using released EVE, ESM-1v, and ESM-2 scores across retained
 deep-mutational-scanning assays. The banking study below exercises the projected
 `J` path from one temporal evaluation.
 
+The separate [`proteingym_contexts/`](proteingym_contexts/) study applies the
+primary single-context assessment to each of the 91 retained assays, then
+performs candidate-conservative and replacement-conservative graph reduction.
+It includes a declared position-cluster computational challenge and saves its
+own reports, tables, and figures.
+
+The [`proteingym_auroc_contexts/`](proteingym_auroc_contexts/) companion applies
+the same single-context design and graph reductions to ordinary AUROC
+(Γ=1), using identical position draws and decision thresholds. It saves a
+matched CNAP–AUROC comparison separately from the joint empirical studies.
+
 The separate [`proteingym_nested/`](proteingym_nested/) workflow reuses the
 retained ProteinGym scores for a clearly labeled conditional illustration of
 the full `M>1`, `K_E=2`, `K_C=2` calculation with residue-position cluster

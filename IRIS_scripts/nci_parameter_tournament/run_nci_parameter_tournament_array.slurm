@@ -1,5 +1,5 @@
 #!/bin/bash
-# One array task executes one immutable organizer shard.
+# One array task executes one immutable shard or one accelerated coordinator.
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 
@@ -8,6 +8,7 @@ set -euo pipefail
 : "${NCI_PARAMETER_RUN_ENV:?Submit through submit_nci_parameter_tournaments_slurm.sh}"
 : "${SLURM_ARRAY_TASK_ID:?This worker must run as a Slurm array}"
 
+EXECUTION_MODE=exhaustive
 # shellcheck disable=SC1090
 source "${NCI_PARAMETER_RUN_ENV}"
 
@@ -26,6 +27,22 @@ export RAYON_NUM_THREADS="${THREADS}"
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
+
+if [ "${EXECUTION_MODE}" = accelerated ]; then
+    [ "${SHARD_ID}" = coordinator ] || { echo "ERROR: accelerated task must be a coordinator" >&2; exit 1; }
+    SELECTION="${RUN_ROOT}/selections/${MODEL}/${METRIC}"
+    echo "NCI parameter tournament: ${MODEL}/${METRIC}, accelerated coordinator"
+    if [ -d "${SELECTION}" ]; then
+        "${ORGANIZER}" accelerated audit --bundle "${BUNDLE}" --plan "${PLAN}" \
+            --results "${RESULTS}" --selection "${SELECTION}"
+    else
+        mkdir -p "$(dirname "${SELECTION}")"
+        "${ORGANIZER}" accelerated run --bundle "${BUNDLE}" --plan "${PLAN}" \
+            --results "${RESULTS}" --output "${SELECTION}" --threads "${THREADS}"
+    fi
+    exit 0
+fi
+[ "${EXECUTION_MODE}" = exhaustive ] || { echo "ERROR: unknown execution mode" >&2; exit 1; }
 
 echo "NCI parameter tournament: ${MODEL}/${METRIC}, shard ${SHARD_ID}"
 "${ORGANIZER}" run-shard \

@@ -92,3 +92,27 @@ pub fn collect_file_hashes(root: &Path) -> Result<std::collections::BTreeMap<Str
         })
         .collect()
 }
+
+/// Reference a source from a directory that may not yet have been published.
+pub fn relative_path(base: &Path, target: &Path) -> Result<PathBuf> {
+    let base = if base.exists() {
+        base.canonicalize()?
+    } else {
+        base.parent()
+            .context("reference base parent")?
+            .canonicalize()?
+            .join(base.file_name().context("reference base name")?)
+    };
+    let target = target.canonicalize()?;
+    let left: Vec<_> = base.components().collect();
+    let right: Vec<_> = target.components().collect();
+    let common = left.iter().zip(&right).take_while(|(a, b)| a == b).count();
+    let mut result = PathBuf::new();
+    for _ in common..left.len() {
+        result.push("..");
+    }
+    for component in &right[common..] {
+        result.push(component.as_os_str());
+    }
+    Ok(result)
+}

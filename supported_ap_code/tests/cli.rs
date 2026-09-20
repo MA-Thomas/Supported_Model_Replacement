@@ -16,6 +16,84 @@ fn common_policy() -> [&'static str; 6] {
 }
 
 #[test]
+fn interval_cli_distinguishes_budget_exhaustion_from_verified_failure() {
+    let directory = tempdir().unwrap();
+    let input = directory.path().join("valley.csv");
+    let output = directory.path().join("result.json");
+    let a = [
+        20, 19, 16, 15, 12, 11, 9, 6, 2, 1, 18, 17, 14, 13, 10, 8, 7, 5, 4, 3,
+    ];
+    let b = [
+        18, 17, 16, 15, 13, 10, 9, 8, 6, 2, 20, 19, 14, 12, 11, 7, 5, 4, 3, 1,
+    ];
+    let mut csv = "evaluation,label,a,b\n".to_owned();
+    for i in 0..20 {
+        csv.push_str(&format!("test,{},{},{}\n", usize::from(i < 10), a[i], b[i]));
+    }
+    fs::write(&input, csv).unwrap();
+    for (budget, status) in [("1", "unresolved"), ("128", "verified_failure")] {
+        let result = Command::new(env!("CARGO_BIN_EXE_supported_ap"))
+            .args([
+                "ap",
+                "observed",
+                "--input",
+                input.to_str().unwrap(),
+                "--output",
+                output.to_str().unwrap(),
+                "--evaluation-id-col",
+                "evaluation",
+                "--label-col",
+                "label",
+                "--model-a-col",
+                "a",
+                "--model-b-col",
+                "b",
+                "--empirical-order",
+                "1",
+                "--interval-lower",
+                "0.391291675958276",
+                "--interval-upper",
+                "0.99",
+                "--search-max-iterations",
+                budget,
+                "--transport-justification",
+                "test",
+                "--reference-limitation",
+                "test",
+                "--magnitude-threshold",
+                "0.1832",
+                "--survival-floor",
+                "0",
+                "--survival-requirement",
+                "0.5",
+            ])
+            .output()
+            .unwrap();
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        let report: Value = serde_json::from_slice(&fs::read(&output).unwrap()).unwrap();
+        assert_eq!(report["result"]["forward"]["verdict"], "no_verdict");
+        assert_eq!(
+            report["result"]["forward"]["prevalence_search"]["verdict"],
+            status
+        );
+        if budget == "1" {
+            assert_eq!(
+                report["result"]["evaluations"][0]["forward"]["search"]["stop_reason"],
+                "budget_exhausted"
+            );
+            assert_eq!(
+                report["result"]["evaluations"][0]["forward"]["search"]["evaluations"],
+                4
+            );
+        }
+    }
+}
+
+#[test]
 fn ap_projected_cli_reports_v17_stages_anchors_and_trace() {
     let directory = tempdir().unwrap();
     let input = directory.path().join("paired.csv");

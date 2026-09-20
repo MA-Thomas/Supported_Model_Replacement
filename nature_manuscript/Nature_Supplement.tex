@@ -1,0 +1,1861 @@
+% ============================================================
+% supplement.tex (SEPARATE FILE) -- Supplementary Information
+% ============================================================
+% Compile separately for Nature submission.
+% ============================================================
+
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{microtype}
+
+\usepackage{float}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{enumitem} 
+
+\setstretch{1.05}
+\setlength{\parskip}{0.25em}
+\setlength{\parindent}{0pt}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\dd}{\,\mathrm d}
+
+\newcommand{\Qpres}{Q}
+\newcommand{\Ppos}{P}
+\newcommand{\Nneg}{N}
+\newcommand{\Fimm}{F}
+\newcommand{\Gco}{\Gamma}
+\newcommand{\Lselfe}{\Lambda_{\mathrm{self}\rightarrow e}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\title{\textbf{Supplementary Information}\\
+A mechanistic--learning framework for TCR-agnostic prediction of CD8$^{+}$ T-cell immunogenicity}
+\author{Marcus Thomas \and \textit{(additional authors)}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\newpage
+
+% ============================================================
+% SI ROADMAP
+% ============================================================
+
+\section{Structural Theory}
+\label{sec:structural_theory}
+The adaptive immune system is built from an enormous and highly variable collection of T-cell receptors (TCRs).  
+Every individual explores a minuscule and idiosyncratic subset of the vast combinatorial space of possible TCR sequences, and even genetically identical individuals share only a tiny fraction of their repertoires.  
+Yet many repertoire-level phenomena---the qualitative shape of cross-reactivity decay, the location of self–nonself discrimination thresholds, and the coarse structure of recognition across epitope–HLA pairs---are stable across individuals who share similar biological context and HLA profiles.  
+
+This combination of microscopic variability and macroscopic regularity presents a conceptual puzzle.  
+How can two individuals who share essentially no TCR sequences nevertheless exhibit similar repertoire-level behavior?  
+What features of the immune system are responsible for this stability, and how can they be identified without enumerating TCR sequences themselves?  
+Existing approaches do not resolve this tension.  
+Biophysical models focus on receptor–ligand interactions but do not explain how microscopic energetics give rise to reproducible structure at the repertoire level.  
+Machine-learning and statistical approaches sometimes achieve predictive success without TCR sequence information, but they do so without an accompanying account of why such coarse-graining should be legitimate.  
+As a result, the field lacks a principled explanation for how microscopic complexity collapses into low-dimensional, stable patterns of recognition.
+
+The aim of this work is to provide such an explanation.  
+We adopt a structural perspective in which the goal is not merely to build a predictive model from data, but to clarify the conceptual quantities that must be present in any mechanistically faithful description of repertoire-level recognition.  
+This means identifying which aspects of the system are universal and context-independent, which are shaped by the generative process, which arise from thymic selection, and which survive as coarse-grained, TCR-agnostic structures.  
+Rather than treating predictive performance as the starting point, we begin with the architecture of the underlying biological processes and ask what forms of simplification or collapse these processes themselves enforce.
+
+
+\subsection{The CD8+ T-cell Story}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{A universal biophysical possibility structure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% PEDAGOGICAL COMMENT (CORRECTED):
+% This subsection must strictly preserve:
+% - R(t,p,h) is universal and context-independent.
+% - R captures only feasibility, not potency.
+% - R depends only on t, p, h, and not on C or η.
+% - R is a conceptual 0/1 projection of microscopic biophysics.
+
+The foundation of the structural theory is a universal compatibility map that encodes the biophysical possibility of recognition. For any TCR sequence \(t\), peptide \(p\), and HLA allele \(h\), we define
+\[
+    R(t,p,h)\in\{0,1\},
+\]
+indicating whether the TCR with sequence \(t\) is biophysically capable of binding the peptide–HLA complex \((p,h)\) with minimally functional affinity. The binary nature of \(R\) abstracts away quantitative binding parameters and isolates structural feasibility. It retains only those constraints arising from steric complementarity, physico-chemical matching, and geometric consistency between the TCR fold and the pMHC surface.
+
+A central feature of \(R\) is universality. Once the molecule-level physics of TCR–pMHC interaction is fixed, \(R\) is independent of developmental stage, organismal context, thymic environment, or antigenic history. All subsequent context-dependence enters through the generative process, the biological context \(C\), and the HLA profile \(\mathcal{H}\)—never through \(R\) itself. This universality is crucial because both collapse pathways ultimately rely on reorganizing TCR-explicit expressions entirely in terms of structures inherited from \(R\).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Generative accessibility and the causal basis of the pre-selection repertoire}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% PEDAGOGICAL COMMENT (UPDATED):
+% This subsection now treats λ_pre as the causal, mechanistic object and P_gen
+% as the statistical description of its distribution across generative contexts.
+% The distinction is causal (λ_pre) versus ensemble/probabilistic (P_gen).
+
+The universal compatibility map specifies which regions of TCR space are
+biophysically capable of recognizing different pMHCs, but it does not specify
+which regions of that space are actually explored during T-cell development.  
+This exploration is governed by the V(D)J recombination machinery, whose causal
+state we denote by the generative context \(C_{\mathrm{VDJ}}\).  
+The generative context includes the availability and accessibility of gene
+segments, enzyme concentrations, chromatin structure, and the stochastic
+dynamics of the recombination process.
+
+The output of this generative mechanism is a concrete,
+realized pre-selection repertoire.  We represent this repertoire by a binary
+field
+\[
+  \lambda_{\mathrm{pre}}(t, C_{\mathrm{VDJ}}) \in \{0,1\},
+\]
+which records whether the TCR sequence \(t\) is actually produced under a
+particular generative context \(C_{\mathrm{VDJ}}\).  
+Thus \(\lambda_{\mathrm{pre}}\) is a causal object: it is the mechanistically
+produced substrate upon which selection subsequently acts.  
+Different generative contexts produce different realizations of
+\(\lambda_{\mathrm{pre}}\).
+
+From the ensemble of possible generative contexts, one obtains a statistical
+description of the generative mechanism itself.  
+This description is captured by a probability distribution over TCR sequences,
+\[
+  P_{\mathrm{gen}}(t)
+  :=
+  \mathbb{E}_{C_{\mathrm{VDJ}}}\!\left[
+     \lambda_{\mathrm{pre}}(t, C_{\mathrm{VDJ}})
+  \right],
+\]
+which expresses the probability that the recombination process produces the
+sequence \(t\) when averaged over developmental histories and causal states of
+the recombination machinery.  
+In this sense, \(P_{\mathrm{gen}}\) is not fundamental; it is the statistical
+shadow of the causal generative process encoded in \(\lambda_{\mathrm{pre}}\).
+
+
+Importantly, no selection dependence enters at this stage.  
+The pair \((R, \lambda_{\mathrm{pre}})\) defines the realized geometry of the
+pre-selection repertoire in a given individual, while the pair
+\((R, P_{\mathrm{gen}})\) defines the geometry and measure of generatively
+accessible regions of TCR space at the population level.  
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Selection and the emergence of self-recognition profiles}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Generative exploration alone does not determine the repertoire. Thymic selection filters the pre-selection repertoire through interactions with self peptides presented in the host’s HLA background. This process is represented abstractly by the selection operator \(\mathcal{S}_{C,\mathcal{H}}\), which depends on:
+\begin{enumerate}
+    \item the biological context \(C\), including the set of self peptides available for presentation, their processing and abundance, and the thymic microenvironment
+    \item the HLA profile \(\mathcal{H}\), a context-dependent set of HLA alleles specifying which peptides are presented and how
+\end{enumerate}  
+
+
+The post-selection indicator \(\lambda_{\mathrm{post}}(t)\) is defined as
+\[
+    \lambda_{\mathrm{post}}(t)
+    =
+    \mathcal{S}_{C,\mathcal{H}}(t)\,\lambda_{\mathrm{pre}}(t).
+\]
+
+
+Selection acts on TCRs not via their sequences directly but through how they interact with self pMHCs. This motivates the introduction of a context- and HLA-dependent self-recognition profile:
+\[
+    \phi = \Phi_{C,\mathcal{H}}(t)(s,h),
+\]
+where \(\Phi_{C,\mathcal{H}}(t)\) is a function defined on pairs \((s,h)\) of self peptides and their presenting HLA alleles. For the remainder of this subsection (and in the single-allele derivations below), we fix a context $(C,\mathcal{H})$ and an allele $h \in \mathcal{H}$. We write
+\[
+\Phi_h(t)(s) := \Phi_{C,\mathcal{H}}(t)(s,h)
+\]
+for the restriction of $\Phi_{C,\mathcal{H}}(t)$ to self peptides presented on $h$.
+
+The profile \(\phi\) summarizes the pattern of functionally relevant interactions between TCR \(t\) and the presented self landscape. Two TCRs with identical profiles are treated equivalently by thymic selection, regardless of their sequence differences.
+
+
+\paragraph{Combined filtering and person-specific recognition structure}
+
+Selection in context $(C,\mathcal{H})$ acts on the TCR axis, while the HLA profile
+$\mathcal{H}$ acts on the peptide--HLA axis. We represent the effect of selection on
+the pre-selection repertoire by a TCR-wise mask
+\[
+  \mathcal{S}_{C,\mathcal{H}}(\lambda_{\mathrm{pre}})(t, C_{\mathrm{VDJ}},C,\mathcal{H})
+  \in \{0,1\},
+\]
+which indicates whether sequence $t$ survives thymic selection in context
+$(C,\mathcal{H})$, given the generative outcome $\lambda_{\mathrm{pre}}$. The HLA
+profile $\mathcal{H}$ induces an indicator mask $\mathbbm{1}_{\mathcal{H}}$ on the
+HLA axis, defined by $\mathbbm{1}_{\mathcal{H}}(p,h) = 1$ if $h \in \mathcal{H}$ and
+$0$ otherwise, which zeroes out pMHCs $(p,h)$ not presented in the person.
+
+Since these masks act on different axes, their broadcast multiplications
+commute. The person-specific filtered recognition structure is therefore
+\[
+  R^{\mathcal{S}} = R_{C,\mathcal{H}}
+  :=
+  \mathbbm{1}_{\mathcal{H}} * \big(\mathcal{S}_{C,\mathcal{H}}(\lambda_{\mathrm{pre}}) * R\big)
+  =
+  \big(\mathbbm{1}_{\mathcal{H}} * R\big) * \mathcal{S}_{C,\mathcal{H}}(\lambda_{\mathrm{pre}}),
+\]
+which answers the question whether, for any particular $(t,p,h)$, recognition is possible post-selection.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{The self-pattern footprint of the post-selection repertoire}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The post-selection repertoire can be viewed as a multiset of surviving clonotypes with survival indicators \(\lambda_{\mathrm{post}}(t, C_{\mathrm{VDJ}},C,\mathcal{H})\), clonotype sizes \(c(t, C_{\mathrm{VDJ}},C,\mathcal{H})\), and associated self-recognition profiles \(\phi = \Phi_{C,\mathcal{H}}(t)\). From this causal object, the repertoire induces a probability measure over profile space,
+\[
+    \mu_{\mathrm{post}}\!\left(\mathrm{d}\phi \,\middle|\, C_{\mathrm{VDJ}}, C, \mathcal{H}\right),
+\]
+defined as the pushforward of the clonotype mass
+\(c(t, C_{\mathrm{VDJ}},C,\mathcal{H})\,\lambda_{\mathrm{post}}(t, C_{\mathrm{VDJ}},C,\mathcal{H})\)
+through the map \(t \mapsto \Phi_{C,\mathcal{H}}(t)\), followed by normalization. Here \(C_{\mathrm{VDJ}}\) denotes the generative context, \(C\) the biological context, and \(\mathcal{H}\) the HLA profile; \(\mu_{\mathrm{post}}\) is thus a statistical summary of the post-selection outcome, recording how much T-cell mass resides in each self-recognition profile among the surviving clonotypes.
+
+The measure \(\mu_{\mathrm{post}}\) captures the selection-induced structure relevant for receptor-side recognition in Branch~A. Individuals with similar context \(C\) and HLA profile \(\mathcal{H}\) tend to exhibit similar footprints even if their detailed TCR sequences differ, because selection funnels generative variability into a constrained set of profile types. Once receptor mass is expressed in terms of profiles, explicit dependence on TCR sequence disappears, and recognition can be formulated entirely as a functional of \(\mu_{\mathrm{post}}\) and a profile-level kernel.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{The self-pattern footprint of the post-selection repertoire}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% PEDAGOGICAL COMMENT (CORRECTED):
+% - μ_post must be a measure over profile space φ.
+% - μ_post depends on C_VDJ (distribution of generative solutions), C (context), and η (HLA profile).
+% - μ_post replaces explicit dependence on TCR identity in Branch A.
+
+The post-selection repertoire induces a probability measure over profile space:
+\[
+    \mu_{\mathrm{post}}\!\left(\mathrm{d}\phi \,\middle|\, C_{\mathrm{VDJ}}, C, \mathcal{H}\right),
+\]
+where \(C_{\mathrm{VDJ}}\) denotes the generative context (i.e., the random draw of TCRs from \(P_{\mathrm{gen}}\)). This measure records how much T-cell mass resides in each self-recognition profile among the surviving clonotypes.
+
+Probability measure \(\mu_{\mathrm{post}}\) captures all selection-induced structure relevant for recognition on the receptor side. Individuals with similar context \(C\) and HLA profile \(\mathcal{H}\) tend to exhibit similar footprints even if their detailed TCR sequences differ, because selection funnels generative variability into a constrained set of profile types.
+
+The footprint is the central object of Branch A: once receptor mass is expressed in terms of profiles, explicit dependence on TCR sequence disappears, and recognition can be formulated entirely as a functional of \(\mu_{\mathrm{post}}\) and a profile-level kernel.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% End of Block 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BLOCK 3: BRANCH A + BRANCH B
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Branch A: Personalized Post-Selection Receptor Mass}
+
+The first branch of the theory concerns the amount of effective receptor mass
+available in the mature, post-selection repertoire to engage a given
+epitope–HLA pair \((e,h)\). To make clear the distinction between causal,
+realized quantities and their ensemble-level shadows, we begin by defining the
+receptor-side latent at the level of a single realized repertoire.
+
+Given a specific generative context \(C_{\mathrm{VDJ}}\), biological context
+\(C\), and HLA profile \(\mathcal{H}\), the pre-selection repertoire is represented by
+the indicator field \(\lambda_{\mathrm{pre}}(t, C_{\mathrm{VDJ}})\), and thymic
+selection produces the post-selection field
+\(\lambda_{\mathrm{post}}(t, C_{\mathrm{VDJ}},C,\mathcal{H})\). Each surviving
+clonotype \(t\) has an associated clone size
+\(c(t, C_{\mathrm{VDJ}},C,\mathcal{H})\) and a self-recognition profile
+\(\phi = \Phi_{C,\mathcal{H}}(t)\). In this concrete setting, the causal receptor
+capacity latent is defined as
+\begin{equation}
+\label{w_cap}
+W_{\mathrm{cap}}(e,h \mid C_{\mathrm{VDJ}},C,\mathcal{H})
+:=
+\sum_{t:\,\lambda_{\mathrm{post}}(t;C_{\mathrm{VDJ}},C,\mathcal{H})=1}
+\theta(t,e,h)\,
+c(t, C_{\mathrm{VDJ}},C,\mathcal{H})\,
+R(t,e,h).
+\end{equation}
+
+
+This causal object depends on the particular realization of the generative
+process. To obtain the corresponding ensemble latent, we average over the
+distribution of generative contexts. Denoting expectation by
+\(\mathbb{E}_{C_{\mathrm{VDJ}}}\), the ensemble-level receptor capacity is
+defined as
+\begin{equation}
+\label{w_cap_bar}
+\bar{W}_{\mathrm{cap}}(e,h)
+:=
+\mathbb{E}_{C_{\mathrm{VDJ}}}
+\!\left[
+W_{\mathrm{cap}}(e,h, C_{\mathrm{VDJ}},C,\mathcal{H})
+\right].
+\end{equation}
+Eq. \ref{w_cap_bar} corresponds to the statistical shadow of Eq. \ref{w_cap}, averaged over generative randomness.\footnote{%
+Formally, the expectation over generative contexts may be expanded in
+terms of the generative distribution.  Writing
+$\lambda_{\mathrm{post}}(t)=\mathcal{S}_{C,\mathcal{H}}(t)\,\lambda_{\mathrm{pre}}(t)$
+and using $\mathbb{E}[\lambda_{\mathrm{pre}}(t)] = P_{\mathrm{gen}}(t)$, one
+obtains
+\[
+\bar{W}_{\mathrm{cap}}(e,h)
+=
+\sum_{t\in\Omega_{\mathrm{TCR}}}
+P_{\mathrm{gen}}(t)\,
+\theta(t,e,h)\,
+\bar{c}(t,C,\mathcal{H})\,
+R(t,e,h)\,
+\mathcal{S}_{C,\mathcal{H}}(t),
+\]
+where $\bar{c}(t,C,\mathcal{H})$ denotes the expected post-selection clone size
+conditional on survival in context $(C,\mathcal{H})$.  This expression is not
+used in the main development, as it obscures the structural distinction
+between the causal post-selection latent $W_{\mathrm{cap}}$ and its
+ensemble shadow $\bar{W}_{\mathrm{cap}}$.}
+
+
+At first sight, \(\bar{W}_{\mathrm{cap}}(e,h)\) appears to require explicit
+knowledge of the identity of each TCR, its clone size, its functional potency,
+and its post-selection compatibility. However, the structural framework
+developed here shows that these quantities are not primitive. They are
+organized through the self-recognition profile \(\Phi_{C,\mathcal{H}}(t)\). For each
+TCR \(t\), the profile \(\phi=\Phi_{C,\mathcal{H}}(t)\) is a function over self pMHC
+pairs \((s,h')\) that encodes the pattern of functionally relevant interactions
+between \(t\) and the self landscape in context \((C,\mathcal{H})\). Selection acts on
+these profiles rather than on raw sequences, and the post-selection repertoire
+induces a measure
+\[
+\mu_{\mathrm{post}}(\mathrm{d}\phi \mid C_{\mathrm{VDJ}},C,\mathcal{H})
+\]
+over profile space.
+
+Once profiles are introduced, TCRs can be regrouped according to their
+profiles. For a fixed profile \(\phi\), we consider the average contribution of
+all TCRs with that profile to recognition of the query \((e,h)\). This is
+captured by a profile-level kernel
+\[
+\widetilde{w}(e,h,\phi)
+:=
+\mathbb{E}\left[
+\theta(t,e,h)\,
+c(t, C_{\mathrm{VDJ}},C,\mathcal{H})\,
+R(t,e,h)
+\;\middle|\;
+\Phi_{C,\mathcal{H}}(t)=\phi
+\right].
+\]
+In words, \(\widetilde{w}(e,h,\phi)\) is the effective per-profile contribution
+to receptor mass available for recognizing \((e,h)\), averaged over all
+clonotypes with the same profile.
+
+Because the post-selection repertoire induces the footprint
+\(\mu_{\mathrm{post}}\) over profile space, the ensemble latent can be rewritten
+exactly as
+\[
+\bar{W}_{\mathrm{cap}}(e,h)
+=
+\int
+\widetilde{w}(e,h,\phi)\,
+\bar{\mu}_{\mathrm{post}}(\mathrm{d}\phi \mid C,\mathcal{H}),
+\]
+where
+\[
+\bar{\mu}_{\mathrm{post}}(\mathrm{d}\phi \mid C,\mathcal{H})
+:=
+\mathbb{E}_{C_{\mathrm{VDJ}}}\!\left[
+\mu_{\mathrm{post}}(\mathrm{d}\phi \mid C_{\mathrm{VDJ}},C,\mathcal{H})
+\right]
+\]
+is the generative-context-averaged footprint, and the conditional expectation
+defining \(\widetilde{w}\) is taken under the same joint law over generative
+context and clonotype sampling. Both averages run over generative randomness,
+which places the identity at the level where \(\bar{W}_{\mathrm{cap}}\) was
+defined in Eq.~\ref{w_cap_bar}.
+
+
+The collapse holds as an identity. Regrouping clonotypes by profile and
+averaging within each group reproduces \(\bar{W}_{\mathrm{cap}}\) for any choice
+of profile map, so the rewriting on its own asserts nothing about the biology.
+Its content lies in what the profile captures.
+
+Selection reads a receptor only through its engagement with self. Two clonotypes
+with the same \(\phi\) therefore share the same survival probability, and
+selection cannot separate them: the profile is sufficient for survival. Query
+recognition is a separate facet of the receptor. The kernel
+\(\widetilde{w}(e,h,\phi)\) averages \(\theta(t,e,h)\,c(t)\,R(t,e,h)\) over a
+profile group whose members agree on self yet can differ on \((e,h)\), an epitope
+none of them was selected against. The group carries real variance in query
+response, and \(\widetilde{w}\) records its mean. Sequence identity remains in the
+description, integrated into the kernel.
+
+The footprint earns its predictive role when \(\phi\) also informs query
+recognition, so that \(\widetilde{w}(e,h,\cdot)\) is a stable function of the
+profile and transfers across individuals. We call this property
+recognition-sufficiency and adopt it as an explicit assumption. Under it, two
+people with matched \(C\) and \(\mathcal{H}\) produce matching footprints and
+matching coarse-grained availability, even with disjoint repertoires.
+Recognition-sufficiency varies by query. A receptor's pattern of self-engagement
+constrains its response to a query to the degree that the query resembles
+peptides the profile already records, and that resemblance is what Branch~B
+makes precise.
+
+
+\subsection{Branch B: Personalized Pre-Selection Self-to-Query Cross-Recognition}
+
+% PEDAGOGICAL COMMENT (CORRECTED, NO LISTS):
+% This branch must:
+% - Begin from the fully explicit \Lambda_self→e(s,h; e,h) as defined in the original content.
+% - Take expectation to get \barΛ_self→e.
+% - Introduce Γ(s,h; e,h) as the generative co-accessibility term.
+% - Introduce τ_thymus,s(e,h) and its three-factor decomposition into
+%   f_self(s,h) f_query(e,h) ζ(d[s,e]).
+% - Show that p_{s,h}(e) = Q(s,h,\mathcal{H}) ζ(d[s,e]) τ_thymus(e,h) in the implementation,
+%   and explain why this leads to a ζ^2 dependence.
+% - Carefully distinguish the two logical roles of ζ.
+
+Branch~B shares its central approximation with the recognition-sufficiency assumption of Branch~A. Both replace a TCR-explicit conditional expectation of query potency with a population-level kernel that depends only on epitope distance, so the credibility of the two branches rests on one idea evaluated in two places rather than on either branch proving the other. Branch~B asks how pre-selection TCRs that engage a particular self pMHC \((s,h)\) contribute to potential recognition of a query epitope--HLA pair \((e,h)\). Where the self landscape reaches close to the query, a self-profile carries information about query recognition; where it falls away from the query, query recognition decouples from self. The relevant quantity is a self-indexed pre-selection cross-recognition latent that retains all mechanistic ingredients. In its most explicit form, this latent is defined as
+\[
+\Lambda_{\mathrm{self}\to e}(s,h; e,h)
+:=
+\sum_{t:\,\lambda_{\mathrm{pre}}(t)=1}
+[Q(s,h,\mathcal{H})\cdot \tau]\,
+R(t,s,h)\,
+\Phi_{h}(t)(s)\,
+R(t,e,h)\,
+\Phi(t)(e,h).
+\]
+
+We again choose to work with an ensemble level statistical shadow. In this case, we take the expectation with respect to the generative law, using \(\mathbb{E}[\lambda_{\mathrm{pre}}(t)] = P_{\mathrm{gen}}(t)\). The expected pre-selection self-to-query latent is then
+\[
+\bar{\Lambda}_{\mathrm{self}\to e}(s,h; e,h)
+:=
+[Q(s,h,\mathcal{H})\cdot \tau]\,
+\sum_{t\in\Omega_{\mathrm{TCR}}}
+P_{\mathrm{gen}}(t)\,
+R(t,s,h)\,
+\Phi_{h}(t)(s)\,
+R(t,e,h)\,
+\Phi(t)(e,h).
+\]
+
+\paragraph{Assumptions and Approximations.}
+At this stage, the quantity depends only on the universal compatibility map, the generative distribution, the encounter weight of the self pMHC, and the self and query potency factors.
+
+In the implemented TCR-agnostic model, we replace this exact latent with a tractable surrogate by making a sequence of approximations. First, for self-driven availability modeling, we adopt a homogeneous self-potency approximation: for self pMHCs \((s,h)\), we treat the self-side per-encounter potency \(\Phi_{h}(t)(s)\) as effectively constant across TCRs and self epitopes, absorbing its variation into the survival functional and into downstream availability parameters. Under this approximation, the self-side potency term may be taken as unity and dropped from the expression.
+
+Second, on the query side, we treat its distribution, conditional on what selection has ``seen'' on the self side, as a population-level quantity. More precisely, for TCRs that (i) recognize the self complex \((s,h)\) with unit effective potency and (ii) are biophysically compatible with both pMHCs, we approximate the conditional expectation of query-side potency by a similarity kernel:
+\[
+\Phi(t)(e,h)
+\;\big|\;
+\Phi_{h}(t)(s)=1,\,
+R(t,s,h)=1,\,
+R(t,e,h)=1
+\quad\approx\quad
+\kappa\!\big((s,h),(e,h)\big)
+=
+\zeta\big(d[s,e]\big),
+\]
+where \(d[s,e]\) is a sequence- or feature-based distance between the self and query epitopes, and \(\zeta\) is a fixed, monotone decreasing similarity function. This approximation expresses the idea that, given a TCR that engages \((s,h)\) with unit effective potency and can in principle recognize \((e,h)\), the expected potency against \((e,h)\) depends only on the similarity between the epitopes. The explicit dependence on \(t\) is thereby removed and absorbed into a population-level average encoded by the kernel \(\kappa\).
+
+With these approximations, the expected self-to-query latent becomes
+\[
+\bar{\Lambda}_{\mathrm{self}\to e}(s,h; e,h)
+\approx
+[Q(s,h,\mathcal{H})\cdot \tau],\zeta\big(d[s,e]\big)\,
+\sum_{t\in\Omega_{\mathrm{TCR}}}
+P_{\mathrm{gen}}(t)\,
+R(t,s,h)\,
+R(t,e,h).
+\]
+The summation is a purely feasibility-driven, generative co-accessibility term that depends only on the overlap of the compatibility regions for \((s,h)\) and \((e,h)\) under the generative measure. We denote this overlap by
+\[
+\Gamma(e,h; s,h)
+:=
+\sum_{t\in\Omega_{\mathrm{TCR}}}
+P_{\mathrm{gen}}(t)\,
+R(t,s,h)\,
+R(t,e,h)
+= \mathbb{E}_{T\sim P_{\mathrm{gen}}}\bigl[R(T,s,h)\,R(T,e,h)\bigr].
+\]
+The generative co-accessibility $\Gamma$ measures how densely the generative (pre-selection) repertoire seeds TCR solutions that are compatible with both the self pMHC \((s,h)\) and the query \((e,h)\). The expectation can be factorized into the product of self-side and query-side marginal quantities, together with a correlation term that depends on epitope similarity. Writing
+\[
+f_{\mathrm{self}}(s,h)
+:=
+\mathbb{E}_{T}[R(T,s,h)],\qquad
+f_{\mathrm{query}}(e,h)
+:=
+\mathbb{E}_{T}[R(T,e,h)],
+\]
+and introducing a correlation factor
+\[
+G(s,e,h)
+:=
+\frac{\mathbb{E}_{T}[R(T,s,h)\,R(T,e,h)]}
+     {\mathbb{E}_{T}[R(T,s,h)]\,\mathbb{E}_{T}[R(T,e,h)]},
+\]
+we can write
+\[
+\Gamma(e,h;s,h)
+=
+f_{\mathrm{self}}(s,h)\,f_{\mathrm{query}}(e,h)\,G(s,e,h).
+\]
+A natural approximation is to let the correlation factor depend only on the epitope distance, and to parameterize it by the same similarity kernel that appears in the potency approximation:
+\[
+G(s,e,h) \approx \zeta\big(d[s,e]\big).
+\]
+This yields
+\[
+\bar{\Lambda}_{\mathrm{self}\to e}(s,h; e,h)
+\approx
+[Q(s,h,\mathcal{H})\cdot \tau]\, 
+f_{\mathrm{self}}(s,h)\,
+f_{\mathrm{query}}(e,h)\,
+\bigl[\zeta\big(d[s,e]\big)\bigr]^2.
+\]
+
+The appearance of \(\zeta^{2}\) in this expression is not redundant. It reflects two logically distinct roles for similarity. One role is geometric and enters through the correlation factor \(G(s,e,h)\), which measures how much of the generative TCR solution space is shared between the compatibility regions of \((s,h)\) and \((e,h)\). When the epitopes are similar, their compatibility regions overlap more extensively, increasing the generative co-accessibility, and this is captured by a \(\zeta\)-like dependence on \(d[s,e]\). The second role is functional and enters through the potency approximation: conditional on a TCR engaging \((s,h)\) with unit effective potency, the expected potency against \((e,h)\) decays with epitope distance, again according to a kernel of \(\zeta\)-type. Under the simplifying assumption that both effects share the same distance dependence, the combined influence of similarity appears as \(\zeta(d[s,e])^2\).
+
+
+
+\paragraph{Learning accessibility factors from data.}
+In practice, the marginal quantities $f_{\mathrm{self}}(s,h)$ and
+$f_{\mathrm{query}}(e,h)$ serve as learnable carriers of the
+$P_{\mathrm{gen}}$-dependent structure identified by Branch~B rather than as
+quantities computed directly from a microscopic generative model. The
+approximated latent $\bar{\Lambda}_{\mathrm{self}\to e}(s,h; e,h)$ does not
+enter the selection operator $\mathcal{S}_{C,\mathcal{H}}$ as an input; instead, it
+provides a TCR-agnostic description of how the generative repertoire positions
+self and query epitopes relative to one another before selection, which can
+then be related to post-selection availability within a larger modeling
+framework. In that broader context, $f_{\mathrm{self}}$ and $f_{\mathrm{query}}$
+are implemented as parameterized functions or fields and fitted to data, so
+that the coarse-grained accessibility structure is both theoretically
+constrained and empirically grounded.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% End of Block 3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BLOCK 4: UNIFICATION AND IMPLICATIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Unifying the Two Branches: Coarse-Grained Structure and the Disappearance of TCR Sequences}
+
+
+
+The two-branch structure reveals a general principle. The repertoire is indeed built from an astronomically large collection of TCR sequences, but the functional degrees of freedom that govern repertoire-level recognition are dramatically fewer. They are organized by the geometry of self, by the constraints of the generative process, and by the transformations imposed by selection. The appropriate coordinate systems for repertoire-level modeling are the profile space and the peptide space, not the TCR sequence space. This is why models that operate at the level of peptides, distances, and coarse-grained accessibility can be both predictive and mechanistically grounded. Both branches make clear that the macroscopic regularities of repertoire-level recognition emerge from low-dimensional structure embedded within the otherwise vast combinatorial universe of TCRs.
+
+The same structure predicts how recognition varies with a query's distance to self, and it separates two quantities that are easy to merge. One is availability, the receptor mass selection leaves to engage the query. The other is stability, the agreement between individuals with matched context and HLA profile. These move differently with epitope-to-self distance.
+
+Availability need not decrease monotonically with distance. The selection operator \(\mathcal{S}_{C,\mathcal{H}}\) acts in two directions at once. It favors clonotypes whose cross-recognition with self supplies enough survival signal, and it removes clonotypes whose cross-recognition with self is excessive. A query close to self draws strong cross-recognition and meets the first pressure, yet the same strength exposes its conjugate set to the second, so tolerance can suppress availability near zero distance. A query far from self draws weak cross-recognition and fails the first pressure, so availability falls there as well. Availability is therefore largest at intermediate distance and reduced at both ends, by tolerance near self and by insufficient support far from it. The depth of the near-self reduction depends on how strongly selection penalizes excess self-cross-recognition, so the effect is a prediction conditional on that pressure being active.
+
+Stability follows a simpler course. Recognition-sufficiency holds to the degree that a query lies within the cross-recognition reach of self, and Branch~B measures that reach through \(\zeta(d[s,e])\) and the co-accessibility \(\Gamma\). Where self channels the outcome, matched individuals are driven to the same result, and they agree whether that result is large or small. Two matched individuals suppress the same near-self query and supply the same intermediate one, so concordance stays high across the self-channeled range. A query beyond the reach of self decouples from the footprint, and recognition there rests on raw generative supply, which matched individuals need not share. Concordance therefore stays high near and at intermediate distance and decays once the query escapes self, tracking whether self channels the outcome rather than how large the outcome is.
+
+These are two distinct falsifiable predictions. Availability is testable within a single repertoire as a non-monotone profile across distance bins, low near self, peaked at intermediate distance, low far from self. Stability is testable across matched individuals as recognition concordance that holds through the self-channeled range and decays with distance to the self-peptidome.
+
+\subsection{From structural theory to the operational model}
+\label{sec:bridge}
+
+The structural theory developed in the preceding sections is not computed directly. Its role is to identify the conceptual quantities that a mechanistically faithful, TCR-agnostic model of repertoire-level recognition must represent, and to justify the specific functional forms adopted in the operational model (Sections~\ref{sec:presentation}--\ref{sec:potency}). This subsection makes the correspondence explicit.
+
+\paragraph{What the structural theory establishes.}
+The two-branch analysis yields three conclusions that constrain the space of admissible models:
+\begin{enumerate}[label=(\roman*),nosep]
+  \item Repertoire-level recognition of a query pair \((e,h)\) can be expressed as a functional of the post-selection footprint \(\mu_{\mathrm{post}}\) and a profile-level kernel, without reference to individual TCR sequences (Branch~A, Eq.~\ref{w_cap_bar}).
+  \item The pre-selection cross-recognition structure between a self pMHC \((s,h)\) and a query \((e,h)\) factorizes into a presentation term, a generative co-accessibility term, and a potency kernel, with similarity entering squared through two logically distinct roles (Branch~B).
+  \item The macroscopic regularities of recognition are governed by low-dimensional objects---profiles, distances, and accessibility factors---rather than by TCR sequence identity.
+\end{enumerate}
+
+These conclusions do not prescribe a unique computational procedure. They define the structural skeleton that the operational model instantiates under a series of tractable approximations.
+
+\paragraph{Mapping abstract objects to computed quantities.}
+Table~\ref{tab:bridge} summarizes the correspondence between structural-theory objects and their operational counterparts.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{p{4.2cm} p{4.8cm} p{5.5cm}}
+\hline
+\textbf{Structural object} & \textbf{Operational counterpart} & \textbf{Approximation} \\
+\hline
+Universal compatibility map \(R(t,p,h)\) &
+Not computed; enters only through its coarse-grained consequences &
+Replaced by distance-based surrogates throughout \\[4pt]
+
+Self-recognition profile \(\Phi_h(t)(s)\) &
+Not instantiated per TCR. The selection-relevant structure that profiles encode is represented implicitly through \(P(e,\mathcal{H})\) and \(N(e,\mathcal{H})\), which aggregate over all self peptides &
+Homogeneous self-potency: \(\Phi_h(t)(s)\approx 1\) on the self side, removing per-TCR dependence. Selection outcomes are computed as cumulative hit-count probabilities over \(\{p_{s,h}(e)\}\) rather than as functionals of individual profiles \\[4pt]
+
+Post-selection footprint \(\mu_{\mathrm{post}}\) &
+No direct operational counterpart &
+Bypassed entirely. The operational model does not construct or represent the measure over profile space. Its effect enters only through \(\bar{W}_{\mathrm{cap}}(e,h)\), which is the integral of a kernel against \(\mu_{\mathrm{post}}\) (see next row) \\[4pt]
+
+Ensemble receptor capacity \(\bar{W}_{\mathrm{cap}}(e,h) = \int \widetilde{w}(e,h,\phi)\,\bar{\mu}_{\mathrm{post}}(\mathrm{d}\phi \mid C,\mathcal{H})\) &
+\(F_{\mathrm{TCR}}(e,h) = P(e,\mathcal{H})\,N(e,\mathcal{H})\) &
+The profile-level integral is approximated by cumulative selection probabilities over self-peptide hit counts, computed via the Poisson-binomial model (Section~\ref{sec:tcr_avail}) \\[4pt]
+
+Query-side potency \(\Phi(t)(e,h)\), conditionally averaged over TCRs recognizing \((s,h)\) &
+One factor of \(\zeta\bigl(d[s,e]\bigr)\) in \(p_{s,h}(e)\) &
+Conditional expectation of query-side potency, given recognition of self \((s,h)\), approximated by a distance-dependent kernel \\[4pt]
+
+Generative co-accessibility \(\Gamma(e,h;\,s,h)\) and its correlation factor \(G(s,e,h)\) &
+Second factor of \(\zeta\bigl(d[s,e]\bigr)\) in \(p_{s,h}(e)\), multiplied by \(\tau_{\mathrm{exposure}}\) &
+\(\Gamma\) factorized as \(f_{\mathrm{self}}\cdot f_{\mathrm{query}} \cdot G\); correlation \(G(s,e,h)\approx\zeta(d[s,e])\); marginal factors \(f_{\mathrm{self}},f_{\mathrm{query}}\) treated as uniform and absorbed into \(\tau_{\mathrm{exposure}}\) \\[4pt]
+
+Combined cross-recognition latent \(\bar{\Lambda}_{\mathrm{self}\to e}(s,h;\,e,h)\) &
+\(p_{s,h}(e) = Q(s,h,\mathcal{H})\,\zeta(d[s,e])^2\,\tau_{\mathrm{exposure}}\) &
+Product of the above approximations. The \(\zeta^2\) dependence reflects two distinct roles: geometric overlap (\(G\)) and potency decay (\(\Phi\)); see Branch~B \\[4pt]
+
+Presentation weight \(Q(s,h,\mathcal{H})\cdot\tau\) &
+\(Q(s,h,\mathcal{H})\) from the competitive binding model (Section~\ref{sec:presentation}); encounter-time factor \(\tau\) subsumed into \(\tau_{\mathrm{exposure}}\) &
+Equilibrium or closed-form approximation with context-class-specific background \\[4pt]
+
+Per-encounter potency (foreign query) &
+\(F_{\mathrm{Potency}}(e,h) = \pi(e,h)\) &
+Not an approximation of a structural-theory quantity. The structural theory subsumes per-encounter potency into \(\bar{W}_{\mathrm{cap}}\) via \(\theta(t,e,h)\); the decision to factor it out as an independent multiplicative term is an additional modeling choice. \\
+\hline
+\end{tabular}
+\caption{Correspondence between the structural theory of Section~\ref{sec:structural_theory} and the operational model of Sections~\ref{sec:presentation}--\ref{sec:potency}. Each row identifies the abstract quantity, its implemented surrogate, and the approximation that mediates the translation.}
+\label{tab:bridge}
+\end{table}
+
+\paragraph{The two roles of \(\zeta\) and the origin of the squared dependence.}
+The factor \(\zeta(d[s,e])^2\) in \(p_{s,h}(e)\) is not a single approximation applied twice. It arises from two independent steps in the Branch~B derivation. The first \(\zeta\) enters through the generative correlation factor \(G(s,e,h)\): when \(s\) and \(e\) are similar, the regions of TCR space compatible with \((s,h)\) and \((e,h)\) overlap more extensively under the generative measure \(P_{\mathrm{gen}}\), increasing co-accessibility. The second \(\zeta\) enters through the conditional potency approximation: given that a TCR engages \((s,h)\), its expected potency against \((e,h)\) decays with peptide distance. Under the simplifying assumption that both effects share the same distance kernel, their product yields \(\zeta^2\). Removing either factor would conflate two structurally distinct sources of cross-recognition decay.
+
+\paragraph{The role of \(\tau_{\mathrm{exposure}}\) as an absorbing parameter.}
+Several quantities from the structural theory---the generative marginals \(f_{\mathrm{self}}(s,h)\) and \(f_{\mathrm{query}}(e,h)\), the encounter duration, and the pre-selection TCR supply---are not individually identifiable from available data. In the operational model, these are jointly absorbed into the scalar parameter \(\tau_{\mathrm{exposure}}\), which multiplies every \(p_{s,h}(e)\) uniformly. This absorption is exact when \(f_{\mathrm{self}}\) and \(f_{\mathrm{query}}\) are treated as constant across self--query pairs. The consequences of this approximation are partially mitigated by the downstream learning strategy: sweeping \(\tau_{\mathrm{exposure}}\) over a grid and learning composite hypotheses across the resulting mechanistic regimes allows the model to recover epitope-specific sensitivity to the effective scale of selection pressure without requiring explicit estimation of the absorbed factors.
+
+\paragraph{What is lost and what is preserved.}
+The operational model preserves the multiplicative factorization \(F = F_{\mathrm{pMHC}} \cdot F_{\mathrm{TCR}} \cdot F_{\mathrm{Potency}}\), the causal ordering (presentation enables recognition; selection constrains it), the squared similarity dependence in the cross-recognition kernel, and the separation between mechanistic components (\(Q\), \(P\), \(N\)) and empirical components (\(\pi\)). It does not preserve the full generality of the profile-based framework: the post-selection footprint \(\mu_{\mathrm{post}}\) is not represented as an explicit object, the generative marginals are not estimated per epitope, and the receptor capacity \(\bar{W}_{\mathrm{cap}}\) is approximated by selection survival probabilities rather than computed as an integral over profile space. These simplifications are driven by the absence of individual-level TCR data and by computational tractability. The structural theory constrains the functional forms that enter the operational model and provides the mechanistic rationale for quantities---particularly \(\zeta^2\) and \(\tau_{\mathrm{exposure}}\)---that would otherwise appear ad hoc.
+% \section{Structural Theory}
+% \label{sec:structural_theory}
+% The adaptive immune system is built from an enormous and highly variable collection of T-cell receptors (TCRs).  
+% Every individual explores a minuscule and idiosyncratic subset of the vast combinatorial space of possible TCR sequences, and even genetically identical individuals share only a tiny fraction of their repertoires.  
+% Yet many repertoire-level phenomena---the qualitative shape of cross-reactivity decay, the location of self–nonself discrimination thresholds, and the coarse structure of recognition across epitope–HLA pairs---are stable across individuals who share similar biological context and HLA profiles.  
+
+% This combination of microscopic variability and macroscopic regularity presents a conceptual puzzle.  
+% How can two individuals who share essentially no TCR sequences nevertheless exhibit similar repertoire-level behaviour?  
+% What features of the immune system are responsible for this stability, and how can they be identified without enumerating TCR sequences themselves?  
+% Existing approaches do not resolve this tension.  
+% Biophysical models focus on receptor–ligand interactions but do not explain how microscopic energetics give rise to reproducible structure at the repertoire level.  
+% Machine-learning and statistical approaches sometimes achieve predictive success without TCR sequence information, but they do so without an accompanying account of why such coarse-graining should be legitimate.  
+% As a result, the field lacks a principled explanation for how microscopic complexity collapses into low-dimensional, stable patterns of recognition.
+
+% The aim of this work is to provide such an explanation.  
+% We adopt a structural perspective in which the goal is not merely to build a predictive model from data, but to clarify the conceptual quantities that must be present in any mechanistically faithful description of repertoire-level recognition.  
+% This means identifying which aspects of the system are universal and context-independent, which are shaped by the generative process, which arise from thymic selection, and which survive as coarse-grained, TCR-agnostic structures.  
+% Rather than treating predictive performance as the starting point, we begin with the architecture of the underlying biological processes and ask what forms of simplification or collapse these processes themselves enforce.
+
+
+% \subsection{The CD8+ T-cell Story}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \paragraph{A universal biophysical possibility structure}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% % PEDAGOGICAL COMMENT (CORRECTED):
+% % This subsection must strictly preserve:
+% % - R(t,p,h) is universal and context-independent.
+% % - R captures only feasibility, not potency.
+% % - R depends only on t, p, h, and not on C or η.
+% % - R is a conceptual 0/1 projection of microscopic biophysics.
+
+% The foundation of the structural theory is a universal compatibility map that encodes the biophysical possibility of recognition. For any TCR sequence \(t\), peptide \(p\), and HLA allele \(h\), we define
+% \[
+%     R(t,p,h)\in\{0,1\},
+% \]
+% indicating whether the TCR with sequence \(t\) is biophysically capable of binding the peptide–HLA complex \((p,h)\) with minimally functional affinity. The binary nature of \(R\) abstracts away quantitative binding parameters and isolates structural feasibility. It retains only those constraints arising from steric complementarity, physico-chemical matching, and geometric consistency between the TCR fold and the pMHC surface.
+
+% A central feature of \(R\) is universality. Once the molecule-level physics of TCR–pMHC interaction is fixed, \(R\) is independent of developmental stage, organismal context, thymic environment, or antigenic history. All subsequent context-dependence enters through the generative process, the biological context \(C\), and the HLA profile \(\eta\)—never through \(R\) itself. This universality is crucial because both collapse pathways ultimately rely on reorganizing TCR-explicit expressions entirely in terms of structures inherited from \(R\).
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \paragraph{Generative accessibility and the causal basis of the pre-selection repertoire}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% % PEDAGOGICAL COMMENT (UPDATED):
+% % This subsection now treats λ_pre as the causal, mechanistic object and P_gen
+% % as the statistical description of its distribution across generative contexts.
+% % The distinction is causal (λ_pre) versus ensemble/probabilistic (P_gen).
+
+% The universal compatibility map specifies which regions of TCR space are
+% biophysically capable of recognizing different pMHCs, but it does not specify
+% which regions of that space are actually explored during T-cell development.  
+% This exploration is governed by the V(D)J recombination machinery, whose causal
+% state we denote by the generative context \(C_{\mathrm{VDJ}}\).  
+% The generative context includes the availability and accessibility of gene
+% segments, enzyme concentrations, chromatin structure, and the stochastic
+% dynamics of the recombination process.
+
+% The output of this generative mechanism is a concrete,
+% realized pre-selection repertoire.  We represent this repertoire by a binary
+% field
+% \[
+%   \lambda_{\mathrm{pre}}(t, C_{\mathrm{VDJ}}) \in \{0,1\},
+% \]
+% which records whether the TCR sequence \(t\) is actually produced under a
+% particular generative context \(C_{\mathrm{VDJ}}\).  
+% Thus \(\lambda_{\mathrm{pre}}\) is a causal object: it is the mechanistically
+% produced substrate upon which selection subsequently acts.  
+% Different generative contexts produce different realizations of
+% \(\lambda_{\mathrm{pre}}\).
+
+% From the ensemble of possible generative contexts, one obtains a statistical
+% description of the generative mechanism itself.  
+% This description is captured by a probability distribution over TCR sequences,
+% \[
+%   P_{\mathrm{gen}}(t)
+%   :=
+%   \mathbb{E}_{C_{\mathrm{VDJ}}}\!\left[
+%      \lambda_{\mathrm{pre}}(t, C_{\mathrm{VDJ}})
+%   \right],
+% \]
+% which expresses the probability that the recombination process produces the
+% sequence \(t\) when averaged over developmental histories and causal states of
+% the recombination machinery.  
+% In this sense, \(P_{\mathrm{gen}}\) is not fundamental; it is the statistical
+% shadow of the causal generative process encoded in \(\lambda_{\mathrm{pre}}\).
+
+
+% Importantly, no selection dependence enters at this stage.  
+% The pair \((R, \lambda_{\mathrm{pre}})\) defines the realized geometry of the
+% pre-selection repertoire in a given individual, while the pair
+% \((R, P_{\mathrm{gen}})\) defines the geometry and measure of generatively
+% accessible regions of TCR space at the population level.  
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \paragraph{Selection and the emergence of self-recognition profiles}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Generative exploration alone does not determine the repertoire. Thymic selection filters the pre-selection repertoire through interactions with self peptides presented in the host’s HLA background. This process is represented abstractly by the selection operator \(\mathcal{S}_{C,\eta}\), which depends on:
+% \begin{enumerate}
+%     \item the biological context \(C\), including the set of self peptides available for presentation, their processing and abundance, and the thymic microenvironment
+%     \item the HLA profile \(\eta\), a context-dependent set of HLA alleles specifying which peptides are presented and how
+% \end{enumerate}  
+
+
+% The post-selection indicator \(\lambda_{\mathrm{post}}(t)\) is defined as
+% \[
+%     \lambda_{\mathrm{post}}(t)
+%     =
+%     \mathcal{S}_{C,\eta}(t)\,\lambda_{\mathrm{pre}}(t).
+% \]
+
+
+% Selection acts on TCRs not via their sequences directly but through how they interact with self pMHCs. This motivates the introduction of a context- and HLA-dependent self-recognition profile:
+% \[
+%     \phi = \Phi_{C,\eta}(t)(s,h),
+% \]
+% where \(\Phi_{C,\eta}(t)\) is a function defined on pairs \((s,h)\) of self peptides and their presenting HLA alleles. For the remainder of this subsection (and in the single-allele derivations below), we fix a context $(C,\eta)$ and an allele $h \in \eta$. We write
+% \[
+% \Phi_h(t)(s) := \Phi_{C,\eta}(t)(s,h)
+% \]
+% for the restriction of $\Phi_{C,\eta}(t)$ to self peptides presented on $h$.
+
+% The profile \(\phi\) summarizes the pattern of functionally relevant interactions between TCR \(t\) and the presented self landscape. Two TCRs with identical profiles are treated equivalently by thymic selection, regardless of their sequence differences.
+
+
+% \paragraph{Combined filtering and person-specific recognition structure}
+
+% Selection in context $(C,\eta)$ acts on the TCR axis, while the HLA profile
+% $\eta$ acts on the peptide--HLA axis. We represent the effect of selection on
+% the pre-selection repertoire by a TCR-wise mask
+% \[
+%   \mathcal{S}_{C,\eta}(\lambda_{\mathrm{pre}})(t, C_{\mathrm{VDJ}},C,\eta)
+%   \in \{0,1\},
+% \]
+% which indicates whether sequence $t$ survives thymic selection in context
+% $(C,\eta)$, given the generative outcome $\lambda_{\mathrm{pre}}$. The HLA
+% profile $\eta$ is represented as a mask on the HLA axis that zeroes out
+% pMHCs $(p,h)$ that are not present in the person.
+
+% Since these masks act on different axes, their broadcast multiplications
+% commute. The person-specific filtered recognition structure is therefore
+% \[
+%   R^{\mathcal{S}} = R_{C,\eta}
+%   :=
+%   \eta * \big(\mathcal{S}_{C,\eta}(\lambda_{\mathrm{pre}}) * R\big)
+%   =
+%   \big(\eta * R\big) * \mathcal{S}_{C,\eta}(\lambda_{\mathrm{pre}}),
+% \]
+% which answers the question whether, for any particular $(t,p,h)$, recognition is possible post-selection.
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \paragraph{The self-pattern footprint of the post-selection repertoire}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% The post-selection repertoire can be viewed as a multiset of surviving clonotypes with survival indicators \(\lambda_{\mathrm{post}}(t, C_{\mathrm{VDJ}},C,\eta)\), clonotype sizes \(c(t, C_{\mathrm{VDJ}},C,\eta)\), and associated self-recognition profiles \(\phi = \Phi_{C,\eta}(t)\). From this causal object, the repertoire induces a probability measure over profile space,
+% \[
+%     \mu_{\mathrm{post}}\!\left(\mathrm{d}\phi \,\middle|\, C_{\mathrm{VDJ}}, C, \eta\right),
+% \]
+% defined as the pushforward of the clonotype mass
+% \(c(t, C_{\mathrm{VDJ}},C,\eta)\,\lambda_{\mathrm{post}}(t, C_{\mathrm{VDJ}},C,\eta)\)
+% through the map \(t \mapsto \Phi_{C,\eta}(t)\), followed by normalization. Here \(C_{\mathrm{VDJ}}\) denotes the generative context, \(C\) the biological context, and \(\eta\) the HLA profile; \(\mu_{\mathrm{post}}\) is thus a statistical summary of the post-selection outcome, recording how much T-cell mass resides in each self-recognition profile among the surviving clonotypes.
+
+% The measure \(\mu_{\mathrm{post}}\) captures the selection-induced structure relevant for receptor-side recognition in Branch~A. Individuals with similar context \(C\) and HLA profile \(\eta\) tend to exhibit similar footprints even if their detailed TCR sequences differ, because selection funnels generative variability into a constrained set of profile types. Once receptor mass is expressed in terms of profiles, explicit dependence on TCR sequence disappears, and recognition can be formulated entirely as a functional of \(\mu_{\mathrm{post}}\) and a profile-level kernel.
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \paragraph{The self-pattern footprint of the post-selection repertoire}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% % PEDAGOGICAL COMMENT (CORRECTED):
+% % - μ_post must be a measure over profile space φ.
+% % - μ_post depends on C_VDJ (distribution of generative solutions), C (context), and η (HLA profile).
+% % - μ_post replaces explicit dependence on TCR identity in Branch A.
+
+% The post-selection repertoire induces a probability measure over profile space:
+% \[
+%     \mu_{\mathrm{post}}\!\left(\mathrm{d}\phi \,\middle|\, C_{\mathrm{VDJ}}, C, \eta\right),
+% \]
+% where \(C_{\mathrm{VDJ}}\) denotes the generative context (i.e., the random draw of TCRs from \(P_{\mathrm{gen}}\)). This measure records how much T-cell mass resides in each self-recognition profile among the surviving clonotypes.
+
+% Probability measure \(\mu_{\mathrm{post}}\) captures all selection-induced structure relevant for recognition on the receptor side. Individuals with similar context \(C\) and HLA profile \(\eta\) tend to exhibit similar footprints even if their detailed TCR sequences differ, because selection funnels generative variability into a constrained set of profile types.
+
+% The footprint is the central object of Branch A: once receptor mass is expressed in terms of profiles, explicit dependence on TCR sequence disappears, and recognition can be formulated entirely as a functional of \(\mu_{\mathrm{post}}\) and a profile-level kernel.
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % End of Block 2
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % BLOCK 3: BRANCH A + BRANCH B
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Branch A: Personalized Post-Selection Receptor Mass}
+
+% The first branch of the theory concerns the amount of effective receptor mass
+% available in the mature, post-selection repertoire to engage a given
+% epitope–HLA pair \((e,h)\). To make clear the distinction between causal,
+% realized quantities and their ensemble-level shadows, we begin by defining the
+% receptor-side latent at the level of a single realized repertoire.
+
+% Given a specific generative context \(C_{\mathrm{VDJ}}\), biological context
+% \(C\), and HLA profile \(\eta\), the pre-selection repertoire is represented by
+% the indicator field \(\lambda_{\mathrm{pre}}(t, C_{\mathrm{VDJ}})\), and thymic
+% selection produces the post-selection field
+% \(\lambda_{\mathrm{post}}(t, C_{\mathrm{VDJ}},C,\eta)\). Each surviving
+% clonotype \(t\) has an associated clone size
+% \(c(t, C_{\mathrm{VDJ}},C,\eta)\) and a self-recognition profile
+% \(\phi = \Phi_{C,\eta}(t)\). In this concrete setting, the causal receptor
+% capacity latent is defined as
+% \begin{equation}
+% \label{w_cap}
+% W_{\mathrm{cap}}(e,h \mid C_{\mathrm{VDJ}},C,\eta)
+% :=
+% \sum_{t:\,\lambda_{\mathrm{post}}(t;C_{\mathrm{VDJ}},C,\eta)=1}
+% \theta(t,e,h)\,
+% c(t, C_{\mathrm{VDJ}},C,\eta)\,
+% R(t,e,h).
+% \end{equation}
+
+
+% This causal object depends on the particular realization of the generative
+% process. To obtain the corresponding ensemble latent, we average over the
+% distribution of generative contexts. Denoting expectation by
+% \(\mathbb{E}_{C_{\mathrm{VDJ}}}\), the ensemble-level receptor capacity is
+% defined as
+% \begin{equation}
+% \label{w_cap_bar}
+% \bar{W}_{\mathrm{cap}}(e,h)
+% :=
+% \mathbb{E}_{C_{\mathrm{VDJ}}}
+% \!\left[
+% W_{\mathrm{cap}}(e,h, C_{\mathrm{VDJ}},C,\eta)
+% \right].
+% \end{equation}
+% Eq. \ref{w_cap_bar} corresponds to the statistical shadow of Eq. \ref{w_cap}, averaged over generative randomness.\footnote{%
+% Formally, the expectation over generative contexts may be expanded in
+% terms of the generative distribution.  Writing
+% $\lambda_{\mathrm{post}}(t)=\mathcal{S}_{C,\eta}(t)\,\lambda_{\mathrm{pre}}(t)$
+% and using $\mathbb{E}[\lambda_{\mathrm{pre}}(t)] = P_{\mathrm{gen}}(t)$, one
+% obtains
+% \[
+% \bar{W}_{\mathrm{cap}}(e,h)
+% =
+% \sum_{t\in\Omega_{\mathrm{TCR}}}
+% P_{\mathrm{gen}}(t)\,
+% \theta(t,e,h)\,
+% \bar{c}(t,C,\eta)\,
+% R(t,e,h)\,
+% \mathcal{S}_{C,\eta}(t),
+% \]
+% where $\bar{c}(t,C,\eta)$ denotes the expected post-selection clone size
+% conditional on survival in context $(C,\eta)$.  This expression is not
+% used in the main development, as it obscures the structural distinction
+% between the causal post-selection latent $W_{\mathrm{cap}}$ and its
+% ensemble shadow $\bar{W}_{\mathrm{cap}}$.}
+
+
+% At first sight, \(\bar{W}_{\mathrm{cap}}(e,h)\) appears to require explicit
+% knowledge of the identity of each TCR, its clone size, its functional potency,
+% and its post-selection compatibility. However, the structural framework
+% developed here shows that these quantities are not primitive. They are
+% organized through the self-recognition profile \(\Phi_{C,\eta}(t)\). For each
+% TCR \(t\), the profile \(\phi=\Phi_{C,\eta}(t)\) is a function over self pMHC
+% pairs \((s,h')\) that encodes the pattern of functionally relevant interactions
+% between \(t\) and the self landscape in context \((C,\eta)\). Selection acts on
+% these profiles rather than on raw sequences, and the post-selection repertoire
+% induces a measure
+% \[
+% \mu_{\mathrm{post}}(\mathrm{d}\phi \mid C_{\mathrm{VDJ}},C,\eta)
+% \]
+% over profile space.
+
+% Once profiles are introduced, TCRs can be regrouped according to their
+% profiles. For a fixed profile \(\phi\), we consider the average contribution of
+% all TCRs with that profile to recognition of the query \((e,h)\). This is
+% captured by a profile-level kernel
+% \[
+% \widetilde{w}(e,h,\phi)
+% :=
+% \mathbb{E}\left[
+% \theta(t,e,h)\,
+% c(t, C_{\mathrm{VDJ}},C,\eta)\,
+% R(t,e,h)
+% \;\middle|\;
+% \Phi_{C,\eta}(t)=\phi
+% \right].
+% \]
+% In words, \(\widetilde{w}(e,h,\phi)\) is the effective per-profile contribution
+% to receptor mass available for recognizing \((e,h)\), averaged over all
+% clonotypes with the same profile.
+
+% Because the post-selection repertoire induces the footprint
+% \(\mu_{\mathrm{post}}\) over profile space, the ensemble latent can be rewritten
+% exactly as
+% \[
+% \bar{W}_{\mathrm{cap}}(e,h)
+% =
+% \int
+% \widetilde{w}(e,h,\phi)\,
+% \mu_{\mathrm{post}}(\mathrm{d}\phi \mid C_{\mathrm{VDJ}},C,\eta).
+% \]
+
+
+% This exact collapse is the core structural statement of Branch A. It shows that
+% any monotonic surrogate of receptor-side availability can be written as a
+% functional of \(\mu_{\mathrm{post}}\) and \(\widetilde{w}\), without reference to
+% TCR sequence identity. The constraints imposed by the universal compatibility
+% map \(R\), the generative process, and the selection operator \(\mathcal{S}_{C,\eta}\)
+% are fully encoded in the footprint. For individuals with similar context \(C\)
+% and HLA profile \(\eta\), the footprints will resemble each other, and the
+% coarse-grained structure of post-selection availability will therefore be
+% stable, even though their detailed TCR repertoires may differ.
+
+
+% \subsection{Branch B: Personalized Pre-Selection Self-to-Query Cross-Recognition}
+
+% % PEDAGOGICAL COMMENT (CORRECTED, NO LISTS):
+% % This branch must:
+% % - Begin from the fully explicit \Lambda_self→e(s,h; e,h) as defined in the original content.
+% % - Take expectation to get \barΛ_self→e.
+% % - Introduce Γ(s,h; e,h) as the generative co-accessibility term.
+% % - Introduce τ_thymus,s(e,h) and its three-factor decomposition into
+% %   f_self(s,h) f_query(e,h) ζ(d[s,e]).
+% % - Show that p_{s,h}(e) = Q(s,h,H) ζ(d[s,e]) τ_thymus(e,h) in the implementation,
+% %   and explain why this leads to a ζ^2 dependence.
+% % - Carefully distinguish the two logical roles of ζ.
+
+% The second branch addresses a complementary question: how pre-selection TCRs that engage a particular self pMHC \((s,h)\) contribute to potential recognition of a query epitope--HLA pair \((e,h)\). The relevant quantity is a self-indexed pre-selection cross-recognition latent that retains all mechanistic ingredients. In its most explicit form, this latent is defined as
+% \[
+% \Lambda_{\mathrm{self}\to e}(s,h; e,h)
+% :=
+% \sum_{t:\,\lambda_{\mathrm{pre}}(t)=1}
+% [Q(s,h,H)\cdot \tau]\,
+% R(t,s,h)\,
+% \Phi_{h}(t)(s)\,
+% R(t,e,h)\,
+% \Phi(t)(e,h).
+% \]
+
+% We again choose to work with an ensemble level statistical shadow. In this case, we take the expectation with respect to the generative law, using \(\mathbb{E}[\lambda_{\mathrm{pre}}(t)] = P_{\mathrm{gen}}(t)\). The expected pre-selection self-to-query latent is then
+% \[
+% \bar{\Lambda}_{\mathrm{self}\to e}(s,h; e,h)
+% :=
+% [Q(s,h,H)\cdot \tau]\,
+% \sum_{t\in\Omega_{\mathrm{TCR}}}
+% P_{\mathrm{gen}}(t)\,
+% R(t,s,h)\,
+% \Phi_{h}(t)(s)\,
+% R(t,e,h)\,
+% \Phi(t)(e,h).
+% \]
+
+% \paragraph{Assumptions and Approximations.}
+% At this stage, the quantity depends only on the universal compatibility map, the generative distribution, the encounter weight of the self pMHC, and the self and query potency factors.
+
+% In the implemented TCR-agnostic model, we replace this exact latent with a tractable surrogate by making a sequence of approximations. First, for self-driven availability modeling, we adopt a homogeneous self-potency approximation: for self pMHCs \((s,h)\), we treat the self-side per-encounter potency \(\Phi_{h}(t)(s)\) as effectively constant across TCRs and self epitopes, absorbing its variation into the survival functional and into downstream availability parameters. Under this approximation, the self-side potency term may be taken as unity and dropped from the expression.
+
+% Second, on the query side, we treat its distribution, conditional on what selection has ``seen'' on the self side, as a population-level quantity. More precisely, for TCRs that (i) recognize the self complex \((s,h)\) with unit effective potency and (ii) are biophysically compatible with both pMHCs, we approximate the conditional expectation of query-side potency by a similarity kernel:
+% \[
+% \Phi(t)(e,h)
+% \;\big|\;
+% \Phi_{h}(t)(s)=1,\,
+% R(t,s,h)=1,\,
+% R(t,e,h)=1
+% \quad\approx\quad
+% \kappa\!\big((s,h),(e,h)\big)
+% =
+% \zeta\big(d[s,e]\big),
+% \]
+% where \(d[s,e]\) is a sequence- or feature-based distance between the self and query epitopes, and \(\zeta\) is a fixed, monotone decreasing similarity function. This approximation expresses the idea that, given a TCR that engages \((s,h)\) with unit effective potency and can in principle recognize \((e,h)\), the expected potency against \((e,h)\) depends only on the similarity between the epitopes. The explicit dependence on \(t\) is thereby removed and absorbed into a population-level average encoded by the kernel \(\kappa\).
+
+% With these approximations, the expected self-to-query latent becomes
+% \[
+% \bar{\Lambda}_{\mathrm{self}\to e}(s,h; e,h)
+% \approx
+% [Q(s,h,H)\cdot \tau],\zeta\big(d[s,e]\big)\,
+% \sum_{t\in\Omega_{\mathrm{TCR}}}
+% P_{\mathrm{gen}}(t)\,
+% R(t,s,h)\,
+% R(t,e,h).
+% \]
+% The summation is a purely feasibility-driven, generative co-accessibility term that depends only on the overlap of the compatibility regions for \((s,h)\) and \((e,h)\) under the generative measure. We denote this overlap by
+% \[
+% \Gamma(e,h; s,h)
+% :=
+% \sum_{t\in\Omega_{\mathrm{TCR}}}
+% P_{\mathrm{gen}}(t)\,
+% R(t,s,h)\,
+% R(t,e,h)
+% = \mathbb{E}_{T\sim P_{\mathrm{gen}}}\bigl[R(T,s,h)\,R(T,e,h)\bigr].
+% \]
+% The generative co-accessibility $\Gamma$ measures how densely the generative (pre-selection) repertoire seeds TCR solutions that are compatible with both the self pMHC \((s,h)\) and the query \((e,h)\). The expectation can be factorized into the product of self-side and query-side marginal quantities, together with a correlation term that depends on epitope similarity. Writing
+% \[
+% f_{\mathrm{self}}(s,h)
+% :=
+% \mathbb{E}_{T}[R(T,s,h)],\qquad
+% f_{\mathrm{query}}(e,h)
+% :=
+% \mathbb{E}_{T}[R(T,e,h)],
+% \]
+% and introducing a correlation factor
+% \[
+% G(s,e,h)
+% :=
+% \frac{\mathbb{E}_{T}[R(T,s,h)\,R(T,e,h)]}
+%      {\mathbb{E}_{T}[R(T,s,h)]\,\mathbb{E}_{T}[R(T,e,h)]},
+% \]
+% we can write
+% \[
+% \Gamma(e,h;s,h)
+% =
+% f_{\mathrm{self}}(s,h)\,f_{\mathrm{query}}(e,h)\,G(s,e,h).
+% \]
+% A natural approximation is to let the correlation factor depend only on the epitope distance, and to parameterize it by the same similarity kernel that appears in the potency approximation:
+% \[
+% G(s,e,h) \approx \zeta\big(d[s,e]\big).
+% \]
+% This yields
+% \[
+% \bar{\Lambda}_{\mathrm{self}\to e}(s,h; e,h)
+% \approx
+% [Q(s,h,H)\cdot \tau]\, 
+% f_{\mathrm{self}}(s,h)\,
+% f_{\mathrm{query}}(e,h)\,
+% \bigl[\zeta\big(d[s,e]\big)\bigr]^2.
+% \]
+
+% The appearance of \(\zeta^{2}\) in this expression is not redundant. It reflects two logically distinct roles for similarity. One role is geometric and enters through the correlation factor \(G(s,e,h)\), which measures how much of the generative TCR solution space is shared between the compatibility regions of \((s,h)\) and \((e,h)\). When the epitopes are similar, their compatibility regions overlap more extensively, increasing the generative co-accessibility, and this is captured by a \(\zeta\)-like dependence on \(d[s,e]\). The second role is functional and enters through the potency approximation: conditional on a TCR engaging \((s,h)\) with unit effective potency, the expected potency against \((e,h)\) decays with epitope distance, again according to a kernel of \(\zeta\)-type. Under the simplifying assumption that both effects share the same distance dependence, the combined influence of similarity appears as \(\zeta(d[s,e])^2\).
+
+
+
+% \paragraph{Learning accessibility factors from data.}
+% In practice, the marginal quantities $f_{\mathrm{self}}(s,h)$ and
+% $f_{\mathrm{query}}(e,h)$ serve as learnable carriers of the
+% $P_{\mathrm{gen}}$-dependent structure identified by Branch~B rather than as
+% quantities computed directly from a microscopic generative model. The
+% approximated latent $\bar{\Lambda}_{\mathrm{self}\to e}(s,h; e,h)$ does not
+% enter the selection operator $\mathcal{S}_{C,\eta}$ as an input; instead, it
+% provides a TCR-agnostic description of how the generative repertoire positions
+% self and query epitopes relative to one another before selection, which can
+% then be related to post-selection availability within a larger modelling
+% framework. In that broader context, $f_{\mathrm{self}}$ and $f_{\mathrm{query}}$
+% are implemented as parameterized functions or fields and fitted to data, so
+% that the coarse-grained accessibility structure is both theoretically
+% constrained and empirically grounded.
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % End of Block 3
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % BLOCK 4: UNIFICATION AND IMPLICATIONS
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \subsection{Unifying the Two Branches: Coarse-Grained Structure and the Disappearance of TCR Sequences}
+
+
+
+% The two-branch structure reveals a general principle. The repertoire is indeed built from an astronomically large collection of TCR sequences, but the functional degrees of freedom that govern repertoire-level recognition are dramatically fewer. They are organized by the geometry of self, by the constraints of the generative process, and by the transformations imposed by selection. The appropriate coordinate systems for repertoire-level modelling are the profile space and the peptide space, not the TCR sequence space. This is why models that operate at the level of peptides, distances, and coarse-grained accessibility can be both predictive and mechanistically grounded. Both branches make clear that the macroscopic regularities of repertoire-level recognition emerge from low-dimensional structure embedded within the otherwise vast combinatorial universe of TCRs.
+
+% \subsection{From structural theory to the operational model}
+% \label{sec:bridge}
+
+% The structural theory developed in the preceding sections is not computed directly. Its role is to identify the conceptual quantities that a mechanistically faithful, TCR-agnostic model of repertoire-level recognition must represent, and to justify the specific functional forms adopted in the operational model (Sections~\ref{sec:presentation}--\ref{sec:potency}). This subsection makes the correspondence explicit.
+
+% \paragraph{What the structural theory establishes.}
+% The two-branch analysis yields three conclusions that constrain the space of admissible models:
+% \begin{enumerate}[label=(\roman*),nosep]
+%   \item Repertoire-level recognition of a query pair \((e,h)\) can be expressed as a functional of the post-selection footprint \(\mu_{\mathrm{post}}\) and a profile-level kernel, without reference to individual TCR sequences (Branch~A, Eq.~\ref{w_cap_bar}).
+%   \item The pre-selection cross-recognition structure between a self pMHC \((s,h)\) and a query \((e,h)\) factorizes into a presentation term, a generative co-accessibility term, and a potency kernel, with similarity entering squared through two logically distinct roles (Branch~B).
+%   \item The macroscopic regularities of recognition are governed by low-dimensional objects---profiles, distances, and accessibility factors---rather than by TCR sequence identity.
+% \end{enumerate}
+
+% These conclusions do not prescribe a unique computational procedure. They define the structural skeleton that the operational model instantiates under a series of tractable approximations.
+
+% \paragraph{Mapping abstract objects to computed quantities.}
+% Table~\ref{tab:bridge} summarizes the correspondence between structural-theory objects and their operational counterparts.
+
+% \begin{table}[H]
+% \centering
+% \small
+% \renewcommand{\arraystretch}{1.35}
+% \begin{tabular}{p{4.2cm} p{4.8cm} p{5.5cm}}
+% \hline
+% \textbf{Structural object} & \textbf{Operational counterpart} & \textbf{Approximation} \\
+% \hline
+% Universal compatibility map \(R(t,p,h)\) &
+% Not computed; enters only through its coarse-grained consequences &
+% Replaced by distance-based surrogates throughout \\[4pt]
+
+% Self-recognition profile \(\Phi_h(t)(s)\) &
+% Not instantiated per TCR. The selection-relevant structure that profiles encode is represented implicitly through \(P(e,H)\) and \(N(e,H)\), which aggregate over all self peptides &
+% Homogeneous self-potency: \(\Phi_h(t)(s)\approx 1\) on the self side, removing per-TCR dependence. Selection outcomes are computed as cumulative hit-count probabilities over \(\{p_{s,h}(e)\}\) rather than as functionals of individual profiles \\[4pt]
+
+% Post-selection footprint \(\mu_{\mathrm{post}}\) &
+% No direct operational counterpart &
+% Bypassed entirely. The operational model does not construct or represent the measure over profile space. Its effect enters only through \(\bar{W}_{\mathrm{cap}}(e,h)\), which is the integral of a kernel against \(\mu_{\mathrm{post}}\) (see next row) \\[4pt]
+
+% Ensemble receptor capacity \(\bar{W}_{\mathrm{cap}}(e,h) = \int \widetilde{w}(e,h,\phi)\,\mu_{\mathrm{post}}(\mathrm{d}\phi)\) &
+% \(F_{\mathrm{TCR}}(e,h) = P(e,H)\,N(e,H)\) &
+% The profile-level integral is approximated by cumulative selection probabilities over self-peptide hit counts, computed via the Poisson-binomial model (Section~\ref{sec:tcr_avail}) \\[4pt]
+
+% Query-side potency \(\Phi(t)(e,h)\), conditionally averaged over TCRs recognizing \((s,h)\) &
+% One factor of \(\zeta\bigl(d[s,e]\bigr)\) in \(p_{s,h}(e)\) &
+% Conditional expectation of query-side potency, given recognition of self \((s,h)\), approximated by a distance-dependent kernel \\[4pt]
+
+% Generative co-accessibility \(\Gamma(e,h;\,s,h)\) and its correlation factor \(G(s,e,h)\) &
+% Second factor of \(\zeta\bigl(d[s,e]\bigr)\) in \(p_{s,h}(e)\), multiplied by \(\tau_{\mathrm{exposure}}\) &
+% \(\Gamma\) factorized as \(f_{\mathrm{self}}\cdot f_{\mathrm{query}} \cdot G\); correlation \(G(s,e,h)\approx\zeta(d[s,e])\); marginal factors \(f_{\mathrm{self}},f_{\mathrm{query}}\) treated as uniform and absorbed into \(\tau_{\mathrm{exposure}}\) \\[4pt]
+
+% Combined cross-recognition latent \(\bar{\Lambda}_{\mathrm{self}\to e}(s,h;\,e,h)\) &
+% \(p_{s,h}(e) = Q(s,h,H)\,\zeta(d[s,e])^2\,\tau_{\mathrm{exposure}}\) &
+% Product of the above approximations. The \(\zeta^2\) dependence reflects two distinct roles: geometric overlap (\(G\)) and potency decay (\(\Phi\)); see Branch~B \\[4pt]
+
+% Presentation weight \(Q(s,h,H)\cdot\tau\) &
+% \(Q(s,h,H)\) from the competitive binding model (Section~\ref{sec:presentation}); encounter-time factor \(\tau\) subsumed into \(\tau_{\mathrm{exposure}}\) &
+% Equilibrium or closed-form approximation with context-class-specific background \\[4pt]
+
+% Per-encounter potency (foreign query) &
+% \(F_{\mathrm{Potency}}(e,h) = \pi(e,h)\) &
+% Not an approximation of a structural-theory quantity. The structural theory subsumes per-encounter potency into \(\bar{W}_{\mathrm{cap}}\) via \(\theta(t,e,h)\); the decision to factor it out as an independent multiplicative term is an additional modeling choice. \\
+% \hline
+% \end{tabular}
+% \caption{Correspondence between the structural theory of Section~\ref{sec:structural_theory} and the operational model of Sections~\ref{sec:presentation}--\ref{sec:potency}. Each row identifies the abstract quantity, its implemented surrogate, and the approximation that mediates the translation.}
+% \label{tab:bridge}
+% \end{table}
+
+% \paragraph{The two roles of \(\zeta\) and the origin of the squared dependence.}
+% The factor \(\zeta(d[s,e])^2\) in \(p_{s,h}(e)\) is not a single approximation applied twice. It arises from two independent steps in the Branch~B derivation. The first \(\zeta\) enters through the generative correlation factor \(G(s,e,h)\): when \(s\) and \(e\) are similar, the regions of TCR space compatible with \((s,h)\) and \((e,h)\) overlap more extensively under the generative measure \(P_{\mathrm{gen}}\), increasing co-accessibility. The second \(\zeta\) enters through the conditional potency approximation: given that a TCR engages \((s,h)\), its expected potency against \((e,h)\) decays with peptide distance. Under the simplifying assumption that both effects share the same distance kernel, their product yields \(\zeta^2\). Removing either factor would conflate two structurally distinct sources of cross-recognition decay.
+
+% \paragraph{The role of \(\tau_{\mathrm{exposure}}\) as an absorbing parameter.}
+% Several quantities from the structural theory---the generative marginals \(f_{\mathrm{self}}(s,h)\) and \(f_{\mathrm{query}}(e,h)\), the encounter duration, and the pre-selection TCR supply---are not individually identifiable from available data. In the operational model, these are jointly absorbed into the scalar parameter \(\tau_{\mathrm{exposure}}\), which multiplies every \(p_{s,h}(e)\) uniformly. This absorption is exact when \(f_{\mathrm{self}}\) and \(f_{\mathrm{query}}\) are treated as constant across self--query pairs. The consequences of this approximation are partially mitigated by the downstream learning strategy: sweeping \(\tau_{\mathrm{exposure}}\) over a grid and learning composite hypotheses across the resulting mechanistic regimes allows the model to recover epitope-specific sensitivity to the effective scale of selection pressure without requiring explicit estimation of the absorbed factors.
+
+% \paragraph{What is lost and what is preserved.}
+% The operational model preserves the multiplicative factorization \(F = F_{\mathrm{pMHC}} \cdot F_{\mathrm{TCR}} \cdot F_{\mathrm{Potency}}\), the causal ordering (presentation enables recognition; selection constrains it), the squared similarity dependence in the cross-recognition kernel, and the separation between mechanistic components (\(Q\), \(P\), \(N\)) and empirical components (\(\pi\)). It does not preserve the full generality of the profile-based framework: the post-selection footprint \(\mu_{\mathrm{post}}\) is not represented as an explicit object, the generative marginals are not estimated per epitope, and the receptor capacity \(\bar{W}_{\mathrm{cap}}\) is approximated by selection survival probabilities rather than computed as an integral over profile space. These simplifications are driven by the absence of individual-level TCR data and by computational tractability. The structural theory constrains the functional forms that enter the operational model and provides the mechanistic rationale for quantities---particularly \(\zeta^2\) and \(\tau_{\mathrm{exposure}}\)---that would otherwise appear ad hoc.
+
+\newpage
+\section{Presentation model, $Q$}
+\label{sec:presentation}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1.0\textwidth]{Manuscript_Draft/images/MHC_presentation_DAG_2.png}
+\caption{Causal DAG for the \textit{in vivo} presentation model. pMHC abundances ($Q$ values) depend on pMHC affinities (mediated by pMHC stabilities) and ER-lumen peptide concentrations, which in turn depend on gene expression (mediated by antigen processing). We use NetMHCstabpan~1.0 to model pMHC stability and MHCFlurry~2.0 to model antigen processing and pMHC affinity. This DAG depicts the \textit{in vivo} pathway; in assay contexts, peptide supply is determined by exogenous administration rather than gene expression, and the competitive background differs by context class (see text). We do not model the HLA environment as dependent on gene expression. Figure produced with dagitty.net.}
+\label{fig:MHC_presentation_DAG}
+\end{figure}
+Our detailed causal DAG for MHC presentation is shown in Fig\ref{fig:MHC_presentation_DAG}. In the following sections, we describe our attempt to model the represented influences on pMHC abundance.
+
+
+\subsection{Equilibrium Thermodynamics}
+Peptide–MHC binding at equilibrium is governed by mass-action and mass-balance laws.  We model the fraction of time an MHC class I molecule of allele \(h\) is bound to peptide \(e\) among competing peptides, \(\mathcal E\), and potentially, among competing alleles, \(H\).  Let \([P_e]\) be the free concentration of peptide \(e\), \([M_h]\) the free concentration of MHC class I of allele \(h\), and \(K_{d}(e,h)\) the dissociation constant for their interaction.  At equilibrium, the rate of binding reactions equals the rate of unbinding reactions:
+\begin{equation}
+    k_{\text{on}}^{e,h} [P_e] [M_{h}] = k_{\text{off}}^{e,h} [P_e \cdot M_{h}]
+\end{equation}
+and the concentration of the peptide–MHC complex satisfies
+\begin{equation}
+[P_e \cdot M_h]
+=\frac{[P_e]\,[M_h]}{K_{d}(e,h)},
+\label{eq:mass-action}
+\end{equation}
+where \(K_{d} = \frac{k_{off}}{k_{on}}\).
+The total MHC concentration is
+\begin{equation}
+[M_{h,\mathrm{tot}}]
+=[M_h]+\sum_{e' \in \mathcal E}[P_{e'}\cdot M_h]
+=[M_h]\Bigl(1+\sum_{e' \in \mathcal E}\frac{[P_{e'}]}{K_{d}(e',h)}\Bigr).
+\end{equation}
+Hence the \emph{fractional binding time} MHC molecules of allele \(h\) are bound to copies of peptide \(e\) is
+\begin{equation}
+Q(e,h,H)
+:=\frac{[P_e\cdot M_h]}{[M_{h,\mathrm{tot}}]}
+= \frac{[P_e]\, [M_h] / K_{d}(e,h)}{[M_{h,\mathrm{tot}}]}.
+\label{eq:fi_h}
+\end{equation}
+
+Because each mass-balance equation involves both unknowns \([P_e]\) and \([M_h]\) multiplicatively, the system is coupled:
+
+\begin{equation}
+[P_{e,\mathrm{tot}}]
+= [P_e] + \sum_{h \in H} [P_e \cdot M_h]
+= [P_e]\Bigl(1 + \sum_{h \in H} \frac{[M_h]}{K_{d}(e,h)}\Bigr),
+\label{eq:P_tot}
+\end{equation}
+
+\begin{equation}
+[M_{h,\mathrm{tot}}]
+= [M_h] + \sum_{e' \in \mathcal E} [P_{e'} \cdot M_h]
+= [M_h]\Bigl(1 + \sum_{e' \in \mathcal E} \frac{[P_{e'}]}{K_{d}(e',h)}\Bigr).
+\label{eq:M_tot}
+\end{equation}
+
+In each equation, solving for one free concentration requires knowing the other, so they must be solved simultaneously. One can compute \([P_e]\) and \([M_h]\) via fixed-point iteration that converges to the unique equilibrium solution under ergodicity and well-mixed assumptions.
+
+For example, first initialize $[P_e]$ and $[M_h]$ to arbitrary values, e.g., to half of their total concentrations:
+\[
+[P_e]^{(0)} = \frac{[P_{e,\mathrm{tot}}]}{2}, \quad
+[M_h]^{(0)} = \frac{[M_{h,\mathrm{tot}}]}{2}.
+\]
+Then, use the variable $k$ to denote the iteration index and apply the update equations:
+\begin{align}
+[P_e]^{(k)} &= \frac{[P_{e,\mathrm{tot}}]}{1 + \sum_{h=1}^H \frac{[M_h]^{(k-1)}}{K_{d}(e,h)}}, 
+\quad i=1,\dots,N,\\
+[M_h]^{(k)} &= \frac{[M_{h,\mathrm{tot}}]}{1 + \sum_{e' \in \mathcal E} \frac{[P_{e'}]^{(k)}}{K_{d}(e',h)}}, 
+\quad h=1,\dots,H.
+\end{align}
+until the convergence criterion
+\[
+\max\Bigl(\max_e\bigl|\tfrac{[P_e]^{(k)}-[P_e]^{(k-1)}}{[P_e]^{(k-1)}}\bigr|,\,
+\max_h\bigl|\tfrac{[M_h]^{(k)}-[M_h]^{(k-1)}}{[M_h]^{(k-1)}}\bigr|\Bigr)
+< \epsilon.
+\]
+is reached.
+
+\iffalse
+\begin{algorithm}
+\caption{Fixed-Point Iteration for Peptide–MHC Binding}
+\begin{algorithmic}[1]
+\State Initialize $[P_e]^{(0)}, [M_h]^{(0)}$
+\State Set $k = 0$
+\State Choose tolerance $\epsilon$
+\Repeat
+    \State $k \gets k + 1$
+    \For{$e \hspace{1mm} in \hspace{1mm} \mathcal E$}
+        \State $[P_e]^{(k)} \gets \frac{[P_{e,\mathrm{tot}}]}{1 + \sum_{h=1}^H \frac{[M_h]^{(k-1)}}{K_{d}(e,h)}}$
+    \EndFor
+    \For{$h = 1,\dots,H$}
+        \State $[M_h]^{(k)} \gets \frac{[M_{h,\mathrm{tot}}]}{1 + \sum_{e' \in \mathcal E} \frac{[P_{e'}]^{(k)}}{K_{d}(e',h)}}$
+    \EndFor
+    \State $\delta_P \gets \max_e\bigl|\frac{[P_e]^{(k)}-[P_e]^{(k-1)}}{[P_e]^{(k-1)}}\bigr|$
+    \State $\delta_M \gets \max_h\bigl|\frac{[M_h]^{(k)}-[M_h]^{(k-1)}}{[M_h]^{(k-1)}}\bigr|$
+\Until{$\max(\delta_P,\delta_M) < \epsilon$}
+\State \Return $[P_e]^{(k)},\, [M_h]^{(k)}$
+\end{algorithmic}
+\end{algorithm}
+\fi 
+
+\newpage
+
+\subsection{Closed-form approximation with calibrated background}
+
+The mass--action framework accurately describes peptide--MHC binding at equilibrium but requires iterative numerical solutions that scale poorly when evaluating large numbers of query peptides across environments. It also fails to take into account kinetic factors such as complex stability. We therefore employ a closed-form, non-equilibrium approximation in which \(Q(e,h,H)\) represents the fraction of total cellular MHC resources allocated to presenting peptide \(e\) on allele \(h\).
+
+The approximation collapses the contribution of endogenous self peptides into a fixed competitive background and evaluates each query peptide against this reference load. We write the contribution of peptide \(e\) to allele \(h\) as a dimensionless binding bid
+\[
+b(e,h)
+=
+\frac{[P_e]_{\mathrm{eff}}\,S(e,h)}{K_d(e,h)},
+\]
+where \([P_e]_{\mathrm{eff}}\) is the effective peptide concentration, \(K_d(e,h)\) is the dissociation constant, and \(S(e,h)\) is a kinetic stability factor defined below. The corresponding pMHC binding potential,
+\[
+\widetilde b(e,h)
+=
+[M_{h,\mathrm{tot}}]\;b(e,h),
+\]
+has units of concentration and represents the effective consumption of allele-\(h\) binding capacity by peptide \(e\).
+
+\paragraph{Context-class-specific background.}
+Endogenous self peptides are summarized by a calibrated, context-class-specific, allele-specific background load \(C^{\mathrm{ref}}_{h,\mathrm{self}}(\gamma)\), where \(\gamma\) denotes the context class. We distinguish three broad classes:
+\begin{enumerate}[label=(\roman*),nosep]
+  \item \textbf{\textit{in vivo} / normal APC:} Intact antigen-processing machinery and a full endogenous peptidome. Self peptides occupy a large fraction of available MHC.
+  \item \textbf{TAP-deficient cell lines} (e.g.\ T2, RMA-S): Endogenous peptide loading is severely impaired. The self background is near zero.
+  \item \textbf{TAP-competent cells with exogenous peptide pulsing} (e.g.\ peptide-pulsed PBMCs or dendritic cells in ELISpot assays): Endogenous loading is intact, but exogenous peptide enters through a different mechanism (see below).
+\end{enumerate}
+
+For each context class, we define the background via a reference fraction \(f_{\mathrm{bound}}(\gamma)\in[0,1)\) of allele-\(h\) MHC occupied by endogenous ligands in the absence of query peptides:
+\[
+C^{\mathrm{ref}}_{h,\mathrm{self}}(\gamma)
+=
+\frac{f_{\mathrm{bound}}(\gamma)}{1-f_{\mathrm{bound}}(\gamma)}\,[M_{h,\mathrm{ref}}],
+\]
+where \([M_{h,\mathrm{ref}}]\) is a reference per-allele MHC concentration defined below. \(f_{\mathrm{bound}}\) reflects the effective competitive strength of self background in each context; lower values lead to larger presentation levels, \(Q(e,h,H)\), all else held fixed. 
+
+We set \(f_{\mathrm{bound}}(\gamma_{\mathrm{i}})=0.5\) for both \textit{in vivo} and TAP-competent exogenous pulsing contexts, and \(f_{\mathrm{bound}}(\gamma_{\mathrm{ii}})=0.01\) for TAP-deficient lines. These values remain fixed; they are not fitted to immunogenicity data.
+
+Surface MHC in TAP-competent pulsing is largely self-occupied, but exogenous peptide may experience reduced effective competition compared to \textit{in vivo} because loading proceeds via surface exchange rather than ER competition. This mechanistic difference could justify distinct \(f_{\mathrm{bound}}\) values. However, we lack experimental data to calibrate this distinction. Setting equal values simplifies the model and allows other parameters (notably \(K_{\mathrm{load}}\)) to compensate for any residual differences in how query peptides experience background competition across contexts.
+
+\paragraph{Mechanistic scope and limitations.}
+The \(Q\) model is formulated as ER-lumen competition: peptides compete for binding to nascent MHC molecules inside the ER, and the winning complexes transit to the cell surface. This description is mechanistically appropriate for context class~(i), where both self and foreign peptides enter the ER through TAP-dependent processing, and for context class~(ii), where the ER is peptide-starved and exogenous peptide loads directly onto empty or peptide-receptive MHC molecules.
+
+Context class~(iii) involves a different mechanism. In peptide-pulsed assays on TAP-competent cells, surface MHC molecules are already occupied by endogenous self peptides loaded through the standard ER pathway. Exogenous peptide does not enter the ER. Instead, it binds to the minority of surface MHC molecules that are transiently peptide-receptive---either empty molecules that reached the surface or molecules undergoing peptide exchange after the incumbent self ligand dissociates. The relevant competition is therefore surface-level exchange, governed by the off-rate of incumbent self peptides, the on-rate of exogenous peptide at the applied concentration, and the stability of the resulting complex.
+
+Despite this mechanistic mismatch, the \(Q\) model preserves ordinal ranking in context class~(iii) because the same affinity and stability parameters that determine ER-lumen competition also govern surface exchange: peptides that bind tightly and form stable complexes win under both mechanisms. We therefore use \(Q\) as an ordinal surrogate in pulsing contexts, with \(f_{\mathrm{bound}}(\gamma)\) set to an intermediate value where calibration is conceptually against assay readouts rather than derived from a literal model of ER competition. This pragmatic choice is sufficient for the downstream use of \(Q\) as an input to the immunogenicity model, which depends more on correct ranking and relative amounts than on absolute quantification of surface pMHC density.
+
+\paragraph{Closed-form expression.}
+Given a set of query peptides \(\mathcal E\), the presentation measure is
+\[
+Q(e,h,H)
+=
+\frac{\widetilde b(e,h)}
+     {\sum_{h'\in H}[M_{h',\mathrm{ref}}]
+      +\sum_{h'\in H}\Bigl(C^{\mathrm{ref}}_{h',\mathrm{self}}(\gamma)
+      +\sum_{e'\in\mathcal E}\widetilde b(e',h')\Bigr)}.
+\]
+The denominator term, \(\sum_{h'\in H}\Bigl(C^{\mathrm{ref}}_{h',\mathrm{self}}(\gamma) +\sum_{e'\in\mathcal E}\widetilde b(e',h')\Bigr)\), captures competition among peptides via \(C^{\mathrm{ref}}_{h',\mathrm{self}}(\gamma)\) and  \(\widetilde b(e',h')\), and competition among alleles via \(\sum_{h'\in H}\) pooling. The baseline free MHC capacity,
+\(\sum_{h'\in H}[M_{h',\mathrm{ref}}]\), ensures that \(Q(e,h,H)\)
+is normalized against the total available MHC resource rather than
+against competing peptide demand alone.
+
+Without this baseline term, the denominator would collapse toward zero
+in regimes where both endogenous background and query supply are small,
+leading to pathological behavior in which even vanishingly weak or rare
+peptides would occupy an arbitrarily large fraction of the available
+resource. Including the free-capacity term enforces correct limiting
+behavior: when peptide load is negligible relative to MHC supply,
+\(Q(e,h,H)\) approaches zero; when peptide demand saturates available
+MHC, the expression transitions smoothly to a demand-limited regime. 
+
+The dominant control parameter is the ratio \(\widetilde b(e,h)/C^{\mathrm{ref}}_{h,\mathrm{self}}(\gamma)\). When query peptide supply is small relative to the background, \(Q(e,h,H)\) is approximately linear in \(\widetilde b(e,h)\). When query supply is comparable to or exceeds the background---as occurs in peptide-dosing assays, particularly on TAP-deficient lines where the background is near zero---the query peptide dominates allele occupancy.
+
+\paragraph{Peptide supply across contexts.}
+In the \textit{in vivo} context, \([P_e]_{\mathrm{eff}}\) is derived from gene expression, gene copy number, and antigen processing efficiency. In experimental assay contexts, peptides are supplied exogenously at controlled concentrations. For assays, \([P_e]_{\mathrm{eff}}\) is driven by the administered peptide dose and loading efficiency; for minimal epitopes (8--12\,aa), the antigen processing penalty is omitted.
+
+Context dependence in \(Q\) thus enters through two channels: the effective peptide supply \([P_e]_{\mathrm{eff}}\) and the context-class-specific background \(C^{\mathrm{ref}}_{h,\mathrm{self}}(\gamma)\). The first differs between \textit{in vivo} and assay settings by construction. The second distinguishes TAP-deficient from TAP-competent environments. Both channels must be specified to evaluate \(Q\) in a given experimental or physiological context.
+
+\paragraph{The role of pMHC complex stability}
+The stability factor \(S(e,h)>0\) is derived from the predicted pMHC complex half-life \(t_{1/2}(e,h)\). We map half-lives to off-rates via
+\[
+k_{\mathrm{off}}(e,h)=\frac{\ln 2}{t_{1/2}(e,h)},
+\]
+and define the survival fraction over a biological window \(\tau\) as
+\[
+S(e,h)=\exp\!\bigl(-k_{\mathrm{off}}(e,h)\,\tau\bigr).
+\]
+We set \(\tau\approx1\)~h. In context classes~(i) and~(ii), this corresponds to ER-to-surface transit and early surface presentation. In context class~(iii), the relevant timescale is surface residence after peptide exchange rather than ER transit; however, the same \(S(e,h)\) term remains appropriate because complex stability governs surface persistence in both cases. Stability acts as a gatekeeper: peptides with short half-lives contribute negligibly to presentation regardless of affinity, whereas sufficiently stable complexes are ranked primarily by their equilibrium binding strength.
+\paragraph{Scaling peptide supply in different contexts}
+In the \textit{in vivo} setting, effective peptide concentrations are obtained by mapping log-normalized expression data, modulated by gene copy number and antigen-processing efficiency, to a target ER-lumen peptide pool. Writing \(expr_{g(i)}\) for gene expression, \(g_i\) for gene copy or transcript count, and \(a_i\) for antigen-processing efficiency, we define an unscaled supply
+\[
+w_i = expr_{g(i)} \cdot g_i \cdot a_i,
+\]
+and normalize to a total ER peptide concentration \(C_{\mathrm{ER,total}}\) via
+\[
+[P_{i,\mathrm{eff}}]
+=
+w_i\,
+\frac{C_{\mathrm{ER,total}}}{\sum_j w_j}.
+\]
+
+In assay contexts, peptide availability is instead controlled by exogenous administration rather than endogenous expression and processing. Experimentally validated minimal epitopes are supplied at a specified concentration \(D_e\), and effective availability reflects the efficiency with which administered peptides load onto peptide-receptive MHC molecules over the duration of the assay. To capture this transition from dose-limited to MHC-limited presentation, we map administered dose to an effective peptide concentration using a saturating form,
+\[
+[P_e]_{\mathrm{eff}}
+=
+P_{\max}\,
+\frac{D_e}{K_{\mathrm{load}} + D_e},
+\]
+where \(P_{\max}\) sets the maximal effective peptide availability and \(K_{\mathrm{load}}\) denotes the administered peptide concentration at which presentation transitions from a linear, dose-proportional regime to a saturated regime. For standard peptide pulsing assays, $K_{\mathrm{load}}$ is treated as a global, epitope-independent scale factor reflecting assay logistics such as peptide uptake, the fraction of surface MHC that is transiently peptide-receptive (empty or exchangeable), and the effective incubation-time window over which exchange can occur, rather than peptide-specific binding properties.
+
+
+The same competitive presentation model is used in both \textit{in vivo} and assay contexts. Context dependence enters through two channels: the effective peptide supply \([P_e]_{\mathrm{eff}}\), which differs by construction between endogenous and exogenous settings, and the context-class-specific background \(C^{\mathrm{ref}}_{h,\mathrm{self}}(\gamma)\), which distinguishes TAP-deficient from TAP-competent environments. Both must be specified to evaluate \(Q(e,h,H)\) in a given context.
+
+\paragraph{Choice of assay scaling parameters}
+The constants \(P_{\max}\) and \(K_{\mathrm{load}}\) fix the operating scale of a given assay class. In standard peptide pulsing experiments, administered doses typically lie between \(1\) and \(10\,\mu\mathrm{M}\). We treat \(K_{\mathrm{load}}\) as a global, epitope-independent nuisance parameter representing the dose at which presentation transitions from linear (dose-limited) to saturated (MHC-limited). Unless otherwise specified, we set \(K_{\mathrm{load}} = 3\,\mu\mathrm{M}\) and hold it fixed across epitopes and alleles within an assay family. The maximal scale \(P_{\max}\) sets the upper bound on effective peptide availability at saturation. When only relative ranking is required, we fix \(P_{\max}=1\) without loss of generality.
+
+The effective loading efficiency captured by \(K_{\mathrm{load}}\) depends in principle on the context class~\(\gamma\). On TAP-deficient lines (class~ii), surface MHC is largely empty and peptide-receptive, so loading is efficient and a lower dose suffices to saturate available MHC. On TAP-competent cells (class~iii), exogenous peptide must displace stably bound endogenous ligands from the minority of transiently receptive surface molecules, requiring a higher effective dose for equivalent loading. In the current implementation, we absorb this distinction into \(C^{\mathrm{ref}}_{h,\mathrm{self}}(\gamma)\) rather than fitting separate \(K_{\mathrm{load}}\) values per context class.
+
+This is a simplification. The background modulates the denominator of \(Q\) while \(K_{\mathrm{load}}\) modulates the numerator, and their effects are not formally interchangeable. The two are approximately degenerate when ranking peptides within a single assay class at a fixed administered dose, because both act as context-dependent scalings of the effective query-to-background ratio. When dose varies across peptides within an assay---as in dose--response experiments---this degeneracy breaks, and separate \(K_{\mathrm{load}}(\gamma)\) fitting may be necessary. The same applies if absolute calibration of \(Q\) across context classes is required.
+
+\paragraph{Reference MHC concentrations}
+To define the reference background scale, we model the ER-lumen MHC concentration as the molar density of peptide-receptive MHC molecules. With ER volume \(V_{\mathrm{ER}}=200\times10^{-15}\,\mathrm{L}\) and total class I copy number \(N_{\mathrm{APC}}\) (the total number of peptide-receptive MHC class I molecules per antigen-presenting cell), the total ER MHC concentration is
+\[
+[\mathrm{MHC}]_{\mathrm{ER,total}}
+=
+\frac{N_{\mathrm{APC}}/N_A}{V_{\mathrm{ER}}}.
+\]
+Using a biologically plausible range \(N_{\mathrm{APC}}\in[2.5\times10^4,10^6]\) yields concentrations from approximately \(200\) to \(8{,}000\)~nM. We adopt a midpoint reference value and partition it into locus-specific pools using fixed fractions \(f_A,f_B,f_C\), dividing by two alleles per locus to obtain per-allele reference concentrations \([M_{h,\mathrm{ref}}]\). These values determine the absolute scale of \(C^{\mathrm{ref}}_{h,\mathrm{self}}\) and are shared across \textit{in vivo} and assay contexts.
+
+% \subsection{Closed-form approximation with pre-computed background}
+% The mass‑action framework, while accurate given equilibrium assumptions, requires iterative numerical solutions that become computationally expensive when evaluating large numbers of query peptides in different environments. For computational efficiency in large-scale applications, we employ a closed-form approximation where \(Q(e,h,H)\) represents the fraction of total cellular MHC resources allocated to presenting peptide \(e\) on allele \(h\), rather than the per-allele occupancy used in the full equilibrium model with iterative solution. Both formulations provide appropriate measures of presentation strength within our causal framework. 
+
+% The closed-form approximation leverages the observation that in many biological contexts, the self‑peptide background remains relatively constant while we evaluate different query epitopes. Rather than re‑solving the full equilibrium system for each query, we pre‑compute the aggregate competitive pressure from self‑peptides and treat it as a fixed background. 
+
+% We separate the peptide pool into two components: a pre‑computed self‑peptide background and the query epitope of interest. Pan‑cancer transcriptomic studies confirm this background is effectively constant \citep{hoadley2018cell,weinstein2013cancer}. 
+% If we assume any potential binder contributes a dimensionless `bid'
+% \[
+% b(e,h)
+% =\frac{[P_e]\,S(e,h)}{K_d(e,h)}
+% \quad\bigl[\text{unitless}\bigr],
+% \]
+% then the concentration of pMHC complexes formed by peptide \(e\) on allele \(h\) is
+% \[
+% \widetilde b(e,h)
+% =[M_{h,\mathrm{tot}}]\;b(e,h)
+% \quad\bigl[\mathrm{nM}\bigr].
+% \]
+% For each HLA allele \(h\) in the genotype, we pre‑compute the aggregate self‑peptide background as
+% \[
+% C_{h,\mathrm{type}}
+% =\sum_{s\in\mathcal S_{\mathrm{type}}}\widetilde b(s,h),
+% \]
+% and each query epitope \(e\) adds its own \(\widetilde b(e,h)\).  The closed‑form occupancy then reads
+% \[
+% Q(e,h,H)
+% =\frac{\widetilde b(e,h)}
+%      {\sum_{h'\in H}[M_{h',tot}]+\sum_{h'\in H}\bigl(C_{h',\mathrm{type}}+\widetilde b(e,h')\bigr)}.
+% \]
+
+
+% This closed‑form expression retains cross‑allele competition while avoiding iterative calculations. The approximation accuracy depends largely on the regime of global peptide load relative to MHC.
+
+
+% \begin{description}[leftmargin=*,style=nextline]
+%   \item[Regime 1 (background negligible).] 
+%   For every allele \(h\), $\sum_{e} b(e,h) \ll 1$.  
+%   Free MHC is effectively undepleted ($[M_h]_{\mathrm{free}} \approx [M_{h,\mathrm{tot}}]$), so treating the background as fixed introduces little error; the closed‑form and iterative solutions agree closely.
+
+%   \item[Regime 2 (partial depletion).] 
+%   For at least one allele \(h\), $\sum_{e} b(e,h) \sim 1$.  
+%   A nontrivial fraction of \(M_h\) is engaged by background peptides; ignoring this in the closed‑form induces moderate bias (direction depends on distribution of bids across alleles but typically overestimates free MHC and hence $Q$ for new queries).
+
+%   \item[Regime 3 (saturation).] 
+%   For one or more alleles \(h\), $\sum_{e} b(e,h) \gg 1$.  
+%   Background peptides nearly exhaust available \(M_h\) ($[M_h]_{\mathrm{free}} \to 0$ in the full model).  
+%   The closed‑form, which does not iteratively reduce $[M_h]$ in response to load, significantly overestimates availability and underestimates saturation; bias is large.
+
+% \end{description}
+
+
+% \paragraph{How much of the self‐peptidome contributes to \(C_{h,\mathrm{type}}\)?}
+% In a typical cell, only those self‐peptides that load at least one MHC class I molecule meaningfully compete for presentation. Mass‐spectrometry surveys report on the order of \(10^3\)–\(10^4\) distinct pMHC ligands per allele.  By tying our cutoff directly to a “one‐molecule per cell” threshold, we ensure that \(Q\) better reflects the true cellular immunopeptidome.
+
+% Start by noting that a single molecule in the ER lumen corresponds to
+% \[
+% \Delta_{1\rm mol}
+% =\frac{1}{N_A\,V_{\rm ER}}
+% \approx8.3\times10^{-12}\,\mathrm M
+% =0.0083\,\mathrm{nM},
+% \]
+% where \(N_A\) is Avogadro's number and \(V_{\rm ER}=200\times10^{-15}\) L is the ER‐lumen volume.  
+
+% Define the dimensionless bid
+% \[
+% b(s,h)
+% =\frac{[P_{s,h}]\,a(s)\,S(s,h)}{K_d(s,h)},
+% \]
+% and the resulting pMHC binding potential
+% \[
+% \widetilde b(s,h)
+% =[M_{h,\mathrm{tot}}]\,b(s,h)
+% \quad\bigl[\mathrm{nM}\bigr].
+% \]
+
+% The total number of pMHC complexes per cell is constrained to be
+% \[
+% \sum_{h \in H} \sum_{s \in \mathcal{S}_{\mathrm{type}}}\frac{\widetilde b(s,h)}{\Delta_{1\rm mol}}
+% \;\approx\;10^4,
+% \]
+% where the sum is over all alleles \(H\) and contributing peptides \(\mathcal{S}_{\mathrm{type}}\).
+
+% To determine which peptides contribute meaningfully to the competitive background, we rank all peptides by their total binding potential across all alleles:
+% \[
+% B_{\rm total}(s) = \sum_{h \in H} \widetilde b(s,h).
+% \]
+
+% We then select the minimal set \(\mathcal{S}_{\mathrm{type}}\) of highest-ranking peptides such that
+% \[
+% \sum_{s \in \mathcal{S}_{\mathrm{type}}} B_{\rm total}(s) = \Delta_{1\rm mol} \times 10^4.
+% \]
+
+
+% \paragraph{The role of pMHC complex stability}
+% The stability factor \(S(e,h)>0\) is derived from the predicted pMHC complex half‐life \(t_{1/2}(e,h)\). We map half‐lives to off‐rates via
+% \begin{equation}
+% k_{\rm off}(e,h)
+% =\frac{\ln 2}{t_{1/2}(e,h)},
+% \end{equation}
+% and then define the survival fraction over a biological window \(\tau\) (in hours—NetMHCstabPan reports \(t_{1/2}\) in hours) as
+% \begin{equation}
+% S(e,h)
+% =\exp\bigl(-k_{\rm off}(e,h)\,\tau\bigr).
+% \end{equation}
+% Choosing \(\tau\approx1\) h (reflecting ER \(\rightarrow\) surface transit and subsequent presentation times of 0.5–2 h) maximizes discrimination without collapsing extremes to 0 or 1. Complex stability is considered the primary determinant of presentation. Peptides with short half‑lives (\(k_{\rm off}(e,h)\,\tau \gg 1\)) are heavily penalized because 
+% \[
+% S(e,h) \approx e^{-k_{\rm off}(e,h)\,\tau} \to 0,
+% \]
+% effectively preventing their contribution to \(Q'\). Only when a peptide–MHC complex survives the ER\(\rightarrow\)surface transit and thus \(S(e,h)\) approaches unity does its thermodynamic affinity \(\bigl(1/K_d(e,h)\bigr)\) drive further increases in occupancy. In other words, stability acts as a gatekeeper. Unless 
+% \[
+% t_{1/2}(e,h) \gtrsim \tau,
+% \]
+% even high‑affinity peptides will fail to accumulate appreciably on the cell surface. Conversely, once a complex is sufficiently long‑lived (\(S(e,h)\approx1\)), the usual equilibrium ratio \(1/K_d(e,h)\) governs its abundance. This two‑stage weighting ensures that the kinetic lifetime sets the presentation threshold and the affinity refines the ranking within the pool of survivable pMHCs.
+
+
+% \paragraph{Scaling gene expression to peptide concentrations in the ER lumen}
+% \label{scaling_expr_to_conc}
+% Concentrations depend on gene expression averaged over time, peptide count per gene, and antigen processing scores.  We map log–normalized single‐cell data (values typically in \([0,5]\)), modulated by gene copy number and antigen‐processing efficiency, to a plausible concentration range for self‐peptides in a hypothetical ER lumen.
+
+
+% Let:
+% \begin{itemize}
+%   \item \(expr_{g(i)}\) be the log–normalized expression for peptide \(i\).
+%   \item \(g_i\) be the gene copy (or transcript count) associated with peptide \(i\).
+%   \item \(a_i\) be the antigen–processing score (e.g., \ TAP transport \(\times\) proteasomal cleavage) for peptide \(i\).
+%   \item \(C_{\rm ER,total}\) be the target total ER–lumen peptide concentration (e.g.,\ 5000nM).
+% \end{itemize}
+
+% We first compute an unscaled supply:
+% \begin{equation}
+% w_i \;=\; expr_{g(i)} \;\times\; g_i \;\times\; a_i
+% \quad\text{for }expr_{g(i)}>0,
+% \end{equation}
+
+% and then normalize to the ER lumen volume:
+% \begin{equation}
+% \text{Scaling factor}
+% = \frac{C_{\rm ER,total}}{\sum_{j\,:\,L_j>0} w_j}
+% \quad\Longrightarrow\quad
+% [P_{i,\mathrm{tot}}]
+% = w_i \;\times\; \text{Scaling factor}.
+% \end{equation}
+
+
+
+
+
+% \paragraph{Modeling MHC concentrations in the ER lumen}
+% To compare peptide concentrations and dissociation constants directly, we model the MHC concentration as the molar density of peptide‐receptive MHC molecules within the endoplasmic‐reticulum (ER) lumen.  This choice aligns the compartmental volume for both species with the solution conditions under which the dissociation constant \(K_d\) was measured.  We adopt the following notation and parameter estimates:
+
+% \begin{itemize}
+%   \item[-] Avogadro’s number: \(N_A=6.02\times10^{23}\,\mathrm{mol}^{-1}.\)
+%   \item[-] Total cell volume: \(V_{\rm cell}=2000~\mu\mathrm{m}^3=2000\times10^{-15}\,\mathrm{L}.\)
+%   \item[-] ER‐lumen fraction: \(\phi_{\rm ER}=0.10\), so
+%   \(V_{\rm ER}=\phi_{\rm ER}\times V_{\rm cell}=200\times10^{-15}\,\mathrm{L}.\)
+%   \item[-] Range of total MHC I molecules per thymic antigen‐presenting cell (APC):
+%     \(N_{\rm min}=2.5\times10^{4}\) (cTEC lower bound) to
+%     \(N_{\rm max}=1\times10^{6}\) (mTEC\textsuperscript{hi} upper bound).
+%   \item[-] Number of classical HLA alleles: 6.
+% \end{itemize}
+
+% Under these assumptions, the total ER‐lumen MHC concentration is
+% \begin{equation}
+%   \label{eq:ER_total}
+%   [\mathrm{MHC}]_{\rm ER,total}
+%   = \frac{N_{\rm APC}/N_A}{V_{\rm ER}}\,.
+% \end{equation}
+
+% Substituting the molecule count range yields
+% \begin{align}
+%   [\mathrm{MHC}]_{\rm ER,total}^{\rm min}&=\frac{2.5\times10^{4}/N_A}{200\times10^{-15}\,\mathrm{L}}\approx2.1\times10^{-7}\,\mathrm{M}=210\,\mathrm{nM},\\
+%   [\mathrm{MHC}]_{\rm ER,total}^{\rm max}&=\frac{1\times10^{6}/N_A}{200\times10^{-15}\,\mathrm{L}}\approx8.3\times10^{-6}\,\mathrm{M}=8{,}300\,\mathrm{nM}.
+% \end{align}
+
+% Accordingly, a biologically plausible \emph{total} ER MHC concentration lies in the \(2\times10^2\)–\(8\times10^3\)nM range.  To reflect locus‐level variation, we then partition this pool into HLA‐A, HLA‐B, and HLA‐C categories (e.g.\ \(f_A=0.5, f_B=0.4, f_C=0.1\)), and divide by two alleles per locus:
+% \begin{equation}
+%   \label{eq:category}
+%   [\mathrm{MHC}]_{\rm ER,\,L,\,per\,allele}
+%   = \frac{f_L\,[\mathrm{MHC}]_{\rm ER,total}}{2}\,.
+% \end{equation}
+
+% For example, with \(f_A=0.5,f_B=0.4,f_C=0.1\) and the midpoint \([\mathrm{MHC}]_{\rm ER,total}\approx2{,}000\)nM,
+% \begin{align}
+%   [\mathrm{MHC}]_{\rm ER,A,per}&\approx\tfrac{0.5\times2{,}000}{2}=500\,\mathrm{nM},\\
+%   [\mathrm{MHC}]_{\rm ER,B,per}&\approx\tfrac{0.4\times2{,}000}{2}=400\,\mathrm{nM},\\
+%   [\mathrm{MHC}]_{\rm ER,C,per}&\approx\tfrac{0.1\times2{,}000}{2}=100\,\mathrm{nM}.
+% \end{align}
+
+
+
+\newpage
+\section{TCR Availability - FFT and DP Algorithms}
+\label{sec:tcr_avail}
+
+
+
+\textbf{Definition and Properties}. For a discrete random variable $X$ taking values in $\{0,1,2,\dots\}$, the probability generating function is:
+\begin{equation}
+G_X(z) = E[z^X] = \sum_{k=0}^{\infty} P(X = k) z^k,
+\end{equation}
+where $z$ is a formal variable, and the coefficient of $z^k$ represents $P(X = k)$.
+
+The variable $z$ serves as a marker, where $z^k$ tracks $k$ events and its coefficient gives the probability of exactly that many events occurring.
+
+\textbf{PGF for Single Peptide Interactions}. For a single peptide $s$ and allele $h$ with cross-recognition probability $p_{s,h}$, the generating function is:
+\begin{equation}
+G_{s,h}(z) = (1-p_{s,h}) + p_{s,h} z,
+\end{equation}
+where $(1-p_{s,h})$ is the coefficient of $z^0$ (no interaction) and $p_{s,h}$ is the coefficient of $z^1$ (one interaction).
+
+\textbf{Multiple Independent Peptides and Alleles}. For multiple independent peptides and alleles, the PGF becomes:
+\begin{equation}
+G(z) = \prod_{s\in S}  \prod_{h\in H} \left[(1-p_{s,h}(e)) + p_{s,h}(e) z\right].
+\end{equation}
+
+This product form arises because we need to model the total number of interactions across (peptide,hla) pairs. If we define a random variable $X_{s,h}$ for each tuple $(s,h)$ that equals 1 for an interaction and 0 otherwise, then we need the distribution of $X = \sum_s\sum_h X_{s,h}$, which determines whether a T-cell passes selection criteria. Probability generating functions can be viewed as the frequency domain counterpart to probability mass functions (PMFs), analogous to how Fourier transforms relate to time-domain signals. While computing the PMF of a sum requires complex convolution operations, PGFs allow us to perform simple multiplications instead. This computational advantage is the primary motivation for using PGFs rather than working directly with PMFs. The key property we utilize is that the PGF of a sum of independent random variables equals the product of their individual PGFs:
+\begin{equation}
+G_{X+Y}(z) = G_X(z) \cdot G_Y(z),
+\end{equation}
+with the PMF of $X+Y$ given by the convolution:
+\begin{equation}
+P_{X+Y}(k) = \sum_{i=0}^{k} P_X(i) \cdot P_Y(k-i).
+\end{equation}
+This transforms multiple convolution operations into simple multiplications, providing an efficient computational approach.
+
+
+\textbf{Positive Selection}. Positive selection requires \textit{at least} $\mu$ moderately strong interactions:
+\begin{equation}
+P(e,H) = \sum_{k=\mu}^{K} [z^k] G(z),
+\end{equation}
+where $[z^k] G(z)$ denotes the coefficient of $z^k$ in $G(z)$ and $K = |S| \cdot |H|$ is the total number of self-peptide, hla tuples.
+
+\textbf{Negative Selection}. Negative selection allows TCRs with \textit{at most} $\eta$ strong interactions to survive:
+\begin{equation}
+N(e,H) = \sum_{k=0}^{\eta} [z^k] G(z).
+\end{equation}
+
+\textbf{Efficient Computation Using FFT}. Computing convolutions directly has complexity $O(K^2)$ for $K$ peptides. We leverage the Fast Fourier Transform (FFT) to reduce this to $O(K \log K)$.
+
+The convolution theorem states that convolution in the time domain equals point-wise multiplication in the frequency domain:
+\begin{equation}
+\text{FFT}(P_X * P_Y) = \text{FFT}(P_X) \cdot \text{FFT}(P_Y),
+\end{equation}
+allowing us to compute:
+\begin{equation}
+P_X * P_Y = \text{IFFT}(\text{FFT}(P_X) \cdot \text{FFT}(P_Y)).
+\end{equation}
+
+We implement this approach to efficiently compute PGF coefficients:
+
+\begin{algorithm}[H]
+\caption{FFT-based Computation of PGF Coefficients}
+\begin{algorithmic}[1]
+\STATE Represent each peptide's PMF as a sequence $P_{s,h} = [1-p_{s,h}, p_{s,h}, 0, \ldots, 0]$, zero-padded to length $L \geq K+1$ (power of 2)
+\STATE Compute FFT of each PMF: $\hat{P}_{s,h} = \text{FFT}(P_{s,h})$
+\STATE Multiply in frequency domain: $\hat{P}_{\text{total}} = \prod_{s \in S}\prod_{h \in H} \hat{P}_{s,h}$
+\STATE Compute inverse FFT: $P_{\text{total}} = \text{IFFT}(\hat{P}_{\text{total}})$
+\end{algorithmic}
+\end{algorithm}
+
+This yields the sequence $P_{\text{total}}$ containing the probabilities $P(X=k)$ needed for our selection criteria.
+
+\textbf{Implementation Notes}. In our Rust code implementation, we balance accuracy and computational efficiency through the parameter $\langle\mathtt{max\_num\_ps\_values}\rangle$, which constrains the number of peptide cross-recognition probabilities (\(p_{s,h}\) values) used in FFT calculations. Instead of processing the entire self-peptidome across all 6 patient HLAs (approximately 6 $\cdot$ 10 million peptides), we select only the top $\langle\mathtt{max\_num\_ps\_values}\rangle$ peptides with the highest \(p_{s,h}\) values for each (\(e\)), where this parameter is constrained to be a power of 2 for FFT efficiency.
+Our empirical testing indicates that setting $\langle\mathtt{max\_num\_ps\_values}\rangle$ to \(2^{14}\) (16,384) peptides provides an excellent balance between accuracy and speed. At this threshold, the smallest \(p_{s,h}\) values included in the calculation are sufficiently small that excluding even smaller values has negligible impact on the final probabilities. This approach dramatically reduces computation time compared to processing the complete self-peptidome, while maintaining high accuracy in the resulting selection probability estimates.
+For applications requiring higher precision, this parameter can be increased to \(2^{17}\) or higher, though with diminishing returns in accuracy improvement relative to the increased computational cost. Our implementation sorts \(p_{s,h}\) values in descending order and always includes the query epitope if it exists as a self-peptide, ensuring that all relevant cross-recognition probabilities are captured in the calculation.
+
+
+\subsection{The Role of $\tau_{exposure}$ in the \(P\cdot N\) Model}
+
+The duration parameter $\tau_{exposure}$ reflects the total T-cell exposure during selection processes, fundamentally affecting T-cell survival probabilities through its impact on cross-recognition dynamics. In the thymic environment, developing T-cells encounter self-peptides presented on MHC molecules over an extended period. 
+
+Uniform scaling of individual propensities via \(\tau_{exposure}\) produces non-uniform changes in the overall interaction distribution because the probability generating function, \(G(z)\), transforms nonlinearly. The coefficients of these polynomials, which represent $P(\text{exactly } k \text{ interactions})$, differ substantially. For example, assume \(p_{s}\) was defined without reference to \(\tau\). With two self-peptides:
+\begin{align}
+P(\text{exactly 0 interactions}) &= (1-p_1)(1-p_2) \quad \xrightarrow{\tau} \quad (1-\tau p_1)(1-\tau p_2) \\
+P(\text{exactly 1 interaction}) &= p_1(1-p_2) + p_2(1-p_1) \quad \xrightarrow{\tau} \quad \tau p_1(1-\tau p_2) + \tau p_2(1-\tau p_1)
+\end{align}
+The $\tau_{exposure}$ scaling shifts probability mass nonlinearly even though the overal interaction expectation, \( E[X] = \sum_s \sum_h p_{s,h} \xrightarrow{\tau} \tau \sum_s \sum_h p_{s,h} = \tau \cdot E[X] \), increases with $\tau_{exposure}$.
+
+\subsection{The Cross-Reactivity Distance Function, $d[e,e']$} To formalize T‑cell cross‑reactivity between wild‑type and mutant peptides Łuksza, Sethna, Rojas \emph{et al.}\citep{luksza2022neoantigen} defined an antigenic distance function \(C\) to quantify how single‑residue substitutions alter T‑cell activation potency.  This distance captures the log‑fold shift in half‑maximal effective concentration (EC\(_{50}\)) between mutant and wild‑type peptides.
+
+They studied two HLA‑A*02:01–restricted wild‑type peptides—NLVPMVATV (cytomegalovirus) and KVPRNQDWL (gp100)—each systematically mutated at all 9 positions (19 possible substitutions per position), yielding 171 variants per epitope.  Each variant \(p_{\mathrm{MT}}\) was assayed on three distinct TCRs (171 × 2 epitopes × 3 TCRs = 1,026 measurements), plus 171 assays for a single HLA‑B*27:05–restricted TCR–peptide pair (total 1,197).  CD8\(^+\) T‑cell activation over a \(10^4\)-fold peptide concentration range was fitted to a Hill equation to extract EC\(_{50}\) values.
+
+The observed cross‑reactivity distance is defined as
+\begin{equation}
+\label{eq:cross-reactivity}
+C_{\mathrm{obs}}(p_{\mathrm{WT}},p_{\mathrm{MT}})
+=\,
+\log\frac{\mathrm{EC}_{50}(p_{\mathrm{MT}})}{\mathrm{EC}_{50}(p_{\mathrm{WT}})}.
+\end{equation}
+
+To generalize across substitutions, all 1 197 log‑EC\(_{50}\) ratios were regressed on position‑ and residue‑specific effects.  Agglomerative clustering with a BLOSUM62 prior produced a \(20\times20\) substitution matrix \(M\) and nine positional weights \(s_i\).  For a mutant differing by \(\{a_i\!\to\!b_i\}\) at positions \(i\), the model predicts
+\begin{equation}
+\label{eq:sum-distance}
+\hat C(p_{\mathrm{WT}},p_{\mathrm{MT}})
+=\sum_{i=1}^9 s_i\,M_{a_i,b_i},
+\end{equation}
+with \(M_{a_i,b_i}=0\) if \(a_i=b_i\).  Parameters \(\{M,s_i\}\) were obtained by minimizing \(\sum_j\bigl[C_{\mathrm{obs}}^j - \hat C^j\bigr]^2\), yielding a strong linear correlation with experimental distances. In this work, we extend the application of \(C\) (renamed to $d[e,e'])$ to quantify antigenic distances between any two epitopes—whether wild‑type, mutant, or otherwise—integrating it into our broader causal immunogenicity framework.
+
+\subsection{Extension to the vaccination setting}
+In the neoantigen vaccination setting, cognate TCR availability may be additionally modified by vaccine induced T-cell clone expansion, or T-cell clone exhaustion due to one or more factors. 
+
+To capture these post-selection effects, we factor vaccine-modified TCR availability into two conceptually distinct components. The first component, denoted \(\Delta_{\mathrm{vax}}(e,h,t)\), represents the cumulative recruited supply of T-cell clones conjugate to the peptide–MHC pair \((e,h)\) following vaccination. This term is intended to reflect the permanent or long-lived augmentation of the host repertoire induced by vaccine-driven priming and expansion, including the formation of memory populations, rather than the instantaneous effector strength at a given time. We define \(\Delta_{\mathrm{vax}}(e,h,t)\) deterministically as a functional of vaccine-driven antigen presentation,
+\begin{equation}
+\log \Delta_{\mathrm{vax}}(e,h,t)
+=
+\int_{t_0}^{t} Q_{\mathrm{vax}}(e,h,t')\,\mathrm{d}t',
+\label{eq:Delta_vax}
+\end{equation}
+where \(t_0\) denotes the time of vaccination and \(Q_{\mathrm{vax}}(e,h,t)\) is the presentation propensity of vaccine-derived peptide \(e\) on allele \(h\) at time \(t\), computed analogously to \(Q(e,h,H)\) but under the antigenic environment induced by vaccination. This construction implies that vaccine-induced recruitment is monotone in cumulative presentation exposure and saturates naturally as vaccine antigen availability decays.
+
+The second component, denoted \(\Xi(e,h,t)\), represents an instantaneous usability gate that modulates the fraction of recruited TCRs that are functionally available for recognition at time \(t\). This factor captures time-dependent suppression of effector function arising from exhaustion, anergy, or other inhibitory processes, without retroactively altering the cumulative size of the recruited pool. In this formulation, vaccination is understood to upgrade the repertoire by recruiting cognate specificities, while downstream regulatory and tumor-mediated processes determine how much of this capacity is effectively realized at any given time.
+
+Putting these components together, we define post-vaccination TCR availability as
+\begin{equation}
+F_{\mathrm{TCR}}^{\mathrm{post}}(e,h,t,C|\mathrm{vax})
+=
+P(e,H)\,N(e,H)\,\Delta_{\mathrm{vax}}(e,h,t)\,\Xi(e,h,t).
+\label{eq:FTCR_post}
+\end{equation}
+
+\paragraph{NOTE:} In addition to $\Delta_{\mathrm{vax}}(e,h,t)\,\Xi(e,h,t)$ (large scale expansion, contraction), we should also consider the baseline endogenous T-cell expansion contribution to $F_{TCR}$. That is, the normal in vivo process by which tumor cell contents are carried away by dendritic cells to be processed, the result of which is some level of endogenous T-cell expansion. This should probably be part of the baseline model, whereas the vacccine induced components should only be added when we're modeling patients with a prior vaccination event.
+\newpage
+\section{pMHC-TCR Interaction Strength (Potency)}
+\label{sec:potency}
+
+\subsection{Parameter Estimation Overview}
+
+We estimate three parameters: $\beta_{\mathrm{pos}}$ controls bandwidth for positive reference density, $\beta_{\mathrm{neg}}$ controls bandwidth for negative reference density, and $\lambda$ gates extrapolation beyond reference coverage. Parameter estimation occurs in two stages with separate datasets to prevent overfitting.
+
+\subsection{Stage 1: Bandwidth Parameter Optimization}
+
+We optimize $(\beta_{\mathrm{pos}}, \beta_{\mathrm{neg}})$ using the reference epitopes themselves via cross-validation. Each reference epitope serves dual roles: as a training reference for other epitopes and as a test query for evaluation. This approach maximizes data utilization while preventing overfitting through proper leave-one-out mechanics.
+
+\subsubsection{Q-bin Stratification}
+
+We stratify references by HLA allele $h$ and Q-bin, where $Q = K_d/(\text{stability} \times \text{AP})$ in nM units. Lower Q values indicate tighter effective binding after accounting for stability and processing. Default bin edges are $[0, 50, 500, 1000, 2000, 5000, \infty]$ nM. Adjacent bins merge when either class has $<10$ samples.
+
+Each stratum $z = (h, \text{Q-bin})$ receives weight:
+\[
+w_z = \frac{1}{Z} \cdot \min\left(0.4, \frac{1}{1 + Q_{\text{mid}}/100} \cdot \frac{n_z}{n_{\text{total}}}\right)
+\]
+where $Z$ normalizes weights to sum to 1. The affinity term $1/(1 + Q_{\text{mid}}/100)$ upweights tight-binding strata where TCR discrimination matters most.
+
+\subsubsection{Cross-Validation Procedure}
+
+For each stratum, we create $K=5$ folds maintaining class balance. When scoring epitope $e$ in fold $k$:
+\begin{enumerate}
+  \item \textbf{Training references:} All epitopes from folds $\neq k$ within the same HLA.
+  \item \textbf{Leave-one-out adjustment:} If $e$ appears in training references with multiplicity $m_e$, reduce to $m_e - 1$ when computing $\rho(e)$.
+  \item \textbf{Stratum prior:} Compute $b_z = \ln(\pi_{1|z}/\pi_{0|z})$ from training fold class frequencies.
+\end{enumerate}
+
+The leave-one-out adjustment prevents the $d(e,e) = 0$ term from dominating the density estimate, which would artificially inflate discriminative power.
+
+\subsubsection{Objective Function}
+
+We minimize weighted cross-validation log-loss:
+\[
+\mathcal{L}(\beta_{\mathrm{pos}}, \beta_{\mathrm{neg}}) = -\sum_{z} w_z \sum_{k} \sum_{i \in \text{test}_k} \left[ y_i \ln p_{i,k} + (1-y_i) \ln(1-p_{i,k}) \right]
+\]
+
+where the probability for epitope $i$ in fold $k$ of stratum $z$ is:
+\[
+ p_{i,k} = \sigma(\Delta_{i,k} + b_{z,k}), \quad \Delta_{i,k} = \ln \rho_{\mathrm{pos}}^{(k)}(e_i) - \ln \rho_{\mathrm{neg}}^{(k)}(e_i)
+\]
+
+The superscript $(k)$ indicates densities computed using fold $k$'s training references with leave-one-out adjustment.
+
+\subsubsection{HLA-Specific Specialization}
+
+After selecting global $(\beta_{\mathrm{pos}}^{\star}, \beta_{\mathrm{neg}}^{\star})$, we test whether each HLA benefits from specialized parameters:
+\begin{enumerate}
+  \item Extract HLA $h$'s strata and create within-HLA folds.
+  \item Optimize HLA-specific parameters on training folds.
+  \item Compare both parameter sets on identical test folds.
+  \item Compute paired difference per fold: $\delta_k = \mathcal{L}_k^{\text{global}} - \mathcal{L}_k^{\text{HLA}}$.
+  \item Adopt HLA-specific parameters if:
+    \begin{itemize}
+      \item Mean improvement $\bar{\delta} > 0.005$,
+      \item $95\%$ bootstrap CI of $\{\delta_k\}$ excludes zero,
+      \item HLA has $\geq 50$ effective samples across $\geq 3$ strata.
+    \end{itemize}
+\end{enumerate}
+
+This paired comparison on identical data eliminates dataset size biases that favor low $\beta$ values in small samples.
+
+\subsection{Stage 2: Gating Parameter Optimization}
+
+We freeze $(\beta_{\mathrm{pos}}, \beta_{\mathrm{neg}})$ and optimize $\lambda$ on a separate labeled dataset. These epitopes were excluded from Stage 1 reference sets. The gating weight:
+\[
+ w_{\min}(e) = \exp\left[-\frac{\lambda}{2} \min\{d_+(e), d_-(e)\}^2\right]
+\]
+modulates the discriminant when $e$ lies far from both reference manifolds. We select \\$\lambda \in [0.1, 0.5, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 5.0, 10.0]$ maximizing ROC-AUC across HLAs, with smaller values preferred for ties.
+
+\subsection{Numerical Implementation}
+
+\subsubsection{Log-Density Computation}
+
+For epitope $e$ relative to reference set $R$ with bandwidth $\beta$:
+\[
+\begin{aligned}
+ s_r &= -\beta \cdot d(r,e) \\
+ m &= \max_{r \in R} s_r \\
+ \ln \rho(e) &= -\ln\!\left(\sum_{r \in R} m'_r\right) + m + \ln\!\left(\sum_{r \in R} m'_r \, \exp(s_r - m)\right)
+\end{aligned}
+\]
+where $m'_r$ is the adjusted multiplicity (original $m_r$ minus 1 if $r = e$ and leave-one-out applies).
+
+\subsubsection{Probability Clamping}
+
+Convert discriminant to probability:
+\[
+ p = \max\left(10^{-6}, \min\left(1-10^{-6}, \sigma(\Delta + b_z)\right)\right)
+\]
+
+\subsubsection{Distance Caching}
+
+Precompute all pairwise distances between unique peptides. Expand to full cache including multiplicities. Parallelize computation in chunks.
+
+\subsection{Final Interaction Strength}
+
+Given optimized parameters, the pMHC-TCR interaction strength for peptide $e$ with HLA $h$ is:
+\[
+ \pi(e,h) = \exp\left[w_{\min}(e) \cdot \Delta(e)\right]
+\]
+where $\Delta(e) = \ln \rho_{\mathrm{pos}}(e) - \ln \rho_{\mathrm{neg}}(e)$ uses the optimized $(\beta_{\mathrm{pos}}, \beta_{\mathrm{neg}})$ for HLA $h$ (either global or HLA-specific) and $w_{\min}(e)$ uses the global $\lambda$. 
+
+
+
+\section{Data and code availability}
+% COMMENT:
+% - Nature requires explicit statements (even if internal access restrictions apply)
+
+
+
+\begin{thebibliography}{99}
+
+\bibitem{luksza2022neoantigen}
+M.~{\L}uksza, Z.~M. Sethna, L.~A. Rojas, J. Lihm, B. Bravi, Y. Elhanati,
+K. Soares, M. Amisaki, A. Dobrin, D. Hoyos, \emph{et al.},
+\newblock Neoantigen quality predicts immunoediting in survivors of pancreatic cancer,
+\newblock \emph{Nature} \textbf{606}(7913), 389--395 (2022).
+
+\bibitem{hoadley2018cell}
+K.~A. Hoadley, C.~Yau, T.~Hinoue, D.~M. Wolf, A.~J. Lazar, E.~Drill, R.~Shen,
+A.~M. Taylor, A.~D. Cherniack, V.~Thorsson, et~al.,
+``Cell-of-origin patterns dominate the molecular classification of 10{,}000 tumors from 33 types of cancer,''
+\emph{Cell}, vol.~173, no.~2, pp.~291--304, 2018.
+
+\bibitem{weinstein2013cancer}
+J.~N. Weinstein, E.~A. Collisson, G.~B. Mills, K.~R. Shaw, B.~A. Ozenberger,
+K.~Ellrott, I.~Shmulevich, C.~Sander, and J.~M. Stuart,
+``The cancer genome atlas pan-cancer analysis project,''
+\emph{Nature Genetics}, vol.~45, no.~10, pp.~1113--1120, 2013.
+
+
+\end{thebibliography}
+\end{document}

@@ -7,6 +7,10 @@ use std::path::PathBuf;
 
 #[derive(Debug, thiserror::Error)]
 pub enum SelectionError {
+    #[error(
+        "CNAP selection remains pending after its declared numerical budget; see pending_selection.json"
+    )]
+    PendingCnapSelection(Box<serde_json::Value>),
     /// Fail-closed selection or provenance error.
     #[error("{0}")]
     Selection(String),

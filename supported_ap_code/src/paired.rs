@@ -2,7 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::execution::map_indices;
 use crate::metric::{Ranking, tie_averaged_ap, tie_averaged_cnap};
-use crate::prevalence::{ProfileExtremum, minimize};
+use crate::prevalence::{PrevalenceSearchCertificate, ProfileExtremum, interval_extrema};
+use crate::prevalence_profile::PreparedDifference;
 use crate::projected::{ProfilePoint, ProjectedResampling};
 use crate::random::rng_for;
 use crate::resample::{Pools, stratified_multiplicities};
@@ -242,8 +243,64 @@ pub enum ApEvidence {
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct RetainedEffect {
+    /// Conservative lower bound for interval searches; finite-set value otherwise.
     pub value: f64,
+    /// Best sampled witness, not necessarily an argmin of the whole interval.
     pub limiting_prevalence: Prevalence,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub search: Option<PrevalenceSearchCertificate>,
+}
+
+impl RetainedEffect {
+    fn validate_search(self) -> Result<(), Error> {
+        Prevalence::new(self.limiting_prevalence.get())?;
+        if let Some(bounds) = self.search {
+            if !bounds.lower_bound.is_finite()
+                || !bounds.upper_bound.is_finite()
+                || !bounds.sampled_value.is_finite()
+                || self.value != bounds.lower_bound
+                || bounds.lower_bound > bounds.sampled_value
+                || bounds.sampled_value > bounds.upper_bound
+            {
+                return Err(Error::InvalidPrevalenceSearchCertificate);
+            }
+        }
+        Ok(())
+    }
+
+    fn upper_bound(self) -> f64 {
+        self.search.map_or(self.value, |s| s.upper_bound)
+    }
+
+    fn anchored(self, other: Self) -> Self {
+        let mut result = if self.value <= other.value {
+            self
+        } else {
+            other
+        };
+        if let (Some(a), Some(b)) = (self.search, other.search) {
+            let witness = if a.sampled_value <= b.sampled_value {
+                self
+            } else {
+                other
+            };
+            result.limiting_prevalence = witness.limiting_prevalence;
+            result.search = Some(PrevalenceSearchCertificate {
+                lower_bound: a.lower_bound.min(b.lower_bound),
+                upper_bound: a.upper_bound.min(b.upper_bound),
+                sampled_value: a.sampled_value.min(b.sampled_value),
+                // Both searches contributed; don't disguise anchoring as a new search.
+                evaluations: a.evaluations + b.evaluations,
+                iterations: a.iterations + b.iterations,
+                stop_reason: if a.stop_reason == crate::PrevalenceSearchStop::AccuracyReached {
+                    b.stop_reason
+                } else {
+                    a.stop_reason
+                },
+            });
+        }
+        result
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -266,8 +323,58 @@ pub struct MarginalProfilePoint {
     pub cnap: f64,
 }
 
+/// Numerical decision bounds for a continuous prevalence challenge. A budget
+/// stop is not evidence of failure: `Unresolved` explicitly distinguishes it.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct PrevalenceDecisionBounds {
+    pub supported_magnitude_lower: f64,
+    pub supported_magnitude_upper: f64,
+    pub literal_survival_lower: f64,
+    pub literal_survival_upper: f64,
+    pub verdict: crate::PolicyVerdict,
+}
+
+impl PrevalenceDecisionBounds {
+    fn new(
+        magnitude_lower: f64,
+        magnitude_upper: f64,
+        survival_lower: f64,
+        survival_upper: f64,
+        policy: ReplacementPolicy,
+    ) -> Self {
+        let verdict = if magnitude_lower > policy.magnitude_threshold.get()
+            && survival_lower > policy.survival_requirement.get()
+        {
+            crate::PolicyVerdict::VerifiedPass
+        } else if magnitude_upper <= policy.magnitude_threshold.get()
+            || survival_upper <= policy.survival_requirement.get()
+        {
+            crate::PolicyVerdict::VerifiedFailure
+        } else {
+            crate::PolicyVerdict::Unresolved
+        };
+        Self {
+            supported_magnitude_lower: magnitude_lower,
+            supported_magnitude_upper: magnitude_upper,
+            literal_survival_lower: survival_lower,
+            literal_survival_upper: survival_upper,
+            verdict,
+        }
+    }
+
+    fn finite_verdict(self) -> FiniteEvidenceVerdict {
+        if self.verdict == crate::PolicyVerdict::VerifiedPass {
+            FiniteEvidenceVerdict::SupportedReplacement
+        } else {
+            FiniteEvidenceVerdict::NoVerdict
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DirectionalFiniteEvidence {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prevalence_search: Option<PrevalenceDecisionBounds>,
     pub supported_magnitude: f64,
     pub mean_retained_effect: f64,
     pub replication_disagreement_cost: f64,
@@ -349,10 +456,25 @@ pub struct NestedRetainedEffectRow {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DirectionalNestedFiniteEvidence {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prevalence_search: Option<PrevalenceDecisionBounds>,
     pub supported_magnitude: f64,
     pub literal_survival: NestedLiteralSurvival,
     pub verdict: FiniteEvidenceVerdict,
     pub retained_effect_rows: Vec<NestedRetainedEffectRow>,
+}
+
+impl DirectionalNestedFiniteEvidence {
+    /// Reduce externally generated computational rows without discarding their
+    /// prevalence-search bounds (for example, after a cluster bootstrap).
+    pub fn from_retained_effect_rows(
+        rows: Vec<NestedRetainedEffectRow>,
+        empirical_order: SupportOrder,
+        computational_order: SupportOrder,
+        policy: ReplacementPolicy,
+    ) -> Result<Self, Error> {
+        directional_nested_summary(rows, empirical_order, computational_order, policy)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -576,14 +698,7 @@ pub fn assess_staged_projected_ap(
         let anchored_effects = unanchored
             .retained_effects
             .iter()
-            .map(|effect| RetainedEffect {
-                value: anchor.value.min(effect.value),
-                limiting_prevalence: if anchor.value <= effect.value {
-                    anchor.limiting_prevalence
-                } else {
-                    effect.limiting_prevalence
-                },
-            })
+            .map(|effect| anchor.anchored(*effect))
             .collect();
         let anchored = directional_summary(
             anchored_effects,
@@ -849,11 +964,46 @@ fn directional_summary(
         .iter()
         .map(|effect| effect.value)
         .collect::<Vec<_>>();
-    let supported_magnitude = support(&effects, order)?;
+    let mut supported_magnitude = support(&effects, order)?;
     let average = mean(&effects);
-    let literal_survival = literal_survival(&effects, order, policy.survival_floor)?;
-    let verdict = policy.verdict(supported_magnitude, literal_survival.subset_fraction);
+    let mut literal_survival = literal_survival(&effects, order, policy.survival_floor)?;
+    let prevalence_search = if retained_effects.iter().any(|e| e.search.is_some()) {
+        let upper: Vec<_> = retained_effects.iter().map(|e| e.upper_bound()).collect();
+        let lower_magnitude = crate::prevalence_evidence::support(&effects, order.get()).lo;
+        let upper_magnitude = crate::prevalence_evidence::support(&upper, order.get()).hi;
+        let lower_survival = crate::prevalence_evidence::survival(
+            literal_survival.survivor_count,
+            effects.len(),
+            order.get(),
+        )
+        .lo;
+        let upper_survival = crate::prevalence_evidence::survival(
+            upper
+                .iter()
+                .filter(|&&x| x > policy.survival_floor.get())
+                .count(),
+            upper.len(),
+            order.get(),
+        )
+        .hi;
+        supported_magnitude = lower_magnitude;
+        literal_survival.subset_fraction = lower_survival;
+        Some(PrevalenceDecisionBounds::new(
+            lower_magnitude,
+            upper_magnitude,
+            lower_survival,
+            upper_survival,
+            policy,
+        ))
+    } else {
+        None
+    };
+    let verdict = prevalence_search.map_or_else(
+        || policy.verdict(supported_magnitude, literal_survival.subset_fraction),
+        PrevalenceDecisionBounds::finite_verdict,
+    );
     Ok(DirectionalFiniteEvidence {
+        prevalence_search,
         supported_magnitude,
         mean_retained_effect: average,
         replication_disagreement_cost: average - supported_magnitude,
@@ -872,6 +1022,12 @@ fn directional_nested_summary(
     computational_order: SupportOrder,
     policy: ReplacementPolicy,
 ) -> Result<DirectionalNestedFiniteEvidence, Error> {
+    for row in &retained_effect_rows {
+        row.observed.validate_search()?;
+        for effect in &row.computational {
+            effect.validate_search()?;
+        }
+    }
     let rows = retained_effect_rows
         .iter()
         .map(|row| AnchoredEffectRow {
@@ -884,16 +1040,55 @@ fn directional_nested_summary(
         })
         .collect::<Vec<_>>();
     let AnchoredNestedSupport {
-        supported_magnitude,
-        literal_survival,
+        mut supported_magnitude,
+        mut literal_survival,
     } = anchored_nested_support(
         &rows,
         empirical_order,
         computational_order,
         policy.survival_floor,
     )?;
-    let verdict = policy.verdict(supported_magnitude, literal_survival.subset_fraction);
+    let prevalence_search = if retained_effect_rows
+        .iter()
+        .any(|r| r.observed.search.is_some() || r.computational.iter().any(|e| e.search.is_some()))
+    {
+        let upper_rows: Vec<_> = retained_effect_rows
+            .iter()
+            .map(|row| AnchoredEffectRow {
+                observed_effect: row.observed.upper_bound(),
+                computational_effects: row.computational.iter().map(|e| e.upper_bound()).collect(),
+            })
+            .collect();
+        let (lower_magnitude, lower_survival) = crate::prevalence_evidence::nested(
+            &rows,
+            empirical_order.get(),
+            computational_order.get(),
+            policy.survival_floor.get(),
+        );
+        let (upper_magnitude, upper_survival) = crate::prevalence_evidence::nested(
+            &upper_rows,
+            empirical_order.get(),
+            computational_order.get(),
+            policy.survival_floor.get(),
+        );
+        supported_magnitude = lower_magnitude.lo;
+        literal_survival.subset_fraction = lower_survival.lo;
+        Some(PrevalenceDecisionBounds::new(
+            lower_magnitude.lo,
+            upper_magnitude.hi,
+            lower_survival.lo,
+            upper_survival.hi,
+            policy,
+        ))
+    } else {
+        None
+    };
+    let verdict = prevalence_search.map_or_else(
+        || policy.verdict(supported_magnitude, literal_survival.subset_fraction),
+        PrevalenceDecisionBounds::finite_verdict,
+    );
     Ok(DirectionalNestedFiniteEvidence {
+        prevalence_search,
         supported_magnitude,
         literal_survival,
         verdict,
@@ -905,6 +1100,7 @@ fn retained(extremum: ProfileExtremum) -> RetainedEffect {
     RetainedEffect {
         value: extremum.value,
         limiting_prevalence: extremum.prevalence,
+        search: extremum.search,
     }
 }
 
@@ -991,19 +1187,14 @@ fn summarize_paired(
         .ranking_b
         .block_counts(&evaluation.labels, multiplicities);
     debug_assert_eq!(counts_a, counts_b);
-    let difference = |prevalence| {
-        tie_averaged_cnap(&positive_a, &negative_a, counts_a, prevalence)
-            - tie_averaged_cnap(&positive_b, &negative_b, counts_b, prevalence)
-    };
-    let forward = minimize(target_prevalences, search, difference);
-    let reverse = minimize(target_prevalences, search, |prevalence| {
-        -difference(prevalence)
-    });
-    let diagnostic_values = diagnostic_prevalences
-        .iter()
-        .copied()
-        .map(difference)
-        .collect();
+    let (forward, reverse, diagnostic_values) = summarize_counts(
+        (&positive_a, &negative_a),
+        (&positive_b, &negative_b),
+        counts_a,
+        target_prevalences,
+        search,
+    );
+    debug_assert_eq!(diagnostic_values.len(), diagnostic_prevalences.len());
     PairedReplicateSummary {
         forward,
         reverse,
@@ -1024,15 +1215,63 @@ fn summarize_retained_paired(
         .ranking_b
         .block_counts(&evaluation.labels, multiplicities);
     debug_assert_eq!(counts_a, counts_b);
-    let difference = |prevalence| {
-        tie_averaged_cnap(&positive_a, &negative_a, counts_a, prevalence)
-            - tie_averaged_cnap(&positive_b, &negative_b, counts_b, prevalence)
-    };
-    PairedRetainedSummary {
-        forward: minimize(target_prevalences, search, difference),
-        reverse: minimize(target_prevalences, search, |prevalence| {
-            -difference(prevalence)
-        }),
+    let (forward, reverse, _) = summarize_counts(
+        (&positive_a, &negative_a),
+        (&positive_b, &negative_b),
+        counts_a,
+        target_prevalences,
+        search,
+    );
+    PairedRetainedSummary { forward, reverse }
+}
+
+fn summarize_counts(
+    a: (&[usize], &[usize]),
+    b: (&[usize], &[usize]),
+    totals: ClassCounts,
+    target: &TargetPrevalences,
+    search: SearchOptions,
+) -> (ProfileExtremum, ProfileExtremum, Vec<f64>) {
+    match target {
+        TargetPrevalences::ClosedInterval { .. } => {
+            interval_extrema(target, search, &PreparedDifference::new(a, b, totals))
+        }
+        TargetPrevalences::Finite { values } => {
+            // One evaluation supplies both directions and diagnostics. Preserve
+            // the existing finite-set numerical kernel and decision contract.
+            let diagnostics: Vec<_> = values
+                .iter()
+                .map(|&pi| {
+                    tie_averaged_cnap(a.0, a.1, totals, pi)
+                        - tie_averaged_cnap(b.0, b.1, totals, pi)
+                })
+                .collect();
+            let minimum = diagnostics
+                .iter()
+                .enumerate()
+                .min_by(|a, b| a.1.total_cmp(b.1))
+                .unwrap()
+                .0;
+            let maximum = diagnostics
+                .iter()
+                .enumerate()
+                .min_by(|a, b| b.1.total_cmp(a.1))
+                .unwrap()
+                .0;
+            (
+                ProfileExtremum {
+                    value: diagnostics[minimum],
+                    prevalence: values[minimum],
+                    search: None,
+                },
+                ProfileExtremum {
+                    value: -diagnostics[maximum],
+                    prevalence: values[maximum],
+                    search: None,
+                },
+                diagnostics,
+            )
+        }
     }
 }
 
